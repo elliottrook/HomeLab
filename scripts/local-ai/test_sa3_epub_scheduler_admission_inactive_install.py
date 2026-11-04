@@ -15,7 +15,7 @@ class SA3EpubSchedulerAdmissionInstallTests(unittest.TestCase):
         self.assertEqual({"full_inference_lab_session.py", "lab_hours_doctor.py",
                           "lab_hours_release_manifest.json"}, set(install.FILES))
         root = Path(__file__).parent
-        for name, (_, expected) in install.FILES.items():
+        for name, (_, expected, _) in install.FILES.items():
             self.assertEqual(expected,
                              hashlib.sha256((root / name).read_bytes()).hexdigest())
 

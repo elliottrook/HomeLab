@@ -14,13 +14,13 @@ CHECKPOINT = Path("/var/lib/local-ai-lab/checkpoints/sa3-epub-scheduler-path-r3-
 FILES = {
     "full_inference_lab_session.py": (
         "217cd468111b5e3fea280515a9ac7b9e5b77776c5510764c8b9ca8803ddf5b02",
-        "b3c38f030cbe1c0d45f59947cb2bc68cb7f80ed6410ef1669c88c18027296e9a"),
+        "b3c38f030cbe1c0d45f59947cb2bc68cb7f80ed6410ef1669c88c18027296e9a", 0o644),
     "lab_hours_doctor.py": (
         "28999eb78f0f93c6b463944df5bb63251c014e47aa8bc697caccf53357580397",
-        "32fbe1d9e63fdab78a00496c36ca4b3da7a81809e14cf930a209a32ec9649d76"),
+        "32fbe1d9e63fdab78a00496c36ca4b3da7a81809e14cf930a209a32ec9649d76", 0o755),
     "lab_hours_release_manifest.json": (
         "d92f9b34c500310fd3427955a0dc53b5965400067edde36639312d1cc14266d0",
-        "b29f1e6c6f0a57622dd81a6274076234db22b141fa75bbbaeecfc6f641f41987"),
+        "b29f1e6c6f0a57622dd81a6274076234db22b141fa75bbbaeecfc6f641f41987", 0o644),
 }
 
 
@@ -47,8 +47,8 @@ def install(stage: Path) -> dict[str, object]:
         raise InstallError("CHECKPOINT_EXISTS")
     _quiet()
     data = {}
-    for name, (old, new) in FILES.items():
-        if digest(regular(HOST_ROOT / name, 0o644)) != old:
+    for name, (old, new, mode) in FILES.items():
+        if digest(regular(HOST_ROOT / name, mode)) != old:
             raise InstallError("BASELINE_DRIFT:" + name)
         data[name] = source(stage, "scripts/local-ai/" + name, new)
     CHECKPOINT.mkdir(parents=True, mode=0o700)
@@ -57,9 +57,9 @@ def install(stage: Path) -> dict[str, object]:
         atomic(CHECKPOINT / name, regular(HOST_ROOT / name, 0o644), 0o600)
     try:
         for name in FILES:
-            atomic(HOST_ROOT / name, data[name], 0o644)
-        for name, (_, expected) in FILES.items():
-            if digest(regular(HOST_ROOT / name, 0o644)) != expected:
+            atomic(HOST_ROOT / name, data[name], FILES[name][2])
+        for name, (_, expected, mode) in FILES.items():
+            if digest(regular(HOST_ROOT / name, mode)) != expected:
                 raise InstallError("POSTCHECK:" + name)
         environment = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1",
                        "PYTHONPATH": str(HOST_ROOT)}
@@ -87,7 +87,7 @@ def install(stage: Path) -> dict[str, object]:
                 "service_restart": False, "workload_effect": "not-attempted"}
     except BaseException:
         for name in reversed(tuple(FILES)):
-            atomic(HOST_ROOT / name, regular(CHECKPOINT / name, 0o600), 0o644)
+            atomic(HOST_ROOT / name, regular(CHECKPOINT / name, 0o600), FILES[name][2])
         raise
 
 

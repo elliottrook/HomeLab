@@ -78,6 +78,13 @@ The installed validator must accept the shared EPUB predicate, a healthy Doctor,
 the complete manifest and a canonical drain/restore command set containing no
 reference to the retired timer.
 
+The first revision-3 apply attempt stopped before checkpoint creation or file
+replacement because the installer assumed mode 0644 for every predecessor,
+while the executable Doctor is correctly installed as 0755. The packet now
+pins each predecessor and target mode independently (Doctor 0755; session and
+manifest 0644). Independent checks confirmed that attempt changed no installed
+file and created no checkpoint.
+
 The new inactive installer requires the exact currently installed source and
 manifest hashes, a ready lease and no drain/shared-operation state. It creates
 a fresh root-only checkpoint, replaces exactly those two files, imports the
