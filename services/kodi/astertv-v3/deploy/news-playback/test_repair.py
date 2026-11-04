@@ -33,11 +33,24 @@ class KodiPort:
 
 
 class RepairTests(unittest.TestCase):
+    def test_repair_is_pinned_for_family_and_low_spec_hosts(self):
+        self.assertEqual(set(repair.BASELINES), {"AsterTV-Family", "AsterTV-Jen"})
+        for host, baselines in repair.BASELINES.items():
+            self.assertEqual(set(baselines),
+                             {repair.PORT, repair.MANIFEST, repair.FAMILY, repair.WRAPPER})
+            self.assertTrue(all(len(value) == 64 for value in baselines.values()), host)
+        self.assertNotEqual(repair.BASELINES["AsterTV-Family"][repair.PORT],
+                            repair.BASELINES["AsterTV-Jen"][repair.PORT])
+        self.assertNotEqual(repair.BASELINES["AsterTV-Family"][repair.MANIFEST],
+                            repair.BASELINES["AsterTV-Jen"][repair.MANIFEST])
+
     def test_port_allows_retained_queue_but_preserves_exact_snapshot(self):
         patched = repair.patch_port(PORT)
         self.assertIn("return not rpc('Player.GetActivePlayers')", patched)
-        self.assertIn("self.queue_snapshot = queue_state()", patched)
-        self.assertIn("queue_state() == self.queue_snapshot", patched)
+        self.assertIn("self.queue_before = queue_state()", patched)
+        self.assertIn("own_audio = (1, (str(self.path),))", patched)
+        self.assertIn("self.queue_unchanged()", patched)
+        self.assertNotIn("queue_state() == self.queue_snapshot", patched)
         self.assertIn("end=1000", patched)
         self.assertNotIn("end=1)))['limits']['total'] == 0", patched)
         self.assertNotIn("Playlist.Clear", patched)

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Repair News playback after Kodi retains an inactive media playlist.
+"""Repair News lifecycle after Kodi retains or self-updates an audio playlist.
 
 The repair is host-bound, exact-baseline pinned, checkpointed and atomic.  It
 changes the digest player's readiness rule from "no player and no remembered
-playlist items" to "no active player", while snapshotting both playlists and
-failing playback ownership if the direct digest player changes either queue.
+playlist items" to "no active player". It permits only Kodi's exact transition
+to the player's unique private session file, freezes that resulting snapshot,
+and fails playback ownership on every other queue change.
 """
 
 from __future__ import annotations
@@ -29,10 +30,20 @@ WRAPPER = ADDONS / "skin.asterhome/tools/aster_v2_digest.py"
 GUARD = Path("/storage/.aster-release/release_guard.py")
 MARKER = Path("/storage/.aster-release/news-playback-repair.json")
 BASELINES = {
-    PORT: "780f6c014d97fac80aa7fb37b5a8c4309ecb84d4261d0f8888e0f8ab235ebc0d",
-    MANIFEST: "9e3644b7d012bc7610f7366608456ce06ffe1d8b6eee315574bb762d5a186e9c",
-    FAMILY: "9804e0debba103dc084b79280e9088d1c00b0dfbdccb696c53a997f8457a9689",
-    WRAPPER: "a06cfc95840d218d637671a025b147336cdf17318d0c1ac991d5eaf404e6ed25",
+    "AsterTV-Family": {
+        PORT: "780f6c014d97fac80aa7fb37b5a8c4309ecb84d4261d0f8888e0f8ab235ebc0d",
+        MANIFEST: "9e3644b7d012bc7610f7366608456ce06ffe1d8b6eee315574bb762d5a186e9c",
+        FAMILY: "9804e0debba103dc084b79280e9088d1c00b0dfbdccb696c53a997f8457a9689",
+        WRAPPER: "a06cfc95840d218d637671a025b147336cdf17318d0c1ac991d5eaf404e6ed25",
+    },
+    # AsterTV-Jen has the same reviewed player member as Family's predecessor,
+    # but its six hostname-gated runtime manifests were repinned independently.
+    "AsterTV-Jen": {
+        PORT: "0c8e23e69259103906c4ea70f165181aa02c7713bf0ae4963c2989219d892134",
+        MANIFEST: "f8c82cc197c0ce7d584c82804e619a07b98b0f5aeda6a14f82f18d617d4f5907",
+        FAMILY: "888cc7060b7c56108aa240b0987bd55200d98f60e75af63d8620d499d50887ec",
+        WRAPPER: "96fbbcd439168eb7785a2587e360a31792dbb4390c6951c846d4465af59bc06b",
+    },
 }
 
 
@@ -64,7 +75,7 @@ def idle():
     return not rpc('Player.GetActivePlayers')
 """
     old_init = "        self.last_target = 0\n"
-    new_init = old_init + "        self.queue_snapshot = None\n"
+    new_init = old_init + "        self.queue_before = None\n        self.queue_snapshot = None\n"
     old_open = """    def open(self):
         if self.opened or not idle(): raise ValueError('idle-single-open-required')
         self.opened = True
@@ -72,23 +83,57 @@ def idle():
 """
     new_open = """    def open(self):
         if self.opened or not idle(): raise ValueError('idle-single-open-required')
-        self.queue_snapshot = queue_state()
+        self.queue_before = queue_state()
+        self.queue_snapshot = None
         self.opened = True
         self.player.play(str(self.path))
 """
+    queue_check = """    def queue_unchanged(self):
+        current = queue_state()
+        if self.queue_snapshot is not None:
+            return current == self.queue_snapshot
+        if self.queue_before is None or current[1] != self.queue_before[1]:
+            return False
+        own_audio = (1, (str(self.path),))
+        if current[0] not in (self.queue_before[0], own_audio):
+            return False
+        self.queue_snapshot = current
+        return True
+
+"""
+    old_owned_entry = "    def owned(self):\n"
+    new_owned_entry = queue_check + old_owned_entry
     old_owned = """                and (meta.st_dev, meta.st_ino, meta.st_size, meta.st_mtime_ns) == self.signature)
         except (OSError, RuntimeError): return False
 """
     new_owned = """                and (meta.st_dev, meta.st_ino, meta.st_size, meta.st_mtime_ns) == self.signature
-                and queue_state() == self.queue_snapshot)
+                and self.queue_unchanged())
         except (OSError, RuntimeError, ValueError): return False
 """
-    for old, new, name in (
-        (old_idle, new_idle, "idle"),
-        (old_init, new_init, "init"),
-        (old_open, new_open, "open"),
-        (old_owned, new_owned, "owned"),
-    ):
+    legacy_init = old_init + "        self.queue_snapshot = None\n"
+    legacy_open = """    def open(self):
+        if self.opened or not idle(): raise ValueError('idle-single-open-required')
+        self.queue_snapshot = queue_state()
+        self.opened = True
+        self.player.play(str(self.path))
+"""
+    legacy_owned = old_owned.replace(
+        "                and (meta.st_dev, meta.st_ino, meta.st_size, meta.st_mtime_ns) == self.signature)\n",
+        "                and (meta.st_dev, meta.st_ino, meta.st_size, meta.st_mtime_ns) == self.signature\n"
+        "                and queue_state() == self.queue_snapshot)\n").replace(
+            "except (OSError, RuntimeError):", "except (OSError, RuntimeError, ValueError):")
+    if old_idle in source:
+        replacements = ((old_idle, new_idle, "idle"), (old_init, new_init, "init"),
+                        (old_open, new_open, "open"), (old_owned_entry, new_owned_entry, "queue-check"),
+                        (old_owned, new_owned, "owned"))
+    elif legacy_init in source and legacy_open in source and legacy_owned in source:
+        replacements = ((legacy_init, new_init, "legacy-init"),
+                        (legacy_open, new_open, "legacy-open"),
+                        (old_owned_entry, new_owned_entry, "legacy-queue-check"),
+                        (legacy_owned, new_owned, "legacy-owned"))
+    else:
+        raise ValueError("port-baseline-drift")
+    for old, new, name in replacements:
         if source.count(old) != 1:
             raise ValueError("port-" + name + "-baseline-drift")
         source = source.replace(old, new)
@@ -137,31 +182,34 @@ def atomic(path: Path, data: bytes, mode: int | None = None) -> None:
             os.unlink(temporary)
 
 
-def verified_marker() -> bool:
+def verified_marker(host: str) -> bool:
     if not MARKER.is_file():
         return False
     data = json.loads(MARKER.read_text())
-    return data.get("host") == "AsterTV-Family" and all(
+    revision_ok = host != "AsterTV-Jen" or data.get("revision") == 2
+    return data.get("host") == host and revision_ok and all(
         path.is_file() and sha(path.read_bytes()) == expected
         for path, expected in ((Path(name), digest) for name, digest in data.get("files", {}).items())
     )
 
 
 def main() -> None:
-    if socket.gethostname() != "AsterTV-Family":
-        raise SystemExit("family-target-required")
-    if verified_marker():
-        print(json.dumps({"host": "AsterTV-Family", "outcome": "already-installed"}, sort_keys=True))
+    host = socket.gethostname()
+    if host not in BASELINES:
+        raise SystemExit("news-repair-target-required")
+    if verified_marker(host):
+        print(json.dumps({"host": host, "outcome": "already-installed"}, sort_keys=True))
         return
     if subprocess.run(["systemctl", "is-active", "--quiet", "kodi"], check=False).returncode == 0:
         raise SystemExit("kodi-must-be-stopped")
-    originals = {path: path.read_bytes() for path in BASELINES}
-    for path, expected in BASELINES.items():
+    baselines = BASELINES[host]
+    originals = {path: path.read_bytes() for path in baselines}
+    for path, expected in baselines.items():
         if sha(originals[path]) != expected:
             raise SystemExit("baseline-drift:" + str(path))
     payload = build_payload(originals[PORT], originals[MANIFEST], originals[FAMILY], originals[WRAPPER])
     checkpoint = Path("/storage/.aster-checkpoints") / (
-        "astertv-news-playback-AsterTV-Family-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()))
+        "astertv-news-playback-" + host + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()))
     checkpoint.mkdir(mode=0o700, parents=True)
     for path, data in originals.items():
         target = checkpoint / path.relative_to(ADDONS)
@@ -170,15 +218,16 @@ def main() -> None:
     for path, data in payload.items():
         atomic(path, data)
     verify = subprocess.run(
-        [sys.executable, str(GUARD), "snapshot", "--host", "AsterTV-Family"],
+        [sys.executable, str(GUARD), "snapshot", "--host", host],
         check=True, capture_output=True, text=True,
     )
     clean = subprocess.run(
-        [sys.executable, str(GUARD), "verify", "--host", "AsterTV-Family"],
+        [sys.executable, str(GUARD), "verify", "--host", host],
         check=True, capture_output=True, text=True,
     )
     report = {
-        "host": "AsterTV-Family",
+        "revision": 2,
+        "host": host,
         "outcome": "installed",
         "checkpoint": str(checkpoint),
         "files": {str(path): sha(data) for path, data in payload.items()},
