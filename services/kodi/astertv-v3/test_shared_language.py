@@ -809,7 +809,11 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertGreaterEqual(int(panel.findtext("left")), 1200)
         self.assertGreaterEqual(int(panel.findtext("top")), 680)
         self.assertLessEqual(int(panel.findtext("width")), 650)
-        self.assertEqual(panel.find("texture").attrib.get("colordiffuse"), "c0292721")
+        self.assertEqual(
+            panel.findtext("texture"),
+            "special://skin/media/ui-dialog-section.png",
+        )
+        self.assertEqual(panel.find("texture").attrib.get("border"), "18")
         self.assertFalse(page.findall(".//control[@type='button']"))
         self.assertIn("special://skin/media/aster-ai-listening-png", text)
 

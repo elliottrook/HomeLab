@@ -113,8 +113,9 @@ PA3 remains synthetic and isolated in the portable Mini pilot:
 - `F1` opens the compact synthetic Aster AI direct-command card in the lower
   right corner. Its single translucent surface contains only the Aster mark,
   activity waveform/status and a full-width green response; Back dismisses to
-  origin. Command execution remains a future broker action rather than a UI
-  button.
+  origin. The surface uses the approved raised dark gradient, antique-gold rim
+  and restrained shadow. Command execution remains a future broker action
+  rather than a UI button.
   `Shift+F1` opens the larger media-search dialog, which demonstrates a heard
   phrase, three inline film results, a full-results handoff and close-to-origin
   behaviour without a microphone, broker or search service.

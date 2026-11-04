@@ -3,7 +3,7 @@
   <!-- Synthetic fixture: no live microphone, broker or command authority. -->
   <backgroundcolor>00000000</backgroundcolor>
   <controls>
-    <control type="image"><left>1360</left><top>840</top><width>480</width><height>160</height><texture border="26" colordiffuse="c0292721">special://skin/media/ui-panel.png</texture></control>
+    <control type="image"><left>1360</left><top>840</top><width>480</width><height>160</height><texture border="18">special://skin/media/ui-dialog-section.png</texture></control>
     <control type="image"><left>1390</left><top>862</top><width>54</width><height>54</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
     <control type="label"><left>1456</left><top>867</top><width>170</width><height>40</height><label>Aster AI</label><font>font28</font><textcolor>asterIvory</textcolor><aligny>center</aligny></control>
     <control type="multiimage"><left>1632</left><top>874</top><width>62</width><height>24</height><imagepath>special://skin/media/aster-ai-listening-png</imagepath><timeperimage>180</timeperimage><fadetime>90</fadetime><loop>true</loop></control>
