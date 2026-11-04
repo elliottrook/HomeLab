@@ -370,13 +370,13 @@ Preflight multiple candidates in one continuous-lane pass, but execute serially 
 
 ## Current queue, reconciled 2026-10-25
 
-**Current overlay — 2026-11-04 13:30 America/Vancouver.** The historical table
+**Current overlay — 2026-11-04 14:45 America/Vancouver.** The historical table
 below remains useful provenance but its live classifications are superseded by
 this bounded overlay:
 
 | Item | State now | Next action |
 |---|---|---|
-| D4 candidate-g investigation quality | **NO-GO / capture telemetry source-complete.** Fresh r5 claimed exactly at 14:30 and failed restored after 186 seconds with no result and no accepted JSON code. A target probe confirms normal `pct exec` stderr transport. Platform commit `7a360b3b` now projects bounded JSON from both channels, traceback class only, or exit status plus byte counts; 30/30 and direct target proof pass. | Build/install a reversible inactive adapter+manifest correction and validate exact installed output. No new booking before that gate. R3–r5 are spent and unscoreable. |
+| D4 candidate-g investigation quality | **READY for one fresh booking after installed correction.** Fresh r5 claimed exactly at 14:30 and failed restored after 186 seconds with no result and no accepted JSON code. A target probe confirmed normal `pct exec` stderr transport. Platform source `7a360b3b` and installer `6d66683d` now project bounded JSON from both channels, traceback class only, or exit status plus byte counts. The inactive install passed exact hashes/custody, all 34 pins, installed projections, healthy Doctor/production and zero core restarts. | Query the authoritative ledger for the complete proposed window, reserve a new registered attempt only when clear, run fresh static/runtime gates and retain the first bounded terminal result. R3–r5 are spent and unscoreable. |
 | M3 J2 successor | **BLOCKED on owner/custody, not engineering.** Candidate-v4 passes the complete 53-test source boundary and is the release candidate Stream A is prepared to promote for corpus release only. | Jason reviews the exact four-hash owner card. A separately controlled signer must then bind custody, and a third custodian must seal the untouched 32-case evaluation set before training can become eligible. |
 | J2 training and routing | **BLOCKED.** Recipe source is frozen, but no training authority, sealed evaluation access, model artifact, route or tool grant exists. | Do not train or evaluate until owner acceptance plus both external custody gates pass. |
 | Companion | **MONITORING.** Ordinary signed-in use remains accepted. | Continue only on meaningful reliability change; do not disturb the working Companion for Stream A tests. |

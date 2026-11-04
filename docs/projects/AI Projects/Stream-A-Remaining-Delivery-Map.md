@@ -16,6 +16,16 @@
 > `9da52e86`; a reversible one-file inactive install and target proof are next.
 > R3 and R4 are spent and cannot advance to blind review.
 
+> **R5 correction update, 2026-11-04 14:45:** r5 is also spent after a
+> restored, unscoreable `unclassified guest failure`. The target transport
+> probe disproved the simple channel-swap hypothesis. The resulting
+> [capture-projection correction](evidence/D4-candidate-g-capture-projection-inactive-install-result-2026-11-04.md)
+> is now installed inactive: exact adapter/manifest hashes and root custody,
+> 34/34 pins, bounded JSON/class/exit-byte projections, healthy Doctor and
+> production, and zero core restarts all pass. The next D4 action is one new
+> authoritative ledger-booked attempt with fresh gates; r3–r5 cannot be
+> retried.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
