@@ -76,6 +76,15 @@
 > candidate-g on case-level failures; continue other lanes or preregister a
 > materially new successor with untouched evaluation.
 
+> **Candidate-i offline update, 2026-11-04:** the materially different
+> [diagnosis-only runtime boundary](evidence/D4-candidate-i-diagnosis-only-runtime-boundary-2026-11-04.md)
+> now passes 22/22 tests. Deterministic code authors the complete verification
+> clause and every control field; the model may return only one bounded
+> diagnosis. The exact untouched 20-case packet is hash-bound but remains
+> unrun and unexposed. The next ready work is platform registration and an
+> inactive transaction package; no booking, model call, route or promotion is
+> authorized by source completion.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are

@@ -7,12 +7,18 @@ from pathlib import Path
 
 
 FILES = {
+    "sa3-evidence-envelope-candidate-i-quality-v1.json":
+        "0b9bfb86ef0e3381aca520e294b90b01f9616c51caea21e71d559467837625d0",
     "sa3-evidence-envelope-development-v1.json":
         "733a6a6fc664ccf2b29dc1ab61affce9bfb04eb07b6a937946ccdb379988d1cd",
     "sa3_deterministic_evidence_envelope_v1.py":
         "9f8b14f8f1a4d162eed03f39e82b868118b0c5bdcb3a7fce744a28e9d13e3da3",
     "sa3_deterministic_evidence_envelope_v2.py":
         "4ca154c6ea0b0738adc3c9e21544ac0a6d3c05473852f88f97b6e5e7e1611943",
+    "sa3_evidence_envelope_batch_v2.py":
+        "eaeddb10d5a36df5dd3f3646691d19857f094f2872086d7b78056d6ff7c70d4e",
+    "sa3_evidence_envelope_runner_v2.py":
+        "58b932a65afb6d88d4624d3d74b0d4d021091e0989c74e1ca4cf0afdede9188c",
 }
 CONTROLS = {
     "checks": "deterministic-visible-usable-observations-only",

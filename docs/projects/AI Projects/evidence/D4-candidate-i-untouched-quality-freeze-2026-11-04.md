@@ -18,5 +18,7 @@ The generator and source-freeze suite passes 13/13, including exact repository
 reproduction, control/identity drift, answer-key and coverage drift, both spent
 packet exclusions, and proof that construction emits no prediction, review or
 quality decision. The packet has not been exposed to candidate-i, a model or a
-reviewer. No booking, runner, route, authority or promotion exists. The next
-milestone is the diagnosis-only runner and key-free batch path, still offline.
+reviewer. The later diagnosis-only runner and key-free batch source are now
+frozen and tested, but have not run this packet. No booking, route, authority
+or promotion exists. The next milestone is platform registration and inactive
+transaction construction.

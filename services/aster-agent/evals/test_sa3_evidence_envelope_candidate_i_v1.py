@@ -49,11 +49,11 @@ class EvidenceEnvelopeCandidateITests(unittest.TestCase):
             target = Path(temporary)
             for name in candidate.FILES:
                 (target / name).write_bytes((ROOT / name).read_bytes())
-            (target / "sa3_deterministic_evidence_envelope_v2.py").write_text("changed")
+            (target / "sa3_evidence_envelope_runner_v2.py").write_text("changed")
             with self.assertRaises(ValueError): candidate.validate(manifest, target)
-            (target / "sa3_deterministic_evidence_envelope_v2.py").unlink()
-            (target / "sa3_deterministic_evidence_envelope_v2.py").symlink_to(
-                ROOT / "sa3_deterministic_evidence_envelope_v2.py")
+            (target / "sa3_evidence_envelope_runner_v2.py").unlink()
+            (target / "sa3_evidence_envelope_runner_v2.py").symlink_to(
+                ROOT / "sa3_evidence_envelope_runner_v2.py")
             with self.assertRaises(ValueError): candidate.validate(manifest, target)
 
 
