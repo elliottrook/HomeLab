@@ -26,7 +26,7 @@ SOURCE_NAMES = (
     "apply_button_focus.py", "jellyfin_trailer_route.py", "pilot_jellyfin_trailer_smoke.py",
     "generate_dialog_assets.swift",
     "prepare-mini-pilot.sh", "run-mini-pilot.sh", "overlay", "patches", "pilot",
-    "candidate/fixture-schema.json", "contracts",
+    "candidate/fixture-schema.json", "contracts", "accounts",
 )
 SECRET = re.compile(
     rb"(?i)(?:password|passwd|api[_ -]?key|access[_ -]?token|client[_ -]?secret)"
@@ -102,6 +102,8 @@ def run_gates() -> list[dict]:
         (["python3", "test_repair.py"], V3 / "deploy/news-playback"),
         (["python3", "test_candidate.py"], V3 / "candidate"),
         (["python3", "test_contracts.py"], V3 / "contracts"),
+        (["python3", "test_registry.py"], V3 / "accounts"),
+        (["python3", "test_addon.py"], V3 / "accounts"),
     )
     results = []
     for command, cwd in commands:

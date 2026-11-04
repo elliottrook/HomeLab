@@ -16,7 +16,9 @@ or library data and perform no network or client action.
 - `aster-broker-contract.json` proposes the narrow AsterTV intent surface and
   explicit denials for M3.
 
-All are candidates until the M0 decisions are accepted and the low-spec report
-is reconciled. They are not deployment inputs. `test_contracts.py` is a
-structural fail-closed gate; later milestones must add behavioural adapters and
-live denial tests rather than weakening these invariants.
+The low-spec report is reconciled. The account contract is now the input to the
+bounded Jen-only M2 synthetic pilot under `../accounts/`; the real household
+authority and service mappings remain undecided. The broker contract remains a
+proposal for M3. `test_contracts.py` is a structural fail-closed gate; later
+milestones must add behavioural adapters and live denial tests rather than
+weakening these invariants.

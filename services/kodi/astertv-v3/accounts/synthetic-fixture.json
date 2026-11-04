@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "active_profile_id": "synthetic-member-a",
+  "profiles": [
+    {
+      "id": "synthetic-member-a",
+      "display_name": "Synthetic Member A",
+      "role": "member",
+      "service_mappings": [
+        {"service": "jellyfin", "opaque_subject_id": "synthetic:member-a:jellyfin", "enabled": false},
+        {"service": "audiobookshelf", "opaque_subject_id": "synthetic:member-a:listening", "enabled": false}
+      ],
+      "entitlements": ["fixture_catalogue", "fixture_listening"],
+      "preferences": {"clock": "24h", "captions": false}
+    },
+    {
+      "id": "synthetic-member-b",
+      "display_name": "Synthetic Member B",
+      "role": "member",
+      "service_mappings": [
+        {"service": "jellyfin", "opaque_subject_id": "synthetic:member-b:jellyfin", "enabled": false},
+        {"service": "audiobookshelf", "opaque_subject_id": "synthetic:member-b:listening", "enabled": false}
+      ],
+      "entitlements": ["fixture_catalogue", "fixture_listening"],
+      "preferences": {"clock": "24h", "captions": true}
+    },
+    {
+      "id": "guest",
+      "display_name": "Guest",
+      "role": "guest",
+      "service_mappings": [],
+      "entitlements": ["public_catalogue_browse", "clock", "local_settings_read"],
+      "preferences": {"clock": "24h", "captions": false}
+    }
+  ],
+  "updated_at": "2026-11-04T00:00:00Z"
+}
