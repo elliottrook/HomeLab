@@ -1,0 +1,130 @@
+{
+  "architecture": {
+    "batch_normalization": false,
+    "convolution": {
+      "activation": "relu",
+      "bias": true,
+      "channels_per_width": 48,
+      "dilation": 1,
+      "operation": "cross-correlation-not-kernel-reversal",
+      "padding": "same-zero-symmetric",
+      "padded_positions_participate_in_pooling": true,
+      "sequence_layout": "position-embedding-channel",
+      "stride": 1,
+      "weight_layout": "width-input-channel-output-channel",
+      "widths": [3, 5, 7]
+    },
+    "dropout": 0.0,
+    "embedding": {"byte_rows": "trainable", "dimension": 32, "padding_row": "fixed-zero-excluded-from-optimizer"},
+    "family": "byte-level-convolutional-joint-label",
+    "hidden": {"activation": "relu", "bias": true, "dimension": 96},
+    "output": {
+      "activation": "softmax",
+      "bias": true,
+      "label_order": [
+        "L-02737c7cbcb3", "L-17e622411786", "L-2823189951d2", "L-3abe3664c0c1",
+        "L-3b7ad33e9239", "L-43e5bc276e3d", "L-4a2dad41db65", "L-60a3e330aad5",
+        "L-644eb2ba51a8", "L-6532a80020ea", "L-826ce72f3700", "L-8551b194d0ce",
+        "L-9545b616894a", "L-c56132b86448", "L-def0d00f0d19", "L-f68725943390"
+      ],
+      "labels": 16
+    },
+    "pooled_dimension": 144,
+    "pooling": "global-max-over-512-positions-per-channel",
+    "pretrained_weights": false
+  },
+  "artifact": {
+    "externally_pinned_artifact_digest_required": true,
+    "replay": {
+      "record_fields": ["id", "label_id", "confidence", "margin", "guarded_interpretation", "accepted"],
+      "require_exact_record_equality_after_reload": true,
+      "require_two_clean_cpu_reproductions": true,
+      "rows": 192
+    },
+    "required_bindings": ["training-recipe-manifest-sha256", "preregistration-sha256", "corpus-release-sha256", "ontology-sha256", "deterministic-guard-sha256"],
+    "schema": "aster-nlu-j2-byte-conv-artifact.v1",
+    "self_hash": "sha256-excluding-artifact_sha256-field",
+    "serializer": "utf8-json-sort-keys-compact-newline",
+    "weight_quantization": {"decimal_places": 10, "nonfinite": "reject", "rounding": "nearest-ties-to-even"}
+  },
+  "authority": "not-granted",
+  "automatic_routing": "off",
+  "candidate_id": "j2-byte-conv-joint-v1",
+  "initialization": {
+    "bias_rule": "zeros",
+    "parameter_dtype": "ieee754-binary64",
+    "parameter_order": ["byte-embedding", "conv-width-3-weight", "conv-width-3-bias", "conv-width-5-weight", "conv-width-5-bias", "conv-width-7-weight", "conv-width-7-bias", "hidden-weight", "hidden-bias", "output-weight", "output-bias"],
+    "prng": "splitmix64-v1",
+    "seed": 20261104,
+    "uniform_conversion": "high-53-bits-divided-by-2^53",
+    "weight_interval": "[-limit,+limit)",
+    "weight_rule": "xavier-uniform-sqrt(6/(fan_in+fan_out))"
+  },
+  "input": {
+    "byte_ids": "0..255",
+    "empty_input": "reject",
+    "encoding": "utf-8-strict",
+    "input_bytes": 512,
+    "normalization": "none",
+    "overlength": "keep-first-512-encoded-bytes",
+    "padding": "right",
+    "padding_token_id": 256,
+    "source_type": "unicode-string",
+    "truncated_utf8_suffix": "allowed-as-bytes-no-redecode",
+    "vocabulary_size": 257
+  },
+  "preregistration_sha256": "2abcd02371b087ebc6db95b04dd271b518624cd063ffeb4612341bcb4c1b97ee",
+  "prohibitions": ["train-during-manifest-validation", "embed-corpus-or-evaluation-content", "use-j1-artifact-or-weights", "use-j1-public-failures-for-training-or-selection", "open-existing-sealed-holdout", "network-or-pretrained-weights", "evaluation-driven-repair-or-retry"],
+  "runtime_boundary": {
+    "backend": "portable-python-cpu-reference",
+    "coherent_joint_label_only": true,
+    "deployment": "forbidden",
+    "deterministic_guard_source_sha256": "d7d62d19008519ae50aa9b46799ab1f277a51904f2e80e65c30517abca8a7135",
+    "guard_projection": "preserve-coherent-label-unless-strictly-more-restrictive",
+    "model_backend_change": "forbidden",
+    "ontology_sha256": "aa603ab746a1250c8f2089b54e1a3e5b29fc3d01cb3c988bacc198a968bbea44",
+    "ontology_source_sha256": "6e7ee332ce74a44a5bb19877f9f8f0c90f814687279b3c4993fbb93fbd58948a",
+    "personal_sensitivity_floor": true,
+    "route_effects": "forbidden",
+    "tools": "forbidden"
+  },
+  "schema": "aster-nlu-j2-training-recipe-manifest.v1",
+  "status": "source-only-not-trained",
+  "training": {
+    "accelerator": "forbidden",
+    "batch_size": 32,
+    "checkpoint": "after-each-complete-epoch",
+    "cpu_threads": 1,
+    "drop_last": false,
+    "early_stopping": false,
+    "epochs": 40,
+    "evaluation_inputs": "forbidden",
+    "gradient_clipping": "none",
+    "loss": "mean-categorical-cross-entropy",
+    "loss_numerics": "max-shifted-log-softmax",
+    "network": "forbidden",
+    "numeric_dtype": "ieee754-binary64",
+    "optimizer": {"beta1": 0.9, "beta2": 0.999, "bias_correction": true, "epsilon": 1e-08, "epsilon_placement": "outside-sqrt", "learning_rate": 0.001, "learning_rate_schedule": "constant", "name": "adamw", "state_initialization": "first-and-second-moments-zero", "step_order": "adam-bias-corrected-gradient-then-decoupled-weight-decay", "weight_decay": 0.0001, "weight_decay_scope": "weights-not-biases"},
+    "reduction_order": "row-then-parameter-lexicographic",
+    "row_order": "case-id-lexicographic-every-epoch",
+    "sealed_holdout": "forbidden",
+    "shuffle": false,
+    "train_rows": 768,
+    "validation_gradient_access": false,
+    "validation_rows": 192
+  },
+  "validation_selection": {
+    "accepted_row_requirement": "raw-label-and-guarded-interpretation-exact",
+    "checkpoint_metric": "guarded-joint-label-exact-count-desc",
+    "checkpoint_tie_breakers": ["raw-joint-label-exact-count-desc", "mean-validation-loss-rounded-12-decimals-asc", "epoch-asc"],
+    "confidence": "softmax-top1-probability",
+    "margin": "softmax-top1-minus-top2",
+    "minimum_accepted": 116,
+    "no_eligible_checkpoint_or_threshold": "reject-candidate",
+    "public_or_sealed_evaluation_selection": "forbidden",
+    "source": "frozen-192-row-validation-only",
+    "threshold_grid": {"inclusive": true, "maximum": 1.0, "minimum": 0.0, "step": 0.005},
+    "threshold_objective": "maximum-exact-coverage-then-lowest-threshold",
+    "threshold_signal": "margin"
+  }
+}

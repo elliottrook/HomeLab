@@ -89,6 +89,15 @@ to 4. The generator now enforces that naturalness floor and the full J2 source
 suite passes 36/36. V2 SHA-256 is `d5f8a1b6…4190`; it requires a fresh full
 review because candidate-v1's review cannot transfer. Training remains closed.
 
+The [deterministic J2 training-recipe manifest](evidence/M3-J2-training-recipe-manifest-boundary-2026-11-04.md)
+now freezes byte encoding/truncation, the exact convolutional architecture,
+initialization, single-thread CPU AdamW training order, validation-only
+checkpoint and margin selection, coverage, quantization, artifact replay and
+the deterministic guard boundary. Its focused suite passes 9/9 and the combined
+J2 source suite passes 45/45. It consumes no corpus/review content and creates
+no model; network, sealed evaluation access, routing, tools and deployment stay
+forbidden.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,
