@@ -1,12 +1,13 @@
 # Stream A — remaining delivery map
 
-> **Live D4 update, 2026-11-04 14:00:** candidate-g r3 is spent and
+> **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).
 > It retained no scoreable result and independently restored production. The
-> deterministic diagnostic collapse is corrected source-only at platform
-> commit `1a185f54` with 27/27 focused tests and direct target proof. The next
-> ready work is a reversible inactive installer and installed-path validation;
-> no retry or blind review is authorized.
+> deterministic diagnostic collapse is now installed inactive from mirrored
+> platform commit `b92a551b`. Exact installed hashes/custody, all 34 manifest
+> pins, host/guest bounded proofs, Doctor, lease and production health pass with
+> zero service restarts. The next ready work is one fresh ledger-booked attempt;
+> r3 itself cannot be retried or sent to blind review.
 
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
