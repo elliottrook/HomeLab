@@ -66,6 +66,13 @@ candidate and records resumable WAV chapters plus a distinct shadow manifest.
 Every chapter with at least 50 words must measure 120–240 words per minute;
 implausibly stretched or compressed output fails before its WAV is retained.
 
+`tools/run_openvino_b60_probe.py` is the corresponding one-passage OpenVINO
+diagnostic. It verifies the canonical model hash, selects an explicit device,
+records provider identity and pacing, and rejects silent fallback when the
+OpenVINO execution provider is not active. It is an evidence tool only; the
+current OpenVINO candidate fails during both GPU and CPU model compilation and
+is not a usable narration backend.
+
 These are manual experiment tools, not production workers or schedulers. Their
 output does not satisfy the canonical ONNX/Opus/sentence-timing publication
 contract and must never be copied into `ready` or used to advance queue state.
