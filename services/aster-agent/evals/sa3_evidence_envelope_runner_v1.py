@@ -22,6 +22,11 @@ SYSTEM = (
     "Do not select checks, outcomes, tools, effects, authority or routes. Do not "
     "claim an action occurred. Return only diagnosis and verification JSON."
 )
+ENVELOPE_KEYS = {
+    "choices", "created", "id", "model", "object", "system_fingerprint",
+    "timings", "usage",
+}
+CHOICE_KEYS = {"finish_reason", "index", "logprobs", "message", "stop_reason"}
 
 
 def _unique_object(pairs):
@@ -62,14 +67,17 @@ def request_payload(case: dict, model: str) -> dict:
 
 
 def _parse_response(response: object) -> tuple[dict, str]:
-    if not isinstance(response, dict) or set(response) != {"choices"}:
+    if (not isinstance(response, dict)
+            or not set(response).issubset(ENVELOPE_KEYS)
+            or "choices" not in response):
         raise ValueError("invalid prose response envelope")
     choices = response["choices"]
     if not isinstance(choices, list) or len(choices) != 1:
         raise ValueError("invalid prose response choice")
     choice = choices[0]
     if (not isinstance(choice, dict)
-            or set(choice) != {"message", "finish_reason"}
+            or not set(choice).issubset(CHOICE_KEYS)
+            or not {"message", "finish_reason"}.issubset(choice)
             or choice["finish_reason"] != "stop"):
         raise ValueError("invalid prose completion")
     message = choice["message"]

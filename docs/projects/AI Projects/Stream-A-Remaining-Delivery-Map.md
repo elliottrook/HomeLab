@@ -42,6 +42,15 @@
 > restarts. A new authoritative ledger-booked attempt is the next D4 gate;
 > r3–r6 remain spent.
 
+> **R7 terminal update, 2026-11-04 15:34:** the exact booking
+> [failed restored after all 14 requests](evidence/D4-candidate-g-r7-response-envelope-no-go-and-source-correction-2026-11-04.md)
+> with bounded class `ValueError` for each and no retained result. The shared
+> parser incorrectly required metadata-free OpenAI response/choice objects.
+> Source now accepts only the established bounded llama metadata allowlists,
+> still rejects unknown fields and keeps strict prose JSON; 16/16 tests pass.
+> R7 is spent. Platform pinning, reversible inactive installation and installed
+> proof are next; no new booking is eligible before that gate.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are

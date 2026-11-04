@@ -51,6 +51,37 @@ class EvidenceEnvelopeRunnerTests(unittest.TestCase):
         self.assertEqual("none", result["authority"])
         self.assertIsNone(result["error_class"])
 
+    def test_known_llama_metadata_is_normalized_before_strict_prose_parse(self):
+        value = response({
+            "diagnosis": "The visible health aggregate is degraded.",
+            "verification": "Refresh the same registered aggregate.",
+        })
+        value.update({
+            "id": "chatcmpl-bounded", "object": "chat.completion",
+            "created": 1, "model": "candidate-envelope-v1",
+            "system_fingerprint": "bounded", "usage": {}, "timings": {},
+        })
+        value["choices"][0].update({
+            "index": 0, "logprobs": None, "stop_reason": None,
+        })
+        result = run_case(
+            case(), lambda _payload: value, model="candidate-envelope-v1",
+            monotonic=iter((4.0, 4.1)).__next__,
+        )
+        self.assertEqual("bounded-model-draft", result["prose_source"])
+        self.assertEqual("stop", result["finish_reason"])
+        self.assertIsNone(result["error_class"])
+
+    def test_unknown_llama_metadata_still_fails_closed(self):
+        value = response({"diagnosis": "x", "verification": "y"})
+        value["private_extension"] = "must not be accepted"
+        result = run_case(
+            case(), lambda _payload: value, model="candidate-envelope-v1",
+            monotonic=iter((4.0, 4.1)).__next__,
+        )
+        self.assertEqual("deterministic-fallback", result["prose_source"])
+        self.assertEqual("ValueError", result["error_class"])
+
     def test_abstention_skips_transport(self):
         def transport(_payload):
             raise AssertionError("transport must not run")
