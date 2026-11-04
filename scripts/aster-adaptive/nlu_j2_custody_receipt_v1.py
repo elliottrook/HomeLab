@@ -53,7 +53,7 @@ def corpus_receipt(raw: bytes) -> dict[str, object]:
         if not isinstance(value[field], str) or not HEX64.fullmatch(value[field]):
             raise ValueError("J2 corpus digest changed")
     if (value["train_rows"] != 768 or value["validation_rows"] != 192
-            or value["labels"] != 16 or value["overlap_reference_count"] < 8
+            or value["labels"] != 16 or value["overlap_reference_count"] != 8
             or value["normalized_overlap"] != 0 or value["content_in_receipt"] is not False):
         raise ValueError("J2 corpus custody facts changed")
     return value

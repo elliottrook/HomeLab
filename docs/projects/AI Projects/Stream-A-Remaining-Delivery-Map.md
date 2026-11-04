@@ -62,6 +62,15 @@ not accepted as substitutes. Independent semantic review, authenticated
 custody and the sealed evaluation path remain open, so no training or route
 effect is admitted.
 
+The [J2 corpus-release cross-binding](evidence/M3-J2-corpus-release-cross-binding-2026-11-04.md)
+now recomputes and binds the exact corpus bytes, normalized text set and full
+960-row label-review bytes to a content-free custody receipt. Release
+eligibility requires 960 accepted labels, zero corrections, the frozen roles
+and exactly eight overlap references; training authorization remains false.
+The combined J2 source suite passes 35/35. The remaining gate is real pinned
+private-reference validation plus authenticated independent custody and review,
+not more shared-worktree identity assertions.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,
