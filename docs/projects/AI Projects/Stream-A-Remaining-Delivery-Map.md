@@ -122,6 +122,14 @@ J2 source suite passes 50/50. It consumes no corpus/review content and creates
 no model; network, sealed evaluation access, routing, tools and deployment stay
 forbidden.
 
+The [owner-acceptance boundary](evidence/M3-J2-owner-acceptance-boundary-2026-11-04.md)
+now makes Jason's eventual candidate-v4 decision fail closed against the exact
+corpus, normalized set, label-review and quality-review hashes. It can record
+only corpus-release acceptance and explicitly keeps training, sealed evaluation
+access, authority and routing off. The expanded J2 suite passes 53/53. No owner
+acceptance record exists yet, and this structural boundary does not substitute
+for the separately controlled custody signer or evaluation custodian.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,
