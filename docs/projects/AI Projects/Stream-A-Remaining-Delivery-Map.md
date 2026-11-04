@@ -50,6 +50,18 @@ separation. Corpus release therefore still requires externally controlled
 signer evidence and a sealed evaluation path; no training or route effect is
 admitted.
 
+The independent corpus custodian has now supplied the
+[deterministic J2 corpus candidate source](evidence/M3-J2-corpus-candidate-source-2026-11-04.md).
+It constructs 960 normalized-unique rows with the exact 48/12-per-label split,
+holds two subjects per label out of training, requires all eight named raw
+reference inputs and delegates their exact pins and zero-overlap decision to
+the frozen validator. The combined J2 source suite passes 31/31. Production
+corpus emission remains correctly fail closed until the six human-controlled
+raw calibration corpora are supplied; their content-free release receipts are
+not accepted as substitutes. Independent semantic review, authenticated
+custody and the sealed evaluation path remain open, so no training or route
+effect is admitted.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,
