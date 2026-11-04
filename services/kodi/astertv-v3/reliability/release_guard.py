@@ -90,9 +90,10 @@ def atomic_write(path, data, mode=0o600):
             os.unlink(temporary)
 
 
-def snapshot(root, state, host):
+def snapshot(root, state, host, allowed_missing=frozenset()):
     missing = sorted(name for name in REQUIRED
-                     if not (root / name).is_dir() or (root / name).is_symlink())
+                     if name not in allowed_missing
+                     and (not (root / name).is_dir() or (root / name).is_symlink()))
     if missing:
         raise ValueError("guarded-roots-missing:" + ",".join(missing))
     parent = state.parent
@@ -184,9 +185,19 @@ def main(argv=None):
     parser.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE)
     parser.add_argument("--host", required=True)
+    parser.add_argument("--allow-missing-guarded", action="append", default=[])
     args = parser.parse_args(argv)
-    operation = {"snapshot": snapshot, "verify": verify, "restore": restore}[args.action]
-    result = operation(args.root, args.state, args.host)
+    unknown = set(args.allow_missing_guarded) - REQUIRED
+    if unknown:
+        parser.error("unknown guarded root: " + ",".join(sorted(unknown)))
+    if args.action != "snapshot" and args.allow_missing_guarded:
+        parser.error("--allow-missing-guarded is snapshot-only")
+    if args.action == "snapshot":
+        result = snapshot(args.root, args.state, args.host,
+                          frozenset(args.allow_missing_guarded))
+    else:
+        operation = {"verify": verify, "restore": restore}[args.action]
+        result = operation(args.root, args.state, args.host)
     print(json.dumps(result, sort_keys=True))
     return 0 if result["outcome"] in ("accepted", "clean", "restored") else 1
 

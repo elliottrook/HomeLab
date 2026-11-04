@@ -70,6 +70,19 @@ class ReleaseGuardTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             release_guard.snapshot(self.root, self.state, "AsterTV-Test")
 
+    def test_explicit_predecessor_omission_can_be_accepted(self):
+        omitted = "plugin.video.astersearch"
+        (self.root / omitted / "fixture.txt").unlink()
+        (self.root / omitted).rmdir()
+        accepted = release_guard.snapshot(
+            self.root, self.state, "AsterTV-Test", frozenset({omitted}))
+        self.assertEqual(accepted["outcome"], "accepted")
+        manifest = json.loads(
+            (self.state / release_guard.MANIFEST_NAME).read_text())
+        self.assertFalse(any(
+            row["path"].startswith(omitted + "/")
+            for row in manifest["files"]))
+
 
 class ServiceBoundaryTests(unittest.TestCase):
     def test_service_has_no_player_or_playlist_mutations(self):
@@ -84,6 +97,11 @@ class ServiceBoundaryTests(unittest.TestCase):
         installed = (Path(__file__).parent / "service.aster.reliability" /
                      "recovery_policy.py").read_bytes()
         self.assertEqual(root, installed)
+
+    def test_installer_binds_unit_to_validated_literal_host(self):
+        source = (Path(__file__).parent / "install.py").read_text()
+        self.assertIn('unit_data.replace(marker, b"--host " + host.encode("ascii"))', source)
+        self.assertIn('if host not in ALLOWED_HOSTS:', source)
 
 
 if __name__ == "__main__":

@@ -24,6 +24,7 @@ TARGET = ADDONS / "service.aster.reliability"
 RELEASE = Path("/storage/.aster-release")
 UNIT_DIR = Path("/storage/.config/system.d")
 UNIT = UNIT_DIR / "astertv-release-guard.service"
+SNAPSHOT_EXTRA_ARGS = ()
 
 
 def sha(path):
@@ -39,6 +40,21 @@ def atomic_copy(source, target, mode=None):
             output.flush()
             os.fsync(output.fileno())
         os.chmod(temporary, mode if mode is not None else source.stat().st_mode & 0o777)
+        os.replace(temporary, target)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def atomic_write(target, data, mode):
+    target.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix="." + target.name + "-", dir=target.parent)
+    try:
+        with os.fdopen(fd, "wb") as output:
+            output.write(data)
+            output.flush()
+            os.fsync(output.fileno())
+        os.chmod(temporary, mode)
         os.replace(temporary, target)
     finally:
         if os.path.exists(temporary):
@@ -75,11 +91,21 @@ def main():
     RELEASE.mkdir(mode=0o700, parents=True, exist_ok=True)
     atomic_copy(STAGE / "release_guard.py", RELEASE / "release_guard.py", 0o700)
     UNIT_DIR.mkdir(mode=0o755, parents=True, exist_ok=True)
-    atomic_copy(STAGE / "astertv-release-guard.service", UNIT, 0o644)
+    unit_data = (STAGE / "astertv-release-guard.service").read_bytes()
+    marker = b"--host %H"
+    if unit_data.count(marker) != 1:
+        raise RuntimeError("release-guard-unit-host-marker")
+    # LibreELEC can expose its distribution hostname while early boot units
+    # are expanded, before the configured Kodi hostname is applied. The host
+    # has already passed the strict allow-list above, so bind the unit to that
+    # literal identity instead of relying on systemd's boot-time %H value.
+    unit_data = unit_data.replace(marker, b"--host " + host.encode("ascii"))
+    atomic_write(UNIT, unit_data, 0o644)
 
     result = subprocess.run([
         sys.executable, str(RELEASE / "release_guard.py"), "snapshot",
         "--host", host,
+        *SNAPSHOT_EXTRA_ARGS,
     ], check=True, capture_output=True, text=True)
     verification = subprocess.run([
         sys.executable, str(RELEASE / "release_guard.py"), "verify",
