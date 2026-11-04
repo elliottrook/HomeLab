@@ -51,6 +51,14 @@
 > R7 is spent. Platform pinning, reversible inactive installation and installed
 > proof are next; no new booking is eligible before that gate.
 
+> **R7 correction installed, 2026-11-04 15:45:** the
+> [response-normalization correction](evidence/D4-candidate-g-response-normalization-inactive-install-result-2026-11-04.md)
+> now passes exact installed host/guest hashes and root custody, both retained
+> root-only checkpoints, all 34 release pins, fixed known-metadata normalization,
+> healthy Doctor/production and zero restarts. No model call or service change
+> occurred. One fresh authoritative ledger-booked R8 attempt is now the next D4
+> gate; R3–R7 remain spent.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
