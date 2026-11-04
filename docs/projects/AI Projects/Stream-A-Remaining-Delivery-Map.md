@@ -67,6 +67,15 @@
 > model-identity-blind review packet. Quality remains pending independent
 > review; completion alone grants no route or promotion.
 
+> **R8 blind decision, 2026-11-04:** candidate-g is
+> [NO-GO at 10/20](evidence/D4-candidate-g-r8-independent-blind-quality-no-go-2026-11-04.md)
+> against the frozen 18/20 three-reviewer gate, with 0/6 mandatory abstentions
+> passing all dimensions. Deterministic outcome/check selection remained exact
+> 20/20 and false-completion failures remained zero; verification quality was
+> the limiting dimension. R8 and its evaluation are spent. Do not retry or tune
+> candidate-g on case-level failures; continue other lanes or preregister a
+> materially new successor with untouched evaluation.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are

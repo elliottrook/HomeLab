@@ -370,13 +370,13 @@ Preflight multiple candidates in one continuous-lane pass, but execute serially 
 
 ## Current queue, reconciled 2026-10-25
 
-**Current overlay — 2026-11-04 16:19 America/Vancouver.** The historical table
+**Current overlay — 2026-11-04 16:30 America/Vancouver.** The historical table
 below remains useful provenance but its live classifications are superseded by
 this bounded overlay:
 
 | Item | State now | Next action |
 |---|---|---|
-| D4 candidate-g investigation quality | **R8 COMPLETE / quality pending.** R8 claimed exactly at 16:15 and completed restored in 235 seconds. Exact reconciliation accepts 20 cases, 14 requests and zero retries/errors/effects; lease, Doctor, production, cleanup and restart postchecks pass. The model-blind packet is retained privately and does not disclose model identity. | Complete the three independent blind reviews and apply the frozen conservative decision boundary. Do not infer semantic quality from transaction completion; no route, tool grant or promotion is automatic. |
+| D4 candidate-g investigation quality | **NO-GO / candidate-g closed.** R8 completed and restored exactly, then three independent model-blind reviews scored 10/20 against the frozen 18/20 gate, with 0/6 mandatory abstentions fully passing. Deterministic outcome/check selection was 20/20 and false-completion failures were zero; verification was the limiting quality dimension. | Do not retry R8 or tune candidate-g against the spent packet. A successor requires a materially new preregistered design and untouched evaluation boundary. Continue M3/J2 external custody and other independent Stream A lanes. |
 | M3 J2 successor | **BLOCKED on owner/custody, not engineering.** Candidate-v4 passes the complete 53-test source boundary and is the release candidate Stream A is prepared to promote for corpus release only. | Jason reviews the exact four-hash owner card. A separately controlled signer must then bind custody, and a third custodian must seal the untouched 32-case evaluation set before training can become eligible. |
 | J2 training and routing | **BLOCKED.** Recipe source is frozen, but no training authority, sealed evaluation access, model artifact, route or tool grant exists. | Do not train or evaluate until owner acceptance plus both external custody gates pass. |
 | Companion | **MONITORING.** Ordinary signed-in use remains accepted. | Continue only on meaningful reliability change; do not disturb the working Companion for Stream A tests. |
