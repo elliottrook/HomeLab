@@ -12,6 +12,12 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [November4 peer/dependency refresh](B60-Inference-Engineering/peer-refresh-and-fixture-recovery-20261104.md)
+receives actual M3 35B rejection and D4 recovery/booking records, verifies the
+owner's34-pin source release, and recovers the exact missing local v4 test
+fixture.177 controller and115 B60 tests pass. Use the intact pinned replay;
+the old implementation checkout has missing Git metadata. No live effects.
+
 The [November4 receipt](B60-Inference-Engineering/nightly-reconciliation-20261104.md)
 confirms the same activation gap: November4 expired without retained execution
 receipts; November5 capacity is reserved/unarmed. Exact operational migration
