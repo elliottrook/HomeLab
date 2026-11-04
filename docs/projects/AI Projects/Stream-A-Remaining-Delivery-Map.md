@@ -9,6 +9,13 @@
 > zero service restarts. The next ready work is one fresh ledger-booked attempt;
 > r3 itself cannot be retried or sent to blind review.
 
+> **R4 terminal update, 2026-11-04 14:03:** the fresh booking claimed exactly
+> on time but [failed after 193 seconds](evidence/D4-candidate-g-r4-unhandled-exception-no-go-2026-11-04.md)
+> with production restored, no result, and no bounded guest JSON code. The
+> class-only catch-all correction is source-complete at mirrored platform commit
+> `9da52e86`; a reversible one-file inactive install and target proof are next.
+> R3 and R4 are spent and cannot advance to blind review.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
