@@ -39,6 +39,15 @@ ledger, lease, locks, dispatcher, Doctor, EPUB state and production health
 pass. Runtime claim and every volatile gate remain fail closed; one transaction,
 zero retry and unconditional restoration are the complete effect boundary.
 
+The booking subsequently [failed closed at claim](evidence/D4-candidate-g-release-manifest-pin-no-go-2026-11-04.md)
+in zero seconds with `INSTALLED_PIN_DRIFT:full_inference_lab_sources.py`.
+No drain, service stop or model request occurred and production is healthy.
+The two installed EPUB-correction files were exact, but the release manifest
+still pinned their predecessors. Platform source now corrects only those two
+pins and adds a one-file rollback installer; the focused suite passes 22/22.
+Next is inactive installation plus the actual installed full-manifest verifier,
+not a retry of the spent booking.
+
 Work outside the timed F2 chain continues in parallel. A failed F2 runtime gate
 blocks F3 and the live evaluations; it does not block offline D4/M3 hardening,
 documentation reconciliation, Companion monitoring or review of the new F6
