@@ -22,6 +22,11 @@ BUTTON_GALLERY = OVERLAY / "1080i/custom_1193_button_gallery.xml"
 MOVIE_PAGE = OVERLAY / "1080i/custom_1194_movie_rework.xml"
 PERSON_PAGE = OVERLAY / "1080i/custom_1195_person_library.xml"
 TV_PAGE = OVERLAY / "1080i/custom_1196_tv_rework.xml"
+AI_PAGE = OVERLAY / "1080i/custom_1197_aster_ai.xml"
+NEWS_PAGE = OVERLAY / "1080i/custom_1198_news_rework.xml"
+PODCAST_PAGE = OVERLAY / "1080i/custom_1199_podcast_requests.xml"
+HOME_PAGE = OVERLAY / "1080i/custom_1200_home_rework.xml"
+CAMERAS_PAGE = OVERLAY / "1080i/custom_1201_cameras_rework.xml"
 ACTOR_PLUGIN = V3 / "overlay/plugin.video.astersearch"
 ACTOR_SEARCH = ACTOR_PLUGIN / "actor_search.py"
 INCLUDES = OVERLAY / "1080i/IncludesV3.xml"
@@ -49,6 +54,11 @@ class SharedLanguageTests(unittest.TestCase):
             MOVIE_PAGE,
             PERSON_PAGE,
             TV_PAGE,
+            AI_PAGE,
+            NEWS_PAGE,
+            PODCAST_PAGE,
+            HOME_PAGE,
+            CAMERAS_PAGE,
             BUTTON_FOCUS,
             BUTTON_CURRENT,
             INCLUDES,
@@ -378,7 +388,7 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-            self.assertIn("236 visible buttons", completed.stdout)
+            self.assertIn("275 visible buttons", completed.stdout)
             self.assertIn("anchor:1, art:8, catcher:2, hidden:4", completed.stdout)
             self.assertIn("12 shared button definitions", completed.stdout)
 
@@ -693,6 +703,76 @@ class SharedLanguageTests(unittest.TestCase):
         trailer_action = controls["605"].findtext("onclick", "")
         self.assertIn("pilot_jellyfin_trailer_smoke.py", trailer_action)
         self.assertIn("tvshow", trailer_action)
+
+    def test_pa3_fixtures_are_synthetic_local_and_remote_safe(self) -> None:
+        include_root = ET.parse(INCLUDES).getroot()
+        include_heights = {
+            node.attrib["name"]: int(node.findtext("height", "0"))
+            for node in include_root.findall("include")
+        }
+        for path in (AI_PAGE, NEWS_PAGE, PODCAST_PAGE, HOME_PAGE, CAMERAS_PAGE):
+            with self.subTest(path=path):
+                text = path.read_text()
+                self.assertIn("Synthetic", text)
+                for forbidden in ("http://", "https://", "plugin://", "RunScript("):
+                    self.assertNotIn(forbidden, text)
+                page = ET.parse(path).getroot()
+                buttons = {
+                    node.attrib["id"]: node
+                    for node in page.findall(".//control[@type='button']")
+                }
+                self.assertTrue(buttons)
+                for button in buttons.values():
+                    include_name = button.findtext("include")
+                    height = int(button.findtext("height", "0"))
+                    if not height and include_name:
+                        height = include_heights[include_name]
+                    self.assertGreaterEqual(height, 44)
+                    for direction in ("onleft", "onright", "onup", "ondown"):
+                        self.assertIn(button.findtext(direction), buttons)
+
+    def test_pa3_aster_ai_covers_the_six_required_states(self) -> None:
+        text = AI_PAGE.read_text()
+        for state in ("Idle", "Listening", "Processing", "Speaking", "Cancelled", "Failed"):
+            self.assertIn(f"<label>{state}</label>", text)
+        self.assertIn("no microphone or model connected", text)
+
+    def test_pa3_news_preserves_digest_article_and_narration_contracts(self) -> None:
+        text = NEWS_PAGE.read_text()
+        for label in ("Daily Digest", "Breaking", "Read", "Play from beginning"):
+            self.assertIn(f"<label>{label}</label>", text)
+        self.assertIn("30-aster-news-logo.png", text)
+        self.assertIn("04-news-digest.png", text)
+        self.assertIn("existing digest and article runtime routes remain untouched", text)
+
+    def test_pa3_podcast_request_flow_is_explicit_and_inert(self) -> None:
+        page = ET.parse(PODCAST_PAGE).getroot()
+        text = PODCAST_PAGE.read_text()
+        for status in ("Available now", "Already followed", "Request needed", "Not in your library"):
+            self.assertIn(status, text)
+        request = page.find(".//control[@type='button'][label='Request podcast']")
+        self.assertIsNotNone(request)
+        self.assertIsNone(request.find("onclick"))
+        self.assertIn("no request sent", text)
+
+    def test_pa3_home_and_cameras_cover_freshness_and_failure_states(self) -> None:
+        home = HOME_PAGE.read_text()
+        cameras = CAMERAS_PAGE.read_text()
+        self.assertIn("ActivateWindow(1201)", home)
+        for state in ("Fresh", "Stale", "Unavailable", "Door event"):
+            self.assertIn(state, cameras)
+        self.assertIn("no live Home Assistant data", home)
+        self.assertIn("no live imagery", cameras)
+        self.assertNotIn("background=\"true\"", cameras)
+
+    def test_pa3_keymap_is_bounded_to_the_five_fixture_pages(self) -> None:
+        keymap = ET.parse(V3 / "pilot/keymaps/astertv-v3-pilot.xml").getroot()
+        keyboard = keymap.find("global/keyboard")
+        self.assertIsNotNone(keyboard)
+        self.assertEqual(
+            {keyboard.findtext(f"f{index}") for index in range(1, 6)},
+            {f"ActivateWindow({window})" for window in range(1197, 1202)},
+        )
 
 
 if __name__ == "__main__":

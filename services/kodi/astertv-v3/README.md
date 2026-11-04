@@ -108,3 +108,11 @@ with nine or more seasons scroll inside the rail, while the episode, Cast &
 Crew and More Like This regions remain fixed. The fixture contains ten seasons
 so overflow and remote navigation remain deterministic regression evidence.
 
+PA3 remains synthetic and isolated in the portable Mini pilot:
+
+- `F1` opens Aster AI interaction states without a microphone or model.
+- `F2` opens the News rework while preserving digest, article and narration labels.
+- `F3` opens podcast discovery, duplicate/status and request surfaces; request is inert.
+- `F4` opens the denser Home overview with fixture-only household data.
+- `F5` opens Cameras with fresh, stale, unavailable and door-event states and no live imagery.
+

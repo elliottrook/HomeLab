@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1199">
+  <defaultcontrol always="true">11990</defaultcontrol>
+  <controls>
+    <include>AsterV3PageBackdrop</include>
+    <control type="image"><left>55</left><top>35</top><width>88</width><height>88</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>160</left><top>50</top><width>330</width><height>46</height><label>Podcast Requests</label><font>font34</font><textcolor>asterV3Text</textcolor></control>
+    <include content="AsterClockPill" />
+    <control type="image"><left>500</left><top>25</top><width>920</width><height>62</height><texture border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texture></control>
+    <control type="button" id="11990"><left>510</left><top>31</top><width>150</width><label>Search</label><include>AsterV3MediaSearchPill</include><onleft>11994</onleft><onright>11991</onright><onup>11990</onup><ondown>11995</ondown></control>
+    <control type="button" id="11991"><left>670</left><top>31</top><width>180</width><label>Discover</label><include>AsterV3MediaPill</include><onleft>11990</onleft><onright>11992</onright><onup>11991</onup><ondown>11995</ondown></control>
+    <control type="button" id="11992"><left>860</left><top>31</top><width>180</width><label>Following</label><include>AsterV3MediaPill</include><onleft>11991</onleft><onright>11993</onright><onup>11992</onup><ondown>11996</ondown></control>
+    <control type="button" id="11993"><left>1050</left><top>31</top><width>180</width><label>Requests</label><include>AsterV3MediaPill</include><onleft>11992</onleft><onright>11994</onright><onup>11993</onup><ondown>11997</ondown></control>
+    <control type="button" id="11994"><left>1240</left><top>31</top><width>150</width><label>Back</label><include>AsterV3MediaPill</include><onleft>11993</onleft><onright>11990</onright><onup>11994</onup><ondown>11997</ondown><onclick>ActivateWindow(Home)</onclick></control>
+    <control type="label"><left>80</left><top>155</top><width>900</width><height>42</height><label>Discover something worth hearing</label><font>font32</font><textcolor>asterV3Text</textcolor></control>
+    <control type="button" id="11995"><left>80</left><top>225</top><width>520</width><height>270</height><label>The Long Way Home&#10;Available now</label><include>AsterV3StateButton</include><onleft>11997</onleft><onright>11996</onright><onup>11990</onup><ondown>11998</ondown></control>
+    <control type="button" id="11996"><left>635</left><top>225</top><width>520</width><height>270</height><label>Small Revelations&#10;Already followed</label><include>AsterV3StateButton</include><onleft>11995</onleft><onright>11997</onright><onup>11992</onup><ondown>11998</ondown></control>
+    <control type="button" id="11997"><left>1190</left><top>225</top><width>520</width><height>270</height><label>Signal &amp; Story&#10;Request needed</label><include>AsterV3StateButton</include><onleft>11996</onleft><onright>11995</onright><onup>11994</onup><ondown>11998</ondown></control>
+    <control type="image"><left>80</left><top>545</top><width>1630</width><height>350</height><texture border="30" colordiffuse="asterPaperGlass">special://skin/media/ui-panel.png</texture></control>
+    <control type="label"><left>130</left><top>590</top><width>1000</width><height>46</height><label>Signal &amp; Story</label><font>font36</font><textcolor>asterInk</textcolor></control>
+    <control type="label"><left>130</left><top>650</top><width>1000</width><height>30</height><label>STATUS · Not in your library</label><font>font18</font><textcolor>asterGreen</textcolor></control>
+    <control type="textbox"><left>130</left><top>705</top><width>950</width><height>90</height><label>A details and duplicate-check preview. The action below is intentionally inert: no request will be submitted.</label><font>font22</font><textcolor>asterMuted</textcolor></control>
+    <control type="button" id="11998"><left>1190</left><top>675</top><width>420</width><label>Request podcast</label><include>AsterV3PrimaryAction</include><onleft>11997</onleft><onright>11995</onright><onup>11997</onup><ondown>11990</ondown></control>
+    <control type="label"><left>130</left><top>835</top><width>900</width><height>26</height><label>Synthetic fixture · no request sent</label><font>font16</font><textcolor>asterGold</textcolor></control>
+  </controls>
+</window>

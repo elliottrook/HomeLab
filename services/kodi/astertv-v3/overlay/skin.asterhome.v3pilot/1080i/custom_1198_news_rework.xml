@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1198">
+  <defaultcontrol always="true">11980</defaultcontrol>
+  <controls>
+    <include>AsterV3PageBackdrop</include>
+    <control type="image"><left>55</left><top>26</top><width>100</width><height>100</height><texture>special://skin/media/30-aster-news-logo.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>165</left><top>48</top><width>240</width><height>44</height><label>News</label><font>font36</font><textcolor>asterV3Text</textcolor></control>
+    <include content="AsterClockPill" />
+    <control type="image"><left>405</left><top>25</top><width>1010</width><height>62</height><texture border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texture></control>
+    <control type="button" id="11980"><left>415</left><top>31</top><width>150</width><label>Search</label><include>AsterV3MediaSearchPill</include><onleft>11984</onleft><onright>11981</onright><onup>11980</onup><ondown>11985</ondown></control>
+    <control type="button" id="11981"><left>575</left><top>31</top><width>210</width><label>Daily Digest</label><include>AsterV3MediaPill</include><onleft>11980</onleft><onright>11982</onright><onup>11981</onup><ondown>11985</ondown></control>
+    <control type="button" id="11982"><left>795</left><top>31</top><width>185</width><label>Breaking</label><include>AsterV3MediaPill</include><onleft>11981</onleft><onright>11983</onright><onup>11982</onup><ondown>11986</ondown></control>
+    <control type="button" id="11983"><left>990</left><top>31</top><width>180</width><label>Sections</label><include>AsterV3MediaPill</include><onleft>11982</onleft><onright>11984</onright><onup>11983</onup><ondown>11987</ondown></control>
+    <control type="button" id="11984"><left>1180</left><top>31</top><width>150</width><label>Back</label><include>AsterV3MediaPill</include><onleft>11983</onleft><onright>11980</onright><onup>11984</onup><ondown>11987</ondown><onclick>ActivateWindow(Home)</onclick></control>
+    <control type="image"><left>72</left><top>145</top><width>1775</width><height>405</height><texture border="30" colordiffuse="asterPaperGlass">special://skin/media/ui-panel.png</texture></control>
+    <control type="image"><left>110</left><top>182</top><width>570</width><height>330</height><texture>special://skin/media/04-news-digest.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>735</left><top>200</top><width>980</width><height>30</height><label>DAILY DIGEST · SYNTHETIC PREVIEW</label><font>font18</font><textcolor>asterGold</textcolor></control>
+    <control type="label"><left>735</left><top>245</top><width>980</width><height>92</height><label>Your morning briefing, calmly assembled</label><font>font40</font><textcolor>asterInk</textcolor><wrapmultiline>true</wrapmultiline></control>
+    <control type="textbox"><left>735</left><top>350</top><width>930</width><height>85</height><label>A visual contract for the digest, article reading and narration controls. No live feed is contacted.</label><font>font22</font><textcolor>asterMuted</textcolor></control>
+    <control type="button" id="11985"><left>735</left><top>455</top><width>220</width><label>Read</label><include>AsterV3PrimaryAction</include><onleft>11987</onleft><onright>11986</onright><onup>11981</onup><ondown>11988</ondown></control>
+    <control type="button" id="11986"><left>970</left><top>455</top><width>300</width><label>Play from beginning</label><include>AsterV3PrimaryAction</include><onleft>11985</onleft><onright>11987</onright><onup>11982</onup><ondown>11989</ondown></control>
+    <control type="button" id="11987"><left>1285</left><top>455</top><width>220</width><label>More stories</label><include>AsterV3PrimaryAction</include><onleft>11986</onleft><onright>11985</onright><onup>11983</onup><ondown>11990</ondown></control>
+    <control type="label"><left>80</left><top>590</top><width>800</width><height>42</height><label>Now in the briefing</label><font>font30</font><textcolor>asterV3Text</textcolor></control>
+    <control type="button" id="11988"><left>80</left><top>650</top><width>535</width><height>245</height><label>Local · The city wakes</label><include>AsterV3StateButton</include><onleft>11990</onleft><onright>11989</onright><onup>11985</onup><ondown>11980</ondown></control>
+    <control type="button" id="11989"><left>690</left><top>650</top><width>535</width><height>245</height><label>World · A changing horizon</label><include>AsterV3StateButton</include><onleft>11988</onleft><onright>11990</onright><onup>11986</onup><ondown>11981</ondown></control>
+    <control type="button" id="11990"><left>1300</left><top>650</top><width>535</width><height>245</height><label>Culture · An evening in sound</label><include>AsterV3StateButton</include><onleft>11989</onleft><onright>11988</onright><onup>11987</onup><ondown>11982</ondown></control>
+    <control type="label"><left>80</left><top>930</top><width>900</width><height>28</height><label>Synthetic fixture · existing digest and article runtime routes remain untouched</label><font>font16</font><textcolor>asterGold</textcolor></control>
+  </controls>
+</window>

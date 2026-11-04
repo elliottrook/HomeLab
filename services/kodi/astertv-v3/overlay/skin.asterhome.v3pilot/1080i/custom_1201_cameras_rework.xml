@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1201">
+  <defaultcontrol always="true">12100</defaultcontrol>
+  <controls>
+    <include>AsterV3PageBackdrop</include>
+    <control type="image"><left>55</left><top>35</top><width>88</width><height>88</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>160</left><top>48</top><width>500</width><height>46</height><label>Cameras</label><font>font36</font><textcolor>asterV3Text</textcolor></control>
+    <control type="label"><left>160</left><top>90</top><width>720</width><height>26</height><label>Synthetic camera states · no live imagery</label><font>font16</font><textcolor>asterGold</textcolor></control>
+    <include content="AsterClockPill" />
+    <control type="button" id="12100"><left>1190</left><top>40</top><width>210</width><label>Home</label><include>AsterV3PrimaryAction</include><onleft>12105</onleft><onright>12101</onright><onup>12104</onup><ondown>12101</ondown><onclick>ActivateWindow(1200)</onclick></control>
+    <control type="button" id="12101"><left>1420</left><top>40</top><width>190</width><label>Back</label><include>AsterV3PrimaryAction</include><onleft>12100</onleft><onright>12102</onright><onup>12105</onup><ondown>12102</ondown><onclick>ActivateWindow(1200)</onclick></control>
+    <control type="button" id="12102"><left>75</left><top>180</top><width>820</width><height>330</height><label>Front Door&#10;Fresh · updated just now</label><include>AsterV3StateButton</include><onleft>12103</onleft><onright>12103</onright><onup>12100</onup><ondown>12104</ondown></control>
+    <control type="image"><left>370</left><top>260</top><width>220</width><height>150</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio><colordiffuse>66ffffff</colordiffuse></control>
+    <control type="button" id="12103"><left>1025</left><top>180</top><width>820</width><height>330</height><label>Driveway&#10;Stale · updated 12 min ago</label><include>AsterV3StateButton</include><onleft>12102</onleft><onright>12102</onright><onup>12101</onup><ondown>12105</ondown></control>
+    <control type="image"><left>1320</left><top>260</top><width>220</width><height>150</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio><colordiffuse>44ffffff</colordiffuse></control>
+    <control type="button" id="12104"><left>75</left><top>575</top><width>820</width><height>330</height><label>Garden&#10;Unavailable · check connection</label><include>AsterV3StateButton</include><onleft>12105</onleft><onright>12105</onright><onup>12102</onup><ondown>12100</ondown></control>
+    <control type="image"><left>370</left><top>655</top><width>220</width><height>150</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio><colordiffuse>22ffffff</colordiffuse></control>
+    <control type="button" id="12105"><left>1025</left><top>575</top><width>820</width><height>330</height><label>Door event&#10;Motion detected · preview only</label><include>AsterV3StateButton</include><onleft>12104</onleft><onright>12104</onright><onup>12103</onup><ondown>12101</ondown></control>
+    <control type="image"><left>1320</left><top>655</top><width>220</width><height>150</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio><colordiffuse>66ffffff</colordiffuse></control>
+  </controls>
+</window>

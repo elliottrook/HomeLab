@@ -1,18 +1,17 @@
 # AsterTV v3
 
-> Status: Active — Stream M; accepted PA2 TV-series presentation is deployed
-> through the existing fail-closed v2 episode engine on Bedroom and Family;
-> the remaining v3 milestones are not yet promoted
+> Status: Active — Stream A PA3 page-design pilot resumed; accepted PA2
+> TV-series presentation remains deployed through the existing fail-closed v2
+> episode engine on Bedroom and Family; PA3 is not promoted
 >
 > Project owner: Jason
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: Stream M. On 2026-11-01 the owner explicitly
-> authorized deployment of the accepted TV-series page to AsterTV Bedroom and
-> AsterTV Family, followed by a bounded reliability repair for the recurring
-> stale player-state and release-regression failures. Other v3 live changes
-> still require their own bounded authorization.
+> Current authorization stream: Stream A. On 2026-11-04 the owner explicitly
+> resumed the bounded portable-Mini page pilot at PA3. The prior 2026-11-01
+> Stream M TV-series deployment and reliability repair remain accepted history;
+> this resumption does not authorize any further live-room change.
 
 ## Purpose and desired outcome
 
@@ -452,7 +451,7 @@ button is **Gold Rim**:
   buttons and must not inherit Gold Rim;
 - no bright yellow or blue focus colour is permitted.
 
-The build transform is pinned to 236 visible buttons and 12 shared definitions,
+The build transform is pinned to 275 visible buttons and 12 shared definitions,
 with eight artwork controls, four hidden controls, two full-page catchers and
 one navigation anchor explicitly excluded. Any inventory drift fails the build
 closed. F11 is the deterministic Gold Rim fixture and F9 verifies the button
@@ -495,18 +494,22 @@ sync to television.
 
 ### PA3 — Aster, News, Requests, Home and Cameras page redesigns
 
-- [ ] Build the Aster AI interaction shell for idle, listening, processing,
+- [x] Build the Aster AI interaction shell for idle, listening, processing,
   speaking, cancelled and failed synthetic states without connecting a model or
   microphone service.
-- [ ] Apply Aster icons and shared chrome to News while preserving digest and
+- [x] Apply Aster icons and shared chrome to News while preserving digest and
   article interaction contracts in fixtures.
-- [ ] Design podcast request discovery, details, duplicate/status and explicit
+- [x] Design podcast request discovery, details, duplicate/status and explicit
   submission surfaces without making a real request.
-- [ ] Redesign the Home dashboard and separate Cameras page with synthetic,
+- [x] Redesign the Home dashboard and separate Cameras page with synthetic,
   clearly labelled fresh/stale/unavailable/door-event states and no real image.
 
 Gate: all surfaces pass the physical navigation/failure-state walkthrough and
 contain no credential, household state, camera image or live write path.
+
+Implementation and automated gates are complete; physical visual/navigation
+acceptance is pending because the Mac was locked when the rebuilt portable
+pilot was launched. F1–F5 open the five PA3 fixtures after unlock.
 
 ### PA4 — Pilot reconciliation and mandatory Stream M transition
 
@@ -946,6 +949,7 @@ explicit user acceptance.
 | 2026-11-01 | Closed the remaining live TV control seams | Episode cards also consumed obsolete `Plot`/`Meta` names, specials were exposed as Season 0, the season control retained a fixed 704px height, the dedicated trailer asset was absent, and Kodi had the packaged actor-search add-on disabled | Both clients now report manifest `8e53c2cc…05a6`; the live Family page publishes the real series and episode synopses/still, episode→Season 4→Carrie Coon focus was proven, the Carrie Coon results heading opened after enabling the read-only add-on, and the exact Aster trailer glyph is installed on both clients |
 | 2026-11-01 | Removed repeated Seerr-art work and the episode-list crash | Valid rendered grayscale PNGs were rejected when larger than the unrelated 5 MB download cap, while `publish()` could dereference a selection index after Kodi moved beyond the final row | Both clients now report manifest `aa589c89…dba0`; cached local PNGs up to 32 MB attach before first render while remote downloads remain capped at 5 MB. Bedroom reopened a cached Seerr still immediately, and repeated beyond-end navigation on Bedroom and Family remained on the TV page with no `IndexError` |
 | 2026-11-01 | Installed the permanent release/player-state reliability boundary | Repeated failures had two independent causes: successive partial overlays could restore older accepted files, and Music could retain a volatile `TrialRecovery` latch after Kodi/Jellyfin had already emptied the player and both playlists. The durable intent journals correctly remained for evidence but were being treated as if they proved live ownership. | Added nine fail-closed reliability tests and retained all 27 TV/shared-language/trailer tests. Bedroom-first and then Family live tests set only a synthetic recovery latch: each cleared after stable empty reads, retained journals, and left both playlists/player untouched. The pre-Kodi guard verified clean host-bound baselines of 535 Bedroom and 533 Family files. Package `astertv-v3-reliability-2026-11-01.tar.gz` is pinned at `1f225b4b…4613e`. Future accepted releases must refresh the baseline only after cumulative regression and live acceptance gates; ordinary hotfixes must not snapshot themselves. |
+| 2026-11-04 | Resumed Stream A and built PA3 synthetic page candidates | Owner requested continuation of v3 Stream A; work resumed in isolated worktree `/private/tmp/astertv-v3-stream-a` without touching unrelated dirty state. Added F1 Aster AI, F2 News, F3 podcast requests, F4 Home and F5 Cameras fixtures; all data is local/synthetic and every request action is inert. | All 42 shared-language, trailer, TV-package and reliability tests pass; Gold Rim inventory is fail-closed at 275 buttons/12 definitions. Rebuilt and launched only the verified portable Mini pilot. Mac lock prevented the physical visual/navigation walkthrough, so PA3 gate awaits unlock and owner review; no Family, Bedroom or service mutation occurred. |
 
 ## Close-out
 

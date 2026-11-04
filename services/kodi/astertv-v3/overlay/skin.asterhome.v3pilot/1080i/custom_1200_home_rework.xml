@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1200">
+  <defaultcontrol always="true">12000</defaultcontrol>
+  <controls>
+    <include>AsterV3PageBackdrop</include>
+    <control type="image"><left>55</left><top>30</top><width>104</width><height>104</height><texture>special://skin/media/aster-home-horizontal-512.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>165</left><top>48</top><width>400</width><height>44</height><label>Home</label><font>font36</font><textcolor>asterV3Text</textcolor></control>
+    <control type="label"><left>165</left><top>90</top><width>700</width><height>26</height><label>Synthetic household overview · no live Home Assistant data</label><font>font16</font><textcolor>asterGold</textcolor></control>
+    <include content="AsterClockPill" />
+    <control type="button" id="12000"><left>1050</left><top>40</top><width>220</width><label>Cameras</label><include>AsterV3PrimaryAction</include><onleft>12005</onleft><onright>12001</onright><onup>12004</onup><ondown>12001</ondown><onclick>ActivateWindow(1201)</onclick></control>
+    <control type="button" id="12001"><left>1290</left><top>40</top><width>190</width><label>Back</label><include>AsterV3PrimaryAction</include><onleft>12000</onleft><onright>12002</onright><onup>12005</onup><ondown>12002</ondown><onclick>ActivateWindow(Home)</onclick></control>
+    <control type="label"><left>75</left><top>165</top><width>700</width><height>42</height><label>Good evening, Jason</label><font>font34</font><textcolor>asterV3Text</textcolor></control>
+    <control type="button" id="12002"><left>75</left><top>235</top><width>540</width><height>275</height><label>Family Room&#10;21.5° · Comfortable&#10;Updated just now</label><include>AsterV3StateButton</include><onleft>12004</onleft><onright>12003</onright><onup>12001</onup><ondown>12005</ondown></control>
+    <control type="button" id="12003"><left>690</left><top>235</top><width>540</width><height>275</height><label>Lights&#10;6 on · 14 off&#10;Updated 1 min ago</label><include>AsterV3StateButton</include><onleft>12002</onleft><onright>12004</onright><onup>12000</onup><ondown>12005</ondown></control>
+    <control type="button" id="12004"><left>1305</left><top>235</top><width>540</width><height>275</height><label>Doors &amp; windows&#10;All secure&#10;Updated just now</label><include>AsterV3StateButton</include><onleft>12003</onleft><onright>12002</onright><onup>12000</onup><ondown>12005</ondown></control>
+    <control type="image"><left>75</left><top>565</top><width>1770</width><height>375</height><texture border="30" colordiffuse="asterPaperGlass">special://skin/media/ui-panel.png</texture></control>
+    <control type="label"><left>125</left><top>610</top><width>700</width><height>42</height><label>At a glance</label><font>font30</font><textcolor>asterInk</textcolor></control>
+    <control type="label"><left>125</left><top>680</top><width>430</width><height>30</height><label>Energy today</label><font>font20</font><textcolor>asterMuted</textcolor></control>
+    <control type="label"><left>125</left><top>720</top><width>430</width><height>50</height><label>18.4 kWh</label><font>font36</font><textcolor>asterInk</textcolor></control>
+    <control type="label"><left>650</left><top>680</top><width>430</width><height>30</height><label>Outdoor</label><font>font20</font><textcolor>asterMuted</textcolor></control>
+    <control type="label"><left>650</left><top>720</top><width>430</width><height>50</height><label>9° · Light rain</label><font>font36</font><textcolor>asterInk</textcolor></control>
+    <control type="label"><left>1175</left><top>680</top><width>500</width><height>30</height><label>Next household event</label><font>font20</font><textcolor>asterMuted</textcolor></control>
+    <control type="label"><left>1175</left><top>720</top><width>500</width><height>50</height><label>Quiet time · 22:30</label><font>font36</font><textcolor>asterInk</textcolor></control>
+    <control type="button" id="12005"><left>690</left><top>845</top><width>540</width><label>Open camera overview</label><include>AsterV3PrimaryAction</include><onleft>12004</onleft><onright>12002</onright><onup>12003</onup><ondown>12000</ondown><onclick>ActivateWindow(1201)</onclick></control>
+  </controls>
+</window>
