@@ -513,7 +513,7 @@ pilot was launched. F1–F5 open the five PA3 fixtures after unlock.
 
 ### PA4 — Pilot reconciliation and mandatory Stream M transition
 
-- [ ] Run cross-page focus, Back/Home, empty/error/loading, secret-pattern,
+- [x] Run cross-page focus, Back/Home, empty/error/loading, secret-pattern,
   retained-profile-integrity and v2 locked-surface regressions.
 - [ ] Package the page overlay, fixture schema, screenshots, build manifest and
   removal/restore proof as a reproducible candidate; do not call it a release.
@@ -524,6 +524,14 @@ pilot was launched. F1–F5 open the five PA3 fixtures after unlock.
 Gate: page designs are accepted or their remaining changes are listed; the
 Mini's prior profile and both appliances are unchanged; Stream A is closed and
 all subsequent work is Stream M.
+
+The automated portion passes. The current standard Kodi profile contains 639
+files and remained at file-set digest `e6367191…005082` before and after two
+candidate builds. It no longer contains the earlier retained Aster skin, so the
+historical `5bdc6b5c…63cfe` skin-only digest cannot be recomputed and is not
+being presented as current continuity evidence. The portable pilot remains at
+its separate, marker-protected path. Physical screenshots, navigation
+acceptance and deliberate pilot retention/removal remain open.
 
 ## Milestones
 
@@ -951,6 +959,7 @@ explicit user acceptance.
 | 2026-11-01 | Installed the permanent release/player-state reliability boundary | Repeated failures had two independent causes: successive partial overlays could restore older accepted files, and Music could retain a volatile `TrialRecovery` latch after Kodi/Jellyfin had already emptied the player and both playlists. The durable intent journals correctly remained for evidence but were being treated as if they proved live ownership. | Added nine fail-closed reliability tests and retained all 27 TV/shared-language/trailer tests. Bedroom-first and then Family live tests set only a synthetic recovery latch: each cleared after stable empty reads, retained journals, and left both playlists/player untouched. The pre-Kodi guard verified clean host-bound baselines of 535 Bedroom and 533 Family files. Package `astertv-v3-reliability-2026-11-01.tar.gz` is pinned at `1f225b4b…4613e`. Future accepted releases must refresh the baseline only after cumulative regression and live acceptance gates; ordinary hotfixes must not snapshot themselves. |
 | 2026-11-04 | Resumed Stream A and built PA3 synthetic page candidates | Owner requested continuation of v3 Stream A; work resumed in isolated worktree `/private/tmp/astertv-v3-stream-a` without touching unrelated dirty state. Added F1 Aster AI, F2 News, F3 podcast requests, F4 Home and F5 Cameras fixtures; all data is local/synthetic and every request action is inert. | All 42 shared-language, trailer, TV-package and reliability tests pass; Gold Rim inventory is fail-closed at 275 buttons/12 definitions. Rebuilt and launched only the verified portable Mini pilot. Mac lock prevented the physical visual/navigation walkthrough, so PA3 gate awaits unlock and owner review; no Family, Bedroom or service mutation occurred. |
 | 2026-11-04 | Repaired recurring Family News playback refusal | Family's log proved playback ended at 19:38:36, then every Digest attempt failed `idle-news-required` because Kodi retained the completed video in its video playlist until Jellyfin cleared it minutes later. The digest player incorrectly treated a remembered queue item as active playback. | Bounded Stream M repair `deploy/news-playback/repair.py` now admits playback only when there is no active player, snapshots both native playlists before direct digest playback, and fences ownership if either queue changes; it performs no playlist mutation. Three focused tests plus the existing 42 v3 tests pass. Family checkpoint is `/storage/.aster-checkpoints/astertv-news-playback-AsterTV-Family-20261104-145456`; four integrity-linked hashes were repinned, the 533-file accepted baseline was refreshed/verified clean, Kodi restarted, and an idempotence check returned `already-installed`. Stream A PA3 resumes; user playback confirmation remains pending. |
+| 2026-11-04 | Built the PA4 pre-visual page candidate reproducibly | Added a synthetic fixture schema, fail-closed secret/path/archive validation, immutable-v2 pin, portable-boundary assertion, current standard-profile before/after fingerprint and all existing regression gates. The prior standard profile's historical Aster skin is absent, so its old skin-only digest is retained as history rather than claimed as current evidence. | Two independent builds produced identical 9,921,156-byte candidate SHA-256 `e88ad8f…943535`; all 49 tests pass and the current 639-file standard profile remained `e6367191…005082`. Manifest status is explicitly `visual-acceptance-pending`, `release=false`, with no screenshots. Await Mac unlock for F1–F5 physical walkthrough/screenshots, owner changes and deliberate pilot retention/removal before closing Stream A. |
 
 ## Close-out
 
