@@ -19,6 +19,15 @@
 | M3 NLU and routing | The accepted v2 policy separates decision coverage from route effects. Prior prompt, lexical, learned-head, encoder and 35B joint-semantic candidates failed the honest gates. The [architecture reset](evidence/M3-post-35B-architecture-reset-2026-10-30.md) defines J1: a compact joint-label classifier trained only from a preregistered, disjoint synthetic corpus. Candidate-v2 passed public/AI review but its first real private comparison failed closed on one calibration-v1 overlap and wrote no receipts. [Candidate-v3](evidence/M3-J1-v3-private-nonoverlap-and-ai-review-2026-11-03.md) changes only that public synthetic row. It is frozen at `a625e677…77d5`, remains balanced 320/80 across all 16 labels, passed three independent AI PROMOTE reviews and 29/29 focused tests, and now has seven independently validated zero-overlap receipts with the sealed holdout unread. The first linear training recipe failed independent review because its real frozen path could not select a threshold and was not promoted. The corrected [training-recipe release candidate](evidence/M3-J1-training-recipe-release-candidate-2026-11-03.md) uses a fixed-alpha deterministic multinomial learner, requires the exact seven receipt bytes and private result, selects on quantized validation predictions, requires at least 48/80 exact accepted rows, replays the serialized artifact, and sends accepted labels through the deterministic guard. The real receipt-bound path achieves 70/80 raw and guarded exact and 50/50 exact accepted at margin 0.375; three fresh independent reviewers all returned PROMOTE. Jason then approved one bounded offline transaction: two clean CPU reproductions were byte-identical and the [artifact is now frozen](evidence/M3-J1-bounded-training-result-2026-11-03.md) at `606bd761…ae7c` under a content-free receipt, while authority and automatic routing remain off. The first public launch failed before projection because it named the release manifest; the corrected v2 packet then passed clean-archive review. Its [one valid public-gate run](evidence/M3-J1-public-gate-result-2026-11-04.md) rejected J1 at 19/24 exact against the preregistered 23/24 bar, with zero unsafe false routes and zero routed privacy underclassification. The result is retained at `834dadf8…e4d`; authority and automatic routing remain off. | Close J1 as rejected. Do not retry, tune on the five exposed failures, open the sealed holdout, deploy, enable routing or grant tools. A successor needs a materially new preregistered architecture/corpus and untouched evaluation boundary. Continue other Stream A lanes independently. |
 | Companion | Ordinary signed-in Aster use, persisted recovery and read-only OpenBao status passed. | Continue ordinary reliability monitoring. The hidden manual-Codex fallback remains deferred unless Jason asks to release it. |
 
+**D4 live update — 2026-11-04 12:51 America/Vancouver:** the D4 row's older
+next-dependency wording is superseded. The 12:30 booking failed before drain or
+model work on a second stale EPUB architecture predicate. The
+[full-path correction](evidence/D4-candidate-g-1230-no-go-and-EPUB-path-correction-2026-11-04.md)
+is now installed and target-validated across preflight, Doctor, drain and
+restoration. The fresh [r3 booking](evidence/D4-candidate-g-booking-r3-result-2026-11-04.md)
+is scheduled for 13:15–14:45. Its terminal transaction and independent
+production restoration are now the next D4 dependency.
+
 **M3 successor checkpoint — 2026-11-04:** the
 [J2 source-only preregistration](evidence/M3-J2-preregistration-boundary-2026-11-04.md)
 now freezes a materially different byte-convolutional joint-label family and a
@@ -141,6 +150,17 @@ for 12:30–14:00 host-local after a clear ledger result, ready lease, absent
 shared state/locks and successful validation of all 34 installed pins. Runtime
 claim and health gates remain fail closed; no further conversational approval
 is required for this bounded candidate.
+
+That 12:30 transaction then [failed before drain or model
+work](evidence/D4-candidate-g-1230-no-go-and-EPUB-path-correction-2026-11-04.md)
+on a second stale EPUB architecture predicate. Stream A followed the entire
+installed path before preparing another run: preflight, Doctor, drain and
+restoration now use the host scheduler/guest monitor design, the 48/48 focused
+suite and target postchecks pass, and no retired worker timer remains in the
+canonical transaction. The fresh ledger-clear
+[r3 booking](evidence/D4-candidate-g-booking-r3-result-2026-11-04.md) is
+scheduled for 13:15–14:45. It remains conditional on fresh runtime gates and
+permits no retry or promotion.
 
 Work outside the timed F2 chain continues in parallel. A failed F2 runtime gate
 blocks F3 and the live evaluations; it does not block offline D4/M3 hardening,
