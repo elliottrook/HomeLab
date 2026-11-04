@@ -23,6 +23,7 @@ MOVIE_PAGE = OVERLAY / "1080i/custom_1194_movie_rework.xml"
 PERSON_PAGE = OVERLAY / "1080i/custom_1195_person_library.xml"
 TV_PAGE = OVERLAY / "1080i/custom_1196_tv_rework.xml"
 AI_PAGE = OVERLAY / "1080i/custom_1197_aster_ai.xml"
+AI_KEYWORD_PAGE = OVERLAY / "1080i/custom_1202_aster_ai_keyword.xml"
 NEWS_PAGE = OVERLAY / "1080i/custom_1198_news_rework.xml"
 PODCAST_PAGE = OVERLAY / "1080i/custom_1199_podcast_requests.xml"
 HOME_PAGE = OVERLAY / "1080i/custom_1200_home_rework.xml"
@@ -55,6 +56,7 @@ class SharedLanguageTests(unittest.TestCase):
             PERSON_PAGE,
             TV_PAGE,
             AI_PAGE,
+            AI_KEYWORD_PAGE,
             NEWS_PAGE,
             PODCAST_PAGE,
             HOME_PAGE,
@@ -388,9 +390,9 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-            self.assertIn("272 visible buttons", completed.stdout)
+            self.assertIn("292 visible buttons", completed.stdout)
             self.assertIn("anchor:1, art:11, catcher:2, hidden:4", completed.stdout)
-            self.assertIn("12 shared button definitions", completed.stdout)
+            self.assertIn("14 shared button definitions", completed.stdout)
 
             focus_refs = 0
             for path in (skin / "1080i").glob("*.xml"):
@@ -402,7 +404,7 @@ class SharedLanguageTests(unittest.TestCase):
                         continue
                     self.assertEqual(node.attrib.get("border"), "20")
                     focus_refs += 1
-            self.assertEqual(focus_refs, 210)
+            self.assertEqual(focus_refs, 212)
 
             tile = ET.parse(skin / "1080i/custom_1192_tile_gallery.xml").getroot()
             art_buttons = {
@@ -716,7 +718,7 @@ class SharedLanguageTests(unittest.TestCase):
             node.attrib["name"]: int(node.findtext("height", "0"))
             for node in include_root.findall("include")
         }
-        for path in (AI_PAGE, NEWS_PAGE, PODCAST_PAGE, HOME_PAGE, CAMERAS_PAGE):
+        for path in (AI_PAGE, AI_KEYWORD_PAGE, NEWS_PAGE, PODCAST_PAGE, HOME_PAGE, CAMERAS_PAGE):
             with self.subTest(path=path):
                 text = path.read_text()
                 self.assertIn("Synthetic", text)
@@ -749,21 +751,44 @@ class SharedLanguageTests(unittest.TestCase):
             "“Find me a light comedy film.”",
             "I found three matches on AsterTV",
             "Search again",
+            "Keyword view",
             "View all results",
             "Close",
         ):
             self.assertIn(f"<label>{label}</label>", text)
         self.assertEqual(text.count("<include>AsterV3ArtTitleTile</include>"), 3)
         self.assertIn("<onclick>ActivateWindow(1127)</onclick>", text)
-        self.assertEqual(text.count("<onclick>Dialog.Close(1197)</onclick>"), 5)
-        for control_id in ("11970", "11971", "11972", "11974"):
+        self.assertEqual(text.count("<onclick>Dialog.Close(1197)</onclick>"), 6)
+        for control_id in ("11970", "11971", "11972", "11974", "11977"):
             action = page.find(f".//control[@id='{control_id}']")
             self.assertEqual(
                 [node.text for node in action.findall("onclick")],
-                ["Dialog.Close(1197)", "ActivateWindow(1194)" if control_id != "11974" else "ActivateWindow(1127)"],
+                [
+                    "Dialog.Close(1197)",
+                    "ActivateWindow(1127)" if control_id == "11974" else
+                    "ActivateWindow(1202)" if control_id == "11977" else
+                    "ActivateWindow(1194)",
+                ],
             )
+        self.assertEqual(text.count("<include>AsterV3DialogPill</include>"), 5)
+        self.assertIn('colordiffuse="b8d9d7cf"', text)
         self.assertIn("returns to the page underneath", text)
         self.assertIn("no microphone or search service connected", text)
+
+    def test_pa3_aster_ai_keyword_view_groups_art_results_by_media_type(self) -> None:
+        page = ET.parse(AI_KEYWORD_PAGE).getroot()
+        text = AI_KEYWORD_PAGE.read_text()
+        self.assertEqual(page.attrib.get("type"), "dialog")
+        self.assertEqual(page.findtext("backgroundcolor"), "00000000")
+        for label in ("TV SHOWS", "MOVIES", "BOOKS &amp; LISTENING", "MUSIC"):
+            self.assertIn(f"<label>{label}</label>", text)
+        self.assertIn("“Show me anything about space.”", text)
+        self.assertEqual(text.count("<include>AsterV3DialogResult</include>"), 12)
+        self.assertGreaterEqual(text.count("ui-compact-card-mask.png"), 12)
+        self.assertGreaterEqual(text.count("<include>AsterV3DialogPill</include>"), 7)
+        self.assertIn('colordiffuse="a8d9d7cf"', text)
+        for window in (1194, 1196, 1197, 1127):
+            self.assertIn(f"<onclick>ActivateWindow({window})</onclick>", text)
 
     def test_pa3_news_preserves_digest_article_and_narration_contracts(self) -> None:
         text = NEWS_PAGE.read_text()

@@ -3,7 +3,7 @@
   "kind": "astertv-v3-stream-a-page-fixtures",
   "credential_policy": "synthetic-only",
   "pages": [
-    {"key": "F1", "window": 1197, "name": "Aster AI", "states": ["global-dialog", "listening", "transcript", "inline-results", "full-results-handoff", "close-to-origin"]},
+    {"key": "F1", "window": 1197, "name": "Aster AI", "states": ["global-dialog", "listening", "transcript", "film-art-results", "keyword-grouped-art-results", "full-results-handoff", "close-to-origin"]},
     {"key": "F2", "window": 1198, "name": "News", "states": ["digest", "article", "narration"]},
     {"key": "F3", "window": 1199, "name": "Podcast Requests", "states": ["available", "duplicate", "request-needed", "inert-submit"]},
     {"key": "F4", "window": 1200, "name": "Home", "states": ["fresh-household-overview"]},
