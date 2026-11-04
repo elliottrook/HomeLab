@@ -64,9 +64,34 @@ surface(name: "ui-dialog-pill-rest.png",
 surface(name: "ui-dialog-result-rest.png",
         top: NSColor(calibratedRed: 242/255, green: 239/255, blue: 232/255, alpha: 1),
         bottom: NSColor(calibratedRed: 196/255, green: 192/255, blue: 181/255, alpha: 1), radius: 8)
+surface(name: "ui-dialog-result-focus.png",
+        top: NSColor(calibratedRed: 46/255, green: 101/255, blue: 77/255, alpha: 1),
+        bottom: NSColor(calibratedRed: 31/255, green: 81/255, blue: 59/255, alpha: 1), radius: 8)
 surface(name: "ui-dialog-section.png",
         top: NSColor(calibratedRed: 41/255, green: 39/255, blue: 33/255, alpha: 1),
         bottom: NSColor(calibratedRed: 23/255, green: 22/255, blue: 18/255, alpha: 1), radius: 18, dark: true)
+
+let artMask = NSImage(size: size)
+artMask.lockFocus()
+NSColor.clear.setFill()
+NSRect(origin: .zero, size: size).fill()
+NSColor.white.setFill()
+let maskPath = NSBezierPath()
+maskPath.move(to: NSPoint(x: 9, y: 0))
+maskPath.line(to: NSPoint(x: 64, y: 0))
+maskPath.line(to: NSPoint(x: 64, y: 64))
+maskPath.line(to: NSPoint(x: 9, y: 64))
+maskPath.curve(to: NSPoint(x: 0, y: 55),
+               controlPoint1: NSPoint(x: 4, y: 64),
+               controlPoint2: NSPoint(x: 0, y: 60))
+maskPath.line(to: NSPoint(x: 0, y: 9))
+maskPath.curve(to: NSPoint(x: 9, y: 0),
+               controlPoint1: NSPoint(x: 0, y: 4),
+               controlPoint2: NSPoint(x: 4, y: 0))
+maskPath.close()
+maskPath.fill()
+artMask.unlockFocus()
+write(artMask, to: root.appendingPathComponent("ui-dialog-result-art-mask.png"))
 
 let frames = [
     [10, 20, 32, 18, 8], [20, 10, 18, 32, 16],

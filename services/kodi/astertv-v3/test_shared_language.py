@@ -45,6 +45,8 @@ BUTTON_FOCUS_PNG = OVERLAY / "media/ui-button-focus-gold-rim.png"
 BUTTON_CURRENT_PNG = OVERLAY / "media/ui-button-current-gold-rim.png"
 DIALOG_PILL = OVERLAY / "media/ui-dialog-pill-rest.png"
 DIALOG_RESULT = OVERLAY / "media/ui-dialog-result-rest.png"
+DIALOG_RESULT_FOCUS = OVERLAY / "media/ui-dialog-result-focus.png"
+DIALOG_RESULT_ART_MASK = OVERLAY / "media/ui-dialog-result-art-mask.png"
 TRAILER_ROUTE = V3 / "jellyfin_trailer_route.py"
 
 
@@ -785,11 +787,11 @@ class SharedLanguageTests(unittest.TestCase):
         text = AI_KEYWORD_PAGE.read_text()
         self.assertEqual(page.attrib.get("type"), "dialog")
         self.assertEqual(page.findtext("backgroundcolor"), "00000000")
-        for label in ("TV SHOWS", "MOVIES", "BOOKS &amp; LISTENING", "MUSIC"):
+        for label in ("TV SHOWS", "MOVIES", "LISTENING", "MUSIC"):
             self.assertIn(f"<label>{label}</label>", text)
         self.assertIn("“Show me anything about space.”", text)
         self.assertEqual(text.count("<include>AsterV3DialogResult</include>"), 12)
-        self.assertGreaterEqual(text.count("ui-compact-card-mask.png"), 12)
+        self.assertEqual(text.count("ui-dialog-result-art-mask.png"), 12)
         self.assertGreaterEqual(text.count("<include>AsterV3DialogPill</include>"), 8)
         self.assertIn('colordiffuse="d0292721"', text)
         self.assertIn("<label>More TV shows</label>", text)
@@ -801,6 +803,10 @@ class SharedLanguageTests(unittest.TestCase):
         includes = ET.parse(INCLUDES).getroot()
         result_include = includes.find("include[@name='AsterV3DialogResult']")
         self.assertEqual(result_include.findtext("wrapmultiline"), "true")
+        self.assertEqual(
+            result_include.findtext("texturefocus"),
+            "special://skin/media/ui-dialog-result-focus.png",
+        )
         for window in (1194, 1196, 1197, 1127):
             self.assertIn(f"<onclick>ActivateWindow({window})</onclick>", text)
 
@@ -826,20 +832,20 @@ class SharedLanguageTests(unittest.TestCase):
         result_art = [
             node for node in page.findall(".//control[@type='image']")
             if node.find("texture") is not None
-            and node.find("texture").attrib.get("diffuse") == "special://skin/media/ui-compact-card-mask.png"
+            and node.find("texture").attrib.get("diffuse") == "special://skin/media/ui-dialog-result-art-mask.png"
         ]
         self.assertEqual(len(result_art), 12)
-        self.assertEqual(sorted({int(node.findtext("height")) for node in result_art}), [82])
+        self.assertEqual(sorted({int(node.findtext("height")) for node in result_art}), [78])
         self.assertEqual(
             [int(node.findtext("left")) for node in result_art],
-            [165] * 3 + [555] * 3 + [945] * 3 + [1335] * 3,
-            "art must be flush to the left edge of each compact result",
+            [167] * 3 + [557] * 3 + [947] * 3 + [1337] * 3,
+            "art must sit inside the two-pixel contour of each compact result",
         )
 
     def test_pa3_dialog_png_assets_preserve_transparency(self) -> None:
-        assets = [DIALOG_PILL, DIALOG_RESULT]
+        assets = [DIALOG_PILL, DIALOG_RESULT, DIALOG_RESULT_FOCUS, DIALOG_RESULT_ART_MASK]
         assets.extend(sorted((OVERLAY / "media/aster-ai-listening-png").glob("*.png")))
-        self.assertEqual(len(assets), 6)
+        self.assertEqual(len(assets), 8)
         for path in assets:
             with self.subTest(path=path):
                 data = path.read_bytes()

@@ -63,7 +63,7 @@
         <wrapmultiline>true</wrapmultiline>
         <textcolor>asterInk</textcolor>
         <focusedcolor>asterIvory</focusedcolor>
-        <texturefocus border="20">special://skin/media/ui-button-focus-gold-rim.png</texturefocus>
+        <texturefocus border="20">special://skin/media/ui-dialog-result-focus.png</texturefocus>
         <texturenofocus border="20">special://skin/media/ui-dialog-result-rest.png</texturenofocus>
     </include>
 
