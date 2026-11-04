@@ -59,6 +59,14 @@
 > occurred. One fresh authoritative ledger-booked R8 attempt is now the next D4
 > gate; R3–R7 remain spent.
 
+> **R8 complete, 2026-11-04 16:19:** the fresh booking
+> [claimed exactly and completed restored](evidence/D4-candidate-g-r8-complete-and-blind-handoff-2026-11-04.md)
+> in 235 seconds. Exact reconciliation accepts 20 cases, 14 requests and zero
+> retries/errors/effects; production, lease, locks and restart postchecks pass.
+> The result is structurally eligible and has moved to the exact
+> model-identity-blind review packet. Quality remains pending independent
+> review; completion alone grants no route or promotion.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
