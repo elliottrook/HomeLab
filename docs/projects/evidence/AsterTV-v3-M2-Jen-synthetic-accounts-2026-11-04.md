@@ -20,11 +20,11 @@ the account candidate and are not AsterTV v3-wide limits.
 
 ## Candidate and recovery
 
-- accepted candidate: `astertv-v3-m2-jen-r2.tar.gz`
-- SHA-256: `d49ecc3361d8b5883e6df7f47ec6f7124e654cac04063f97f510b9bfbf28e17b`
-- add-on: `script.asterprofiles.v3lab` version `0.1.1`
+- accepted candidate: `astertv-v3-m2-jen-r6.tar.gz`
+- SHA-256: `d21acdb380fc480232849eed85e77ce36e355a9773ecc8b36669f0d0610ef6c3`
+- add-on: `script.asterprofiles.v3lab` version `0.2.0`
 - retained checkpoint:
-  `/storage/.aster-checkpoints/astertv-v3-m2-jen-r2-20261104`
+  `/storage/.aster-checkpoints/astertv-v3-m2-jen-r6-20261104`
 - first checkpoint and exercised rollback:
   `/storage/.aster-checkpoints/astertv-v3-m2-jen-20261104`
 - checkpoint manifest SHA-256 for the first rollback:
@@ -58,11 +58,41 @@ absent, and the accepted v2 release guard remained clean before r2 installed.
   `451f4d2173743f5fab93e8ace1a43f7182fb91d1909bdb51651ed87245a7d1d0`;
 - release-guard verification reports 528 files and `outcome: clean`.
 
+## Route enforcement and personalized-state protection
+
+r6 adds a separate candidate keymap which wraps the accepted v2 dispatcher; it
+does not edit that dispatcher. A pure access policy requires both the named
+entitlement and an enabled service mapping before a private route can open.
+Neither synthetic Member has an enabled mapping, so a role label alone cannot
+unlock Jen's production-connected backends.
+
+Live gates passed for:
+
+- actual Kodi Select-key denial on Books through the loaded keymap;
+- pre-action denial of Books, Home/Cameras, Music, Requests, personal YouTube,
+  broad search, shared search and voice/Aster context;
+- direct custom-window bypass attempts for Books, Home/Cameras, Music, search
+  and Requests, each returned to the public News surface;
+- non-admin Settings opening only the synthetic profile selector;
+- both Guest and Synthetic Member A being redirected away from personalized
+  Media Home because neither has an enabled Jellyfin mapping;
+- Guest restart returning to News with the persisted Guest identity; and
+- the accepted manifest, 528-file guard and Jen-only playback-policy hashes
+  remaining unchanged.
+
+The contract now explicitly denies Guest access to viewing history and personal
+recommendations. Although `public_catalogue_browse` remains a desired Guest
+capability, no existing v2 page is safe for it: Media Home contains Continue
+Watching and personal recommendations, while the library exposes the existing
+Jellyfin identity. r5 therefore fails closed until a guest-safe catalogue
+adapter with an independently scoped mapping exists. The service stats the
+atomic registry four times per second for responsive enforcement but reloads
+and republishes it only when its timestamp or size changes.
+
 ## Remaining M2 gate
 
-The registry and selector are functional, but the normal Aster page router does
-not yet consume the active-profile entitlements. The next bounded task is to
-place the selector in the v3 settings/account flow and prove that Guest cannot
-reach YouTube account state, requests, private books/listening, Home controls,
-cameras or private Aster context through adversarial navigation. Until that
-passes, this is a retained Jen candidate rather than a v3 account release.
+The synthetic registry, selector and route enforcement are functional. M2
+still needs the adopted household account authority, physical recovery-admin
+workflow, per-service real identity lifecycle and guest-safe catalogue adapter.
+Until those are designed and separately authorized, r6 remains a retained Jen
+candidate rather than a v3 account release.

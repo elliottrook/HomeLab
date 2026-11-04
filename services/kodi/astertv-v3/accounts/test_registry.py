@@ -11,6 +11,9 @@ ROOT = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location("astertv_profile_registry", ROOT / "registry.py")
 registry = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(registry)
+policy_spec = importlib.util.spec_from_file_location("astertv_access_policy", ROOT / "access_policy.py")
+policy = importlib.util.module_from_spec(policy_spec)
+policy_spec.loader.exec_module(policy)
 
 
 def fixture():
@@ -85,6 +88,43 @@ class RegistryTests(unittest.TestCase):
         combined = json.dumps(fixture()) + (ROOT / "registry.py").read_text()
         for target_specific in ("1080", "18000", "passthrough_formats", "AsterTV-Jen"):
             self.assertNotIn(target_specific, combined)
+
+    def test_guest_policy_denies_private_routes_and_allows_public_media_news(self):
+        guest = registry.sign_out(fixture(), "2026-11-04T01:03:00Z")
+        self.assertEqual(policy.active_role(guest), "guest")
+        for focus in (9001, 9002, 9004, 9007, 9009, 100, 110, 120, 121,
+                      130, 131, 132, 133, 134, 135, 136, 139, 140, 146):
+            self.assertEqual(policy.select_decision(guest, focus), "deny")
+        self.assertEqual(policy.select_decision(guest, 9005), "profiles")
+        for focus in (9003,):
+            self.assertEqual(policy.select_decision(guest, focus), "allow")
+        for window in (11110, 11112, 11113, 11118, 11120, 11127, 11132, 11133):
+            self.assertTrue(policy.private_surface(guest, window))
+        self.assertTrue(policy.private_surface(guest, 10025, "plugin://plugin.video.youtube/"))
+        self.assertFalse(policy.private_surface(guest, 11111))
+        self.assertTrue(policy.private_surface(guest, 10000))
+        self.assertTrue(policy.private_surface(guest, 10025, "videodb://movies/titles/"))
+
+    def test_member_requires_both_entitlement_and_enabled_mapping(self):
+        data = fixture()
+        self.assertEqual(policy.active_role(data), "member")
+        self.assertEqual(policy.select_decision(data, 9009), "deny")
+        self.assertTrue(policy.private_surface(data, 11112))
+        data["profiles"][0]["entitlements"].append("requests_submit")
+        self.assertEqual(policy.select_decision(data, 9009), "deny")
+        data["profiles"][0]["service_mappings"].append({
+            "service": "seerr", "opaque_subject_id": "synthetic:member-a:seerr", "enabled": True,
+        })
+        self.assertEqual(policy.select_decision(data, 9009), "allow")
+        self.assertFalse(policy.private_surface(data, 11132))
+
+    def test_catalogue_requires_entitlement_and_enabled_jellyfin_mapping(self):
+        data = fixture()
+        data["profiles"][0]["entitlements"].append("public_catalogue_browse")
+        self.assertTrue(policy.private_surface(data, 10000))
+        data["profiles"][0]["service_mappings"][0]["enabled"] = True
+        self.assertFalse(policy.private_surface(data, 10000))
+        self.assertEqual(policy.select_decision(data, 9001), "allow")
 
 
 if __name__ == "__main__":

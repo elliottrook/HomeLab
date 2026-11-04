@@ -640,7 +640,7 @@ each push under the repository rule.
   and atomic recovery path locally.
 - [x] SA-M2-JEN2: build the isolated Jen candidate and capture the accepted v2
   checkpoint without changing playback or source services.
-- [ ] SA-M2-JEN3: activate on idle Jen and pass switching, restart, sign-out,
+- [x] SA-M2-JEN3: activate on idle Jen and pass switching, restart, sign-out,
   malformed-state, navigation, Guest-denial and rollback tests.
 - [ ] SA-M2-JEN4: retain or remove the candidate according to acceptance,
   reconcile evidence and end this Stream A before M3.
@@ -706,21 +706,24 @@ the accepted v2 baseline; its measured limits are recorded honestly.
 - [ ] Define system-wide account/profile schema, switching UX, recovery admin,
   shared versus private state and service mappings.
 - [x] Implement accounts first with synthetic users and no production tokens.
-- [ ] Prove account switching, restart persistence, sign-out, missing identity,
+- [x] Prove account switching, restart persistence, sign-out, missing identity,
   malformed state and guest denials.
-- [ ] Test that guest mode cannot access primary YouTube state, requests, books,
+- [x] Test that guest mode cannot access primary YouTube state, requests, books,
   Home controls, cameras or Aster private context.
 
 Gate: two synthetic accounts and guest remain isolated across restart and
 adversarial navigation; recovery does not require the implementation agent.
 
-The credential-free registry and its first live Jen candidate are implemented.
+The credential-free registry and its live Jen r6 candidate are implemented.
 Two synthetic members, restricted Guest, atomic mode-0600 persistence, one
 previous copy, restart publication, sign-out, malformed-state fallback and an
 exercised full rollback pass. Evidence is in
 `docs/projects/evidence/AsterTV-v3-M2-Jen-synthetic-accounts-2026-11-04.md`.
-The milestone remains open until the Aster page router consumes these
-entitlements and live adversarial navigation proves every Guest denial.
+The shared route wrapper and window guard now consume those entitlements.
+Normal and direct-bypass tests prove Guest/private denial, and the existing v2
+dispatcher remains unchanged. The milestone remains open for the adopted real
+account authority, physical recovery-admin workflow, real per-service identity
+lifecycle and a genuinely Guest-safe catalogue adapter.
 
 ### M3 — Aster AI television integration
 
@@ -1146,6 +1149,7 @@ explicit user acceptance.
 | 2026-11-04 | Moved low-spec 4K playback to a Jen-only Arc-backed policy | Installed a hostname-bound Jellyfin device profile on AsterTV-Jen: HEVC direct play is limited to width 1920 and client bitrate to 18 Mb/s; known add-on bytes are repatched at boot/update and unknown versions fail safe to all-HEVC transcode. Family and Bedroom are unchanged. On Jellyfin, enabled the Arc A380's advertised HEVC/MPEG-2/VP9/AV1 decoders and Intel VPP tone mapping after checkpointing the encoding config; OpenCL tone mapping remains off because the container has no OpenCL platform. | The same 4K HDR10+ *Tow* source became 1080p H.264 QSV at 17.744 Mb/s. Full VAAPI decode/scale/VPP tone-map/QSV encode ran at 15.2× versus 5.3× partial acceleration; FFmpeg fell from ~1053% to 89–106% CPU. The ten-minute run reached 608 seconds without error while Jen stayed 27.8 °C and ~518–526 MiB RSS. The M93p is accepted as a stable low-spec AsterTV client when 4K HEVC is server-transcoded; it is not accepted for local disc-class 4K decode. |
 | 2026-11-04 | Opened Jen-only M2 synthetic-account Stream A | Owner confirmed the low-spec report, authorized use of AsterTV-Jen for the next work and explicitly clarified that Jen's 1080p/stereo limits are not v3 project limits. | The bounded `SA-M2-JEN` envelope permits only an isolated credential-free candidate, synthetic account fixtures and Jen validation with v2 checkpoint/rollback. Family, Bedroom, real identities and M3 or later work remain excluded. Forgejo and GitHub both contain the preceding handoff reconciliation at `4fdb849b`. |
 | 2026-11-04 | Passed the first Jen M2 synthetic-account gate | Built deterministic candidate `d49ecc33…e17b`, checkpointed accepted v2/Addons state, proved a complete rollback, then installed r2 with startup publication. Two synthetic members switch through the visible selector; restart persistence, sign-out and malformed-state fail-closed behavior pass. | Jen is deliberately left as restricted Guest. The 528-file v2 guard, accepted manifest and Jen-only Jellyfin policy are unchanged. M2 stays open until the normal Aster router enforces Guest denials across private surfaces. |
+| 2026-11-04 | Enforced synthetic-profile routes and protected personalized state | r6 `0.2.0` (`d21acdb3…f6c3`) wraps the accepted dispatcher through a separate keymap and requires both entitlement and enabled service mapping for private routes. Guest and synthetic Members without mappings land on News rather than personalized Media; actual Select and direct-window bypass tests deny Books/listening, Music, Requests, YouTube, Home/Cameras, private search/voice and writable Settings. | SA-M2-JEN3 passes. Guest persists through restart, v2's 528-file guard and Jen playback policy are unchanged, and r6 remains isolated/checkpointed. A guest-safe catalogue adapter and real account/recovery authority remain deliberately open; no production identity was reused. |
 
 ## Close-out
 

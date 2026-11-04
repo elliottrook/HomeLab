@@ -21,7 +21,9 @@ SOURCES = {
     "addons/script.asterprofiles.v3lab/default.py": ADDON / "default.py",
     "addons/script.asterprofiles.v3lab/service.py": ADDON / "service.py",
     "addons/script.asterprofiles.v3lab/registry.py": ROOT / "registry.py",
+    "addons/script.asterprofiles.v3lab/access_policy.py": ROOT / "access_policy.py",
     "addons/script.asterprofiles.v3lab/synthetic-fixture.json": ROOT / "synthetic-fixture.json",
+    "keymaps/z-astertv-v3-m2-profile-gate.xml": ROOT / "keymaps/z-astertv-v3-m2-profile-gate.xml",
 }
 SECRET = re.compile(
     rb"(?i)(?:password|passwd|api[_ -]?key|access[_ -]?token|client[_ -]?secret)"

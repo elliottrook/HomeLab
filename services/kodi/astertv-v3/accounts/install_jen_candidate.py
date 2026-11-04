@@ -19,6 +19,7 @@ EXPECTED_HOST = "AsterTV-Jen"
 KODI = Path("/storage/.kodi")
 ADDON = KODI / "addons/script.asterprofiles.v3lab"
 STATE = KODI / "userdata/addon_data/script.asterprofiles.v3lab"
+KEYMAP = KODI / "userdata/keymaps/z-astertv-v3-m2-profile-gate.xml"
 GUARD = Path("/storage/.aster-release/release_guard.py")
 CHECKPOINT_ROOT = Path("/storage/.aster-checkpoints")
 CHECKPOINT_FILES = (
@@ -72,7 +73,7 @@ def require_boundary():
     host = socket.gethostname()
     if host != EXPECTED_HOST:
         raise RuntimeError("wrong-target:" + host)
-    if ADDON.exists() or STATE.exists():
+    if ADDON.exists() or STATE.exists() or KEYMAP.exists():
         raise RuntimeError("isolated-candidate-already-present")
     active = json_rpc("Player.GetActivePlayers")
     if active:
@@ -119,7 +120,9 @@ def validate_archive(archive, expected_sha):
         "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/default.py",
         "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/service.py",
         "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/registry.py",
+        "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/access_policy.py",
         "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/synthetic-fixture.json",
+        "astertv-v3-m2-jen/keymaps/z-astertv-v3-m2-profile-gate.xml",
         "astertv-v3-m2-jen/manifest.json",
     }
     with tarfile.open(archive, "r:gz") as bundle:
@@ -155,10 +158,16 @@ def install(archive, expected_sha, identifier):
                 if path.is_file():
                     os.chmod(path, 0o644)
             os.replace(staging, ADDON)
+            keymap_source = Path(temporary) / "astertv-v3-m2-jen/keymaps/z-astertv-v3-m2-profile-gate.xml"
+            keymap_staging = KEYMAP.with_name("." + KEYMAP.name + ".installing")
+            shutil.copy2(keymap_source, keymap_staging)
+            os.chmod(keymap_staging, 0o644)
+            os.replace(keymap_staging, KEYMAP)
         run("systemctl", "start", "kodi")
     except Exception:
         if ADDON.exists():
             shutil.rmtree(ADDON)
+        KEYMAP.unlink(missing_ok=True)
         run("systemctl", "start", "kodi")
         raise
     print(json.dumps({
@@ -186,6 +195,7 @@ def rollback(identifier):
             shutil.rmtree(ADDON)
         if STATE.exists():
             shutil.rmtree(STATE)
+        KEYMAP.unlink(missing_ok=True)
         for row in manifest["files"]:
             target = Path(row["path"])
             source = destination / "files" / target.relative_to("/")

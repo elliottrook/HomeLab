@@ -13,3 +13,9 @@ cannot authenticate to any service.
 The Jen deployment must use a separately named state directory. Family,
 Bedroom and the accepted v2 profile are not targets. The 1080p/stereo limits in
 Jen's capability profile are not account defaults and do not appear here.
+
+The candidate keymap wraps the accepted v2 Select dispatcher and the startup
+service rejects direct private-window bypasses. Private routes require both an
+entitlement and an enabled service mapping; role alone never grants access.
+Profiles without a Jellyfin mapping land on public News because v2 Media Home
+contains personalized Continue Watching and recommendation state.

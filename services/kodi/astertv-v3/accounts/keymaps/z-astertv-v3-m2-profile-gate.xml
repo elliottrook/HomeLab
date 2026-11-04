@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<keymap>
+  <global>
+    <keyboard>
+      <select>RunScript(script.asterprofiles.v3lab,action=dispatch-select)</select>
+      <key id="353">RunScript(script.asterprofiles.v3lab,action=dispatch-select)</key>
+      <return>RunScript(script.asterprofiles.v3lab,action=dispatch-select)</return>
+      <enter>RunScript(script.asterprofiles.v3lab,action=dispatch-select)</enter>
+      <browser_search>RunScript(script.asterprofiles.v3lab,action=voice)</browser_search>
+    </keyboard>
+    <mouse>
+      <leftclick>RunScript(script.asterprofiles.v3lab,action=dispatch-select)</leftclick>
+    </mouse>
+  </global>
+</keymap>

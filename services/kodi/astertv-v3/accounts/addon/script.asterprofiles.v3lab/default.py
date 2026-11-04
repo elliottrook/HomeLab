@@ -11,6 +11,7 @@ import xbmcgui
 import xbmcvfs
 
 from registry import RegistryError, activate, load, sign_out, store, validate
+from access_policy import allows, select_decision
 
 
 ADDON = Path(xbmcvfs.translatePath("special://home/addons/script.asterprofiles.v3lab"))
@@ -49,22 +50,63 @@ def publish(current, status):
     window.setProperty("Aster.Profile.State", status)
 
 
+def focus_id():
+    window_id = xbmcgui.getCurrentWindowId()
+    try:
+        return xbmcgui.Window(window_id).getFocusId()
+    except RuntimeError:
+        return 0
+
+
+def denied(label):
+    xbmc.log("Aster Profiles denied profile route: " + label, xbmc.LOGINFO)
+    xbmcgui.Dialog().notification("Profile", "Not available for this profile", time=2500)
+
+
+def select_profile(current, status):
+    labels = [row["display_name"] for row in current["profiles"]]
+    selected = xbmcgui.Dialog().select("Aster profiles · synthetic lab", labels)
+    if selected < 0:
+        publish(current, status)
+        return None
+    return activate(current, current["profiles"][selected]["id"], now())
+
+
 def main():
     seed_if_missing()
     current, status = load(STATE)
     options = parameters()
+    action = options.get("action")
+    if action == "dispatch-select":
+        focused = focus_id()
+        decision = select_decision(current, focused)
+        if decision == "profiles":
+            selected = select_profile(current, status)
+            if selected is not None:
+                store(STATE, selected)
+                publish(selected, "valid")
+            return
+        if decision == "deny":
+            denied("control-" + str(focused))
+            return
+        xbmc.executebuiltin("RunScript(special://skin/tools/select_dispatch.py)")
+        return
+    if action == "voice":
+        if not allows(current, ("aster_private_context", "aster")):
+            denied("voice")
+            return
+        xbmc.executebuiltin("RunScript(script.astervoice.v2lab)")
+        return
     requested = options.get("profile")
-    if options.get("action") == "sign-out":
+    if action == "sign-out":
         current = sign_out(current, now())
     elif requested:
         current = activate(current, requested, now())
     else:
-        labels = [row["display_name"] for row in current["profiles"]]
-        selected = xbmcgui.Dialog().select("Aster profiles · synthetic lab", labels)
-        if selected < 0:
-            publish(current, status)
+        selected = select_profile(current, status)
+        if selected is None:
             return
-        current = activate(current, current["profiles"][selected]["id"], now())
+        current = selected
     store(STATE, current)
     publish(current, "valid")
     active = next(row for row in current["profiles"] if row["id"] == current["active_profile_id"])

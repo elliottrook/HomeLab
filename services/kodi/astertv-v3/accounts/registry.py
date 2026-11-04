@@ -17,15 +17,19 @@ PROFILE_FIELDS = {
 }
 MAPPING_FIELDS = {"service", "opaque_subject_id", "enabled"}
 ROLES = {"recovery_admin", "member", "guest"}
-SERVICES = {"jellyfin", "audiobookshelf", "youtube", "seerr"}
+SERVICES = {"jellyfin", "audiobookshelf", "youtube", "seerr", "home_assistant", "aster"}
 ENTITLEMENTS = {
     "fixture_catalogue", "fixture_listening", "public_catalogue_browse",
-    "clock", "local_settings_read",
+    "clock", "local_settings_read", "personal_youtube", "requests_submit",
+    "books_private", "viewing_history", "personal_recommendations",
+    "listening_history", "home_control", "cameras",
+    "aster_private_context", "profile_admin",
 }
 PREFERENCES = {"clock", "captions"}
 DENIED_GUEST = {
     "personal_youtube", "requests_submit", "books_private", "listening_history",
-    "home_control", "cameras", "aster_private_context", "profile_admin",
+    "viewing_history", "personal_recommendations", "home_control", "cameras",
+    "aster_private_context", "profile_admin",
 }
 SECRET_NAMES = {
     "password", "passphrase", "token", "api_key", "secret", "cookie",

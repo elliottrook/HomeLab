@@ -63,6 +63,7 @@ class AccountContractTests(unittest.TestCase):
     def test_guest_fails_closed_for_private_surfaces(self):
         denied = set(self.contract["guest_denied"])
         self.assertTrue({"personal_youtube", "requests_submit", "books_private",
+                         "viewing_history", "personal_recommendations",
                          "home_control", "cameras", "aster_private_context"}
                         <= denied)
         self.assertEqual(self.contract["malformed_registry_fallback"]
