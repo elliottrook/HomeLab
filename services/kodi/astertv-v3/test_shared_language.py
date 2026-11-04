@@ -397,7 +397,7 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-            self.assertIn("295 visible buttons", completed.stdout)
+            self.assertIn("293 visible buttons", completed.stdout)
             self.assertIn("anchor:1, art:11, catcher:2, hidden:4", completed.stdout)
             self.assertIn("14 shared button definitions", completed.stdout)
 
@@ -736,6 +736,9 @@ class SharedLanguageTests(unittest.TestCase):
                     node.attrib["id"]: node
                     for node in page.findall(".//control[@type='button']")
                 }
+                if path == AI_COMMAND_PAGE:
+                    self.assertFalse(buttons)
+                    continue
                 self.assertTrue(buttons)
                 for button in buttons.values():
                     include_name = button.findtext("include")
@@ -792,25 +795,22 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertNotIn("<width>1920</width>", text)
         for label in (
             "Aster AI",
-            "DIRECT COMMAND",
             "Understood",
-            "I HEARD",
-            "“Show me cameras.”",
-            "✓  Opening Cameras",
-            "Open Cameras",
-            "Dismiss",
+            "Opening Cameras",
         ):
             self.assertIn(f"<label>{label}</label>", text)
-        panel = page.find(".//control[@type='image'][texture='special://skin/media/ui-dialog-section.png']")
+        for removed in ("DIRECT COMMAND", "I HEARD", "Show me cameras", "Open Cameras", "Dismiss"):
+            self.assertNotIn(removed, text)
+        panel = next(
+            node for node in page.findall(".//control[@type='image']")
+            if node.findtext("width") == "480" and node.findtext("height") == "160"
+        )
         self.assertIsNotNone(panel)
         self.assertGreaterEqual(int(panel.findtext("left")), 1200)
         self.assertGreaterEqual(int(panel.findtext("top")), 680)
         self.assertLessEqual(int(panel.findtext("width")), 650)
-        run = page.find(".//control[@id='12300']")
-        self.assertEqual(
-            [node.text for node in run.findall("onclick")],
-            ["Dialog.Close(1203)", "ActivateWindow(1201)"],
-        )
+        self.assertEqual(panel.find("texture").attrib.get("colordiffuse"), "c0292721")
+        self.assertFalse(page.findall(".//control[@type='button']"))
         self.assertIn("special://skin/media/aster-ai-listening-png", text)
 
     def test_pa3_aster_ai_keyword_view_groups_art_results_by_media_type(self) -> None:

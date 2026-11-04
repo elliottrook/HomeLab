@@ -59,7 +59,6 @@ EXPECTED_BUTTONS = {
     "custom_1200_home_rework.xml": 6,
     "custom_1201_cameras_rework.xml": 6,
     "custom_1202_aster_ai_keyword.xml": 20,
-    "custom_1203_aster_ai_command.xml": 2,
 }
 EXPECTED_INCLUDE_DEFINITIONS = {
     "AsterCategoryButton",
