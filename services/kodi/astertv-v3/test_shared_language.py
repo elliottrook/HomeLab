@@ -390,7 +390,7 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-            self.assertIn("292 visible buttons", completed.stdout)
+            self.assertIn("293 visible buttons", completed.stdout)
             self.assertIn("anchor:1, art:11, catcher:2, hidden:4", completed.stdout)
             self.assertIn("14 shared button definitions", completed.stdout)
 
@@ -771,7 +771,7 @@ class SharedLanguageTests(unittest.TestCase):
                 ],
             )
         self.assertEqual(text.count("<include>AsterV3DialogPill</include>"), 5)
-        self.assertIn('colordiffuse="b8d9d7cf"', text)
+        self.assertIn('colordiffuse="d0292721"', text)
         self.assertIn("returns to the page underneath", text)
         self.assertIn("no microphone or search service connected", text)
 
@@ -785,8 +785,11 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertIn("“Show me anything about space.”", text)
         self.assertEqual(text.count("<include>AsterV3DialogResult</include>"), 12)
         self.assertGreaterEqual(text.count("ui-compact-card-mask.png"), 12)
-        self.assertGreaterEqual(text.count("<include>AsterV3DialogPill</include>"), 7)
-        self.assertIn('colordiffuse="a8d9d7cf"', text)
+        self.assertGreaterEqual(text.count("<include>AsterV3DialogPill</include>"), 8)
+        self.assertIn('colordiffuse="d0292721"', text)
+        self.assertIn("<label>More TV shows</label>", text)
+        self.assertIn("<label>More movies</label>", text)
+        self.assertNotIn("More TV &amp; movie results", text)
         for window in (1194, 1196, 1197, 1127):
             self.assertIn(f"<onclick>ActivateWindow({window})</onclick>", text)
 
