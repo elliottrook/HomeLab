@@ -63,7 +63,7 @@ def bounded_guest_failure(stderr: bytes, stdout: bytes = b"",
 
 
 def listener_command(*, lease_id: str, generation: int) -> tuple[str, ...]:
-    return ("pct", "exec", "110", "--", LISTENER,
+    return ("pct", "exec", "110", "--", "/usr/bin/python3", "-B", LISTENER,
             "--profile", WORKLOAD_ID, "--port", str(PORT),
             "--requests", str(CASES),
             "--per-request-timeout", str(PER_REQUEST_TIMEOUT_SECONDS),

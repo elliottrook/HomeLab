@@ -33,8 +33,8 @@
     "sa3_expanded_quality_transaction.py": "f2d52b12d99acadfa2f89603449988a16de66017ab10087b550f57703ccbacc0",
     "sa3_listener_adapter.py": "6173cfa79f47cfce37924ff11f7ce012f211979d23ef7b6492e403abddacfc1e",
     "sa3_evidence_envelope_transaction.py": "b906f30dd25a7990f3a81f6b41eeb77ab67e9b0aa96fffcdf56bee111ee3fa26",
-    "sa3_evidence_envelope_listener_adapter.py": "101ce58e6e103db22b9da9532528e44ac84171e178a5baeee0a4e196fe3e3c9f"
+    "sa3_evidence_envelope_listener_adapter.py": "e8c8cbcc875fe3f48035425f776a59f5ab81a6564f3f6acba38eb1dd63597a1b"
   },
-  "release": "sa3-evidence-envelope-capture-diagnostic-v7",
+  "release": "sa3-evidence-envelope-explicit-python-v8",
   "schema": "aster-lab-hours-release-manifest.v1"
 }

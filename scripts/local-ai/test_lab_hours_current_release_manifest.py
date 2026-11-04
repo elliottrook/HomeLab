@@ -13,7 +13,7 @@ class CurrentReleaseManifestTests(unittest.TestCase):
     def test_current_release_is_complete_and_source_exact(self):
         value = json.loads(MANIFEST.read_text())
         self.assertEqual("aster-lab-hours-release-manifest.v1", value["schema"])
-        self.assertEqual("sa3-evidence-envelope-capture-diagnostic-v7",
+        self.assertEqual("sa3-evidence-envelope-explicit-python-v8",
                          value["release"])
         pins = value["pins"]
         self.assertEqual(34, len(pins))
