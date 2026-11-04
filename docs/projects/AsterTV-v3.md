@@ -1,17 +1,19 @@
 # AsterTV v3
 
-> Status: Active — Jen-only M2 synthetic-account Stream A approved. The
-> earlier page-design pilot is accepted and closed; no PA3 synthetic
-> surface is promoted. TV-series presentation remains deployed through the
-> existing fail-closed v2 episode engine on Bedroom and Family.
+> Status: Active — Jen-only M2 synthetic-account Stream A completed. The r6
+> candidate is retained on AsterTV-Jen as restricted Guest; it is not a v3
+> account release. The earlier page-design pilot is accepted and closed; no
+> PA3 synthetic surface is promoted. TV-series presentation remains deployed
+> through the existing fail-closed v2 episode engine on Bedroom and Family.
 >
 > Project owner: Jason
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: Stream A, limited to the Jen-only M2 envelope
-> recorded below and accepted by Jason on 2026-11-04. Family, Bedroom, source
-> services, production identities and every later milestone remain Stream M.
+> Current authorization stream: none. The Jen-only M2 Stream A recorded below
+> ended after `SA-M2-JEN4`. Family, Bedroom, source services, production
+> identities and every later milestone remain Stream M and require a new
+> bounded authorization before live work.
 
 ## Purpose and desired outcome
 
@@ -642,8 +644,16 @@ each push under the repository rule.
   checkpoint without changing playback or source services.
 - [x] SA-M2-JEN3: activate on idle Jen and pass switching, restart, sign-out,
   malformed-state, navigation, Guest-denial and rollback tests.
-- [ ] SA-M2-JEN4: retain or remove the candidate according to acceptance,
+- [x] SA-M2-JEN4: retain or remove the candidate according to acceptance,
   reconcile evidence and end this Stream A before M3.
+
+Jason directed the milestone push and continuation on 2026-11-04. The final
+read-only acceptance check found Jen idle with Kodi active, restricted Guest
+persisted, exactly three synthetic profiles, zero enabled service mappings,
+mode-`0600` state and a clean 528-file accepted-v2 guard. r6 is therefore
+retained as a reversible lab candidate. This closes `SA-M2-JEN`; it does not
+authorize real identity adoption, a Guest catalogue adapter, M3, Family,
+Bedroom or source-service changes.
 
 ## Milestones
 
@@ -1150,6 +1160,7 @@ explicit user acceptance.
 | 2026-11-04 | Opened Jen-only M2 synthetic-account Stream A | Owner confirmed the low-spec report, authorized use of AsterTV-Jen for the next work and explicitly clarified that Jen's 1080p/stereo limits are not v3 project limits. | The bounded `SA-M2-JEN` envelope permits only an isolated credential-free candidate, synthetic account fixtures and Jen validation with v2 checkpoint/rollback. Family, Bedroom, real identities and M3 or later work remain excluded. Forgejo and GitHub both contain the preceding handoff reconciliation at `4fdb849b`. |
 | 2026-11-04 | Passed the first Jen M2 synthetic-account gate | Built deterministic candidate `d49ecc33…e17b`, checkpointed accepted v2/Addons state, proved a complete rollback, then installed r2 with startup publication. Two synthetic members switch through the visible selector; restart persistence, sign-out and malformed-state fail-closed behavior pass. | Jen is deliberately left as restricted Guest. The 528-file v2 guard, accepted manifest and Jen-only Jellyfin policy are unchanged. M2 stays open until the normal Aster router enforces Guest denials across private surfaces. |
 | 2026-11-04 | Enforced synthetic-profile routes and protected personalized state | r6 `0.2.0` (`d21acdb3…f6c3`) wraps the accepted dispatcher through a separate keymap and requires both entitlement and enabled service mapping for private routes. Guest and synthetic Members without mappings land on News rather than personalized Media; actual Select and direct-window bypass tests deny Books/listening, Music, Requests, YouTube, Home/Cameras, private search/voice and writable Settings. | SA-M2-JEN3 passes. Guest persists through restart, v2's 528-file guard and Jen playback policy are unchanged, and r6 remains isolated/checkpointed. A guest-safe catalogue adapter and real account/recovery authority remain deliberately open; no production identity was reused. |
+| 2026-11-04 | Closed the Jen-only M2 synthetic-account Stream A | Owner directed the milestone push and continuation through the end of its authorization. Final read-only acceptance found Kodi active and idle, restricted Guest persisted in mode-`0600` state, exactly three synthetic profiles, zero enabled mappings and a clean 528-file accepted-v2 guard. | Retained r6 `0.2.0` (`d21acdb3…f6c3`) on Jen as a reversible candidate and completed `SA-M2-JEN4`. It is not a v3 account release. Real account authority, recovery admin, service identity lifecycle, a Guest-safe catalogue adapter, M3 and all Family/Bedroom changes require a new bounded authorization. |
 
 ## Close-out
 

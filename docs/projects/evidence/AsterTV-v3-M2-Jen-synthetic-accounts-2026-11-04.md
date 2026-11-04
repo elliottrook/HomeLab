@@ -89,10 +89,27 @@ adapter with an independently scoped mapping exists. The service stats the
 atomic registry four times per second for responsive enforcement but reloads
 and republishes it only when its timestamp or size changes.
 
+## Stream A disposition
+
+Jason directed the completed milestone to be pushed and Stream A to continue
+through its authorized endpoint on 2026-11-04. The r6 candidate is retained on
+Jen for comparison and later bounded integration. A final read-only check found:
+
+- hostname `AsterTV-Jen`, Kodi active and no active player;
+- candidate add-on and separate keymap present;
+- `profiles.json` mode `0600`, restricted Guest active, exactly three
+  synthetic profiles and zero enabled service mappings; and
+- the accepted-v2 release guard clean across all 528 files.
+
+No Family, Bedroom, source service, production identity or credential changed.
+`SA-M2-JEN4` is complete and this Stream A is closed.
+
 ## Remaining M2 gate
 
 The synthetic registry, selector and route enforcement are functional. M2
 still needs the adopted household account authority, physical recovery-admin
 workflow, per-service real identity lifecycle and guest-safe catalogue adapter.
 Until those are designed and separately authorized, r6 remains a retained Jen
-candidate rather than a v3 account release.
+candidate rather than a v3 account release. The next live action therefore
+requires a new bounded Stream M authorization or a separately defined Stream A
+envelope.
