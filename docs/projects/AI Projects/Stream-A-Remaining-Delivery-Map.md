@@ -32,6 +32,13 @@ the combined J2 suite passes 14/14. No corpus, evaluation set, training,
 booking or effect exists. Next is independent creation and review of those
 underlying data sets and receipts, not a model run.
 
+**D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
+boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
+is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,
+ledger, lease, locks, dispatcher, Doctor, EPUB state and production health
+pass. Runtime claim and every volatile gate remain fail closed; one transaction,
+zero retry and unconditional restoration are the complete effect boundary.
+
 Work outside the timed F2 chain continues in parallel. A failed F2 runtime gate
 blocks F3 and the live evaluations; it does not block offline D4/M3 hardening,
 documentation reconciliation, Companion monitoring or review of the new F6
