@@ -494,10 +494,11 @@ sync to television.
 
 ### PA3 — Aster, News, Requests, Home and Cameras page redesigns
 
-- [x] Build Aster AI as a globally invokable floating speech-search dialog,
-  preserving the page underneath and presenting the heard phrase, a small set
-  of inline media results, a full-results handoff and close-to-origin behaviour
-  without connecting a model, microphone or search service.
+- [x] Build Aster AI as two globally invokable floating surfaces: a compact
+  lower-right direct-command card that shows activity, heard phrase and action
+  confirmation, and a larger media-search dialog only when browseable results
+  are required. Preserve the page underneath and close-to-origin behaviour
+  without connecting a model, microphone, broker or search service.
 - [x] Apply Aster icons and shared chrome to News while preserving digest and
   article interaction contracts in fixtures.
 - [x] Design podcast request discovery, details, duplicate/status and explicit
@@ -508,9 +509,9 @@ sync to television.
 Gate: all surfaces pass the physical navigation/failure-state walkthrough and
 contain no credential, household state, camera image or live write path.
 
-Implementation and automated gates are complete. F1–F5 open the five PA3
-fixtures; F1 is a dialog invoked globally over whichever fixture/page is
-currently visible rather than a standalone destination.
+Implementation and automated gates are complete. F1 opens the compact command
+fixture globally over the current page; Shift+F1 opens the larger media-search
+fixture. F2–F5 retain the News, Requests, Home and Cameras fixtures.
 
 ### PA4 — Pilot reconciliation and mandatory Stream M transition
 
@@ -581,13 +582,21 @@ adversarial navigation; recovery does not require the implementation agent.
 
 ### M3 — Aster AI television integration
 
-- [ ] Define a search-only AsterTV client identity and broker contract, with no
-  general whole-home Aster tools exposed to the television client; record secret
-  custody metadata, rotation/revocation and break-glass paths.
-- [ ] Invoke a floating dialog from every AsterTV page and implement visible
-  listen/transcribe/search/cancel/error states using the G20 microphone or a
-  synthetic capture fixture first, always returning to the originating page.
-- [ ] Return a bounded set of media matches inside the dialog; selecting a match
+- [ ] Define a capability-scoped AsterTV client identity and broker contract.
+  Expose only reviewed television intents—media search, page navigation,
+  bounded playback, News actions and allowlisted Home Assistant commands—not
+  the general whole-home Aster tool set; record secret custody metadata,
+  rotation/revocation and break-glass paths.
+- [ ] Invoke the compact lower-right command card from every AsterTV page and
+  implement visible listen/transcribe/confirm/execute/cancel/error states using
+  the G20 microphone or a synthetic capture fixture first, always returning to
+  the originating page when dismissed.
+- [ ] Execute direct intents such as opening Cameras, playing the News digest,
+  resuming the next episode of a named series or operating an allowlisted Home
+  Assistant entity from the compact card, with account/room context and a clear
+  confirmation before or during execution as appropriate.
+- [ ] Open the larger search dialog only for queries that return browseable
+  media results. Return a bounded set of matches inside it; selecting a match
   opens its normal AsterTV details route, while View all opens the full search
   results page with the phrase and result context preserved.
 - [ ] Apply account context only after authorization and data-minimization tests.
@@ -595,10 +604,11 @@ adversarial navigation; recovery does not require the implementation agent.
   stale context, denied tools and restart during a request.
 - [ ] Validate spoken output against the canonical Aster voice and cleanup.
 
-Gate: AsterTV can complete two independent spoken media searches from different
-originating pages, show and open valid results, hand off to the full search page
-and close back to origin without receiving credentials, exposing another
-profile or obtaining non-search authority.
+Gate: AsterTV can complete two spoken media searches plus one navigation, one
+bounded playback and one allowlisted Home Assistant command from different
+originating pages. Search results open correctly, direct commands use the
+compact card, full results preserve context, cancellation returns to origin,
+and the client receives no service credentials or unreviewed authority.
 
 ### M4 — Movies and YouTube redesign
 
@@ -974,6 +984,7 @@ explicit user acceptance.
 | 2026-11-04 | Added depth and glanceable Aster AI states | Owner found the inverted candidate too flat and requested wrapped titles, aligned category headings and a more expressive activity state. | Aster-specific cream/gold gradient surfaces add tonal depth without changing the approved global button assets; dedicated text layers wrap complete titles, four Gold Rim headings share centered geometry, and a four-frame gold waveform replaces the static status dot. Physical Mini review caught and rejected macOS Quick Look's opaque-white rasterization, then confirmed the reproducible AppKit-generated RGBA assets, green selection and final layout. All 54 gates pass, including an explicit PNG alpha guard. |
 | 2026-11-04 | Finished the compact Aster AI keyword-result geometry | Owner requested full-bleed result artwork, narrower category headers with breathing room, corrected compact pills and a finer activity waveform. | All twelve result thumbnails now meet the left, top and bottom card edges; 280px Gold Rim headers sit 10px above the results; corrected 64px RGBA nine-slices remove the pinched compact-pill ends; and the five-bar waveform uses slender 3px strokes. Physical Mini review confirmed both resting and focused green/gold states. All 54 gates pass, including explicit header, row and full-bleed artwork geometry guards. |
 | 2026-11-04 | Unified compact result contours and renamed Listening | Owner preferred the resting-card arc, found the global selected-button arc inconsistent and identified artwork escaping the card contour. | The result focus now uses a green/gold surface generated from the exact resting-card geometry; a dedicated alpha mask rounds only the artwork's exposed left corners and retains a two-pixel contour inset. The category and expansion action now read `Listening`. Physical Mini review confirmed matching resting/focused arcs and contained artwork; all 54 gates pass with focus-asset, mask and inset guards. |
+| 2026-11-04 | Split Aster AI direct commands from media search | Owner requested the large result dialog appear only for browseable media searches; navigation, direct playback, News and Home Assistant intents should use a compact lower-right activity/transcript/confirmation card. | F1 now opens the compact command fixture and its confirmed Cameras action reaches the existing Cameras page; Shift+F1 opens the unchanged large media-search dialog over that page. M3 now requires a capability-scoped allowlist for search, navigation, playback, News and Home Assistant rather than a search-only identity or the general Aster tool set. All 55 gates pass. No live microphone, broker, playback or Home Assistant authority is connected in Stream A. |
 | 2026-11-04 | Qualified the reserved AsterTV-Jen low-spec client and completed M1 | Reserved `192.168.1.180` for MAC `00:23:24:6e:e5:14` in OPNsense and reconciled NetBox device 24/IP 37. Installed the accepted v2.0.7 archive `e813de8a…3cf7`, exact code-only production dependency closure and host-bound rollback guard without copying credentials or changing Family/Bedroom. | ThinkCentre M93p/i5-4570T/7.5 GiB passed UI, 1080p H.264 VAAPI, memory/storage, HDMI stereo and reboot gates; boot was 13.846 s and Kodi RSS about 500 MiB. A deliberate drift was restored to the exact accepted hash before Kodi after repairing a `%H` early-boot hostname defect. The machine is viable for v2/1080p H.264, not HEVC/VP9/AV1 4K parity. Screensaver activation failed; request broker remains source-blocked; Jellyfin/YouTube and M3 Aster search require dedicated identities. Full evidence: `services/kodi/astertv-v3/low-spec/EVIDENCE-2026-11-04.md`. |
 | 2026-11-04 | Provisioned and exercised production-equivalent low-spec backend boundaries | Added independently revocable AsterTV-Jen identities for Jellyfin Quick Connect, Audiobookshelf and Seerr/acquisition; extended only the exact host firewall/runtime/NFS allowlists; added forced-command Home delivery and camera access with a new camera key. Secrets remain mode `0600`, server-side custody is recorded outside Git and production client tokens continued to pass. | Authenticated Jellyfin catalogue/range-read, Books refresh, Seerr discovery/search/denial, 63-reading Home delivery, camera start/frame/stop and both read-only eBook mounts passed. A real 1080p HEVC sample completed in software at about 125% of one core, so this is a viable 1080p client but not a 4K codec-parity client. Screensaver now activates after the low-spec host gate. YouTube is explicitly deferred. M3 Aster AI remains blocked correctly: no search-only television identity/contract exists, and the general whole-home key was not reused. Initial full Music import was the worst observed transient load (978.5 MiB peak and slow shutdown while its transaction was active). After correcting a newline-sensitive Jellyfin device-ID websocket defect, two reboots preserved key-only SSH, all mode-0600 identities, live websocket, 63 Home entities, both read-only NFS shares, active camera/Books services and a clean 528-file guard. Temporary credential and screenshot artifacts were removed. |
 | 2026-11-04 | Ran production-connected low-spec feature soak and real request | Corrected the qualification to exercise the actual `screensaver.asterhome.v2lab`, repaired only the six runtime manifests invalidated by reviewed hostname gates, then opened Home/Search/Requests and played Movies, Archive Movies, TV, Archive TV, Music, Audiobook and News against production-equivalent backends. Five changing camera frames and the Aster idle window passed. Submitted *The Phoenician Scheme* (2025) through the restricted Seerr broker as request 181 for owner denial. | A complete tail cycle passed at 619,224 KiB Kodi RSS, but repetition exposed two low-spec defects: mixed-media cleanup eventually stalled JSON-RPC until Kodi restart, and an immediate second protected News launch timed out after the ready page. The M93p remains viable for 1080p v2 use, conditionally viable for the full feature set, and must not be promoted as an identical production model until v3 fixes lifecycle quiescence or defines a reduced low-spec profile. YouTube remains separately deferred and M3 Aster search remains correctly blocked on its search-only credential contract. |

@@ -110,9 +110,12 @@ so overflow and remote navigation remain deterministic regression evidence.
 
 PA3 remains synthetic and isolated in the portable Mini pilot:
 
-- `F1` opens the synthetic Aster AI speech-search dialog over the current page.
-  It demonstrates a heard phrase, three inline film results, a full-results
-  handoff and close-to-origin behaviour without a microphone or search service.
+- `F1` opens the compact synthetic Aster AI direct-command card in the lower
+  right corner. It shows activity, the heard phrase and a confirmed action;
+  OK demonstrates the existing Cameras route while Back dismisses to origin.
+  `Shift+F1` opens the larger media-search dialog, which demonstrates a heard
+  phrase, three inline film results, a full-results handoff and close-to-origin
+  behaviour without a microphone, broker or search service.
   Its compact Gold Rim controls open a second synthetic keyword state: four
   vertical artwork-result groups for TV, Movies, Listening, and Music.
   Both dialog surfaces use a translucent dark-brown body over the originating

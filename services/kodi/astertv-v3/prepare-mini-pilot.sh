@@ -81,6 +81,7 @@ xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1199_podcast_request
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1200_home_rework.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1201_cameras_rework.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1202_aster_ai_keyword.xml"
+xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1203_aster_ai_command.xml"
 xmllint --noout "$actor_search/addon.xml"
 xmllint --noout "$keymap_source"
 

@@ -2,7 +2,8 @@
 <keymap>
     <global>
         <keyboard>
-            <f1>ActivateWindow(1197)</f1>
+            <f1>ActivateWindow(1203)</f1>
+            <f1 mod="shift">ActivateWindow(1197)</f1>
             <f2>ActivateWindow(1198)</f2>
             <f3>ActivateWindow(1199)</f3>
             <f4>ActivateWindow(1200)</f4>

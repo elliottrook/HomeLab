@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1203" type="dialog">
+  <!-- Synthetic fixture: no live microphone, broker or command authority. -->
+  <defaultcontrol always="true">12300</defaultcontrol>
+  <backgroundcolor>00000000</backgroundcolor>
+  <controls>
+    <control type="image"><left>1230</left><top>708</top><width>620</width><height>310</height><texture border="26">special://skin/media/ui-dialog-section.png</texture></control>
+
+    <control type="image"><left>1266</left><top>737</top><width>54</width><height>54</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>1332</left><top>735</top><width>220</width><height>38</height><label>Aster AI</label><font>font28</font><textcolor>asterIvory</textcolor></control>
+    <control type="label"><left>1332</left><top>771</top><width>280</width><height>22</height><label>DIRECT COMMAND</label><font>font14</font><textcolor>asterGold</textcolor></control>
+
+    <control type="multiimage"><left>1586</left><top>744</top><width>70</width><height>26</height><imagepath>special://skin/media/aster-ai-listening-png</imagepath><timeperimage>180</timeperimage><fadetime>90</fadetime><loop>true</loop></control>
+    <control type="label"><left>1660</left><top>740</top><width>145</width><height>34</height><label>Understood</label><font>font16</font><textcolor>asterGold</textcolor><align>center</align><aligny>center</aligny></control>
+
+    <control type="image"><left>1268</left><top>810</top><width>544</width><height>78</height><texture border="10">special://skin/media/ui-dialog-pill-rest.png</texture></control>
+    <control type="label"><left>1292</left><top>818</top><width>170</width><height>20</height><label>I HEARD</label><font>font14</font><textcolor>asterGold</textcolor></control>
+    <control type="label"><left>1292</left><top>842</top><width>490</width><height>34</height><label>“Show me cameras.”</label><font>font22</font><textcolor>asterInk</textcolor></control>
+
+    <control type="label"><left>1282</left><top>898</top><width>500</width><height>28</height><label>✓  Opening Cameras</label><font>font20</font><textcolor>asterV3Success</textcolor></control>
+    <control type="button" id="12300"><left>1280</left><top>942</top><width>250</width><label>Open Cameras</label><include>AsterV3DialogPill</include><onleft>12301</onleft><onright>12301</onright><onup>12301</onup><ondown>12301</ondown><onclick>Dialog.Close(1203)</onclick><onclick>ActivateWindow(1201)</onclick></control>
+    <control type="button" id="12301"><left>1550</left><top>942</top><width>170</width><label>Dismiss</label><include>AsterV3DialogPill</include><onleft>12300</onleft><onright>12300</onright><onup>12300</onup><ondown>12300</ondown><onclick>Dialog.Close(1203)</onclick></control>
+  </controls>
+</window>

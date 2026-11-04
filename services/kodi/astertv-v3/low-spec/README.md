@@ -42,7 +42,8 @@ implement the tested AsterTV-Jen provisioning path:
 All client secrets are mode `0600`. Durable server-side secret custody is
 outside this repository. YouTube authorization is deliberately separate, and
 the television must not receive the general whole-home Aster API key: M3 first
-needs a search-only identity and broker contract.
+needs a capability-scoped identity and broker contract for explicitly
+allowlisted search, navigation, playback, News and Home Assistant intents.
 
 `install_production_addons.py` installs the exact code-only Jellyfin/YouTube
 dependency closure read from Family. Its 683-file canonical digest excludes

@@ -25,6 +25,7 @@ PERSON_PAGE = OVERLAY / "1080i/custom_1195_person_library.xml"
 TV_PAGE = OVERLAY / "1080i/custom_1196_tv_rework.xml"
 AI_PAGE = OVERLAY / "1080i/custom_1197_aster_ai.xml"
 AI_KEYWORD_PAGE = OVERLAY / "1080i/custom_1202_aster_ai_keyword.xml"
+AI_COMMAND_PAGE = OVERLAY / "1080i/custom_1203_aster_ai_command.xml"
 NEWS_PAGE = OVERLAY / "1080i/custom_1198_news_rework.xml"
 PODCAST_PAGE = OVERLAY / "1080i/custom_1199_podcast_requests.xml"
 HOME_PAGE = OVERLAY / "1080i/custom_1200_home_rework.xml"
@@ -62,6 +63,7 @@ class SharedLanguageTests(unittest.TestCase):
             TV_PAGE,
             AI_PAGE,
             AI_KEYWORD_PAGE,
+            AI_COMMAND_PAGE,
             NEWS_PAGE,
             PODCAST_PAGE,
             HOME_PAGE,
@@ -395,7 +397,7 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-            self.assertIn("293 visible buttons", completed.stdout)
+            self.assertIn("295 visible buttons", completed.stdout)
             self.assertIn("anchor:1, art:11, catcher:2, hidden:4", completed.stdout)
             self.assertIn("14 shared button definitions", completed.stdout)
 
@@ -723,10 +725,10 @@ class SharedLanguageTests(unittest.TestCase):
             node.attrib["name"]: int(node.findtext("height", "0"))
             for node in include_root.findall("include")
         }
-        for path in (AI_PAGE, AI_KEYWORD_PAGE, NEWS_PAGE, PODCAST_PAGE, HOME_PAGE, CAMERAS_PAGE):
+        for path in (AI_PAGE, AI_KEYWORD_PAGE, AI_COMMAND_PAGE, NEWS_PAGE, PODCAST_PAGE, HOME_PAGE, CAMERAS_PAGE):
             with self.subTest(path=path):
                 text = path.read_text()
-                self.assertIn("Synthetic", text)
+                self.assertIn("synthetic", text.lower())
                 for forbidden in ("http://", "https://", "plugin://", "RunScript("):
                     self.assertNotIn(forbidden, text)
                 page = ET.parse(path).getroot()
@@ -781,6 +783,35 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertIn('colordiffuse="d0292721"', text)
         self.assertIn("returns to the page underneath", text)
         self.assertIn("no microphone or search service connected", text)
+
+    def test_pa3_aster_ai_direct_command_is_a_compact_action_dialog(self) -> None:
+        page = ET.parse(AI_COMMAND_PAGE).getroot()
+        text = AI_COMMAND_PAGE.read_text()
+        self.assertEqual(page.attrib.get("type"), "dialog")
+        self.assertEqual(page.findtext("backgroundcolor"), "00000000")
+        self.assertNotIn("<width>1920</width>", text)
+        for label in (
+            "Aster AI",
+            "DIRECT COMMAND",
+            "Understood",
+            "I HEARD",
+            "“Show me cameras.”",
+            "✓  Opening Cameras",
+            "Open Cameras",
+            "Dismiss",
+        ):
+            self.assertIn(f"<label>{label}</label>", text)
+        panel = page.find(".//control[@type='image'][texture='special://skin/media/ui-dialog-section.png']")
+        self.assertIsNotNone(panel)
+        self.assertGreaterEqual(int(panel.findtext("left")), 1200)
+        self.assertGreaterEqual(int(panel.findtext("top")), 680)
+        self.assertLessEqual(int(panel.findtext("width")), 650)
+        run = page.find(".//control[@id='12300']")
+        self.assertEqual(
+            [node.text for node in run.findall("onclick")],
+            ["Dialog.Close(1203)", "ActivateWindow(1201)"],
+        )
+        self.assertIn("special://skin/media/aster-ai-listening-png", text)
 
     def test_pa3_aster_ai_keyword_view_groups_art_results_by_media_type(self) -> None:
         page = ET.parse(AI_KEYWORD_PAGE).getroot()
@@ -913,13 +944,19 @@ class SharedLanguageTests(unittest.TestCase):
             "asterV3Focus",
         )
 
-    def test_pa3_keymap_is_bounded_to_the_five_fixture_pages(self) -> None:
+    def test_pa3_keymap_separates_direct_commands_from_media_search(self) -> None:
         keymap = ET.parse(V3 / "pilot/keymaps/astertv-v3-pilot.xml").getroot()
         keyboard = keymap.find("global/keyboard")
         self.assertIsNotNone(keyboard)
+        f1 = keyboard.findall("f1")
+        self.assertEqual(len(f1), 2)
+        self.assertEqual(f1[0].text, "ActivateWindow(1203)")
+        self.assertIsNone(f1[0].get("mod"))
+        self.assertEqual(f1[1].get("mod"), "shift")
+        self.assertEqual(f1[1].text, "ActivateWindow(1197)")
         self.assertEqual(
-            {keyboard.findtext(f"f{index}") for index in range(1, 6)},
-            {f"ActivateWindow({window})" for window in range(1197, 1202)},
+            [keyboard.findtext(f"f{index}") for index in range(2, 6)],
+            [f"ActivateWindow({window})" for window in range(1198, 1202)],
         )
 
 
