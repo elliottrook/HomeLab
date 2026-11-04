@@ -170,6 +170,14 @@ canonical transaction. The fresh ledger-clear
 scheduled for 13:15–14:45. It remains conditional on fresh runtime gates and
 permits no retry or promotion.
 
+The [terminal-reconciliation boundary](evidence/D4-candidate-g-terminal-reconciliation-boundary-2026-11-04.md)
+now prevents post-run progression from being inferred from the reservation or
+model result alone. It requires an exact complete transaction, independently
+restored production, 20 cases/14 model calls, zero retry/error and the frozen
+result envelope before emitting a model-identity-blind review packet. The D4
+envelope suite passes 34/34; semantic quality remains pending an actually
+eligible r3 result and later independent review.
+
 Work outside the timed F2 chain continues in parallel. A failed F2 runtime gate
 blocks F3 and the live evaluations; it does not block offline D4/M3 hardening,
 documentation reconciliation, Companion monitoring or review of the new F6
