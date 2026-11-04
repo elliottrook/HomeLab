@@ -7,6 +7,7 @@ import json
 import nlu_j2_corpus_v1 as corpus_boundary
 import nlu_j2_custody_receipt_v1 as custody
 import nlu_j2_label_review_v1 as label_review
+import nlu_j2_quality_review_v1 as quality_review
 from nlu_threshold_policy import decode_unique_json
 
 
@@ -29,9 +30,10 @@ def _normalized_set_sha256(source_raw: bytes) -> str:
     return sha256(("\n".join(sorted(texts)) + "\n").encode())
 
 
-def release(source_raw: bytes, review_raw: bytes,
+def release(source_raw: bytes, review_raw: bytes, quality_raw: bytes,
             custody_raw: bytes) -> dict[str, object]:
     review = label_review.validate(source_raw, review_raw)
+    quality = quality_review.validate(source_raw, quality_raw)
     receipt = custody.corpus_receipt(custody_raw)
     if receipt["corpus_sha256"] != sha256(source_raw):
         raise ValueError("J2 corpus receipt does not bind the source bytes")
@@ -39,9 +41,12 @@ def release(source_raw: bytes, review_raw: bytes,
         raise ValueError("J2 corpus receipt does not bind the normalized text set")
     if receipt["label_review_sha256"] != sha256(review_raw):
         raise ValueError("J2 corpus receipt does not bind the review bytes")
+    if receipt["quality_review_sha256"] != sha256(quality_raw):
+        raise ValueError("J2 corpus receipt does not bind the quality-review bytes")
     if (receipt["custodian_id"] != corpus_boundary.CUSTODIAN
             or receipt["reviewer_id"] != label_review.REVIEWER
             or not review["release_eligible"]
+            or not quality["release_eligible"]
             or review["accepted"] != 960 or review["corrected"] != 0):
         raise ValueError("J2 corpus review or custody is not release eligible")
     return {
@@ -50,6 +55,7 @@ def release(source_raw: bytes, review_raw: bytes,
         "corpus_sha256": sha256(source_raw),
         "normalized_text_set_sha256": receipt["normalized_text_set_sha256"],
         "label_review_sha256": sha256(review_raw),
+        "quality_review_sha256": sha256(quality_raw),
         "custody_receipt_sha256": sha256(custody_raw),
         "rows": 960,
         "accepted": 960,

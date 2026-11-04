@@ -24,10 +24,18 @@ automatic routing, tools or any production effect.
   `896ff54b31718b7dfbe91b479c4a6fbcfe5b428ca62528f07a2f8993072b0028`
 - review self-hash:
   `75c86481cc04394787faf9cc7c6055f74dc5e262167e8491bfe09b1acf7f6bde`
+- owner-only independent-AI quality review:
+  `/Users/jelliott/lab/private-benchmarks/aster-stream-a/j2-corpus-candidate-v4-20261104/quality-review-independent-ai.json`
+- quality-review artifact SHA-256:
+  `f934ee6780c3f9a4b87b7c530a4345080dd98ff534e7d5a3093822aed1d3fe3f`
+- quality-review self-hash:
+  `408e7479e106f614b2a2011da624c10af4ca6919d30d4cccd93dcf242fec4a35`
 
-Both artifacts are regular mode-0600 files in a mode-0700 owner-controlled
-directory. The review covers all 960 rows, accepts all 960 labels, records zero
-corrections, confirms all 14 v3 defects resolved and finds no new defect.
+All three artifacts are regular mode-0600 files in a mode-0700 owner-controlled
+directory. The label review covers all 960 rows, accepts all 960 labels and
+records zero corrections. The separately validated quality review records an
+explicit pass for grammar, naturalness, semantic-label quality and split quality
+on every row, confirms all 14 v3 defects resolved and finds no new defect.
 
 ## Frozen quality facts
 
@@ -45,7 +53,7 @@ corrections, confirms all 14 v3 defects resolved and finds no new defect.
 
 ## Fail-closed owner response
 
-An acceptance should name both exact artifact hashes and say they are accepted
+An acceptance should name all three exact artifact hashes and say they are accepted
 for **corpus release only**. Any requested wording, label, naturalness or split
 change produces new corpus bytes and requires a fresh complete review. Silence,
 an ambiguous response or a hash mismatch is not acceptance.
@@ -53,4 +61,4 @@ an ambiguous response or a hash mismatch is not acceptance.
 Owner acceptance is necessary but does not manufacture the separately required
 external custody proof. Before the release validator can return an eligible
 summary, an independently controlled signer or equivalent separate-account
-record must bind the exact corpus, normalized-set and review artifact hashes.
+record must bind the exact corpus, normalized-set and both review artifact hashes.

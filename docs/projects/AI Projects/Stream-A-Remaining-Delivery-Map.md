@@ -96,8 +96,11 @@ four-token openings and maximum reuse 4. A fresh independent AI review accepted
 all 960 labels, confirmed all v3 defects resolved, found no new semantic,
 naturalness, grammar or split-quality issue, and returned **PROMOTE** with zero
 corrections. The exact [owner review card](evidence/M3-J2-corpus-v4-owner-review-card-2026-11-04.md)
-now presents both owner-only artifact hashes and the corpus-release-only
-decision. Candidate-v4 is the corpus release candidate for Jason's owner
+now presents all three owner-only artifact hashes and the corpus-release-only
+decision. A separate [exact-source-bound quality-review contract](evidence/M3-J2-quality-review-contract-and-v4-result-2026-11-04.md) retains four
+explicit judgments for every row; candidate-v4's fresh artifact has 960 passes
+and zero grammar, naturalness, semantic-label or split-quality failures. The
+complete J2 source suite passes 50/50. Candidate-v4 is the corpus release candidate for Jason's owner
 review. Authenticated external custody still gates corpus release; training
 remains closed.
 
@@ -106,7 +109,7 @@ now freezes byte encoding/truncation, the exact convolutional architecture,
 initialization, single-thread CPU AdamW training order, validation-only
 checkpoint and margin selection, coverage, quantization, artifact replay and
 the deterministic guard boundary. Its focused suite passes 9/9 and the combined
-J2 source suite passes 45/45. It consumes no corpus/review content and creates
+J2 source suite passes 50/50. It consumes no corpus/review content and creates
 no model; network, sealed evaluation access, routing, tools and deployment stay
 forbidden.
 

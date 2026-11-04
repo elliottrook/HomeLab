@@ -18,6 +18,7 @@ CORPUS = {
     "corpus_sha256": "a" * 64,
     "normalized_text_set_sha256": "b" * 64,
     "label_review_sha256": "c" * 64,
+    "quality_review_sha256": "f" * 64,
     "train_rows": 768, "validation_rows": 192, "labels": 16,
     "overlap_reference_count": 8, "normalized_overlap": 0,
     "content_in_receipt": False, "authority": "not-granted",

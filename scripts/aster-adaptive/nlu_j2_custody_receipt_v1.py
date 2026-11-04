@@ -41,7 +41,8 @@ def corpus_receipt(raw: bytes) -> dict[str, object]:
     value = _decode(raw, "aster-nlu-j2-corpus-custody.v1")
     if set(value) != {"schema", "manifest_sha256", "custodian_id", "reviewer_id",
                       "corpus_sha256", "normalized_text_set_sha256",
-                      "label_review_sha256", "train_rows", "validation_rows",
+                      "label_review_sha256", "quality_review_sha256",
+                      "train_rows", "validation_rows",
                       "labels", "overlap_reference_count", "normalized_overlap",
                       "content_in_receipt", "authority", "receipt_sha256"}:
         raise ValueError("J2 corpus receipt fields changed")
@@ -49,7 +50,8 @@ def corpus_receipt(raw: bytes) -> dict[str, object]:
     if (any(not isinstance(item, str) or not item for item in identities)
             or identities[0] == identities[1]):
         raise ValueError("J2 corpus custody roles are not distinct")
-    for field in ("corpus_sha256", "normalized_text_set_sha256", "label_review_sha256"):
+    for field in ("corpus_sha256", "normalized_text_set_sha256",
+                  "label_review_sha256", "quality_review_sha256"):
         if not isinstance(value[field], str) or not HEX64.fullmatch(value[field]):
             raise ValueError("J2 corpus digest changed")
     if (value["train_rows"] != 768 or value["validation_rows"] != 192

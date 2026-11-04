@@ -69,12 +69,21 @@ The mode-0600 review is bound to the v4 source bytes by artifact SHA-256
 and self-hash
 `75c86481cc04394787faf9cc7c6055f74dc5e262167e8491bfe09b1acf7f6bde`.
 
-The combined J2 source suite passes 45/45.
+Because the original label-review schema did not durably record prose quality,
+a separate fail-closed quality-review contract was added rather than relying on
+chat evidence. Its fresh 960-row artifact records explicit grammar,
+naturalness, semantic-label and split-quality passes for every row, has SHA-256
+`f934ee6780c3f9a4b87b7c530a4345080dd98ff534e7d5a3093822aed1d3fe3f`
+and self-hash
+`408e7479e106f614b2a2011da624c10af4ca6919d30d4cccd93dcf242fec4a35`.
+
+The complete J2 source suite passes 50/50.
 
 ## Next gate
 
 Candidate-v4 is the first corpus candidate that passes the frozen structural,
-overlap, semantic, naturalness and split-quality gates. It is ready for the
+overlap, semantic, naturalness and split-quality gates with those judgments
+retained in exact-source-bound artifacts. It is ready for the
 owner review Jason requested at release-candidate quality. Corpus release still
 requires externally controlled custody evidence; a shared-agent identity string
 or self-hash cannot manufacture that proof. No training, evaluation access,
