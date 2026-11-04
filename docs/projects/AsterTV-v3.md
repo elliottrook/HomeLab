@@ -1,17 +1,19 @@
 # AsterTV v3
 
-> Status: Active — Stream A PA3 page-design pilot resumed; accepted PA2
-> TV-series presentation remains deployed through the existing fail-closed v2
-> episode engine on Bedroom and Family; PA3 is not promoted
+> Status: Active — Stream A page-design pilot accepted and closed; Stream M
+> integration discovery resumed. TV-series presentation remains deployed through
+> the existing fail-closed v2 episode engine on Bedroom and Family; the PA3
+> synthetic surfaces are not promoted.
 >
 > Project owner: Jason
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: Stream A. On 2026-11-04 the owner explicitly
-> resumed the bounded portable-Mini page pilot at PA3. The prior 2026-11-01
-> Stream M TV-series deployment and reliability repair remain accepted history;
-> this resumption does not authorize any further live-room change.
+> Current authorization stream: Stream M. On 2026-11-04 the owner accepted the
+> final PA3 Aster AI command-card treatment and directed the project to continue.
+> PA4 retained the isolated portable Mini pilot for comparison and closed the
+> bounded Stream A authorization. Every subsequent operational change requires
+> the bounded Stream M approval described below.
 
 ## Purpose and desired outcome
 
@@ -517,10 +519,10 @@ fixture. F2–F5 retain the News, Requests, Home and Cameras fixtures.
 
 - [x] Run cross-page focus, Back/Home, empty/error/loading, secret-pattern,
   retained-profile-integrity and v2 locked-surface regressions.
-- [ ] Package the page overlay, fixture schema, screenshots, build manifest and
+- [x] Package the page overlay, fixture schema, screenshots, build manifest and
   removal/restore proof as a reproducible candidate; do not call it a release.
-- [ ] Obtain Jason's page-design acceptance and record changes requested.
-- [ ] Stop/remove or retain the portable pilot deliberately, record its exact
+- [x] Obtain Jason's page-design acceptance and record changes requested.
+- [x] Stop/remove or retain the portable pilot deliberately, record its exact
   state, and change this project's current authorization stream to Stream M.
 
 Gate: page designs are accepted or their remaining changes are listed; the
@@ -532,8 +534,15 @@ files and remained at file-set digest `e6367191…005082` before and after two
 candidate builds. It no longer contains the earlier retained Aster skin, so the
 historical `5bdc6b5c…63cfe` skin-only digest cannot be recomputed and is not
 being presented as current continuity evidence. The portable pilot remains at
-its separate, marker-protected path. Physical screenshots, navigation
-acceptance and deliberate pilot retention/removal remain open.
+its separate, marker-protected path. Six synthetic-only physical screenshots
+and the candidate manifest are retained under
+`docs/projects/evidence/AsterTV-v3-PA4-2026-11-04/`. Two independent
+12,341,304-byte builds from commit `05feb3e3` were byte-identical at SHA-256
+`ebb0ba3d3da6bc08d01cd649ff95b4f9e134e593550dac81678f8e7278b27b10`.
+The owner accepted the final dimensional Aster AI card on 2026-11-04. The
+portable pilot is deliberately retained at its marker-protected path as the
+visual comparison target; Kodi's temporary screenshot-path setting was restored
+to empty. PA4 and Stream A are closed. Remaining work proceeds only in Stream M.
 
 ## Milestones
 
@@ -541,7 +550,7 @@ acceptance and deliberate pilot retention/removal remain open.
 
 - [ ] Reconfirm Family, Bedroom and the new low-spec machine hardware, OS,
   Kodi, add-ons, routes, audio/video capabilities and recovery state.
-- [ ] Reconfirm the Mac-mini portable pilot boundary, retained-profile
+- [x] Reconfirm the Mac-mini portable pilot boundary, retained-profile
   inventory and accepted-v2 overlay provenance recorded in PA0.
 - [ ] Inventory existing Aster AI, account, YouTube, Seerr, Audiobookshelf,
   eBook narration, Home Assistant and camera contracts without reading secrets.
@@ -552,6 +561,15 @@ acceptance and deliberate pilot retention/removal remain open.
 
 Gate: no v3 live mutation; an evidence-backed architecture and decision register
 identify every authority, credential class and unsupported assumption.
+
+Read-only reconciliation on 2026-11-04 reconfirmed Family and the low-spec
+AsterTV-Jen client as LibreELEC 13 nightly `440640e` with Kodi 22.0 RC1 build
+`01d4146…d46`; their hostnames remain `AsterTV-Family` and `AsterTV-Jen`.
+Family's live ED25519 fingerprint matched the repository-pinned value
+`SHA256:qup6j5SaoLYSgeUyrMbXMD2+lpd+DGupbgO6DkHxhm8`; a temporary trust file was
+used rather than changing the Mac's persistent trust store. Bedroom was offline,
+so its live OS/Kodi reconfirmation remains open. PA4 independently reconfirmed
+the portable-Mini boundary and retained-profile continuity.
 
 ### M1 — Low-spec lab foundation and release harness
 
@@ -987,9 +1005,12 @@ explicit user acceptance.
 | 2026-11-04 | Split Aster AI direct commands from media search | Owner requested the large result dialog appear only for browseable media searches; navigation, direct playback, News and Home Assistant intents should use a compact lower-right activity/transcript/confirmation card. | F1 now opens the compact command fixture and its confirmed Cameras action reaches the existing Cameras page; Shift+F1 opens the unchanged large media-search dialog over that page. M3 now requires a capability-scoped allowlist for search, navigation, playback, News and Home Assistant rather than a search-only identity or the general Aster tool set. All 55 gates pass. No live microphone, broker, playback or Home Assistant authority is connected in Stream A. |
 | 2026-11-04 | Reduced the direct-command card to ambient feedback | Owner removed the transcript, mode label and all action/cancel boxes. | F1 now renders one 480×160 translucent lower-right surface containing only the Aster mark, fine waveform with status and a full-width green `Opening Cameras` response. There are no buttons or command execution in the synthetic card; the future broker performs allowlisted actions while Back dismisses the dialog. The large Shift+F1 search dialog is unchanged. |
 | 2026-11-04 | Applied the approved dimensional surface to the command card | Owner accepted the minimal content but found its flat translucent panel inconsistent with the established Aster treatment. | The card retains the same 480×160 footprint and content while consuming the shared raised dark gradient with antique-gold rim and restrained shadow. A structural gate pins that shared asset and border so the flat panel cannot silently return. |
+| 2026-11-04 | Closed PA4 and returned the project to Stream M | Owner accepted the final Aster AI treatment and directed completion and continuation. Six synthetic-only Kodi screenshots plus the embedded manifest are retained under `docs/projects/evidence/AsterTV-v3-PA4-2026-11-04/`; two candidate builds from `05feb3e3` were byte-identical at 12,341,304 bytes and SHA-256 `ebb0ba3d…27b10`. Forgejo and its GitHub mirror both reached `05feb3e3`. | The marker-protected Mini pilot is deliberately retained for comparison, the temporary screenshot setting is restored, PA4 is complete and Stream A authority is closed. Continue with read-only M0 reconciliation; every later operational mutation is bounded Stream M work. |
+| 2026-11-04 | Resumed M0 client-baseline discovery | Direct read-only SSH confirmed Family and AsterTV-Jen on LibreELEC 13 nightly `440640e` and Kodi 22.0 RC1 `01d4146…d46`; hostnames match the project. Family's live ED25519 key matched the repository-pinned fingerprint and was used only through a temporary trust file. Bedroom returned `Host is down`. | Mini boundary reconciliation is complete. Bedroom OS/Kodi and the remaining service/account authority inventory stay open; no client was changed. |
 | 2026-11-04 | Qualified the reserved AsterTV-Jen low-spec client and completed M1 | Reserved `192.168.1.180` for MAC `00:23:24:6e:e5:14` in OPNsense and reconciled NetBox device 24/IP 37. Installed the accepted v2.0.7 archive `e813de8a…3cf7`, exact code-only production dependency closure and host-bound rollback guard without copying credentials or changing Family/Bedroom. | ThinkCentre M93p/i5-4570T/7.5 GiB passed UI, 1080p H.264 VAAPI, memory/storage, HDMI stereo and reboot gates; boot was 13.846 s and Kodi RSS about 500 MiB. A deliberate drift was restored to the exact accepted hash before Kodi after repairing a `%H` early-boot hostname defect. The machine is viable for v2/1080p H.264, not HEVC/VP9/AV1 4K parity. Screensaver activation failed; request broker remains source-blocked; Jellyfin/YouTube and M3 Aster search require dedicated identities. Full evidence: `services/kodi/astertv-v3/low-spec/EVIDENCE-2026-11-04.md`. |
 | 2026-11-04 | Provisioned and exercised production-equivalent low-spec backend boundaries | Added independently revocable AsterTV-Jen identities for Jellyfin Quick Connect, Audiobookshelf and Seerr/acquisition; extended only the exact host firewall/runtime/NFS allowlists; added forced-command Home delivery and camera access with a new camera key. Secrets remain mode `0600`, server-side custody is recorded outside Git and production client tokens continued to pass. | Authenticated Jellyfin catalogue/range-read, Books refresh, Seerr discovery/search/denial, 63-reading Home delivery, camera start/frame/stop and both read-only eBook mounts passed. A real 1080p HEVC sample completed in software at about 125% of one core, so this is a viable 1080p client but not a 4K codec-parity client. Screensaver now activates after the low-spec host gate. YouTube is explicitly deferred. M3 Aster AI remains blocked correctly: no search-only television identity/contract exists, and the general whole-home key was not reused. Initial full Music import was the worst observed transient load (978.5 MiB peak and slow shutdown while its transaction was active). After correcting a newline-sensitive Jellyfin device-ID websocket defect, two reboots preserved key-only SSH, all mode-0600 identities, live websocket, 63 Home entities, both read-only NFS shares, active camera/Books services and a clean 528-file guard. Temporary credential and screenshot artifacts were removed. |
 | 2026-11-04 | Ran production-connected low-spec feature soak and real request | Corrected the qualification to exercise the actual `screensaver.asterhome.v2lab`, repaired only the six runtime manifests invalidated by reviewed hostname gates, then opened Home/Search/Requests and played Movies, Archive Movies, TV, Archive TV, Music, Audiobook and News against production-equivalent backends. Five changing camera frames and the Aster idle window passed. Submitted *The Phoenician Scheme* (2025) through the restricted Seerr broker as request 181 for owner denial. | A complete tail cycle passed at 619,224 KiB Kodi RSS, but repetition exposed two low-spec defects: mixed-media cleanup eventually stalled JSON-RPC until Kodi restart, and an immediate second protected News launch timed out after the ready page. The M93p remains viable for 1080p v2 use, conditionally viable for the full feature set, and must not be promoted as an identical production model until v3 fixes lifecycle quiescence or defines a reduced low-spec profile. YouTube remains separately deferred and M3 Aster search remains correctly blocked on its search-only credential contract. |
+| 2026-11-04 | Repaired and retested low-spec playback cleanup | Extended the existing fail-closed News repair to AsterTV-Jen's pinned runtime. Revision 2 distinguishes retained queues from Kodi's exact self-owned transition to the unique private session MP3, freezes the resulting two-playlist snapshot and continues to fence every foreign change. Originals are checkpointed at `/storage/.aster-checkpoints/astertv-news-playback-AsterTV-Jen-20261104-191308`. | Two consecutive full UI News sessions and an independent exact-contract launch played without ownership errors and released their window/player state cleanly; the 528-file guard accepted and verified the new hashes. Repeated media cleanup pings remained 0.148–1.56 ms. The earlier apparent control stall was a synchronous Audiobookshelf plugin-resolution request whose playback had already started, not an orphaned player; future soak automation must observe plugin opens asynchronously. Cleanup stability no longer requires removing a feature from the low-spec profile. |
 
 ## Close-out
 
