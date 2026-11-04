@@ -16,6 +16,25 @@ class CandidateGListenerAdapterTests(unittest.TestCase):
                          adapter.bounded_guest_failure(
                              ('{"code":"' + 'x' * 161 + '"}\n').encode()))
 
+    def test_guest_failure_parser_checks_stdout_and_projects_no_content(self):
+        self.assertEqual(
+            "candidate-g result errors:count=1;classes=TimeoutError",
+            adapter.bounded_guest_failure(
+                b"transport only\n",
+                b'prefix:{"code":"candidate-g result errors:count=1;classes=TimeoutError"}\n',
+                1))
+        self.assertEqual(
+            "candidate-g guest traceback-class:KeyboardInterrupt",
+            adapter.bounded_guest_failure(
+                b'Traceback (most recent call last):\nKeyboardInterrupt: private\n',
+                b"", 1))
+        self.assertEqual(
+            "candidate-g guest exit-status:137;stdout-bytes:0;stderr-bytes:0",
+            adapter.bounded_guest_failure(b"", b"", 137))
+        self.assertNotIn(
+            "private", adapter.bounded_guest_failure(
+                b"KeyError: private\n", b"", 1))
+
     def test_command_is_fixed_and_carries_no_arbitrary_command(self):
         command = adapter.listener_command(lease_id="lease-1", generation=2)
         self.assertEqual(("pct", "exec", "110", "--"), command[:4])

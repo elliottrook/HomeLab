@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import tempfile
 import time
@@ -23,21 +24,41 @@ LISTENER = "/usr/local/libexec/local-ai-lease/full-inference-pilot/aster_llama_s
 PORT = 11436
 CASES = 20
 PER_REQUEST_TIMEOUT_SECONDS = 120
+TRACEBACK_CLASS_RE = re.compile(r"([A-Za-z][A-Za-z0-9_.]{0,127})(?::.*)?")
+ERROR_CLASS_RE = re.compile(r"[A-Za-z][A-Za-z0-9_]{0,63}")
 
 
-def bounded_guest_failure(stderr: bytes) -> str:
-    try:
-        lines = stderr.decode("utf-8").splitlines()
-    except UnicodeDecodeError:
-        return "unclassified guest failure"
-    for line in reversed(lines):
+def bounded_guest_failure(stderr: bytes, stdout: bytes = b"",
+                          status: int | None = None) -> str:
+    decoded = []
+    for payload in (stderr, stdout):
         try:
-            value = json.loads(line.strip())
-        except json.JSONDecodeError:
-            continue
-        detail = value.get("code") if isinstance(value, dict) else None
-        if isinstance(detail, str) and 1 <= len(detail) <= 160:
-            return detail
+            decoded.append(payload.decode("utf-8").splitlines())
+        except UnicodeDecodeError:
+            decoded.append([])
+    for lines in decoded:
+        for line in reversed(lines):
+            candidates = [line.strip()]
+            if "{" in line:
+                candidates.append(line[line.find("{"):].strip())
+            for candidate in candidates:
+                try:
+                    value = json.loads(candidate)
+                except json.JSONDecodeError:
+                    continue
+                detail = value.get("code") if isinstance(value, dict) else None
+                if isinstance(detail, str) and 1 <= len(detail) <= 160:
+                    return detail
+    for lines in decoded:
+        for line in reversed(lines):
+            match = TRACEBACK_CLASS_RE.fullmatch(line.strip())
+            if match:
+                error_class = match.group(1).rsplit(".", 1)[-1]
+                if ERROR_CLASS_RE.fullmatch(error_class):
+                    return "candidate-g guest traceback-class:" + error_class
+    if type(status) is int and -255 <= status <= 255:
+        return (f"candidate-g guest exit-status:{status};"
+                f"stdout-bytes:{len(stdout)};stderr-bytes:{len(stderr)}")
     return "unclassified guest failure"
 
 
@@ -94,7 +115,7 @@ def run(*, lease_id: str, generation: int, deadline_epoch: int,
                 with open(stderr_path, "rb") as stream:
                     stderr = stream.read(RESULT_MAX_BYTES + 1)
                 if status != 0:
-                    detail = bounded_guest_failure(stderr)
+                    detail = bounded_guest_failure(stderr, stdout, status)
                     raise AdapterError("candidate-g listener exited nonzero: " + detail)
                 if len(stdout) > RESULT_MAX_BYTES or len(stderr) > RESULT_MAX_BYTES:
                     raise AdapterError("candidate-g listener capture exceeded bound")
