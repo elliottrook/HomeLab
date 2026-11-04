@@ -108,7 +108,7 @@ WORKLOADS = {
             ("sa3_evidence_envelope_quality_freeze_v1.py",
              "95cf006fc7e3b2aeb3acf0e926336e65e3c3a8b5e5f8cb5cc083e4e5ab7b3483"),
             ("sa3_evidence_envelope_runner_v1.py",
-             "22828169293ab013076d42928f38159ac356f3ef8c584419ea4ddff2b43de45b"),
+             "372c19ef3c2f5e8f0965167011c4bba47d9326e5f5ffe7d0b77d9ac5898fc352"),
         ),
         packet_sha256="a01c6d71dce91141f2eae9bad21a56641f6aa269cdc3561a165385d210e3ec2a",
         result_max_bytes=524288,
