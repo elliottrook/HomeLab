@@ -10,7 +10,7 @@ from sa3_evidence_envelope_inactive_install import InstallError, atomic, digest,
 
 
 HOST_ROOT = Path("/usr/local/libexec/local-ai-lease/full-inference-pilot")
-CHECKPOINT = Path("/var/lib/local-ai-lab/checkpoints/sa3-epub-scheduler-path-r3-20261104")
+CHECKPOINT = Path("/var/lib/local-ai-lab/checkpoints/sa3-epub-scheduler-path-r3b-20261104")
 FILES = {
     "full_inference_lab_session.py": (
         "217cd468111b5e3fea280515a9ac7b9e5b77776c5510764c8b9ca8803ddf5b02",
@@ -54,7 +54,7 @@ def install(stage: Path) -> dict[str, object]:
     CHECKPOINT.mkdir(parents=True, mode=0o700)
     os.chmod(CHECKPOINT, 0o700)
     for name in FILES:
-        atomic(CHECKPOINT / name, regular(HOST_ROOT / name, 0o644), 0o600)
+        atomic(CHECKPOINT / name, regular(HOST_ROOT / name, FILES[name][2]), 0o600)
     try:
         for name in FILES:
             atomic(HOST_ROOT / name, data[name], FILES[name][2])

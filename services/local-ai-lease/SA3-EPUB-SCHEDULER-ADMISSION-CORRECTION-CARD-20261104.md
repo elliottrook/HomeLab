@@ -72,18 +72,22 @@ The revision-3 identities are:
 - release manifest:
   `b29f1e6c6f0a57622dd81a6274076234db22b141fa75bbbaeecfc6f641f41987`.
 
-Its separate checkpoint is
-`/var/lib/local-ai-lab/checkpoints/sa3-epub-scheduler-path-r3-20261104`.
+Its final separate checkpoint is
+`/var/lib/local-ai-lab/checkpoints/sa3-epub-scheduler-path-r3b-20261104`.
 The installed validator must accept the shared EPUB predicate, a healthy Doctor,
 the complete manifest and a canonical drain/restore command set containing no
 reference to the retired timer.
 
-The first revision-3 apply attempt stopped before checkpoint creation or file
-replacement because the installer assumed mode 0644 for every predecessor,
-while the executable Doctor is correctly installed as 0755. The packet now
+The first revision-3 apply attempt stopped before file replacement because the
+installer assumed mode 0644 for every predecessor while the executable Doctor
+is correctly installed as 0755. It retained a partial checkpoint containing
+only the unchanged session predecessor; installed files were not modified.
+That partial evidence is preserved, and the final packet uses the fresh `r3b`
+checkpoint above. The packet now
 pins each predecessor and target mode independently (Doctor 0755; session and
-manifest 0644). Independent checks confirmed that attempt changed no installed
-file and created no checkpoint.
+manifest 0644), including while copying each predecessor into the checkpoint.
+Independent checks confirmed that the failed attempts changed no installed
+file.
 
 The new inactive installer requires the exact currently installed source and
 manifest hashes, a ready lease and no drain/shared-operation state. It creates
