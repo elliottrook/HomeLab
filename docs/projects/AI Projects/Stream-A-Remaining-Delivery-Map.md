@@ -54,6 +54,13 @@ and the actual installed reserved-runner verifier accepts all 34 pins including
 both corrected EPUB hashes. No booking, restart or workload occurred. The next
 D4 effect is a fresh ledger-checked booking under the retained restart boundary.
 
+Jason then granted standing authority for in-scope Stream A candidate runs and
+their fixed restoration. The [v2 booking is now scheduled](evidence/D4-candidate-g-booking-v2-result-2026-11-04.md)
+for 12:30–14:00 host-local after a clear ledger result, ready lease, absent
+shared state/locks and successful validation of all 34 installed pins. Runtime
+claim and health gates remain fail closed; no further conversational approval
+is required for this bounded candidate.
+
 Work outside the timed F2 chain continues in parallel. A failed F2 runtime gate
 blocks F3 and the live evaluations; it does not block offline D4/M3 hardening,
 documentation reconciliation, Companion monitoring or review of the new F6
