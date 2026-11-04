@@ -24,9 +24,13 @@
 now freezes a materially different byte-convolutional joint-label family and a
 new three-custodian data boundary. J1's artifact, weights, public result and
 five exposed failures are forbidden from training or selection. The manifest
-and seven-test fail-closed suite pass; no corpus, evaluation set, training,
-booking or effect exists. Next is the offline custody/receipt schema, not a
-model run.
+and seven-test fail-closed suite pass. The follow-on
+[content-free custody boundary](evidence/M3-J2-custody-receipt-boundary-2026-11-04.md)
+requires three distinct custodians, exact balanced counts, zero normalized
+overlap, a sealed trainer-inaccessible evaluation set and self-hashed receipts;
+the combined J2 suite passes 14/14. No corpus, evaluation set, training,
+booking or effect exists. Next is independent creation and review of those
+underlying data sets and receipts, not a model run.
 
 Work outside the timed F2 chain continues in parallel. A failed F2 runtime gate
 blocks F3 and the live evaluations; it does not block offline D4/M3 hardening,
