@@ -18,8 +18,7 @@ reapplying that proved runtime setting at boot.
 
 Rollback is `systemctl disable --now astertv-wifi-stability.service`, removal of
 the unit and candidate, `systemctl daemon-reload`, then
-`iw dev wlan0 set power_save on`. A reboot test remains required to prove boot
-persistence after the initial non-disruptive installation.
+`iw dev wlan0 set power_save on`.
 
 ## Installed evidence — 2026-11-04
 
@@ -31,6 +30,39 @@ persistence after the initial non-disruptive installation.
 - Kodi: remained active; it was not restarted
 - power saving: off
 - post-install latency: 20/20 received, average 2.244 ms, maximum 4.974 ms
+
+The approved reboot check completed at 2026-11-04 12:50 local time. After a
+14-second boot, the unit was enabled and active, power saving was off, Kodi was
+active, and 20/20 packets returned at 4.085 ms average / 35.617 ms maximum.
+Boot persistence therefore passes. The same reboot exposed an unrelated stale
+release-guard unit whose `%H` expanded to `LibreELEC`; its 535-file accepted
+manifest independently verifies clean when addressed as `AsterTV-Bedroom`.
+
+The approved bounded repair replaced only that unit with the checked-in literal
+host version. Its SHA-256 is
+`5839efc05f743c17f1cacf8397702deb77414e6f5d5c60f65701355392c5be65` and
+its checkpoint is
+`/storage/.aster-checkpoints/astertv-bedroom-release-guard-AsterTV-Bedroom-20261104-guardfix`.
+The one-shot then completed with `Result=success` / `ExecMainStatus=0`; the
+accepted-manifest hash remained `474c887d…f204`, all 535 files remained clean,
+Kodi stayed active, Wi-Fi power saving stayed off and no systemd units remained
+failed. Rollback is to restore `astertv-release-guard.service.before` from that
+checkpoint and run `systemctl daemon-reload`; doing so deliberately restores
+the diagnosed boot failure and is for recovery inspection only.
+
+The two machine-specific settings are release-safe by construction:
+
+- the Wi-Fi unit lives in `/storage/.config/system.d`, outside the release
+  guard's seven add-on roots under `/storage/.kodi/addons`, and ordinary
+  releases neither snapshot nor remove it; and
+- the reliability installer validates the client hostname and renders that
+  literal identity into the boot unit. It never leaves systemd's early-boot
+  `%H` token in an installed unit.
+
+`test_wifi_service.py` gates both boundaries. The checked-in
+`astertv-release-guard-bedroom.service` is the exact host-bound recovery unit
+used for the one-time live repair; future reliability installs must render the
+same `--host AsterTV-Bedroom` argument.
 
 The Mac's stale `.140` host-key entries were separately corrected after the
 live ED25519 fingerprint matched the previously approved

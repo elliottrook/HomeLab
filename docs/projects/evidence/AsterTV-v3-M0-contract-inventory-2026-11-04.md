@@ -62,4 +62,16 @@ Disabling power saving changed 20-packet latency from 107.540 ms average /
 211.173 ms maximum to 2.440 / 4.973 ms in the volatile trial and 2.244 / 4.974 ms
 after persistent installation, with zero loss throughout. Kodi remained active.
 The service is documented under `services/kodi/astertv-v3/deploy/bedroom-wifi/`;
-boot persistence still requires a later idle reboot check.
+an approved reboot proved it enabled/active with power saving off, Kodi active,
+and 4.085 ms average latency. That reboot also exposed a pre-existing release-
+guard unit defect: systemd expanded `%H` to `LibreELEC`, while the accepted
+manifest is correctly host-bound to `AsterTV-Bedroom`. Direct verification of
+all 535 accepted files returned clean. The unit binding needs a separate bounded
+repair; no accepted payload change or resnapshot is required. That repair was
+subsequently approved and completed: only the guard unit's argument changed to
+the literal `AsterTV-Bedroom`; unit SHA-256 is `5839efc…be65`. The guard then
+returned `Result=success` / `ExecMainStatus=0`, the accepted-manifest hash
+remained `474c887d…f204`, all 535 files verified clean, Kodi remained active,
+Wi-Fi power saving remained off and `systemctl --failed` was empty. Regression
+tests now enforce that the Wi-Fi unit remains outside the add-on release payload
+and that future reliability installs render the validated literal hostname.

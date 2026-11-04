@@ -7,7 +7,9 @@ import unittest
 
 ROOT = Path(__file__).resolve().parent
 UNIT = (ROOT / "astertv-wifi-stability.service").read_text()
+GUARD_UNIT = (ROOT / "astertv-release-guard-bedroom.service").read_text()
 README = (ROOT / "README.md").read_text()
+RELIABILITY = ROOT.parents[1] / "reliability"
 
 
 class WifiStabilityUnitTests(unittest.TestCase):
@@ -34,6 +36,27 @@ class WifiStabilityUnitTests(unittest.TestCase):
         self.assertIn(
             "6a829d42832076bb8ec2756c5cd577939af8ab0a900462376c5dbb98ab1f6b90",
             README,
+        )
+
+    def test_release_guard_is_bound_to_registered_bedroom_identity(self):
+        self.assertIn("--host AsterTV-Bedroom", GUARD_UNIT)
+        self.assertNotIn("--host %H", GUARD_UNIT)
+
+    def test_future_reliability_installs_render_a_literal_host(self):
+        installer = (RELIABILITY / "install.py").read_text()
+        self.assertIn(
+            'unit_data.replace(marker, b"--host " + host.encode("ascii"))',
+            installer,
+        )
+        self.assertIn('if host not in ALLOWED_HOSTS:', installer)
+
+    def test_wifi_policy_is_outside_guarded_release_payload(self):
+        guard = (RELIABILITY / "release_guard.py").read_text()
+        self.assertIn('DEFAULT_ROOT = Path("/storage/.kodi/addons")', guard)
+        self.assertNotIn("astertv-wifi-stability.service", guard)
+        self.assertNotIn(
+            "astertv-wifi-stability.service",
+            (RELIABILITY / "install.py").read_text(),
         )
 
 
