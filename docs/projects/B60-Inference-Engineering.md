@@ -12,6 +12,11 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [November4 receipt](B60-Inference-Engineering/nightly-reconciliation-20261104.md)
+confirms the same activation gap: November4 expired without retained execution
+receipts; November5 capacity is reserved/unarmed. Exact operational migration
+and fresh arming remain next. No new experiment, production change or push.
+
 The [November3 reconciliation](B60-Inference-Engineering/nightly-reconciliation-20261103.md)
 finds another passed booking without activation or execution receipts, and
 confirms all three timing-fix modules remain old on the host. November4 is
