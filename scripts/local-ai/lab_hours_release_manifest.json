@@ -3,7 +3,7 @@
     "cooperative_lab_host_adapter.py": "65151e7d7cb511c79afffa0544adb86ee9820e963330c0c5ae4a214e30f92d88",
     "full_inference_lab_deadline_guardian.py": "688d995dafd33b7b905fb7351bf365a0d0fdcc20766e5c497551d2cc0846cc35",
     "full_inference_lab_install_preflight.py": "1ea2e37eb2ab8ea34251f4af1337cd2d7f94b00933eb60ff7433b6adbe6ca8d3",
-    "full_inference_lab_runtime.py": "b4fc31b0eaeab14b0beb81b47103f2d03a62cf9e6bf3bbccdfc4560a0f444da9",
+    "full_inference_lab_runtime.py": "6c7767e5a22829d3369b5c385495aea7d2879986c9adb5e698aef29d3df198ad",
     "full_inference_lab_session.py": "b3c38f030cbe1c0d45f59947cb2bc68cb7f80ed6410ef1669c88c18027296e9a",
     "full_inference_lab_sources.py": "c07c2966a13144b8ca2b68639917381bad7381f9d8fa61adc265f1b30f59c5d9",
     "full_inference_lab_supervisor.py": "da5ac76fb48541a2661caa1cb4fe7f21d84334abb9ab935fb1aaaf72c4faba55",
@@ -14,7 +14,7 @@
     "lab_hours_doctor.py": "32fbe1d9e63fdab78a00496c36ca4b3da7a81809e14cf930a209a32ec9649d76",
     "lab_hours_inactive_target.py": "a99c1f8669836513a8dcc51d9a80182be4ad08b6db3be1c09b48ea727a831e47",
     "lab_hours_reservations.py": "f61c6b496fd6e378b6e144a2b13170c85392274e86127a29b03d0cf8f16415d2",
-    "lab_hours_reserved_runner.py": "63c7a116f326161dfb550cb3bfdaf268cbab29820e7b9f0105e810c595a75aba",
+    "lab_hours_reserved_runner.py": "eab869dae32340d302c25c6346843b94c6d79a539eccf975cfe9d7c69ca47960",
     "lab_hours_workloads.py": "829024378e11ec98ff67dc42d1554588f68b4e95f8115532081e29663e87ab70",
     "full_aster_first_screen_candidate.py": "eb07b46c1f592ef35c9e0bcb7f0f6aaa0d484775e18ab991b6c29dbe1dc2af6b",
     "full_aster_first_screen_observer.py": "277fa96f411737e265f3fcfb3169d00a3dfb0289d5b075150f677b04469ce340",
@@ -33,8 +33,10 @@
     "sa3_expanded_quality_transaction.py": "f2d52b12d99acadfa2f89603449988a16de66017ab10087b550f57703ccbacc0",
     "sa3_listener_adapter.py": "6173cfa79f47cfce37924ff11f7ce012f211979d23ef7b6492e403abddacfc1e",
     "sa3_evidence_envelope_transaction.py": "b906f30dd25a7990f3a81f6b41eeb77ab67e9b0aa96fffcdf56bee111ee3fa26",
-    "sa3_evidence_envelope_listener_adapter.py": "e8c8cbcc875fe3f48035425f776a59f5ab81a6564f3f6acba38eb1dd63597a1b"
+    "sa3_evidence_envelope_listener_adapter.py": "e8c8cbcc875fe3f48035425f776a59f5ab81a6564f3f6acba38eb1dd63597a1b",
+    "sa3_candidate_i_evidence_envelope_transaction.py": "c1d40abe685860ba6202ea5b18425a1ba8fbcc5e5aa7e820ae555ec08c922131",
+    "sa3_candidate_i_evidence_envelope_listener_adapter.py": "e16a251225ca0cc757c74cd3b38641700aeabf9f32391836309ebfe42fd0a8c6"
   },
-  "release": "sa3-candidate-i-inactive-registration-v10",
+  "release": "sa3-candidate-i-transaction-source-v11",
   "schema": "aster-lab-hours-release-manifest.v1"
 }

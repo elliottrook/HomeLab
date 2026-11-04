@@ -50,7 +50,7 @@ class WorkloadRegistryTests(unittest.TestCase):
         self.assertFalse(any("keys" in name or "review" in name
                              for name, _ in spec.runtime_pins))
 
-    def test_candidate_i_is_registered_but_runner_is_not_yet_admitted(self):
+    def test_candidate_i_registration_is_exact_and_excludes_keys(self):
         spec = workload("sa3-evidence-envelope-candidate-i-quality-v1")
         self.assertEqual("aster-stream-a", spec.owner)
         self.assertEqual(20, spec.request_count)
