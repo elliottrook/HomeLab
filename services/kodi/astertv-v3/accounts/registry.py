@@ -17,13 +17,17 @@ PROFILE_FIELDS = {
 }
 MAPPING_FIELDS = {"service", "opaque_subject_id", "enabled"}
 ROLES = {"recovery_admin", "member", "guest"}
-SERVICES = {"jellyfin", "audiobookshelf", "youtube", "seerr", "home_assistant", "aster"}
+SERVICES = {
+    "jellyfin", "jellyfin_guest", "audiobookshelf", "youtube", "seerr",
+    "home_assistant", "aster",
+}
 ENTITLEMENTS = {
     "fixture_catalogue", "fixture_listening", "public_catalogue_browse",
     "clock", "local_settings_read", "personal_youtube", "requests_submit",
     "books_private", "viewing_history", "personal_recommendations",
     "listening_history", "home_control", "cameras",
     "aster_private_context", "profile_admin",
+    "guest_catalogue_browse", "guest_media_playback",
 }
 PREFERENCES = {"clock", "captions"}
 DENIED_GUEST = {
@@ -38,7 +42,7 @@ SECRET_NAMES = {
 ID = re.compile(r"^[a-z][a-z0-9-]{0,47}$")
 OPAQUE_SUBJECT = re.compile(
     r"^(?:synthetic:[a-z0-9-]+:[a-z0-9-]+"
-    r"|local:(?:jellyfin|audiobookshelf):sha256:[0-9a-f]{64}"
+    r"|local:(?:jellyfin|jellyfin-guest|audiobookshelf):sha256:[0-9a-f]{64}"
     r"|local:seerr:client:astertv-jen)$"
 )
 RFC3339_UTC = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
@@ -113,7 +117,13 @@ def validate(registry):
             raise RegistryError("invalid-preferences:" + profile_id)
         if profile["role"] == "guest":
             guest_count += 1
-            if mappings:
+            if len(mappings) > 1 or any(
+                mapping["service"] != "jellyfin_guest"
+                or not mapping["opaque_subject_id"].startswith(
+                    "local:jellyfin-guest:sha256:"
+                )
+                for mapping in mappings
+            ):
                 raise RegistryError("guest-service-mapping-denied")
             if set(profile["entitlements"]) & DENIED_GUEST:
                 raise RegistryError("guest-private-entitlement-denied")

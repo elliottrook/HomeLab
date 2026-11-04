@@ -38,6 +38,23 @@ def discover(root=Path("/")):
     profile = storage / ".kodi/userdata/addon_data"
     subjects = {}
 
+    guest_path = storage / ".aster-private/jellyfin-guest.json"
+    if _private_file(guest_path):
+        guest = _json(guest_path)
+        guest_id = guest.get("user_id") if isinstance(guest, dict) else None
+        guest_hash = guest.get("user_id_sha256") if isinstance(guest, dict) else None
+        folders = guest.get("allowed_folders") if isinstance(guest, dict) else None
+        if (guest.get("schema") == 1 and isinstance(guest_id, str) and guest_id
+                and guest_hash == hashlib.sha256(guest_id.encode()).hexdigest()
+                and isinstance(guest.get("access_token"), str) and guest["access_token"]
+                and guest.get("device_id") == "astertv-jen-guest-catalogue"
+                and isinstance(folders, list) and len(folders) == 4
+                and {row.get("name") for row in folders if isinstance(row, dict)}
+                    == {"Movies", "Shows", "Archive Movies", "Archive TV"}):
+            subjects["jellyfin_guest"] = (
+                "local:jellyfin-guest:sha256:" + guest_hash
+            )
+
     jellyfin = profile / "plugin.video.jellyfin"
     data_path = jellyfin / "data.json"
     provisioning_path = jellyfin / "provisioning.json"

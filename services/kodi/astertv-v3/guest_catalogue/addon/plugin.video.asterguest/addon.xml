@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.asterguest" name="Aster Guest Catalogue" version="0.1.0" provider-name="Aster Home">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+    <import addon="inputstream.adaptive" version="22.0.0" />
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.service" library="service.py" start="login" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Bounded Guest film and television catalogue</summary>
+    <description lang="en_GB">Jen-only Guest catalogue and playback adapter with separate Jellyfin custody.</description>
+    <platform>all</platform>
+    <license>Private HomeLab pilot</license>
+  </extension>
+</addon>

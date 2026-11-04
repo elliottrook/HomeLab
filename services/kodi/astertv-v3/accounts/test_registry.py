@@ -158,6 +158,25 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaises(registry.RegistryError):
             registry.validate(data)
 
+    def test_guest_accepts_only_dedicated_guest_jellyfin_mapping(self):
+        data = fixture()
+        guest = data["profiles"][2]
+        guest["service_mappings"] = [{
+            "service": "jellyfin_guest",
+            "opaque_subject_id": "local:jellyfin-guest:sha256:" + "d" * 64,
+            "enabled": True,
+        }]
+        guest["entitlements"].extend(["guest_catalogue_browse", "guest_media_playback"])
+        data["active_profile_id"] = "guest"
+        validated = registry.validate(data)
+        self.assertEqual(validated["profiles"][2]["service_mappings"][0]["service"],
+                         "jellyfin_guest")
+        self.assertEqual(policy.select_decision(validated, 9001), "guest-catalogue")
+        self.assertTrue(policy.guest_playback_allowed(validated))
+        self.assertFalse(policy.private_surface(
+            validated, 10025, "plugin://plugin.video.asterguest/"
+        ))
+
     def test_identity_resolution_matches_existing_custody_and_denies_drift(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -72,8 +72,17 @@ def build_registry(authority, updated_at, root=Path("/")):
             "id": "guest",
             "display_name": "Guest",
             "role": "guest",
-            "service_mappings": [],
-            "entitlements": ["public_catalogue_browse", "clock", "local_settings_read"],
+            "service_mappings": ([{
+                "service": "jellyfin_guest",
+                "opaque_subject_id": subjects["jellyfin_guest"],
+                "enabled": True,
+            }] if "jellyfin_guest" in subjects else []),
+            "entitlements": ([
+                "public_catalogue_browse", "clock", "local_settings_read",
+                "guest_catalogue_browse", "guest_media_playback",
+            ] if "jellyfin_guest" in subjects else [
+                "public_catalogue_browse", "clock", "local_settings_read",
+            ]),
             "preferences": {"clock": "24h", "captions": False},
         }],
         "updated_at": updated_at,

@@ -1,7 +1,7 @@
 # AsterTV v3
 
-> Status: Active — Jen-only M2 account-authority integration Stream A completed.
-> The r9 authority candidate is retained on AsterTV-Jen as restricted Guest.
+> Status: Active — Jen-only M2 Guest-catalogue/playback Stream A completed.
+> The r8 Guest adapter is retained on AsterTV-Jen.
 > The earlier page-design pilot is accepted and closed; no PA3
 > synthetic surface is promoted. TV-series presentation remains deployed
 > through the existing fail-closed v2 episode engine on Bedroom and Family.
@@ -10,9 +10,9 @@
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: none. `SA-M2-JEN-REAL` ended after its four
-> gates passed. Family, Bedroom, source-service mutation, Guest playback and
-> every later milestone require new bounded authorization.
+> Current authorization stream: none. `SA-M2-JEN-GUEST` ended after its four
+> gates passed. Family, Bedroom, release promotion, M3 and every later
+> milestone require a new bounded authorization.
 
 ## Purpose and desired outcome
 
@@ -711,6 +711,67 @@ and a clean 528-file accepted-v2 guard. Family, Bedroom and all source services
 were unchanged. Full evidence is recorded in
 `docs/projects/evidence/AsterTV-v3-M2-Jen-account-authority-2026-11-04.md`.
 
+### SA-M2-JEN-GUEST — Jen-only Guest-safe Jellyfin catalogue and playback
+
+Jason approved this bounded Stream A on 2026-11-04 and then explicitly added
+playback authority. It authorizes only the Jellyfin and AsterTV-Jen changes
+required to prove a separately revocable Guest catalogue and playback path:
+
+- checkpoint r9, its authority/registry state, the accepted-v2 guard and the
+  current Jellyfin user/policy configuration before effects;
+- create exactly one dedicated AsterTV Guest Jellyfin identity with only the
+  explicitly selected shared film/television library views;
+- allow film/television playback and the transcoding required by Jen's measured
+  client profile, while denying downloads, deletion, administration, remote
+  control, shared-device control, live TV, user preferences and private views;
+- issue one independently revocable Guest credential, retain it outside Git in
+  mode-`0600` service-specific custody, and store only its opaque subject
+  reference in the AsterTV registry;
+- build a separate Guest catalogue/playback adapter which returns generic
+  metadata, artwork and bounded stream routes only, with no Continue Watching,
+  next-up, cross-profile history, favourites, recommendations or general
+  mutation endpoint;
+- exercise denial, restart, missing/malformed credential, identity drift,
+  direct-route bypass, exact rollback, no-history and unauthorized-playback
+  denial tests; and
+- restart only Jen's Kodi when idle, document evidence, commit and push at the
+  milestone boundary.
+
+The envelope excludes changing Jason's Jellyfin user/session or any existing
+client token, enabling music/books/requests/YouTube/Home/cameras/Aster for
+Guest, changing Jellyfin libraries or global settings,
+changing Family or Bedroom, release promotion and M3. Stop on active playback,
+an unexpected existing identity/name collision, ambiguous library selection,
+credential output, non-Guest source mutation, cross-profile history exposure,
+guard drift or unavailable rollback. A failed new identity is disabled and
+retained for owner review unless deletion of the newly created disposable
+identity is explicitly part of the rehearsed rollback.
+
+Controls are exact before/after user-policy snapshots, a unique identity name,
+least-privilege permission allowlist, mode-`0600` custody, opaque references,
+GET-only catalogue methods plus one allowlisted playback resolver in the
+adapter, response-field allowlisting, idle-player and release-guard gates, and
+a full rollback rehearsal. Guest playback activity may exist only under the
+dedicated Guest user and is never presented as another profile's state. No Lab Hours booking is
+needed because no scheduled or exclusive local-AI workload is involved.
+
+- [x] SA-M2-JEN-GUEST1: inventory Jellyfin libraries/user-policy fields and
+  freeze the Guest permission/adapter contract without exposing secrets.
+- [x] SA-M2-JEN-GUEST2: create the disposable identity and prove source-side
+  least privilege plus exact rollback.
+- [x] SA-M2-JEN-GUEST3: install the Jen adapter and profile mapping; prove
+  bounded browse/play navigation, restart, denial and guard preservation.
+- [x] SA-M2-JEN-GUEST4: reconcile evidence, retain or roll back, close the
+  envelope and push the milestone.
+
+The separate `AsterTV-Guest` identity and r8 Guest adapter are retained only on
+Jen. The adapter exposes the four approved film/television folders and bounded
+playback through a localhost token-hiding relay; Guest history remains
+unchanged. Exact client rollback and reinstall were rehearsed, including a
+clean-start add-on-enable correction. Final checkpoint and acceptance evidence
+are recorded in
+`docs/projects/evidence/AsterTV-v3-M2-Jen-Guest-catalogue-playback-2026-11-04.md`.
+
 ## Milestones
 
 ### M0 — Baseline discovery and decision register
@@ -1219,6 +1280,7 @@ explicit user acceptance.
 | 2026-11-04 | Enforced synthetic-profile routes and protected personalized state | r6 `0.2.0` (`d21acdb3…f6c3`) wraps the accepted dispatcher through a separate keymap and requires both entitlement and enabled service mapping for private routes. Guest and synthetic Members without mappings land on News rather than personalized Media; actual Select and direct-window bypass tests deny Books/listening, Music, Requests, YouTube, Home/Cameras, private search/voice and writable Settings. | SA-M2-JEN3 passes. Guest persists through restart, v2's 528-file guard and Jen playback policy are unchanged, and r6 remains isolated/checkpointed. A guest-safe catalogue adapter and real account/recovery authority remain deliberately open; no production identity was reused. |
 | 2026-11-04 | Closed the Jen-only M2 synthetic-account Stream A | Owner directed the milestone push and continuation through the end of its authorization. Final read-only acceptance found Kodi active and idle, restricted Guest persisted in mode-`0600` state, exactly three synthetic profiles, zero enabled mappings and a clean 528-file accepted-v2 guard. | Retained r6 `0.2.0` (`d21acdb3…f6c3`) on Jen as a reversible candidate and completed `SA-M2-JEN4`. It is not a v3 account release. Real account authority, recovery admin, service identity lifecycle, a Guest-safe catalogue adapter, M3 and all Family/Bedroom changes require a new bounded authorization. |
 | 2026-11-04 | Completed Jen-only M2 account-authority integration | Owner adopted AsterTV's local registry, Jason as recovery administrator, no initial ordinary-profile PIN and fail-closed Guest. r9 `0.3.2` (`ca123447…e1d4`) resolves only exact opaque references to Jen's existing service-specific credential custody; drift disables the affected mapping in memory. | Exact r7 rollback restored 14 files byte-for-byte. r9 passed Jason/Guest switching and restart, malformed/missing-state self-recovery, direct Guest bypass denial and clean 528-file guard. Ninety-four cumulative tests pass. The candidate remains on Jen as Guest; Family, Bedroom, source services, Guest playback and M3 were unchanged and require later authorization. |
+| 2026-11-04 | Completed Jen-only Guest catalogue and playback | Created the independently revocable `AsterTV-Guest` Jellyfin identity after an exact disposable create/delete rehearsal. Its policy exposes only Movies, Shows, Archive Movies and Archive TV, permits playback plus required remux/audio/video transcode, and denies administration, deletion, downloads, remote control, live TV, preferences and all private AsterTV surfaces. The Jen adapter keeps the credential mode `0600`, stores only its opaque subject reference in the account registry and relays allowlisted HLS over localhost without putting a token in Kodi URLs. | Exact client rollback removed the adapter/mapping, exposed and corrected a clean-reinstall add-on-enable gap, then retained the same r8 archive `c7452312…bc9d` under checkpoint `astertv-v3-m2-jen-guest-r10-retained-20261104`. A cold-start real-film test advanced at speed 1, stopped cleanly and left Guest watch state unchanged; Kodi remained idle and the 528-file v2 guard remained clean. Family, Bedroom, Jason's Jellyfin identity and all non-film/television services were unchanged. |
 
 ## Close-out
 

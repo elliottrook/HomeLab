@@ -68,10 +68,22 @@ def allows(registry, requirement):
     return entitlement in entitlements and service in enabled_services
 
 
+def guest_catalogue_allowed(registry):
+    return allows(registry, ("guest_catalogue_browse", "jellyfin_guest"))
+
+
+def guest_playback_allowed(registry):
+    return guest_catalogue_allowed(registry) and allows(
+        registry, ("guest_media_playback", "jellyfin_guest")
+    )
+
+
 def select_decision(registry, focus_id):
     role = active_role(registry)
     if focus_id == 9005:
         return "allow" if role == "recovery_admin" else "profiles"
+    if focus_id == 9001 and role == "guest" and guest_catalogue_allowed(registry):
+        return "guest-catalogue"
     requirement = CONTROL_REQUIREMENTS.get(focus_id)
     if requirement and not allows(registry, requirement):
         return "deny"
@@ -85,6 +97,8 @@ def private_surface(registry, window_id, folder_path=""):
     if window_id == 10000:
         return not allows(registry, ("public_catalogue_browse", "jellyfin"))
     if window_id == 10025:
+        if "plugin://plugin.video.asterguest/" in folder_path:
+            return not guest_catalogue_allowed(registry)
         if "plugin.video.youtube" in folder_path:
             return not allows(registry, ("personal_youtube", "youtube"))
         return not allows(registry, ("public_catalogue_browse", "jellyfin"))

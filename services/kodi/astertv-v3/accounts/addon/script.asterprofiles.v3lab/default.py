@@ -117,6 +117,9 @@ def main():
         if decision == "deny":
             denied("control-" + str(focused))
             return
+        if decision == "guest-catalogue":
+            xbmc.executebuiltin("ActivateWindow(Videos,plugin://plugin.video.asterguest/,return)")
+            return
         xbmc.executebuiltin("RunScript(special://skin/tools/select_dispatch.py)")
         return
     if action == "voice":
