@@ -20,7 +20,7 @@ class SA3ReleaseManifestEpubPinInstallTests(unittest.TestCase):
                          value["pins"]["full_inference_lab_sources.py"])
         self.assertEqual("094d588b5ff1a6cea1f102375930424ed389cc7af6750a941ce44363043bbf31",
                          value["pins"]["full_inference_lab_validator.py"])
-        self.assertEqual("sa3-evidence-envelope-epub-scheduler-path-v5",
+        self.assertEqual("sa3-evidence-envelope-guest-diagnostic-v6",
                          value["release"])
         self.assertEqual("b3c38f030cbe1c0d45f59947cb2bc68cb7f80ed6410ef1669c88c18027296e9a",
                          value["pins"]["full_inference_lab_session.py"])

@@ -16,12 +16,16 @@ class CandidateGTransactionInstallTests(unittest.TestCase):
         self.assertIn("lab_hours_release_manifest.json", install.HOST_FILES)
         self.assertIn("aster_llama_sa3_evidence_envelope_wrapper.py", install.GUEST_FILES)
 
-    def test_source_pins_match(self):
+    def test_historical_pins_are_exact_or_explicitly_superseded(self):
         root = Path(__file__).parent
+        superseded = {"sa3_evidence_envelope_listener_adapter.py",
+                      "lab_hours_release_manifest.json"}
         for name, (_, expected, _) in install.HOST_FILES.items():
-            self.assertEqual(expected, hashlib.sha256((root / name).read_bytes()).hexdigest())
+            current = hashlib.sha256((root / name).read_bytes()).hexdigest()
+            (self.assertNotEqual if name in superseded else self.assertEqual)(expected, current)
         for name, expected in install.GUEST_FILES.items():
-            self.assertEqual(expected, hashlib.sha256((root / name).read_bytes()).hexdigest())
+            self.assertNotEqual(expected,
+                                hashlib.sha256((root / name).read_bytes()).hexdigest())
 
     def test_cli_is_noop_without_apply(self):
         with tempfile.TemporaryDirectory() as tmp:

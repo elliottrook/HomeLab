@@ -16,11 +16,10 @@ def packet():
     return json.loads(PACKET_PATH.read_text(encoding="utf-8"))
 
 
-def source_bytes(source: str, stream_commit: str) -> bytes:
-    local = REPO / source
-    if local.exists() and not source.startswith("services/aster-agent/evals/"):
-        return local.read_bytes()
-    result = subprocess.run(("git", "show", f"{stream_commit}:{source}"), cwd=REPO,
+def source_bytes(source: str, commits: dict[str, str]) -> bytes:
+    commit = (commits["platform"] if source.startswith("scripts/local-ai/")
+              else commits["stream_a"])
+    result = subprocess.run(("git", "show", f"{commit}:{source}"), cwd=REPO,
                             capture_output=True, check=False)
     if result.returncode != 0:
         raise AssertionError(f"source unavailable: {source}")
@@ -67,7 +66,7 @@ class Sa3InactiveInstallPacketTests(unittest.TestCase):
 
     def test_all_source_hashes_and_modes_match_packet(self):
         value = packet()
-        stream_commit = value["source_commits"]["stream_a"]
+        commits = value["source_commits"]
         install_names = {record["target"] for record in value["host"]["install_files"]}
         self.assertEqual(install_names, {
             "sa3_expanded_quality_transaction.py",
@@ -80,13 +79,13 @@ class Sa3InactiveInstallPacketTests(unittest.TestCase):
         records = value["host"]["install_files"] + value["guest"]["runtime_files"] + [value["guest"]["wrapper"]]
         for record in records:
             with self.subTest(source=record["source"]):
-                raw = source_bytes(record["source"], stream_commit)
+                raw = source_bytes(record["source"], commits)
                 self.assertEqual(hashlib.sha256(raw).hexdigest(), record["sha256"])
                 self.assertIn(record["mode"], {"0644", "0750"})
 
     def test_synthetic_target_linux_custody_and_imports(self):
         value = packet()
-        stream_commit = value["source_commits"]["stream_a"]
+        commits = value["source_commits"]
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             host = root / "host-pilot"
@@ -97,22 +96,27 @@ class Sa3InactiveInstallPacketTests(unittest.TestCase):
             guest_sbin.mkdir(mode=0o700)
             for record in value["host"]["install_files"]:
                 target = host / record["target"]
-                target.write_bytes(source_bytes(record["source"], stream_commit))
+                target.write_bytes(source_bytes(record["source"], commits))
                 target.chmod(int(record["mode"], 8))
                 assert_custody(self, target, int(record["mode"], 8))
             for record in value["guest"]["runtime_files"]:
                 target = guest / record["target"]
-                target.write_bytes(source_bytes(record["source"], stream_commit))
+                target.write_bytes(source_bytes(record["source"], commits))
                 target.chmod(int(record["mode"], 8))
                 assert_custody(self, target, int(record["mode"], 8))
             wrapper = value["guest"]["wrapper"]
             wrapper_target = guest_sbin / Path(wrapper["target"]).name
-            wrapper_target.write_bytes(source_bytes(wrapper["source"], stream_commit))
+            wrapper_target.write_bytes(source_bytes(wrapper["source"], commits))
             wrapper_target.chmod(int(wrapper["mode"], 8))
             assert_custody(self, wrapper_target, int(wrapper["mode"], 8))
             host_env = os.environ.copy(); host_env["PYTHONPATH"] = str(host)
-            host_import = subprocess.run((sys.executable, "-B", "-c", "import sa3_expanded_quality_transaction, sa3_listener_adapter, aster_llama_sa3_guest_wrapper"), env=host_env, capture_output=True, text=True, check=False)
+            host_import = subprocess.run((sys.executable, "-B", "-c", "import sa3_expanded_quality_transaction, sa3_listener_adapter"), env=host_env, capture_output=True, text=True, check=False)
             self.assertEqual(host_import.returncode, 0, host_import.stderr)
+            wrapper_import = subprocess.run(
+                (sys.executable, "-B", "-c",
+                 "import runpy,sys; runpy.run_path(sys.argv[1],run_name='inactive_import')",
+                 str(wrapper_target)), capture_output=True, text=True, check=False)
+            self.assertEqual(wrapper_import.returncode, 0, wrapper_import.stderr)
             guest_env = os.environ.copy(); guest_env["PYTHONPATH"] = str(guest)
             guest_import = subprocess.run((sys.executable, "-B", "-c", "import sa3_expanded_quality_runner"), env=guest_env, capture_output=True, text=True, check=False)
             self.assertEqual(guest_import.returncode, 0, guest_import.stderr)

@@ -11,13 +11,16 @@ import sa3_epub_scheduler_admission_inactive_install as install
 
 
 class SA3EpubSchedulerAdmissionInstallTests(unittest.TestCase):
-    def test_exact_three_file_scope_and_source_pins(self):
+    def test_exact_scope_and_historical_pins(self):
         self.assertEqual({"full_inference_lab_session.py", "lab_hours_doctor.py",
                           "lab_hours_release_manifest.json"}, set(install.FILES))
         root = Path(__file__).parent
         for name, (_, expected, _) in install.FILES.items():
-            self.assertEqual(expected,
-                             hashlib.sha256((root / name).read_bytes()).hexdigest())
+            current = hashlib.sha256((root / name).read_bytes()).hexdigest()
+            if name == "lab_hours_release_manifest.json":
+                self.assertNotEqual(expected, current)
+            else:
+                self.assertEqual(expected, current)
 
     def test_cli_is_inert_without_apply(self):
         with tempfile.TemporaryDirectory() as temporary:

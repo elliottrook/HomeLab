@@ -30,8 +30,10 @@ def stage_fixture(root: Path) -> tuple[Path, Path, Path]:
     packet_path.write_bytes(PACKET.read_bytes())
     packet_path.chmod(0o600)
     for record in value["host"]["install_files"] + value["guest"]["runtime_files"] + [value["guest"]["wrapper"]]:
-        source = REPO / record["source"]
-        data = source.read_bytes() if source.exists() and not record["source"].startswith("services/aster-agent/evals/") else stream_bytes(record["source"], value["source_commits"]["stream_a"])
+        commit = (value["source_commits"]["platform"]
+                  if record["source"].startswith("scripts/local-ai/")
+                  else value["source_commits"]["stream_a"])
+        data = stream_bytes(record["source"], commit)
         path = stage / record["source"]
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
