@@ -34,12 +34,12 @@ def epub_narration_healthy(run_command: Callable[[Sequence[str]], str]) -> bool:
                            "epub-narration-monitor.timer"))
     monitor_enabled = run_command(("pct", "exec", "116", "--", "systemctl", "is-enabled",
                                    "epub-narration-monitor.timer"))
-    worker = run_command(("pct", "exec", "116", "--", "systemctl", "show",
-                          "epub-narration-worker.service",
-                          "--property=ActiveState,Result", "--value"))
-    worker_lines = worker.splitlines()
-    worker_state = worker_lines[0] if worker_lines else ""
-    worker_result = worker_lines[1] if len(worker_lines) == 2 else ""
+    worker_state = run_command(("pct", "exec", "116", "--", "systemctl", "show",
+                                "epub-narration-worker.service",
+                                "--property=ActiveState", "--value"))
+    worker_result = run_command(("pct", "exec", "116", "--", "systemctl", "show",
+                                 "epub-narration-worker.service",
+                                 "--property=Result", "--value"))
     return (scheduler == "active" and scheduler_enabled == "enabled"
             and monitor == "active" and monitor_enabled == "enabled"
             and worker_state in {"inactive", "active", "activating"}

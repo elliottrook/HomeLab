@@ -55,8 +55,10 @@ class FullInferenceValidatorTests(unittest.TestCase):
                 return 0, "active\n"
             if command[-2:] == ("is-enabled", "epub-narration-monitor.timer"):
                 return 0, "enabled\n"
-            if "epub-narration-worker.service" in command:
-                return 0, "activating\nsuccess\n"
+            if command[-2:] == ("--property=ActiveState", "--value"):
+                return 0, "activating\n"
+            if command[-2:] == ("--property=Result", "--value"):
+                return 0, "success\n"
             return 1, ""
         self.assertTrue(FullDrainValidator(runner, baseline, cycle="2026_10_18", wall_clock=lambda: now)())
 
@@ -93,7 +95,8 @@ class FullInferenceValidatorTests(unittest.TestCase):
             if command == ("systemctl", "is-enabled", "epub-narration-scheduler.timer"): return 0, "enabled\n"
             if command[-2:] == ("is-active", "epub-narration-monitor.timer"): return 0, "active\n"
             if command[-2:] == ("is-enabled", "epub-narration-monitor.timer"): return 0, "enabled\n"
-            if "epub-narration-worker.service" in command: return 0, "activating\nsuccess\n"
+            if command[-2:] == ("--property=ActiveState", "--value"): return 0, "activating\n"
+            if command[-2:] == ("--property=Result", "--value"): return 0, "success\n"
             return 1, ""
         self.assertTrue(LocalProxmoxFullDrainValidator(runner, baseline, cycle="2026_10_18", wall_clock=lambda: now)())
 

@@ -16,11 +16,11 @@ class SA3ReleaseManifestEpubPinInstallTests(unittest.TestCase):
         raw = (root / "lab_hours_release_manifest.json").read_bytes()
         self.assertNotEqual(install.NEW_SHA256, hashlib.sha256(raw).hexdigest())
         value = json.loads(raw)
-        self.assertEqual("9020fac1a35c897270ef14f9e4abf5ede649ccd98f7023dbdf26b5682a3e37c3",
+        self.assertEqual("c07c2966a13144b8ca2b68639917381bad7381f9d8fa61adc265f1b30f59c5d9",
                          value["pins"]["full_inference_lab_sources.py"])
         self.assertEqual("094d588b5ff1a6cea1f102375930424ed389cc7af6750a941ce44363043bbf31",
                          value["pins"]["full_inference_lab_validator.py"])
-        self.assertEqual("sa3-evidence-envelope-epub-scheduler-admission-v3",
+        self.assertEqual("sa3-evidence-envelope-epub-scheduler-admission-v4",
                          value["release"])
 
     def test_cli_is_inert_without_apply(self):

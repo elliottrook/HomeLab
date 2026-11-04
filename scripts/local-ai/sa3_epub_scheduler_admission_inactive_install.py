@@ -10,14 +10,14 @@ from sa3_evidence_envelope_inactive_install import InstallError, atomic, digest,
 
 
 HOST_ROOT = Path("/usr/local/libexec/local-ai-lease/full-inference-pilot")
-CHECKPOINT = Path("/var/lib/local-ai-lab/checkpoints/sa3-epub-scheduler-admission-20261104")
+CHECKPOINT = Path("/var/lib/local-ai-lab/checkpoints/sa3-epub-scheduler-admission-r2-20261104")
 FILES = {
     "full_inference_lab_sources.py": (
         "6103da31e85e957ae9491c2d64bd3f2bfb497c31db5c8bac0616786fff4c13ad",
-        "9020fac1a35c897270ef14f9e4abf5ede649ccd98f7023dbdf26b5682a3e37c3"),
+        "c07c2966a13144b8ca2b68639917381bad7381f9d8fa61adc265f1b30f59c5d9"),
     "lab_hours_release_manifest.json": (
         "4d8e7db28b86d48a4af049c491143a9dfbf0c7638bfda52ceff30fff24db2b92",
-        "76f84525ad80d79267d03598cf85465c2eba03693fe3e1486d7377831312ce64"),
+        "d92f9b34c500310fd3427955a0dc53b5965400067edde36639312d1cc14266d0"),
 }
 
 

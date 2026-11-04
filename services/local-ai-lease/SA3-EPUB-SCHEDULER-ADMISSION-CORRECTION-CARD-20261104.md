@@ -36,9 +36,18 @@ Update only the corresponding release-manifest pin and release name. The exact
 source identities are:
 
 - corrected source:
-  `9020fac1a35c897270ef14f9e4abf5ede649ccd98f7023dbdf26b5682a3e37c3`;
+  `c07c2966a13144b8ca2b68639917381bad7381f9d8fa61adc265f1b30f59c5d9`;
 - corrected release manifest:
-  `76f84525ad80d79267d03598cf85465c2eba03693fe3e1486d7377831312ce64`.
+  `d92f9b34c500310fd3427955a0dc53b5965400067edde36639312d1cc14266d0`.
+
+The first inactive-install attempt failed closed during live admission
+validation because a combined `systemctl show --property=ActiveState,Result`
+query returned the two values in a different order than the source assumed.
+Rollback restored both predecessor files and independent hash checks confirmed
+the old installed baseline remained intact. Revision 2 queries each property
+separately, so systemd property ordering is no longer part of the contract; it
+also uses a fresh checkpoint and leaves the first retained checkpoint
+untouched.
 
 The new inactive installer requires the exact currently installed source and
 manifest hashes, a ready lease and no drain/shared-operation state. It creates
@@ -50,7 +59,7 @@ no booking, model request, workload, restart or route change.
 ## Verification and next gate
 
 The source/predicate, validator, runner, supersession, manifest and new-installer
-subset passes 33/33 tests. The wider historical suite remains intentionally
+revision-2 subset passes 33/33 tests. The wider historical suite remains intentionally
 pin-sensitive and contains unrelated superseded-card failures; it is not used
 to weaken this exact correction. After inactive installation, independently verify both installed
 hashes, live predicate acceptance, complete manifest validation, ready lease,

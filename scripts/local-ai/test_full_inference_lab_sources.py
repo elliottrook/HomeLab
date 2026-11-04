@@ -25,7 +25,7 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
     def test_epub_health_requires_current_scheduler_and_monitor_architecture(self):
         def probe(scheduler="active", scheduler_enabled="enabled",
                   monitor="active", monitor_enabled="enabled",
-                  worker="inactive\nsuccess"):
+                  worker="inactive", worker_result="success"):
             def run(command):
                 if command == ("systemctl", "is-active", "epub-narration-scheduler.timer"):
                     return scheduler
@@ -35,18 +35,20 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
                     return monitor
                 if command[-2:] == ("is-enabled", "epub-narration-monitor.timer"):
                     return monitor_enabled
-                if "epub-narration-worker.service" in command:
+                if command[-2:] == ("--property=ActiveState", "--value"):
                     return worker
+                if command[-2:] == ("--property=Result", "--value"):
+                    return worker_result
                 raise AssertionError(command)
             return epub_narration_healthy(run)
         self.assertTrue(probe())
-        self.assertTrue(probe(worker="active\nsuccess"))
-        self.assertTrue(probe(worker="activating\nsuccess"))
+        self.assertTrue(probe(worker="active"))
+        self.assertTrue(probe(worker="activating"))
         self.assertFalse(probe(scheduler="inactive"))
         self.assertFalse(probe(scheduler_enabled="disabled"))
         self.assertFalse(probe(monitor="inactive"))
         self.assertFalse(probe(monitor_enabled="disabled"))
-        self.assertFalse(probe(worker="failed\nexit-code"))
+        self.assertFalse(probe(worker="failed", worker_result="exit-code"))
 
     def test_legacy_lease_ready_accepts_deployed_json_and_old_scalar_only(self):
         self.assertTrue(_legacy_lease_ready('{"state":"ready"}\n'))
@@ -101,7 +103,8 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
             if command == ("systemctl", "is-enabled", "epub-narration-scheduler.timer"): return 0, "enabled\n"
             if command[-2:] == ("is-active", "epub-narration-monitor.timer"): return 0, "active\n"
             if command[-2:] == ("is-enabled", "epub-narration-monitor.timer"): return 0, "enabled\n"
-            if "epub-narration-worker.service" in command: return 0, "activating\nsuccess\n"
+            if command[-2:] == ("--property=ActiveState", "--value"): return 0, "activating\n"
+            if command[-2:] == ("--property=Result", "--value"): return 0, "success\n"
             if command[-2:] == ("sha256sum", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"): return 0, "a" * 64 + " model\n"
             if command[-2:] == ("sha256sum", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"): return 0, "b" * 64 + " binary\n"
             if command[-2:] == ("sha256sum", "/etc/systemd/system/aster-llama.service"): return 0, "c" * 64 + " unit\n"
