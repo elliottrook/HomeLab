@@ -113,6 +113,26 @@ WORKLOADS = {
         packet_sha256="a01c6d71dce91141f2eae9bad21a56641f6aa269cdc3561a165385d210e3ec2a",
         result_max_bytes=524288,
     ),
+    "sa3-evidence-envelope-candidate-i-quality-v1": WorkloadSpec(
+        workload_id="sa3-evidence-envelope-candidate-i-quality-v1",
+        owner="aster-stream-a",
+        request_count=20, per_request_timeout_seconds=120, deadline_seconds=2700,
+        minimum_booking_seconds=3600, recovery_reserve_seconds=900,
+        runner_kind="sa3-evidence-envelope-candidate-i-quality", runtime_pins=(
+            ("sa3-evidence-envelope-candidate-i-quality-v1.json",
+             "0b9bfb86ef0e3381aca520e294b90b01f9616c51caea21e71d559467837625d0"),
+            ("sa3_deterministic_evidence_envelope_v1.py",
+             "9f8b14f8f1a4d162eed03f39e82b868118b0c5bdcb3a7fce744a28e9d13e3da3"),
+            ("sa3_deterministic_evidence_envelope_v2.py",
+             "4ca154c6ea0b0738adc3c9e21544ac0a6d3c05473852f88f97b6e5e7e1611943"),
+            ("sa3_evidence_envelope_batch_v2.py",
+             "eaeddb10d5a36df5dd3f3646691d19857f094f2872086d7b78056d6ff7c70d4e"),
+            ("sa3_evidence_envelope_runner_v2.py",
+             "58b932a65afb6d88d4624d3d74b0d4d021091e0989c74e1ca4cf0afdede9188c"),
+        ),
+        packet_sha256="0b9bfb86ef0e3381aca520e294b90b01f9616c51caea21e71d559467837625d0",
+        result_max_bytes=524288,
+    ),
 }
 
 
@@ -161,6 +181,22 @@ def validate_registry() -> None:
         raise ValueError("SA3 evidence-envelope registration drift")
     if any("keys" in name or "review" in name for name, _ in envelope.runtime_pins):
         raise ValueError("SA3 evidence-envelope excluded material entered runtime registration")
+    candidate_i = workload("sa3-evidence-envelope-candidate-i-quality-v1")
+    if (candidate_i.owner != "aster-stream-a"
+            or candidate_i.request_count != 20
+            or candidate_i.per_request_timeout_seconds != 120
+            or candidate_i.deadline_seconds != 2700
+            or candidate_i.minimum_booking_seconds != 3600
+            or candidate_i.recovery_reserve_seconds != 900
+            or candidate_i.runner_kind != "sa3-evidence-envelope-candidate-i-quality"
+            or len(candidate_i.runtime_pins) != 5
+            or candidate_i.packet_sha256 !=
+                "0b9bfb86ef0e3381aca520e294b90b01f9616c51caea21e71d559467837625d0"
+            or candidate_i.result_max_bytes != 524288):
+        raise ValueError("SA3 candidate-i registration drift")
+    if any("keys" in name or "review" in name
+           for name, _ in candidate_i.runtime_pins):
+        raise ValueError("SA3 candidate-i excluded material entered runtime registration")
 
 
 def _local_imports(path: Path) -> set[str]:

@@ -50,6 +50,17 @@ class WorkloadRegistryTests(unittest.TestCase):
         self.assertFalse(any("keys" in name or "review" in name
                              for name, _ in spec.runtime_pins))
 
+    def test_candidate_i_is_registered_but_runner_is_not_yet_admitted(self):
+        spec = workload("sa3-evidence-envelope-candidate-i-quality-v1")
+        self.assertEqual("aster-stream-a", spec.owner)
+        self.assertEqual(20, spec.request_count)
+        self.assertEqual(5, len(spec.runtime_pins))
+        self.assertEqual(
+            "0b9bfb86ef0e3381aca520e294b90b01f9616c51caea21e71d559467837625d0",
+            spec.packet_sha256)
+        self.assertFalse(any("keys" in name or "review" in name
+                             for name, _ in spec.runtime_pins))
+
     def test_evidence_envelope_inactive_validation_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(ValueError, "target file missing"):
