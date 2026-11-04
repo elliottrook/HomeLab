@@ -32,6 +32,12 @@ the combined J2 suite passes 14/14. No corpus, evaluation set, training,
 booking or effect exists. Next is independent creation and review of those
 underlying data sets and receipts, not a model run.
 
+The [J2 corpus validator](evidence/M3-J2-corpus-validator-boundary-2026-11-04.md)
+now enforces the exact 960-row, 48/12-per-label shape and disjointness from
+eight explicit exposed references. Together the preregistration, custody and
+corpus suites pass 19/19. No corpus exists yet; the next milestone is
+independent corpus construction and label review under these frozen rules.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,
