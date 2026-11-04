@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "kind": "astertv-v3-stream-a-page-fixtures",
+  "credential_policy": "synthetic-only",
+  "pages": [
+    {"key": "F1", "window": 1197, "name": "Aster AI", "states": ["idle", "listening", "processing", "speaking", "cancelled", "failed"]},
+    {"key": "F2", "window": 1198, "name": "News", "states": ["digest", "article", "narration"]},
+    {"key": "F3", "window": 1199, "name": "Podcast Requests", "states": ["available", "duplicate", "request-needed", "inert-submit"]},
+    {"key": "F4", "window": 1200, "name": "Home", "states": ["fresh-household-overview"]},
+    {"key": "F5", "window": 1201, "name": "Cameras", "states": ["fresh", "stale", "unavailable", "door-event"]},
+    {"key": "F6", "window": 1196, "name": "TV Details", "states": ["episodes", "seasons", "cast", "related"]},
+    {"key": "F8", "window": 1190, "name": "Shared Language", "states": ["ready", "loading", "empty", "unavailable"]},
+    {"key": "F9", "window": 1191, "name": "YouTube", "states": ["recommendations", "navigation"]},
+    {"key": "F10", "window": 1192, "name": "Artwork Selection", "states": ["landscape", "square", "portrait", "compact"]},
+    {"key": "F11", "window": 1193, "name": "Button Selection", "states": ["rest", "current", "focus", "disabled"]},
+    {"key": "F12", "window": 1194, "name": "Movie Details", "states": ["play", "resume", "trailer", "cast", "related"]}
+  ]
+}
