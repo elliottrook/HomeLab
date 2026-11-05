@@ -1,0 +1,9 @@
+[Unit]
+Description=Apply AsterTV v3 M5 News icons on Jen
+After=astertv-v3-m4y-jen.service
+Before=kodi.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /storage/.aster-v3/m5n/apply_jen_news_icons.py
+[Install]
+WantedBy=kodi.service

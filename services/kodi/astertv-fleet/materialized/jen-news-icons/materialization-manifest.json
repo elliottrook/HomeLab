@@ -1,0 +1,39 @@
+{
+  "files": [
+    {
+      "bytes": 24425,
+      "destination": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1111_digest.xml",
+      "mode": "0644",
+      "sha256": "f9c4b4b9483908eb06a15ee9f126a60caceeedd8b6908cbb7af786b68cce9074"
+    },
+    {
+      "bytes": 23623,
+      "destination": "/storage/.aster-v3/m5n/News.base.xml",
+      "mode": "0600",
+      "sha256": "960645920dc25fd709c0310b178057afaae16fa5260404110b03fda98669cd77"
+    },
+    {
+      "bytes": 2114,
+      "destination": "/storage/.aster-v3/m5n/apply_jen_news_icons.py",
+      "mode": "0600",
+      "sha256": "1179c55357243466918474ae35b789dbaf88d50c833a3f722a725af930001a68"
+    },
+    {
+      "bytes": 239,
+      "destination": "/storage/.config/system.d/astertv-v3-m5n-jen.service",
+      "mode": "0644",
+      "sha256": "92b9aa35e3fea40fa50fb86cfb99380c5f60b37c279a63a4058b6a3658a43325"
+    }
+  ],
+  "id": "jen-news-icons",
+  "kind": "astertv-materialized-overlay",
+  "provenance": {
+    "base_sha256": "960645920dc25fd709c0310b178057afaae16fa5260404110b03fda98669cd77",
+    "checkpoint": "astertv-v3-m5n-jen",
+    "renderer": {
+      "path": "services/kodi/astertv-v3/m5/apply_jen_news_icons.py",
+      "sha256": "1179c55357243466918474ae35b789dbaf88d50c833a3f722a725af930001a68"
+    }
+  },
+  "schema_version": 1
+}

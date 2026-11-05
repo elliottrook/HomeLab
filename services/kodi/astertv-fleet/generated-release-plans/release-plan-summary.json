@@ -45,7 +45,6 @@
         "overlay-payload-incomplete:jen-home-cameras",
         "overlay-payload-incomplete:jen-low-spec-runtime",
         "overlay-payload-incomplete:jen-movie-youtube",
-        "overlay-payload-incomplete:jen-news-icons",
         "overlay-payload-incomplete:jen-podcast-requests"
       ],
       "bundle_built": false,

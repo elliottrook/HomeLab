@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "3659aa967faad40cb85d9199385a23748a3af2d2fd923da5876d953c0e242199",
+  "composition_sha256": "4c6b53be1b7e9ca4aecccdeed441353015a25441bb17e0bf6e43a101202b5c92",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-jen",
   "expected_assertions": [
@@ -71,6 +71,20 @@
       "expected": "matches-installed-manifest",
       "key": "family-manifest.component.aster-digest-player8",
       "overlay": "news-playback-v3",
+      "sensitive": false
+    },
+    {
+      "authority": "systemd",
+      "expected": "enabled",
+      "key": "astertv-v3-m5n-jen.service",
+      "overlay": "jen-news-icons",
+      "sensitive": false
+    },
+    {
+      "authority": "filesystem",
+      "expected": "present",
+      "key": "skin.asterhome.media.aster-compass-128.png",
+      "overlay": "jen-news-icons",
       "sensitive": false
     },
     {
@@ -347,6 +361,34 @@
       "overlay": "news-playback-v3",
       "path": "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_digest.py",
       "sha256": "5672e7c376d9559ba6acc78978865f9b7821027629cdc804a5b76488a73bc919"
+    },
+    {
+      "bytes": 23623,
+      "mode": "0600",
+      "overlay": "jen-news-icons",
+      "path": "/storage/.aster-v3/m5n/News.base.xml",
+      "sha256": "960645920dc25fd709c0310b178057afaae16fa5260404110b03fda98669cd77"
+    },
+    {
+      "bytes": 2114,
+      "mode": "0600",
+      "overlay": "jen-news-icons",
+      "path": "/storage/.aster-v3/m5n/apply_jen_news_icons.py",
+      "sha256": "1179c55357243466918474ae35b789dbaf88d50c833a3f722a725af930001a68"
+    },
+    {
+      "bytes": 239,
+      "mode": "0644",
+      "overlay": "jen-news-icons",
+      "path": "/storage/.config/system.d/astertv-v3-m5n-jen.service",
+      "sha256": "92b9aa35e3fea40fa50fb86cfb99380c5f60b37c279a63a4058b6a3658a43325"
+    },
+    {
+      "bytes": 24425,
+      "mode": "0644",
+      "overlay": "jen-news-icons",
+      "path": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1111_digest.xml",
+      "sha256": "f9c4b4b9483908eb06a15ee9f126a60caceeedd8b6908cbb7af786b68cce9074"
     },
     {
       "bytes": 1565,

@@ -35,6 +35,9 @@ ACCOUNT_SPEC.loader.exec_module(ACCOUNT_MODULE)
 CLIENT_SPEC = importlib.util.spec_from_file_location("jen_client_materializer", ROOT / "materialize_jen_aster_client.py")
 CLIENT_MODULE = importlib.util.module_from_spec(CLIENT_SPEC)
 CLIENT_SPEC.loader.exec_module(CLIENT_MODULE)
+NEWS_ICON_SPEC = importlib.util.spec_from_file_location("jen_news_icon_materializer", ROOT / "materialize_jen_news_icons.py")
+NEWS_ICON_MODULE = importlib.util.module_from_spec(NEWS_ICON_SPEC)
+NEWS_ICON_SPEC.loader.exec_module(NEWS_ICON_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -145,6 +148,14 @@ class MaterializationTests(unittest.TestCase):
         self.assertEqual(manifest["dependencies"], ["jen-account-registry"])
         self.assertFalse(any("asterprofiles" in path for path in files))
         self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
+
+    def test_jen_news_icons_replay_exact_accepted_base(self):
+        files, manifest = NEWS_ICON_MODULE.render()
+        self.assertEqual(len(files), 4)
+        self.assertEqual(manifest["provenance"]["base_sha256"], NEWS_ICON_MODULE.BASE_SHA256)
+        final = files["skin.asterhome/1080i/custom_1111_digest.xml"][0]
+        self.assertEqual(NEWS_ICON_MODULE.sha(final), NEWS_ICON_MODULE.FINAL_SHA256)
+        self.assertIn("system.d/astertv-v3-m5n-jen.service", files)
 
 
 if __name__ == "__main__":

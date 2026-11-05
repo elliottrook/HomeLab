@@ -8,8 +8,16 @@
   "dependencies": ["news-playback-v3"],
   "targets": ["astertv-jen"],
   "owns": ["kodi/skin.asterhome/news-plain-compass-icons"],
-  "payload_sources": ["services/kodi/astertv-v3/m5/apply_jen_news_icons.py", "services/kodi/astertv-v3/m5/install_jen_news_icons.py"],
-  "payload_blockers": ["rendered-digest-xml-and-systemd-unit-not-materialized"],
+  "payload_sources": [
+    "services/kodi/astertv-fleet/materialized/jen-news-icons",
+    "services/kodi/astertv-fleet/materialize_jen_news_icons.py"
+  ],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "systemd", "key": "astertv-v3-m5n-jen.service", "expected": "enabled", "sensitive": false},
+    {"authority": "filesystem", "key": "skin.asterhome.media.aster-compass-128.png", "expected": "present", "sensitive": false}
+  ],
   "secret_refs": [],
   "rollback_ref": "astertv-v3-m5n-jen",
   "tests": ["services/kodi/astertv-v3/m5/test_jen_news_icons.py"]

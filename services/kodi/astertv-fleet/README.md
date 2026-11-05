@@ -62,7 +62,7 @@ Intro Skipper remains hash-pinned external Jellyfin state. The Family equipment
 bridge packages exact recovery sources and verifies live HA/Agent/OPNsense
 state through assertions. Jen's immutable account registry is now materialized
 without mutable profiles, authority state or credentials. Bedroom and Family
-are complete, Jen has six
+are complete, Jen has five
 incomplete overlays, and Guest is an
 intentional non-deployed candidate. This status is eligibility evidence, not a
 deployment instruction.
