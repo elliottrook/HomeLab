@@ -84,3 +84,11 @@ Speech are active. The installed combined release still reads as
 `aster-tts-dual-cpu-screen-plus-candidate-j-quality-v1` with 46/46 exact pins.
 Candidate-J therefore remains scheduled at its original 10:16 time; the
 earlier protected window and recovery reserve are not reused.
+
+## Clean-archive release check
+
+The exact mirrored Stream A source was exported from Git into a fresh temporary
+tree with no working-copy files. All 49 Candidate-J contract, runtime,
+reconciliation, blind-review, decision and release-candidate tests passed in
+that clean archive. This rules out an untracked-file dependency in the
+post-run path before the booked transaction.
