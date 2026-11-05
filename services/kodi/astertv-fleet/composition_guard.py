@@ -24,10 +24,45 @@ def inspect(contract: dict, observed: dict) -> dict:
     missing = sorted(expected - actual)
     registered_extra = sorted((actual - expected) & registered)
     unknown = sorted(actual - expected - registered)
-    unavailable = sorted(name for name, state in observed.get("dependencies", {}).items() if state != "available")
+    required_field = contract.get("required_dependencies")
+    required_dependencies = set(required_field or [])
+    dependency_states = observed.get("dependencies", {})
+    if not isinstance(dependency_states, dict):
+        raise ValueError("observation-dependencies")
+    unavailable = sorted(
+        name for name, state in dependency_states.items() if state != "available"
+    ) if required_field is None else sorted(
+        name for name in required_dependencies if dependency_states.get(name) != "available"
+    )
+    expected_payloads = {
+        (item["overlay"], item["path"]): item["sha256"]
+        for item in contract.get("expected_payloads", [])
+    }
+    observed_rows = observed.get("payloads", [])
+    if not isinstance(observed_rows, list):
+        raise ValueError("observation-payloads")
+    observed_payloads = {}
+    for item in observed_rows:
+        if not isinstance(item, dict) or not all(
+                isinstance(item.get(key), str) for key in ("overlay", "path", "sha256")):
+            raise ValueError("observation-payloads")
+        observed_payloads[(item["overlay"], item["path"])] = item["sha256"]
+    missing_payloads = sorted(
+        f"{overlay}:{path}" for overlay, path in expected_payloads
+        if (overlay, path) not in observed_payloads
+    )
+    payload_mismatches = sorted(
+        f"{overlay}:{path}" for (overlay, path), digest in expected_payloads.items()
+        if observed_payloads.get((overlay, path), digest) != digest
+    )
+    unknown_payloads = sorted(
+        f"{overlay}:{path}" for overlay, path in observed_payloads
+        if (overlay, path) not in expected_payloads
+    )
     composition_mismatch = observed.get("composition_sha256") != contract["composition_sha256"]
     outcome = "clean"
-    if missing or unknown or unavailable or composition_mismatch:
+    if (missing or unknown or unavailable or composition_mismatch or
+            missing_payloads or payload_mismatches or unknown_payloads):
         outcome = "drift"
     elif registered_extra:
         outcome = "registered-extra"
@@ -40,6 +75,9 @@ def inspect(contract: dict, observed: dict) -> dict:
         "registered_extras": registered_extra,
         "unknown": unknown,
         "unavailable_dependencies": unavailable,
+        "missing_payloads": missing_payloads,
+        "payload_mismatches": payload_mismatches,
+        "unknown_payloads": unknown_payloads,
     }
 
 

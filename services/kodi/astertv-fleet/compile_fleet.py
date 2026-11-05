@@ -97,6 +97,55 @@ def validate_ref_list(document: dict, field: str) -> None:
         raise FleetError(f"invalid-reference-list:{document.get('id')}:{field}")
 
 
+def repository_root(root: Path) -> Path:
+    """Resolve the checkout that owns a fleet registry.
+
+    Payload sources are repository-relative so a composition never depends on
+    the caller's working directory.  A copied synthetic registry is allowed to
+    reach validation failures before this is needed, but a real composition
+    must always live inside a checkout.
+    """
+    for candidate in (root, *root.parents):
+        if (candidate / ".git").exists():
+            return candidate.resolve()
+    raise FleetError(f"repository-root-not-found:{root}")
+
+
+def payload_inventory(overlay: dict, checkout: Path) -> list[dict]:
+    sources = overlay.get("payload_sources")
+    if not isinstance(sources, list) or not sources:
+        raise FleetError(f"overlay-without-payload:{overlay['id']}")
+    if any(not isinstance(value, str) or not value for value in sources):
+        raise FleetError(f"invalid-payload-source:{overlay['id']}")
+    files: dict[str, Path] = {}
+    for source in sources:
+        relative = Path(source)
+        if relative.is_absolute() or ".." in relative.parts:
+            raise FleetError(f"unsafe-payload-source:{overlay['id']}:{source}")
+        resolved = (checkout / relative).resolve()
+        try:
+            resolved.relative_to(checkout)
+        except ValueError as exc:
+            raise FleetError(f"unsafe-payload-source:{overlay['id']}:{source}") from exc
+        if not resolved.exists():
+            raise FleetError(f"missing-payload-source:{overlay['id']}:{source}")
+        candidates = [resolved] if resolved.is_file() else sorted(resolved.rglob("*"))
+        for candidate in candidates:
+            if candidate.is_symlink():
+                raise FleetError(f"payload-symlink:{overlay['id']}:{candidate}")
+            if not candidate.is_file() or "__pycache__" in candidate.parts or candidate.suffix == ".pyc":
+                continue
+            path = candidate.relative_to(checkout).as_posix()
+            files[path] = candidate
+    if not files:
+        raise FleetError(f"empty-payload:{overlay['id']}")
+    return [{
+        "path": path,
+        "bytes": files[path].stat().st_size,
+        "sha256": sha256_bytes(files[path].read_bytes()),
+    } for path in sorted(files)]
+
+
 def validate_registry(releases: dict[str, dict], hardware: dict[str, dict],
                       peripherals: dict[str, dict], overlays: dict[str, dict],
                       devices: dict[str, dict]) -> None:
@@ -127,6 +176,19 @@ def validate_registry(releases: dict[str, dict], hardware: dict[str, dict],
             raise FleetError(f"overlay-without-owner:{overlay['id']}")
         if not isinstance(overlay.get("rollback_ref"), str) or not overlay["rollback_ref"]:
             raise FleetError(f"overlay-without-rollback:{overlay['id']}")
+        if not isinstance(overlay.get("payload_sources"), list) or not overlay["payload_sources"]:
+            raise FleetError(f"overlay-without-payload:{overlay['id']}")
+        payload_status = overlay.get("payload_status", "incomplete")
+        payload_blockers = overlay.get("payload_blockers", [])
+        if payload_status not in {"incomplete", "complete"}:
+            raise FleetError(f"invalid-payload-status:{overlay['id']}")
+        if not isinstance(payload_blockers, list) or any(
+                not isinstance(item, str) or not item for item in payload_blockers):
+            raise FleetError(f"invalid-payload-blockers:{overlay['id']}")
+        if payload_status == "complete" and payload_blockers:
+            raise FleetError(f"complete-payload-has-blockers:{overlay['id']}")
+        if payload_status == "incomplete" and not payload_blockers:
+            raise FleetError(f"incomplete-payload-without-blockers:{overlay['id']}")
         for release_id in overlay["compatible_releases"]:
             if release_id not in releases:
                 raise FleetError(f"unknown-overlay-release:{overlay['id']}:{release_id}")
@@ -231,7 +293,7 @@ def atomic_write(path: Path, data: bytes) -> None:
 
 def build_device(device: dict, releases: dict[str, dict],
                  hardware: dict[str, dict], peripherals: dict[str, dict],
-                 overlays: dict[str, dict]) -> dict:
+                 overlays: dict[str, dict], checkout: Path) -> dict:
     ordered = order_overlays(device, overlays)
     sources = [
         releases[device["release"]],
@@ -249,6 +311,10 @@ def build_device(device: dict, releases: dict[str, dict],
             "layer": overlays[identifier]["layer"], "resource": resource,
             "owner": identifier}
         for identifier in ordered for resource in overlays[identifier]["owns"]
+    }
+    payloads = {
+        identifier: payload_inventory(overlays[identifier], checkout)
+        for identifier in ordered
     }
     result = {
         "schema_version": SCHEMA_VERSION,
@@ -269,6 +335,7 @@ def build_device(device: dict, releases: dict[str, dict],
                                       for ref in overlays[identifier]["secret_refs"]]
         )),
         "ownership": dict(sorted(ownership.items())),
+        "payloads": payloads,
         "source_hashes": dict(sorted(source_hashes.items())),
     }
     result["composition_sha256"] = sha256_bytes(canonical(result))
@@ -331,8 +398,9 @@ def compile_fleet(root: Path, output_root: Path | None = None) -> list[dict]:
     if set(fleet["devices"]) != set(devices):
         raise FleetError("fleet-device-set-mismatch")
     validate_registry(releases, hardware, peripherals, overlays, devices)
+    checkout = repository_root(root)
     compositions = [build_device(devices[identifier], releases, hardware,
-                                 peripherals, overlays)
+                                 peripherals, overlays, checkout)
                     for identifier in sorted(devices)]
     for composition in compositions:
         atomic_write(output_root / "desired" / f"{composition['device_id']}.json",

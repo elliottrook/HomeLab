@@ -8,6 +8,8 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-family"],
   "owns": ["kodi/script.asterruntime/continue-watching-filter", "jellyfin/intro-skipper-compatibility"],
+  "payload_sources": ["services/kodi/astertv-v3/deploy/media-lifecycle"],
+  "payload_blockers": ["rendered-runtime-files-not-materialized", "intro-skipper-artifact-lacks-sha256-provenance"],
   "secret_refs": ["jellyfin-family-client"],
   "rollback_ref": "astertv-media-lifecycle-AsterTV-Family-20261105-031033",
   "tests": ["services/kodi/astertv-v3/deploy/media-lifecycle/test_repair.py"]

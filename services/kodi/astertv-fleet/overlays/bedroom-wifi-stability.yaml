@@ -8,6 +8,11 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-bedroom"],
   "owns": ["systemd/astertv-wifi-stability.service", "network/wifi-power-save-policy"],
+  "payload_sources": [
+    "services/kodi/astertv-v3/deploy/bedroom-wifi/astertv-wifi-stability.service",
+    "services/kodi/astertv-v3/deploy/bedroom-wifi/astertv-release-guard-bedroom.service"
+  ],
+  "payload_blockers": ["wifi-power-save-runtime-assertion-not-materialized"],
   "secret_refs": [],
   "rollback_ref": "astertv-bedroom Wi-Fi and guard checkpoints",
   "tests": ["services/kodi/astertv-v3/deploy/bedroom-wifi/test_wifi_service.py"]

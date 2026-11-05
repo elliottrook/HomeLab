@@ -8,6 +8,12 @@
   "dependencies": ["jen-account-registry"],
   "targets": ["astertv-jen"],
   "owns": ["kodi/podcast-request-client"],
+  "payload_sources": [
+    "services/kodi/astertv-v3/podcast_requests/addon/script.astertv.podcast.requests",
+    "services/kodi/astertv-v3/podcast_requests/apply_jen_podcast_requests.py",
+    "services/kodi/astertv-v3/podcast_requests/install_jen_podcast_requests.py"
+  ],
+  "payload_blockers": ["rendered-books-podcasts-xml-and-unit-not-materialized", "client-config-is-private-external-state"],
   "secret_refs": ["jen-podcast-request-client"],
   "rollback_ref": "astertv-v3-m5p-jen",
   "tests": ["services/kodi/astertv-v3/podcast_requests/test_client.py"]

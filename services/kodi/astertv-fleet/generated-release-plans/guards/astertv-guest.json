@@ -1,7 +1,8 @@
 {
-  "composition_sha256": "48ff5bc1fe344bf48d8de0e68a8ba4e10a1fdbb17c01a0d0ce788b2eac276031",
+  "composition_sha256": "5ca63262bb495013757c2422d26ef2356f3251221c36b272ca34b5caec82339e",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-guest",
+  "expected_payloads": [],
   "expected_resources": [],
   "kind": "composition-guard-contract",
   "mutable_exclusions": [
@@ -12,5 +13,6 @@
     "temp"
   ],
   "registered_extras": [],
+  "required_dependencies": [],
   "schema_version": 1
 }

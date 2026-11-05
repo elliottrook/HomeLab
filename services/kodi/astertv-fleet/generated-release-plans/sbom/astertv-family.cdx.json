@@ -31,7 +31,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-2c6cc9551e00"
+      "version": "composition-14c263b4c69a"
     },
     {
       "name": "family-dolby-hdr",
@@ -46,7 +46,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-2c6cc9551e00"
+      "version": "composition-14c263b4c69a"
     },
     {
       "name": "remote-client-v3",
@@ -61,7 +61,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-2c6cc9551e00"
+      "version": "composition-14c263b4c69a"
     },
     {
       "name": "family-equipment-bridge",
@@ -76,7 +76,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-2c6cc9551e00"
+      "version": "composition-14c263b4c69a"
     },
     {
       "name": "family-kodi-restart",
@@ -91,7 +91,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-2c6cc9551e00"
+      "version": "composition-14c263b4c69a"
     },
     {
       "name": "family-media-lifecycle",
@@ -106,7 +106,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-2c6cc9551e00"
+      "version": "composition-14c263b4c69a"
     },
     {
       "name": "news-playback-v3",
@@ -121,7 +121,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-2c6cc9551e00"
+      "version": "composition-14c263b4c69a"
     },
     {
       "name": "tv-details-v3",
@@ -136,17 +136,17 @@
         }
       ],
       "type": "application",
-      "version": "composition-2c6cc9551e00"
+      "version": "composition-14c263b4c69a"
     }
   ],
   "metadata": {
     "component": {
       "name": "astertv-family",
       "type": "device",
-      "version": "2c6cc9551e00"
+      "version": "14c263b4c69a"
     }
   },
-  "serialNumber": "urn:uuid:astertv-2c6cc9551e0024021f5a12168e5931bd",
+  "serialNumber": "urn:uuid:astertv-14c263b4c69a75ec9b7fc2780621f18d",
   "specVersion": "1.5",
   "version": 1
 }

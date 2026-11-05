@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-declarative-payload",
+  "id": "family-dolby-hdr",
+  "settings": {
+    "audio_route": "hdmi0-exclusive",
+    "dolby_passthrough": true,
+    "hdr": true,
+    "pulseaudio": "masked"
+  }
+}

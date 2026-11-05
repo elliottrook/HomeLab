@@ -8,6 +8,8 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-family"],
   "owns": ["kodi/settings/audio-hdmi0-passthrough", "systemd/pulseaudio-mask", "display/hdr-contract"],
+  "payload_sources": ["services/kodi/astertv-fleet/payload-definitions/family-dolby-hdr.json"],
+  "payload_blockers": ["audio-pulseaudio-hdr-targets-not-materialized-from-pinned-base"],
   "secret_refs": [],
   "rollback_ref": "astertv-v2.0.7-release-20261031-family",
   "tests": ["services/kodi/astertv-v2/validate_release.py"]

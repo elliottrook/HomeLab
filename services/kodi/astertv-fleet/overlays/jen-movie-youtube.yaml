@@ -8,6 +8,19 @@
   "dependencies": ["jen-account-registry", "tv-details-v3"],
   "targets": ["astertv-jen"],
   "owns": ["kodi/skin.asterhome/movie-details-v3", "kodi/skin.asterhome/youtube-v3", "kodi/youtube-lifecycle-loader"],
+  "payload_sources": [
+    "services/kodi/astertv-v3/m4/apply_jen_m4y.py",
+    "services/kodi/astertv-v3/m4/youtube_root_focus.py",
+    "services/kodi/astertv-v3/m4/graceful_kodi_stop.py",
+    "services/kodi/astertv-v3/m4/install_jen_movie.py",
+    "services/kodi/astertv-v3/m4/install_jen_youtube_lifecycle.py",
+    "services/kodi/astertv-v3/jellyfin_trailer_route.py",
+    "services/kodi/astertv-v3/overlay/plugin.video.astersearch",
+    "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1191_youtube_rework.xml",
+    "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1194_movie_rework.xml",
+    "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1195_person_library.xml"
+  ],
+  "payload_blockers": ["rendered-movie-youtube-dispatch-and-unit-outputs-not-materialized", "private-youtube-state-needs-explicit-exclusion"],
   "secret_refs": ["youtube-household-session"],
   "rollback_ref": "astertv-v3-m4-jen-movie and astertv-v3-m4y-jen",
   "tests": ["services/kodi/astertv-v3/m4/test_jen_movie.py", "services/kodi/astertv-v3/m4/test_jen_youtube_lifecycle.py"]

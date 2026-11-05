@@ -31,6 +31,26 @@ The compiler:
 - emits deterministic per-device desired manifests and a release matrix; and
 - keeps Guest as a compiled, non-deployed candidate.
 
+## Payload and bundle gate
+
+Every overlay declares repository-relative `payload_sources`. Compilation
+expands directories into an exact, sorted file inventory and records SHA-256,
+byte count and path in the desired composition. A source-byte change therefore
+changes the device composition hash instead of silently inheriting a hotfix.
+
+`build_release_plans.py --artifact-root services/kodi/dist` verifies the pinned
+base release and builds deterministic per-device bundles containing the base,
+payload inventory, source bytes and guard contract. Bundles are candidates, not
+permission to deploy. An overlay remains fail-closed until its manifest says
+`payload_status: complete` with no blockers. Transformer-only overlays must
+first materialize and hash their final outputs; external configuration and
+mutable/private state must be represented as assertions or exclusions rather
+than copied into the bundle.
+
+The composition guard now accepts exact payload observations and required
+dependency states. Missing, unknown or changed payloads, unavailable required
+dependencies, identity mismatch and composition mismatch all produce drift.
+
 Generated composition hashes deliberately exclude observations and timestamps.
 They remain stable for identical source manifests. Live state belongs in a
 future `observed/` Doctor surface and can never become desired state implicitly.

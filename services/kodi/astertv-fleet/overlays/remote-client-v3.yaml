@@ -8,6 +8,14 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-family", "astertv-bedroom", "astertv-jen"],
   "owns": ["kodi/service.asterremote", "kodi/native-input-sync"],
+  "payload_sources": [
+    "services/kodi/astertv-v3/remote_client/addon/service.asterremote",
+    "services/kodi/astertv-v3/remote_client/apply_remote_client.py",
+    "services/kodi/astertv-v3/remote_client/apply_room_remote.py",
+    "services/kodi/astertv-v3/remote_client/install_room_remote.py",
+    "services/kodi/astertv-v3/remote_client/install_remote_input_sync.py"
+  ],
+  "payload_blockers": ["rendered-systemd-unit-not-materialized", "accepted-service-source-hash-needs-reconciliation", "client-key-room-id-and-gateway-policy-are-private-external-state"],
   "secret_refs": ["remote-client-per-device"],
   "rollback_ref": "astertv-v3-m8 per-device and gateway checkpoints",
   "tests": ["services/kodi/astertv-v3/remote_client/test_remote_client.py"]

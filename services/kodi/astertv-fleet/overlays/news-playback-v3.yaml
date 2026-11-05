@@ -8,6 +8,8 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-family", "astertv-jen"],
   "owns": ["kodi/script.asterruntime/news-playback-lifecycle"],
+  "payload_sources": ["services/kodi/astertv-v3/deploy/news-playback/repair.py"],
+  "payload_blockers": ["per-host-rendered-player-wrapper-and-manifests-not-materialized"],
   "secret_refs": [],
   "rollback_ref": "astertv-news-playback target checkpoint",
   "tests": ["services/kodi/astertv-v3/deploy/news-playback/test_repair.py"]

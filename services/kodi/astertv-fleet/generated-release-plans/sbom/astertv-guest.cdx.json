@@ -23,10 +23,10 @@
     "component": {
       "name": "astertv-guest",
       "type": "device",
-      "version": "48ff5bc1fe34"
+      "version": "5ca63262bb49"
     }
   },
-  "serialNumber": "urn:uuid:astertv-48ff5bc1fe344bf48d8de0e68a8ba4e1",
+  "serialNumber": "urn:uuid:astertv-5ca63262bb495013757c2422d26ef235",
   "specVersion": "1.5",
   "version": 1
 }

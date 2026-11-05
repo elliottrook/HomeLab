@@ -4,10 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import importlib.util
+import io
 import json
 import os
+import tarfile
 import tempfile
 from pathlib import Path
 
@@ -48,6 +51,52 @@ def atomic_write(path: Path, data: bytes) -> None:
             os.unlink(temporary)
 
 
+def deterministic_bundle(checkout: Path, artifact_path: Path, release: dict,
+                         desired: dict, guard: dict) -> bytes:
+    """Build a byte-stable appliance bundle from verified source bytes."""
+    manifest = {
+        "schema_version": 1,
+        "kind": "astertv-composition-bundle",
+        "device_id": desired["device_id"],
+        "composition_sha256": desired["composition_sha256"],
+        "release": {
+            "id": release["id"],
+            "path": f'release/{release["artifact"]["name"]}',
+            "sha256": release["artifact"]["sha256"],
+        },
+        "overlays": [{
+            "id": overlay_id,
+            "payloads": desired["payloads"][overlay_id],
+        } for overlay_id in desired["overlays"]],
+        "guard": guard,
+    }
+    members: list[tuple[str, bytes, int]] = [
+        ("manifest.json", canonical(manifest), 0o644),
+        ("guard-contract.json", canonical(guard), 0o644),
+        (f'release/{release["artifact"]["name"]}', artifact_path.read_bytes(), 0o644),
+    ]
+    for overlay_id in desired["overlays"]:
+        for payload in desired["payloads"][overlay_id]:
+            source = checkout / payload["path"]
+            data = source.read_bytes()
+            if len(data) != payload["bytes"] or hashlib.sha256(data).hexdigest() != payload["sha256"]:
+                raise FLEET.FleetError(f'payload-drift:{overlay_id}:{payload["path"]}')
+            mode = 0o755 if os.access(source, os.X_OK) else 0o644
+            members.append((f'overlays/{overlay_id}/{payload["path"]}', data, mode))
+    stream = io.BytesIO()
+    with gzip.GzipFile(fileobj=stream, mode="wb", filename="", mtime=0) as compressed:
+        with tarfile.open(fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT) as archive:
+            for name, data, mode in sorted(members):
+                info = tarfile.TarInfo(name)
+                info.size = len(data)
+                info.mode = mode
+                info.mtime = 0
+                info.uid = info.gid = 0
+                info.uname = info.gname = "root"
+                archive.addfile(info, io.BytesIO(data))
+    return stream.getvalue()
+
+
 def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
     root = root.resolve()
     output = output.resolve()
@@ -58,6 +107,7 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
     budgets = load(root / "policies/performance-budgets.json")
     compatibility = load(root / "policies/compatibility.json")
     artifact_root = artifact_root.resolve() if artifact_root else None
+    checkout = FLEET.repository_root(root)
     results = []
     for desired in compositions:
         release = releases[desired["release"]]
@@ -82,6 +132,9 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
                 "owns": overlay["owns"],
                 "tests": overlay["tests"],
                 "rollback_ref": overlay["rollback_ref"],
+                "payloads": desired["payloads"][overlay_id],
+                "payload_status": overlay.get("payload_status", "incomplete"),
+                "payload_blockers": overlay.get("payload_blockers", ["payload-contract-not-reviewed"]),
             })
             components.append({
                 "type": "application",
@@ -100,12 +153,41 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
             if artifact_observed_sha256 != release["artifact"]["sha256"]:
                 raise FLEET.FleetError(f'artifact-hash-mismatch:{release["id"]}')
             artifact_verified = True
+        guard = {
+            "schema_version": 1,
+            "kind": "composition-guard-contract",
+            "device_id": desired["device_id"],
+            "composition_sha256": desired["composition_sha256"],
+            "expected_resources": sorted(desired["ownership"]),
+            "expected_payloads": [
+                dict(payload, overlay=overlay_id)
+                for overlay_id in desired["overlays"]
+                for payload in desired["payloads"][overlay_id]
+            ],
+            "registered_extras": [],
+            "mutable_exclusions": ["userdata/Database", "userdata/Thumbnails", "userdata/addon_data", "cache", "temp"],
+            "required_dependencies": sorted(desired["external_integrations"]),
+            "dependency_policy": "all-required-available",
+        }
+        bundle_name = f'{desired["device_id"]}-{desired["composition_sha256"][:12]}.tar.gz'
+        bundle_sha256 = None
+        bundle_bytes = None
+        if artifact_verified:
+            bundle = deterministic_bundle(checkout, artifact_path, release, desired, guard)
+            bundle_sha256 = hashlib.sha256(bundle).hexdigest()
+            bundle_bytes = len(bundle)
+            atomic_write(output / "bundles" / bundle_name, bundle)
         blockers = []
         if not artifact_verified:
             blockers.append("release-artifact-not-locally-verified")
-        blockers.append("composition-bundle-not-built")
+        if bundle_sha256 is None:
+            blockers.append("composition-bundle-not-built")
+        for overlay_id in desired["overlays"]:
+            if overlays[overlay_id].get("payload_status") != "complete":
+                blockers.append(f"overlay-payload-incomplete:{overlay_id}")
         if not desired["deployed"]:
             blockers.append("candidate-not-deployable")
+        deployable = not blockers
         plan = {
             "schema_version": 1,
             "kind": "release-plan",
@@ -118,13 +200,19 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
                 "observed_sha256": artifact_observed_sha256,
                 "verified": artifact_verified,
             },
+            "bundle": {
+                "name": bundle_name,
+                "sha256": bundle_sha256,
+                "bytes": bundle_bytes,
+                "built": bundle_sha256 is not None,
+            },
             "compatibility": release["compatibility"],
             "performance_budget": budget,
             "overlays": overlay_rows,
             "owned_resources": sorted(desired["ownership"]),
             "promotion_policy": compatibility,
             "promotion_blockers": blockers,
-            "deployable": False,
+            "deployable": deployable,
             "required_runtime_gates": ["identity", "idle", "checkpoint", "artifact-hash", "composition", "tests", "rollback"],
         }
         sbom = {
@@ -135,21 +223,12 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
             "metadata": {"component": {"type": "device", "name": desired["device_id"], "version": desired["composition_sha256"][:12]}},
             "components": components,
         }
-        guard = {
-            "schema_version": 1,
-            "kind": "composition-guard-contract",
-            "device_id": desired["device_id"],
-            "composition_sha256": desired["composition_sha256"],
-            "expected_resources": sorted(desired["ownership"]),
-            "registered_extras": [],
-            "mutable_exclusions": ["userdata/Database", "userdata/Thumbnails", "userdata/addon_data", "cache", "temp"],
-            "dependency_policy": "all-required-available",
-        }
         atomic_write(output / "plans" / f'{desired["device_id"]}.json', canonical(plan))
         atomic_write(output / "sbom" / f'{desired["device_id"]}.cdx.json', canonical(sbom))
         atomic_write(output / "guards" / f'{desired["device_id"]}.json', canonical(guard))
-        results.append({"device_id": desired["device_id"], "blockers": blockers, "components": len(components), "artifact_verified": artifact_verified})
-    summary = {"schema_version": 1, "kind": "release-plan-summary", "devices": results, "deployable_devices": 0, "verified_artifacts": sum(1 for row in results if row["artifact_verified"]), "mode": "plan-only"}
+        results.append({"device_id": desired["device_id"], "blockers": blockers, "components": len(components), "artifact_verified": artifact_verified, "bundle_built": bundle_sha256 is not None, "bundle_sha256": bundle_sha256})
+    deployable_devices = sum(1 for row in results if not row["blockers"])
+    summary = {"schema_version": 1, "kind": "release-plan-summary", "devices": results, "deployable_devices": deployable_devices, "verified_artifacts": sum(1 for row in results if row["artifact_verified"]), "built_bundles": sum(1 for row in results if row["bundle_built"]), "mode": "bundle-build" if artifact_root else "plan-only"}
     atomic_write(output / "release-plan-summary.json", canonical(summary))
     return summary
 

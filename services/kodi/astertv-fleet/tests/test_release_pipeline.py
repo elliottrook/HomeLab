@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import tarfile
 import tempfile
 import unittest
 from pathlib import Path
@@ -78,16 +79,55 @@ class ReleasePipelineTests(unittest.TestCase):
         mismatch = dict(wrong, device_id="box", composition_sha256="def")
         self.assertTrue(GUARD.inspect(contract, mismatch)["composition_mismatch"])
 
-    def test_real_immutable_artifact_is_verified_but_pipeline_stays_blocked(self):
+    def test_real_artifact_builds_hash_bound_bundles_but_incomplete_overlays_block(self):
         artifact_root = ROOT.parent / "dist"
         with tempfile.TemporaryDirectory() as destination:
             result = PLANS.build(ROOT, Path(destination), artifact_root)
             self.assertEqual(result["verified_artifacts"], 4)
+            self.assertEqual(result["built_bundles"], 4)
+            self.assertEqual(result["deployable_devices"], 0)
             family = json.loads((Path(destination) / "plans/astertv-family.json").read_text())
             self.assertTrue(family["artifact"]["verified"])
             self.assertNotIn("release-artifact-not-locally-verified", family["promotion_blockers"])
-            self.assertIn("composition-bundle-not-built", family["promotion_blockers"])
+            self.assertNotIn("composition-bundle-not-built", family["promotion_blockers"])
+            self.assertTrue(any(item.startswith("overlay-payload-incomplete:") for item in family["promotion_blockers"]))
+            bundle = Path(destination) / "bundles" / family["bundle"]["name"]
+            self.assertEqual(PLANS.file_sha256(bundle), family["bundle"]["sha256"])
+            with tarfile.open(bundle, "r:gz") as archive:
+                manifest = json.load(archive.extractfile("manifest.json"))
+            self.assertEqual(manifest["composition_sha256"], family["composition_sha256"])
             self.assertFalse(family["deployable"])
+
+    def test_verified_bundle_build_is_byte_deterministic(self):
+        artifact_root = ROOT.parent / "dist"
+        with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
+            one = PLANS.build(ROOT, Path(first), artifact_root)
+            two = PLANS.build(ROOT, Path(second), artifact_root)
+            self.assertEqual(one, two)
+            one_bundles = {path.name: path.read_bytes() for path in (Path(first) / "bundles").glob("*.tar.gz")}
+            two_bundles = {path.name: path.read_bytes() for path in (Path(second) / "bundles").glob("*.tar.gz")}
+            self.assertEqual(one_bundles, two_bundles)
+
+    def test_guard_detects_payload_and_required_dependency_drift(self):
+        contract = {
+            "schema_version": 1, "kind": "composition-guard-contract",
+            "device_id": "box", "composition_sha256": "abc",
+            "expected_resources": [], "registered_extras": [],
+            "required_dependencies": ["jellyfin"],
+            "expected_payloads": [{"overlay": "ui", "path": "file.xml", "sha256": "a" * 64}],
+        }
+        clean = {
+            "schema_version": 1, "kind": "composition-observation",
+            "device_id": "box", "composition_sha256": "abc", "resources": [],
+            "dependencies": {"jellyfin": "available"},
+            "payloads": [{"overlay": "ui", "path": "file.xml", "sha256": "a" * 64}],
+        }
+        self.assertEqual(GUARD.inspect(contract, clean)["outcome"], "clean")
+        drift = dict(clean, dependencies={"jellyfin": "unavailable"}, payloads=[{"overlay": "ui", "path": "file.xml", "sha256": "b" * 64}])
+        result = GUARD.inspect(contract, drift)
+        self.assertEqual(result["outcome"], "drift")
+        self.assertEqual(result["payload_mismatches"], ["ui:file.xml"])
+        self.assertEqual(result["unavailable_dependencies"], ["jellyfin"])
 
     def test_wrong_artifact_hash_fails_closed(self):
         with tempfile.TemporaryDirectory() as artifacts, tempfile.TemporaryDirectory() as destination:

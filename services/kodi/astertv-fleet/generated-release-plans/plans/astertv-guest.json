@@ -2,8 +2,14 @@
   "artifact": {
     "expected_sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7",
     "name": "astertv-v2.0.7-release-2026-10-31.tar.gz",
-    "observed_sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7",
-    "verified": true
+    "observed_sha256": null,
+    "verified": false
+  },
+  "bundle": {
+    "built": false,
+    "bytes": null,
+    "name": "astertv-guest-5ca63262bb49.tar.gz",
+    "sha256": null
   },
   "compatibility": {
     "kodi": "22.0-rc1-01d4146",
@@ -16,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "48ff5bc1fe344bf48d8de0e68a8ba4e10a1fdbb17c01a0d0ce788b2eac276031",
+  "composition_sha256": "5ca63262bb495013757c2422d26ef2356f3251221c36b272ca34b5caec82339e",
   "deployable": false,
   "device_id": "astertv-guest",
   "kind": "release-plan",
@@ -26,6 +32,7 @@
     "qualification_required": true
   },
   "promotion_blockers": [
+    "release-artifact-not-locally-verified",
     "composition-bundle-not-built",
     "candidate-not-deployable"
   ],

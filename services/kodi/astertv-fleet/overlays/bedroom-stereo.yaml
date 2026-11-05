@@ -8,6 +8,8 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-bedroom"],
   "owns": ["kodi/settings/bedroom-stereo-output"],
+  "payload_sources": ["services/kodi/astertv-fleet/payload-definitions/bedroom-stereo.json"],
+  "payload_blockers": ["kodi-audio-target-not-materialized-from-pinned-base"],
   "secret_refs": [],
   "rollback_ref": "astertv-v2.0.7-release-20261031-bedroom",
   "tests": ["services/kodi/astertv-v2/validate_release.py"]

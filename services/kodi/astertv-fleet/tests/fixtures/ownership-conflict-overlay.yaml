@@ -8,6 +8,9 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-family"],
   "owns": ["kodi/skin.asterhome/tv-details-window"],
+  "payload_sources": ["services/kodi/astertv-v3/test_tv_details_package.py"],
+  "payload_status": "complete",
+  "payload_blockers": [],
   "secret_refs": [],
   "rollback_ref": "synthetic fixture only",
   "tests": ["synthetic/ownership-conflict"]

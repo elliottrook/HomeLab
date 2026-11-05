@@ -8,6 +8,12 @@
   "dependencies": ["jen-account-registry"],
   "targets": ["astertv-jen"],
   "owns": ["kodi/jellyfin-guest-catalogue-adapter"],
+  "payload_sources": [
+    "services/kodi/astertv-v3/guest_catalogue/addon/plugin.video.asterguest",
+    "services/kodi/astertv-v3/guest_catalogue/build_candidate.py",
+    "services/kodi/astertv-v3/guest_catalogue/install_candidate.py"
+  ],
+  "payload_blockers": ["duplicated-account-payload-must-be-normalized-to-dependency", "guest-profile-state-is-external"],
   "secret_refs": ["jellyfin-jen-guest-client"],
   "rollback_ref": "astertv-v3-m2-jen-guest-r10-retained-20261104",
   "tests": ["services/kodi/astertv-v3/guest_catalogue/test_adapter.py"]

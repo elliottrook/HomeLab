@@ -8,6 +8,11 @@
   "dependencies": ["jen-account-registry"],
   "targets": ["astertv-jen"],
   "owns": ["kodi/service.astertv-broker-client", "kodi/aster-ai-dialogs"],
+  "payload_sources": [
+    "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice",
+    "services/kodi/astertv-v3/aster_client/install_client.py"
+  ],
+  "payload_blockers": ["transient-account-module-rewrites-not-owned-or-materialized"],
   "secret_refs": ["astertv-jen-broker-client"],
   "rollback_ref": "astertv-v3-m3-jen-client-retained-r3-20261104",
   "tests": ["services/kodi/astertv-v3/aster_client/test_client.py"]

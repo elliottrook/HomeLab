@@ -8,6 +8,16 @@
   "dependencies": ["jen-account-registry"],
   "targets": ["astertv-jen"],
   "owns": ["kodi/skin.asterhome/home-window-v3", "kodi/skin.asterhome/cameras-window-v3", "systemd/jen-camera-on-demand"],
+  "payload_sources": [
+    "services/kodi/astertv-v3/m6/fixtures/custom_1112_home.predecessor.xml",
+    "services/kodi/astertv-v3/m6/addon/skin/custom_1134_cameras.xml",
+    "services/kodi/astertv-v3/m6/addon/aster-camera2/view.py",
+    "services/kodi/astertv-v3/m6/home_overlay.py",
+    "services/kodi/astertv-v3/m6/apply_jen_home_cameras.py",
+    "services/kodi/astertv-v3/m6/install_jen_home_cameras.py",
+    "services/kodi/astertv-v3/m6/install_jen_camera_on_demand.py"
+  ],
+  "payload_blockers": ["rendered-home-xml-and-systemd-unit-not-materialized", "duplicated-account-and-voice-ownership"],
   "secret_refs": ["jen-home-feed-client", "jen-camera-viewer-client"],
   "rollback_ref": "astertv-v3-m6-jen and astertv-v3-m6-camera-on-demand-r1",
   "tests": ["services/kodi/astertv-v3/m6/test_home_overlay.py"]

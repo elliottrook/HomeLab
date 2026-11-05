@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-declarative-payload",
+  "id": "bedroom-stereo",
+  "settings": {
+    "output_contract": "stereo",
+    "passthrough": false,
+    "channels": 2
+  }
+}

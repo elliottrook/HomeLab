@@ -8,6 +8,11 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-jen"],
   "owns": ["kodi/settings/jen-1080p-stereo", "jellyfin/client-policy-jen"],
+  "payload_sources": [
+    "services/kodi/astertv-v3/low-spec/jellyfin_client_policy.py",
+    "services/kodi/astertv-v3/low-spec/enable_low_spec_runtime.py"
+  ],
+  "payload_blockers": ["embedded-units-not-materialized", "undeclared-v2-transform-output-set", "jellyfin-hwa-and-client-settings-are-external-state"],
   "secret_refs": ["jellyfin-jen-client"],
   "rollback_ref": "astertv-reliability-AsterTV-Jen accepted state",
   "tests": ["services/kodi/astertv-v3/low-spec/test_jellyfin_client_policy.py"]

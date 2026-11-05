@@ -1,36 +1,71 @@
 {
+  "built_bundles": 0,
   "deployable_devices": 0,
   "devices": [
     {
-      "artifact_verified": true,
+      "artifact_verified": false,
       "blockers": [
-        "composition-bundle-not-built"
+        "release-artifact-not-locally-verified",
+        "composition-bundle-not-built",
+        "overlay-payload-incomplete:bedroom-stereo",
+        "overlay-payload-incomplete:bedroom-wifi-stability",
+        "overlay-payload-incomplete:remote-client-v3",
+        "overlay-payload-incomplete:tv-details-v3"
       ],
+      "bundle_built": false,
+      "bundle_sha256": null,
       "components": 6,
       "device_id": "astertv-bedroom"
     },
     {
-      "artifact_verified": true,
+      "artifact_verified": false,
       "blockers": [
-        "composition-bundle-not-built"
+        "release-artifact-not-locally-verified",
+        "composition-bundle-not-built",
+        "overlay-payload-incomplete:family-dolby-hdr",
+        "overlay-payload-incomplete:remote-client-v3",
+        "overlay-payload-incomplete:family-equipment-bridge",
+        "overlay-payload-incomplete:family-kodi-restart",
+        "overlay-payload-incomplete:family-media-lifecycle",
+        "overlay-payload-incomplete:news-playback-v3",
+        "overlay-payload-incomplete:tv-details-v3"
       ],
+      "bundle_built": false,
+      "bundle_sha256": null,
       "components": 9,
       "device_id": "astertv-family"
     },
     {
-      "artifact_verified": true,
+      "artifact_verified": false,
       "blockers": [
+        "release-artifact-not-locally-verified",
         "composition-bundle-not-built",
         "candidate-not-deployable"
       ],
+      "bundle_built": false,
+      "bundle_sha256": null,
       "components": 1,
       "device_id": "astertv-guest"
     },
     {
-      "artifact_verified": true,
+      "artifact_verified": false,
       "blockers": [
-        "composition-bundle-not-built"
+        "release-artifact-not-locally-verified",
+        "composition-bundle-not-built",
+        "overlay-payload-incomplete:jen-account-registry",
+        "overlay-payload-incomplete:jen-aster-client",
+        "overlay-payload-incomplete:jen-guest-catalogue",
+        "overlay-payload-incomplete:jen-home-cameras",
+        "overlay-payload-incomplete:jen-low-spec-runtime",
+        "overlay-payload-incomplete:tv-details-v3",
+        "overlay-payload-incomplete:jen-movie-youtube",
+        "overlay-payload-incomplete:news-playback-v3",
+        "overlay-payload-incomplete:jen-news-icons",
+        "overlay-payload-incomplete:jen-podcast-requests",
+        "overlay-payload-incomplete:remote-client-v3"
       ],
+      "bundle_built": false,
+      "bundle_sha256": null,
       "components": 13,
       "device_id": "astertv-jen"
     }
@@ -38,5 +73,5 @@
   "kind": "release-plan-summary",
   "mode": "plan-only",
   "schema_version": 1,
-  "verified_artifacts": 4
+  "verified_artifacts": 0
 }

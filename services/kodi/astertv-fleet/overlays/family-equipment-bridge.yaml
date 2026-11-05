@@ -8,6 +8,12 @@
   "dependencies": ["remote-client-v3"],
   "targets": ["astertv-family"],
   "owns": ["home-assistant/aster-room-bridge-family", "aster-agent/family-equipment-actions"],
+  "payload_sources": [
+    "services/home-assistant/aster_room_bridge/custom_components/aster_room_bridge",
+    "services/aster-agent/aster_remote.py",
+    "services/aster-agent/static/remote"
+  ],
+  "payload_blockers": ["ha-config-entry-opnsense-rules-and-identities-are-external-state"],
   "secret_refs": ["family-equipment-client", "home-assistant-room-bridge"],
   "rollback_ref": "astertv-v3-m7-family-bridge-20261105 and HA backup 35b3cbd9",
   "tests": ["services/home-assistant/aster_room_bridge/tests"]
