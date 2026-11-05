@@ -48,6 +48,12 @@
 > live release and layers Candidate-J into a 46-pin combined release; 61/61
 > tests pass. The materially changed corrected install requires a fresh
 > deployment approval.
+> **R2 preflight correction:** the second install attempt also stopped before
+> mutation because the accepted public Candidate-J contract/runner already
+> exist in LXC110. Their hashes are exact. Platform commit `c0e55f62` now
+> verifies them as shared dependencies and adds only packet, key-free quality
+> runtime and wrapper. Quality-specific targets remain absent; 61/61 tests
+> pass. R2 requires a fresh deployment approval.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).

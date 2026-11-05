@@ -56,3 +56,12 @@ onto every exact live pin and preserves the EPUB word-alignment and TTS
 CPU-screen workloads. The corrected combined release has 46 pins and its
 joined suite passes 61/61. Applying it is a new deployment gate because the
 prior approval was spent on the safely failed, materially different bundle.
+
+The second approved attempt also failed before mutation, at guest preflight
+`TARGET_PRESENT:sa3_evidence_matrix_candidate_j_contract.py`. Readback proved
+that contract and the runner are exact accepted shared dependencies from the
+public Candidate-J runtime. Quality-specific host and guest targets remain
+absent; only a host preflight checkpoint was retained. Platform commit
+`c0e55f62c0e04a36f642056037acff5aaad7fc7` changes R2 to verify those two
+files in place and add only three quality-specific guest files. The 61/61 suite
+passes; applying R2 is a fresh deployment gate.
