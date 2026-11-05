@@ -1,9 +1,9 @@
 # SA4 single-file repair source contract — 2026-11-05
 
-## Result
+## Result — schema prototype only
 
-The first generic SA4 source boundary is complete without selecting or touching
-a production target. It defines one deliberately narrow repair class:
+The first generic SA4 schema prototype is retained without selecting or touching
+a production target. It describes one deliberately narrow repair class:
 single-file configuration drift on a regular file that can be replaced
 atomically without following links and without a service restart.
 
@@ -14,28 +14,30 @@ failed or uncertain postcheck. It excludes credentials, firewall, network,
 models, service restarts and shared infrastructure. Arbitrary commands and
 unknown fields fail closed.
 
-The pre-effect admission cross-binds the exact plan to a time-bounded owner
-approval, one-use AI-PAM grant and single-link regular-file checkpoint. The
-grant is bound to the observed target digest and permits at most one atomic
-replacement. Expiry, reuse, target drift, checkpoint drift, symlink following,
-unsafe paths and automatic retry all fail closed.
+An independent audit found that the first version treated JSON approval,
+AI-PAM and checkpoint fields as authenticated evidence when they were only
+assertions, and accepted any syntactically valid absolute path. That version is
+not effect-ready. The corrected prototype registers only a synthetic fixture
+target under `/synthetic`; `/etc/shadow`, unknown target IDs and all real hosts
+fail closed. Its output explicitly says authenticated authority is absent,
+preflight is ineligible, the grant is unconsumed and maximum effects are zero.
 
-Four focused synthetic plan/admission tests pass. Their output is preflight eligibility only;
+Four focused synthetic plan/admission tests pass. Their output is schema evidence only;
 the fixture names no real host or file and performs no repair. No production
 target, checkpoint, approval, grant, mutation, restart, deployment, authority
 or routing change exists.
 
-The terminal reconciler is also source-complete. It binds the exact plan,
-admission, checkpoint and retained terminal bytes and permits only four
-internally consistent outcomes: complete, pre-effect NO-GO, rolled back or
-uncertain. Complete requires exactly one effect, exact desired final bytes and
-all three fixed postchecks true. A failed postcheck cannot pass without an
-exact rollback; uncertainty always requires manual reconciliation and never
-authorizes retry. The combined SA4 source suite passes 9/9.
+The terminal schema prototype now accepts only a zero-effect preflight NO-GO.
+It rejects every claimed complete, rolled-back or uncertain effect because the
+current source has no independently measured filesystem/postcheck receipts.
+The combined SA4 prototype suite passes 9/9 without claiming an effect result.
 
 ## Remaining gate
 
-Candidate-J must first produce an accepted D4 release candidate. Stream A may
-then inventory and propose one low-criticality real target using this contract.
-Jason's exact owner approval and a real one-use grant remain mandatory before
-the first repair effect. The source contract does not pre-authorize that effect.
+Candidate-J must first produce an accepted D4 release candidate. Before a real
+target can even reach preflight, SA4 still needs a hash-pinned target registry,
+authenticated owner approval and AI-PAM receipt, durable atomic one-use
+consumption, fd/no-follow live filesystem and checkpoint evidence, shared lock
+and emergency stop, and independent bytes/metadata/consumer/rollback receipts.
+Only then may Stream A propose one low-criticality target. Jason's exact owner
+approval remains mandatory before the first repair effect.

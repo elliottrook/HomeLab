@@ -28,7 +28,9 @@ def key_sha256(key: object) -> str:
     if (not isinstance(key, dict) or set(key) != {"kty", "n", "e"}
             or key["kty"] != "RSA" or key["e"] != 65537
             or not isinstance(key["n"], str) or not HEX.fullmatch(key["n"])
-            or key["n"] != key["n"].lower() or len(key["n"]) != 512):
+            or key["n"] != key["n"].lower() or len(key["n"]) != 512
+            or key["n"].startswith("0") or int(key["n"], 16).bit_length() != 2048
+            or int(key["n"], 16) % 2 != 1 or int(key["n"], 16) <= key["e"]):
         raise ValueError("J2 external proof key is not pinned RSA-2048")
     return hashlib.sha256(canonical(key)).hexdigest()
 

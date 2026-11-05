@@ -13,6 +13,9 @@ from nlu_threshold_policy import decode_unique_json
 
 LABEL_REVIEW_SHA256 = "896ff54b31718b7dfbe91b479c4a6fbcfe5b428ca62528f07a2f8993072b0028"
 QUALITY_REVIEW_SHA256 = "f934ee6780c3f9a4b87b7c530a4345080dd98ff534e7d5a3093822aed1d3fe3f"
+OWNER_ACCEPTANCE_FILE_SHA256 = "9e7eb6f76396088b5650647d0c7970b5659711ff94fd3c0c16fd504619bf393b"
+# Real signer fingerprints are added only after exact owner trust review.
+TRUSTED_KEYS: dict[str, str] = {}
 
 
 def _release(raw: bytes, custody_raw: bytes) -> dict[str, object]:
@@ -45,16 +48,22 @@ def _release(raw: bytes, custody_raw: bytes) -> dict[str, object]:
 
 def admit(release_raw: bytes, owner_raw: bytes, recipe_raw: bytes,
           corpus_receipt_raw: bytes, corpus_proof_raw: bytes,
-          corpus_key: object, corpus_key_sha256: str,
+          corpus_key: object,
           evaluation_receipt_raw: bytes, evaluation_proof_raw: bytes,
-          evaluation_key: object, evaluation_key_sha256: str,
+          evaluation_key: object,
           disjointness_receipt_raw: bytes,
           disjointness_proof_raw: bytes) -> dict[str, object]:
     corpus_receipt = custody.corpus_receipt(corpus_receipt_raw)
     evaluation_receipt = custody.evaluation_receipt(evaluation_receipt_raw)
     release = _release(release_raw, corpus_receipt_raw)
     accepted = owner.validate(owner_raw)
+    if hashlib.sha256(owner_raw).hexdigest() != OWNER_ACCEPTANCE_FILE_SHA256:
+        raise ValueError("J2 owner acceptance file is not the retained decision")
     recipe_result = recipe.validate(recipe_raw)
+    corpus_key_sha256 = TRUSTED_KEYS.get(corpus_receipt["custodian_id"])
+    evaluation_key_sha256 = TRUSTED_KEYS.get(evaluation_receipt["custodian_id"])
+    if not corpus_key_sha256 or not evaluation_key_sha256:
+        raise ValueError("J2 custodian key is not owner-pinned")
     corpus_signed = external.verify(
         corpus_proof_raw, corpus_receipt_raw, corpus_key,
         corpus_key_sha256, "corpus-custody")
@@ -77,6 +86,13 @@ def admit(release_raw: bytes, owner_raw: bytes, recipe_raw: bytes,
             != evaluation_receipt["evaluation_sha256"]
             or disjoint["evaluation_normalized_text_set_sha256"]
             != evaluation_receipt["normalized_text_set_sha256"]
+            or corpus_receipt["corpus_sha256"] != release["corpus_sha256"]
+            or corpus_receipt["normalized_text_set_sha256"]
+            != release["normalized_text_set_sha256"]
+            or corpus_receipt["label_review_sha256"]
+            != release["label_review_sha256"]
+            or corpus_receipt["quality_review_sha256"]
+            != release["quality_review_sha256"]
             or release["corpus_sha256"] != accepted["corpus_sha256"]
             or release["normalized_text_set_sha256"]
             != accepted["normalized_text_set_sha256"]
@@ -99,7 +115,12 @@ def admit(release_raw: bytes, owner_raw: bytes, recipe_raw: bytes,
             hashlib.sha256(disjointness_receipt_raw).hexdigest(),
         "corpus_signer_key_sha256": corpus_signed["signer_key_sha256"],
         "evaluation_signer_key_sha256": evaluation_signed["signer_key_sha256"],
-        "intersection_count": 0, "roles_distinct": True,
+        "corpus_proof_file_sha256": hashlib.sha256(corpus_proof_raw).hexdigest(),
+        "evaluation_proof_file_sha256":
+            hashlib.sha256(evaluation_proof_raw).hexdigest(),
+        "disjointness_proof_file_sha256":
+            hashlib.sha256(disjointness_proof_raw).hexdigest(),
+        "intersection_count": 0, "declared_roles_distinct": True,
         "signatures_verified": True, "training_authorized": False,
         "sealed_evaluation_access": False, "authority": "not-granted",
         "automatic_routing": "off", "deployment": False,

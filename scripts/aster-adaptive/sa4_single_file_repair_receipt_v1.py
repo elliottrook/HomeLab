@@ -21,7 +21,9 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
                         "target_before_sha256", "target_after_sha256",
                         "checkpoint_sha256", "approval_expires_epoch",
                         "grant_expires_epoch", "maximum_effects",
-                        "preflight_eligible", "automatic_retry",
+                        "status", "preflight_eligible",
+                        "authority_authenticated", "grant_consumed",
+                        "automatic_retry",
                         "automatic_routing"}
     terminal_fields = {"schema", "plan_sha256", "admission_sha256", "state",
                        "effect_count", "retry_count", "precondition_sha256",
@@ -39,8 +41,12 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
             or admission["target_after_sha256"] != plan["change"]["artifact_sha256"]
             or not isinstance(admission["checkpoint_sha256"], str)
             or not HEX64.fullmatch(admission["checkpoint_sha256"])
-            or admission["maximum_effects"] != 1
-            or admission["preflight_eligible"] is not True
+            or admission["status"]
+            != "schema-prototype-pending-authenticated-authority"
+            or admission["maximum_effects"] != 0
+            or admission["preflight_eligible"] is not False
+            or admission["authority_authenticated"] is not False
+            or admission["grant_consumed"] is not False
             or admission["automatic_retry"] is not False
             or admission["automatic_routing"] != "off"):
         raise ValueError("SA4 repair admission changed")
@@ -60,7 +66,8 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
             or not HEX64.fullmatch(terminal["final_target_sha256"])
             or not isinstance(terminal["postchecks"], dict)
             or set(terminal["postchecks"]) != CHECKS
-            or any(value not in {True, False, "not-run", "uncertain"}
+            or any(not (type(value) is bool
+                       or value in {"not-run", "uncertain"})
                    for value in terminal["postchecks"].values())
             or type(terminal["rollback_performed"]) is not bool
             or terminal["evidence_retained"] is not True
@@ -68,32 +75,15 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
             or terminal["automatic_routing"] != "off"):
         raise ValueError("SA4 repair terminal changed")
     before = plan["precondition"]["expected_sha256"]
-    after = plan["change"]["artifact_sha256"]
     checks = list(terminal["postchecks"].values())
     state = terminal["state"]
-    valid = (
-        state == "complete" and terminal["effect_count"] == 1
-        and terminal["observed_after_sha256"] == after
-        and terminal["final_target_sha256"] == after
-        and checks == [True, True, True]
-        and terminal["rollback_performed"] is False
-    ) or (
-        state == "no_go" and terminal["effect_count"] == 0
+    valid = (state == "no_go" and terminal["effect_count"] == 0
         and terminal["observed_after_sha256"] == before
         and terminal["final_target_sha256"] == before
         and all(value == "not-run" for value in checks)
-        and terminal["rollback_performed"] is False
-    ) or (
-        state == "rolled_back" and terminal["effect_count"] == 1
-        and terminal["final_target_sha256"] == before
-        and terminal["rollback_performed"] is True
-        and not all(value is True for value in checks)
-    ) or (
-        state == "uncertain" and terminal["final_target_sha256"] in {before, after}
-        and not all(value is True for value in checks)
-    )
+        and terminal["rollback_performed"] is False)
     if not valid:
-        raise ValueError("SA4 repair outcome is internally inconsistent")
+        raise ValueError("SA4 schema prototype cannot authenticate an effect outcome")
     return {"schema": "aster-sa4-single-file-repair-reconciliation.v1",
             "plan_sha256": plan_digest, "admission_sha256": admission_digest,
             "terminal_sha256": hashlib.sha256(terminal_raw).hexdigest(),
@@ -102,6 +92,6 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
             "final_target_sha256": terminal["final_target_sha256"],
             "postchecks_complete": all(value is True for value in checks),
             "evidence_retained": True,
-            "completion_accepted": state == "complete",
-            "manual_reconciliation_required": state == "uncertain",
+            "completion_accepted": False,
+            "manual_reconciliation_required": False,
             "automatic_retry": False, "automatic_routing": "off"}

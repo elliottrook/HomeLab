@@ -45,14 +45,23 @@ runtime package or private key. They prove the implementation contract only;
 the real gate still requires a separately controlled custodian key whose
 fingerprint is explicitly trusted. The expanded J2 suite passes 60/60.
 
-The combined admission validator is now source-complete as well. It cross-binds
+The combined admission validator now structurally cross-binds
 the exact corpus-release summary, owner acceptance, frozen recipe, corpus and
 evaluation receipts, two distinct pinned signer keys, and the signed
 zero-intersection receipt. It rejects reused roles/keys and any release,
 owner, evaluation or disjointness mismatch. Even a complete chain advances
 only to `eligible-for-owner-training-effect-review`; training authorization,
-sealed-evaluation access, routing, authority and deployment remain false. The
-expanded source-only J2 suite passes 62/62.
+sealed-evaluation access, routing, authority and deployment remain false.
+
+A second independent audit found two material defects before any real evidence
+existed: corpus custody was not compared to the accepted release, and caller-
+supplied key hashes were mistaken for trust anchors. The validator now binds
+all four corpus/review digests, requires the exact retained owner-acceptance
+file digest, takes signer fingerprints only from a compiled owner-reviewed
+registry, retains all proof-file digests and labels role separation as declared
+rather than authenticated. That registry is intentionally empty until real
+keys receive owner trust review, so no real combined admission can currently
+pass. RSA keys must now be canonical odd 2048-bit moduli.
 
 ## Next autonomous work
 
@@ -81,7 +90,7 @@ sealed evaluation inputs are absent. Frozen binary64 training math now covers
 max-shifted cross-entropy and scalar AdamW with exact bias correction, epsilon
 placement, gradient-then-decoupled-decay order and weights-only decay. The
 recipe binds those sources too, and its current file identity is
-`aba6e3d7…23ec`. The expanded J2 source suite passes 88/88. No training step,
+`aba6e3d7…23ec`. The expanded J2 source suite passes 89/89. No training step,
 corpus row, evaluation content or retained model artifact is created.
 
 The future artifact boundary is now executable source rather than prose. It
@@ -101,3 +110,12 @@ confidence/margin values, a valid guarded interpretation and a boolean
 acceptance. The exact record digest and accepted count must match the artifact.
 Changed rows, case IDs, labels, counts or duplicate keys fail closed. Three
 synthetic replay tests still return deployment false.
+
+The same second audit correctly found that identical replay files are not yet
+proof of correctness: the current schema does not recompute labels, guarded
+interpretations or threshold acceptance from the exact validation truth, and
+epoch/threshold claims are not bound to an input selection receipt. It also
+found that full deterministic training remains underspecified without
+backpropagation, pooling-tie, ReLU-zero, batch update and gradient-reduction
+rules. Artifact/replay code is therefore retained as a schema prototype, not a
+release candidate. These P0 gaps must be closed before any training approval.

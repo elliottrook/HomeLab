@@ -55,6 +55,10 @@ class J2ExternalProofTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             proof.verify(proof.canonical(value), PAYLOAD, KEY,
                          proof.key_sha256(KEY), "corpus-custody")
+        for modulus in ("0" + KEY["n"][1:], KEY["n"][:-1] + "0"):
+            changed = dict(KEY, n=modulus)
+            with self.subTest(modulus=modulus[:4]), self.assertRaises(ValueError):
+                proof.key_sha256(changed)
 
 
 if __name__ == "__main__": unittest.main()

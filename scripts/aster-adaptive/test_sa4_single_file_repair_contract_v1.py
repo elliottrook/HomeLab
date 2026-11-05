@@ -8,9 +8,10 @@ def plan():
     return {
         "schema": "aster-sa4-single-file-repair-plan.v1",
         "plan_id": "sa4-synthetic-single-file-v1",
+        "target_id": "sa4-synthetic-fixture",
         "candidate_release_sha256": "1" * 64,
         "repair_class": "single-file-configuration-drift",
-        "target": {"host_id": "synthetic-host", "path": "/etc/aster/example.conf",
+        "target": {"host_id": "synthetic-host", "path": "/synthetic/aster/example.conf",
                    "type": "regular-file", "follow_symlinks": False,
                    "owner": "root", "group": "root", "mode": "0644"},
         "precondition": {"expected_sha256": "2" * 64,
@@ -45,7 +46,7 @@ def evidence(plan_raw):
              "scope": "exact-target-atomic-replace", "authority": "one-use-ai-pam"}
     checkpoint = {"schema": "aster-sa4-checkpoint.v1", "plan_sha256": digest,
                   "target_before_sha256": "2" * 64,
-                  "checkpoint_sha256": "4" * 64, "target_mode": "0644",
+                  "checkpoint_sha256": "2" * 64, "target_mode": "0644",
                   "owner": "root", "group": "root", "regular_file": True,
                   "link_count": 1, "authority": "none"}
     return tuple(repair.canonical(value) for value in (approval, grant, checkpoint))
@@ -55,8 +56,9 @@ class SA4SingleFileRepairContractTests(unittest.TestCase):
     def test_exact_plan_and_one_use_evidence_reach_preflight_only(self):
         raw = repair.canonical(plan())
         value = repair.admit(raw, *evidence(raw), now_epoch=100)
-        self.assertTrue(value["preflight_eligible"])
-        self.assertEqual(1, value["maximum_effects"])
+        self.assertFalse(value["preflight_eligible"])
+        self.assertEqual(0, value["maximum_effects"])
+        self.assertFalse(value["authority_authenticated"])
         self.assertFalse(value["automatic_retry"])
 
     def test_plan_forbids_restart_symlink_and_unsafe_path(self):
@@ -64,6 +66,8 @@ class SA4SingleFileRepairContractTests(unittest.TestCase):
         value = plan(); value["precondition"]["service_restart_required"] = True; variants.append(value)
         value = plan(); value["target"]["follow_symlinks"] = True; variants.append(value)
         value = plan(); value["target"]["path"] = "/etc/aster/../shadow"; variants.append(value)
+        value = plan(); value["target_id"] = "unregistered"; variants.append(value)
+        value = plan(); value["target"]["path"] = "/etc/shadow"; variants.append(value)
         value = plan(); value["exclusions"].remove("credentials"); variants.append(value)
         for value in variants:
             with self.subTest(), self.assertRaises(ValueError):
@@ -78,6 +82,10 @@ class SA4SingleFileRepairContractTests(unittest.TestCase):
             repair.admit(raw, approval, repair.canonical(changed), checkpoint, 100)
         changed = repair.decode_unique_json(checkpoint)
         changed["target_before_sha256"] = "0" * 64
+        with self.assertRaises(ValueError):
+            repair.admit(raw, approval, grant, repair.canonical(changed), 100)
+        changed = repair.decode_unique_json(checkpoint)
+        changed["checkpoint_sha256"] = "4" * 64
         with self.assertRaises(ValueError):
             repair.admit(raw, approval, grant, repair.canonical(changed), 100)
 

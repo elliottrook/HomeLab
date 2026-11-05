@@ -15,6 +15,16 @@ MODE = re.compile(r"0[0-7]{3}")
 POSTCHECKS = ("target-bytes", "target-metadata", "consumer-read-only-health")
 EXCLUSIONS = ("credentials", "firewall", "network", "model",
               "service-restart", "shared-infrastructure")
+REGISTERED_TARGETS = {
+    "sa4-synthetic-fixture": {
+        "target": {"host_id": "synthetic-host",
+                   "path": "/synthetic/aster/example.conf",
+                   "type": "regular-file", "follow_symlinks": False,
+                   "owner": "root", "group": "root", "mode": "0644"},
+        "classification": "low-criticality-read-only-adapter",
+        "consumer_postcheck": "consumer-read-only-health",
+    },
+}
 
 
 def canonical(value: object) -> bytes:
@@ -39,7 +49,7 @@ def _path(value: object) -> bool:
 
 def validate_plan(raw: bytes) -> dict[str, object]:
     value = decode_unique_json(raw)
-    fields = {"schema", "plan_id", "candidate_release_sha256",
+    fields = {"schema", "plan_id", "target_id", "candidate_release_sha256",
               "repair_class", "target", "precondition", "change",
               "checkpoint", "postchecks", "rollback", "uncertainty",
               "exclusions", "authority", "effect_authorized",
@@ -52,8 +62,14 @@ def validate_plan(raw: bytes) -> dict[str, object]:
     if not isinstance(value, dict) or set(value) != fields:
         raise ValueError("SA4 repair plan shape changed")
     target, before, change = value["target"], value["precondition"], value["change"]
+    registered = REGISTERED_TARGETS.get(value.get("target_id"))
     if (value["schema"] != "aster-sa4-single-file-repair-plan.v1"
             or not _identity(value["plan_id"])
+            or not isinstance(registered, dict)
+            or registered.get("classification")
+            != "low-criticality-read-only-adapter"
+            or registered.get("consumer_postcheck") not in POSTCHECKS
+            or target != registered.get("target")
             or not isinstance(value["candidate_release_sha256"], str)
             or not HEX64.fullmatch(value["candidate_release_sha256"])
             or value["repair_class"] != "single-file-configuration-drift"
@@ -119,6 +135,7 @@ def admit(plan_raw: bytes, approval_raw: bytes, grant_raw: bytes,
             or approval["scope"] != "exact-plan-only"
             or type(approval["expires_epoch"]) is not int
             or now_epoch >= approval["expires_epoch"]
+            or approval["expires_epoch"] > now_epoch + 3600
             or approval["authority"] != "one-use-owner-approval"
             or grant["plan_sha256"] != plan_digest
             or not _identity(grant["grant_id"])
@@ -126,12 +143,13 @@ def admit(plan_raw: bytes, approval_raw: bytes, grant_raw: bytes,
             or grant["max_uses"] != 1 or grant["scope"] != "exact-target-atomic-replace"
             or type(grant["expires_epoch"]) is not int
             or now_epoch >= grant["expires_epoch"]
+            or grant["expires_epoch"] > approval["expires_epoch"]
             or grant["authority"] != "one-use-ai-pam"
             or checkpoint["plan_sha256"] != plan_digest
             or checkpoint["target_before_sha256"]
             != plan["precondition"]["expected_sha256"]
-            or not isinstance(checkpoint["checkpoint_sha256"], str)
-            or not HEX64.fullmatch(checkpoint["checkpoint_sha256"])
+            or checkpoint["checkpoint_sha256"]
+            != plan["precondition"]["expected_sha256"]
             or checkpoint["target_mode"] != plan["target"]["mode"]
             or checkpoint["owner"] != plan["target"]["owner"]
             or checkpoint["group"] != plan["target"]["group"]
@@ -146,5 +164,7 @@ def admit(plan_raw: bytes, approval_raw: bytes, grant_raw: bytes,
             "checkpoint_sha256": checkpoint["checkpoint_sha256"],
             "approval_expires_epoch": approval["expires_epoch"],
             "grant_expires_epoch": grant["expires_epoch"],
-            "maximum_effects": 1, "preflight_eligible": True,
+            "status": "schema-prototype-pending-authenticated-authority",
+            "maximum_effects": 0, "preflight_eligible": False,
+            "authority_authenticated": False, "grant_consumed": False,
             "automatic_retry": False, "automatic_routing": "off"}

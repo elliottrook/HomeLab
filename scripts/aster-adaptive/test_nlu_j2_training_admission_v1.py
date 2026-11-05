@@ -61,9 +61,9 @@ def inputs():
     }
     owner_raw = owner.canonical(owner.accepted_record("jason"))
     return [custody.canonical(release), owner_raw, RECIPE.read_bytes(),
-            corpus_raw, b"corpus-proof", {"key": "corpus"}, "a" * 64,
+            corpus_raw, b"corpus-proof", {"key": "corpus"},
             evaluation_raw, b"evaluation-proof", {"key": "evaluation"},
-            "b" * 64, b"disjointness", b"disjointness-proof"]
+            b"disjointness", b"disjointness-proof"]
 
 
 def external_result(scope):
@@ -78,17 +78,29 @@ def disjoint_result():
             "evaluation_normalized_text_set_sha256": "e" * 64}
 
 
+def invoke(values):
+    trusted = {"independent-j2-corpus-custodian": "a" * 64,
+               "independent-j2-evaluation-custodian": "b" * 64}
+    with patch.dict(admission.TRUSTED_KEYS, trusted, clear=True), \
+            patch.object(admission, "OWNER_ACCEPTANCE_FILE_SHA256",
+                         hashlib.sha256(values[1]).hexdigest()):
+        return admission.admit(*values)
+
+
 class J2TrainingAdmissionTests(unittest.TestCase):
     @patch("nlu_j2_training_admission_v1.disjointness.verify")
     @patch("nlu_j2_training_admission_v1.external.verify")
     def test_complete_chain_reaches_owner_review_without_authority(self, ext, dis):
         ext.side_effect = lambda _p, _r, _k, _h, scope: external_result(scope)
         dis.return_value = disjoint_result()
-        value = admission.admit(*inputs())
+        value = invoke(inputs())
         self.assertEqual("eligible-for-owner-training-effect-review", value["status"])
         self.assertTrue(value["signatures_verified"])
         self.assertFalse(value["training_authorized"])
         self.assertFalse(value["deployment"])
+        self.assertTrue(value["declared_roles_distinct"])
+        self.assertEqual(hashlib.sha256(b"corpus-proof").hexdigest(),
+                         value["corpus_proof_file_sha256"])
 
     @patch("nlu_j2_training_admission_v1.disjointness.verify")
     @patch("nlu_j2_training_admission_v1.external.verify")
@@ -97,26 +109,48 @@ class J2TrainingAdmissionTests(unittest.TestCase):
         dis.return_value = disjoint_result()
         changed = inputs(); release = custody.decode_unique_json(changed[0])
         release["normalized_overlap"] = 1; changed[0] = custody.canonical(release)
-        with self.assertRaises(ValueError): admission.admit(*changed)
+        with self.assertRaises(ValueError): invoke(changed)
         changed = inputs(); accepted = custody.decode_unique_json(changed[1])
         accepted["corpus_sha256"] = "0" * 64
         accepted["receipt_sha256"] = owner.receipt_sha256(accepted)
         changed[1] = owner.canonical(accepted)
-        with self.assertRaises(ValueError): admission.admit(*changed)
+        with self.assertRaises(ValueError): invoke(changed)
         dis.return_value = dict(disjoint_result(), evaluation_sha256="0" * 64)
-        with self.assertRaises(ValueError): admission.admit(*inputs())
+        with self.assertRaises(ValueError): invoke(inputs())
         dis.return_value = disjoint_result()
         ext.side_effect = [external_result("corpus-custody"),
                            dict(external_result("evaluation-custody"),
                                 signer_key_sha256="a" * 64)]
-        with self.assertRaises(ValueError): admission.admit(*inputs())
-        changed = inputs(); evaluation = custody.decode_unique_json(changed[7])
+        with self.assertRaises(ValueError): invoke(inputs())
+        changed = inputs(); evaluation = custody.decode_unique_json(changed[6])
         evaluation["custodian_id"] = CORPUS["reviewer_id"]
         copied = dict(evaluation); copied.pop("receipt_sha256")
         evaluation["receipt_sha256"] = custody._digest(copied)
-        changed[7] = custody.canonical(evaluation)
+        changed[6] = custody.canonical(evaluation)
         ext.side_effect = lambda _p, _r, _k, _h, scope: external_result(scope)
-        with self.assertRaises(ValueError): admission.admit(*changed)
+        with self.assertRaises(ValueError): invoke(changed)
+
+    @patch("nlu_j2_training_admission_v1.disjointness.verify")
+    @patch("nlu_j2_training_admission_v1.external.verify")
+    def test_custody_digests_and_unpinned_keys_fail_closed(self, ext, dis):
+        ext.side_effect = lambda _p, _r, _k, _h, scope: external_result(scope)
+        dis.return_value = disjoint_result()
+        changed = inputs(); corpus = custody.decode_unique_json(changed[3])
+        corpus["corpus_sha256"] = "f" * 64
+        copied = dict(corpus); copied.pop("receipt_sha256")
+        corpus["receipt_sha256"] = custody._digest(copied)
+        changed[3] = custody.canonical(corpus)
+        release = custody.decode_unique_json(changed[0])
+        release["custody_receipt_sha256"] = hashlib.sha256(changed[3]).hexdigest()
+        changed[0] = custody.canonical(release)
+        with self.assertRaisesRegex(ValueError, "cross-binding"):
+            invoke(changed)
+        values = inputs()
+        with patch.dict(admission.TRUSTED_KEYS, {}, clear=True), \
+                patch.object(admission, "OWNER_ACCEPTANCE_FILE_SHA256",
+                             hashlib.sha256(values[1]).hexdigest()), \
+                self.assertRaisesRegex(ValueError, "not owner-pinned"):
+            admission.admit(*values)
 
 
 if __name__ == "__main__": unittest.main()
