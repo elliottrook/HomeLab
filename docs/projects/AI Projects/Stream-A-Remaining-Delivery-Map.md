@@ -82,6 +82,12 @@
 > chained; duplicate keys fail closed. Reviewer assurance is accurately
 > labelled separate-execution rather than authenticated custody. The corrected
 > suite passes 52/52. Promotion remains unauthorized.
+> A final independent pre-run audit then cross-bound the offline reconciliation
+> to the authoritative completed ledger record and exact owner receipt, and
+> aligned canonical-byte, 524,288-byte and 3,000-character bounds with the
+> installed transaction. The complete suite passes 54/54. Filesystem custody,
+> lease/lock/process absence and production health remain separate mandatory
+> host postchecks; no source result prejudges the scheduled transaction.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).

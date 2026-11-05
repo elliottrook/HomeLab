@@ -50,6 +50,7 @@ def prediction_index(result: object) -> dict[str, dict]:
                 or len(row["checks"]) != len(set(row["checks"]))
                 or any(not isinstance(value, str) for value in row["checks"])
                 or not isinstance(row["summary"], str) or not row["summary"]
+                or len(row["summary"]) > 3000
                 or row["effects"] != [] or row["authority"] != "none"
                 or row["prose_source"] != "deterministic-evidence-matrix"
                 or row["model"] != result["model"]

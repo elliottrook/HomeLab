@@ -131,3 +131,19 @@ states the accurate assurance level:
 separately invoked model-blind review passes; it does not claim the stronger
 externally authenticated custody required by private M3 corpus governance.
 The corrected complete Candidate-J suite passes 52/52.
+
+## Final reconciliation hardening
+
+A separate read-only pre-run audit found that the offline reconciler did not
+itself consume the authoritative completed reservation or the owner's retained
+receipt, and its shared result contract was slightly weaker than the installed
+transaction's byte and summary bounds. The exact R1 reconciler now cross-binds
+the complete ledger record, canonical claimant and claim window, terminal
+chronology, owner receipt and exact retained-result digest. It also requires
+canonical retained JSON no larger than 524,288 bytes and limits every summary
+to the installed 3,000-character bound. Booking, terminal, receipt or result
+drift fails closed. The complete Candidate-J suite passes 54/54.
+
+Root custody, links/modes, lease/locks/process absence and production health
+remain independent host postchecks because copied JSON cannot prove filesystem
+custody. No live outcome is inferred by this source hardening.
