@@ -106,6 +106,14 @@
 > post-run source pause but does not prejudge R1 or authorize a retry, route or
 > promotion.
 
+> **Candidate-i R1 terminal NO-GO, 2026-11-04 17:33:** the exact booking
+> [failed restored after 187 seconds](evidence/D4-candidate-i-r1-scope-no-go-and-source-correction-2026-11-04.md)
+> at `owner-transaction` with bounded cause `fixed candidate-i invocation
+> mismatch`. No result or blind packet exists. The host adapter used
+> candidate-g's scope prefix while the guest wrapper required candidate-i's
+> distinct prefix. Corrected two-file source and rollback installer pass 48/48.
+> R1 is spent; inactive installation and installed proof are next, not a retry.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
