@@ -74,3 +74,13 @@ biases and a 46,848-value initialization replay digest
 semantics; its current file identity is `a9a00975…ac90`. The expanded J2 source
 suite passes 69/69. No training step, corpus row, evaluation content or retained
 model artifact is created.
+
+The future artifact boundary is now executable source rather than prose. It
+requires all 11 exact tensors and 46,848 quantized finite parameters, the exact
+recipe/preregistration/corpus-release/training-admission/ontology/guard
+bindings, a selected epoch in 1–40, a 0.005-grid threshold, at least 116 of 192
+accepted validation rows, a replay digest and an exact artifact self-hash.
+Unknown optimizer state, changed tensor shape, excess precision, nonfinite
+values or binding drift fail closed. Validation still returns deployment false
+and requires replay. Four artifact-contract tests take the J2 suite to 73/73;
+their all-zero synthetic tensor fixture is schema evidence, not a model.

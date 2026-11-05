@@ -483,6 +483,12 @@ zero biases and the 46,848-value initialization replay digest; the recipe binds
 that exact source. The source suite passes 69/69. No corpus/evaluation content,
 training step or retained model artifact is consumed or created.
 
+The future trained-artifact contract now binds the exact recipe, admission,
+corpus release, ontology and guard; validates all 46,848 quantized finite
+parameters, epoch/threshold/coverage and replay digest; and keeps deployment
+false. Synthetic shape/binding tests take J2 to 73/73. No trained artifact has
+been created, and the synthetic zero tensor is not a candidate.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,
