@@ -49,10 +49,12 @@ suite passes 206/206. Its strict selection-only runner is now source-complete,
 rejects malformed or foreign selections, never transports deterministic
 abstentions and leaves prose/controls deterministic; focused tests pass 10/10
 and SA3 passes 211/211. Its separate six-case public fixture/scorer now covers
-two plans and four fail-closed abstentions; candidate-j tests pass 12/12 and
-SA3 passes 213/213. It is not runnable: an exact batch/result envelope and
-source freeze remain required before a bounded public-development run, and an
-independently created untouched quality packet remains later.
+two plans and four fail-closed abstentions. Its exact six-case/two-request
+no-retry batch, strict scorer and five-file source freeze are complete;
+candidate-j tests pass 17/17 and SA3 passes 218/218. Model calls remain
+unauthorized. Platform registration and a fixed booked public-development
+transaction are next; an independently created untouched quality packet
+remains later and depends on a 6/6 public pass.
 
 ## Active offline milestone — M3 semantic handover
 
@@ -93,9 +95,9 @@ model/backend, restart a system, expose credentials, open sealed evaluation
 content, grant tools/repair authority, enable automatic routing or broaden the
 project without the applicable separate gate.
 
-The immediate sequence is: build candidate-j's exact batch/result envelope and
-freeze the source before a bounded public-development run, then require
-an independent custodian creates any untouched evaluation. Do not tune on
+The immediate sequence is: coordinate candidate-j platform registration and a
+fixed transaction for one bounded booked public-development run, then require
+an independent custodian to create any untouched evaluation. Do not tune on
 candidate-g/i case-level failures. M3 external custody can proceed in parallel
 when an independent signer and distinct sealed-evaluation custodian become
 available.

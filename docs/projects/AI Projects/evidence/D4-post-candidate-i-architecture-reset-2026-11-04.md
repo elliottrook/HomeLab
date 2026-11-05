@@ -51,10 +51,19 @@ values are `40f7cfeeb3884887c32f5674afdb840d764214730a23e71c1df660a08953572f`
 and `1539697db4a4f2018a95f71c18f5053f9cec7e7b6e0b7b2a488826e40f1ecd7c`.
 The combined candidate-j suite passes 12/12 and complete SA3 passes 213/213.
 
-This is not a candidate release or authority to run. Before any model request,
-candidate-j still needs a batch/result envelope and exact source freeze. Only
-after a bounded public-development result may an independent custodian create
-an untouched
+The exact batch/result envelope is also source-complete. It runs six cases
+once, makes exactly two eligible model requests, never transports the four
+abstentions, records errors without retry, and accepts a public result only at
+6/6 with zero errors/effects. The five-file freeze binds contract, runner,
+fixture, scorer and batch while pinning candidate-g/i's spent quality packets
+and keeping model calls unauthorized. Batch and freeze SHA-256 values are
+`856bc39083d078712dbf7289d2524dc0688e07ad5c645382d5dba9d99a75b388`
+and `7ab3bf93a326fad5748e5fe6f584d0b1a1bc890e78823059a19941832c0d3e74`.
+The combined candidate-j suite passes 17/17 and SA3 passes 218/218.
+
+This is not authority to run. A bounded public-development model call now
+requires an exact registered transaction and Lab Hours booking. Only after a
+passing public result may an independent custodian create an untouched
 quality packet that does not reuse candidate-g or candidate-i evaluation
 cases. The quality bar remains conservative; no threshold is lowered and no
 automatic route, repair authority, tool grant or model/backend change follows.

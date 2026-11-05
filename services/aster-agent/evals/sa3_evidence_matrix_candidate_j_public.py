@@ -66,3 +66,48 @@ def validate(value: object) -> dict[str, object]:
 
 def load_and_validate(path: Path = FIXTURE) -> dict[str, object]:
     return validate(json.loads(path.read_text(encoding="utf-8")))
+
+
+def score_result(fixture: object, result: object) -> dict[str, object]:
+    summary = validate(fixture)
+    if (not isinstance(result, dict) or set(result) != {
+            "schema", "candidate_alias", "model", "fixture_sha256",
+            "case_count", "model_request_count", "retry_count",
+            "predictions", "errors", "authority", "automatic_routing"}
+            or result["schema"] != "aster-sa3-evidence-matrix-public-result.v1"
+            or result["candidate_alias"] != "candidate-j"
+            or not isinstance(result["model"], str) or not result["model"]
+            or result["fixture_sha256"] != summary["fixture_sha256"]
+            or result["case_count"] != 6
+            or result["model_request_count"] != 2
+            or result["retry_count"] != 0 or result["errors"] != []
+            or result["authority"] != "none"
+            or result["automatic_routing"] != "off"
+            or not isinstance(result["predictions"], list)
+            or len(result["predictions"]) != 6):
+        raise ValueError("candidate-j public result is ineligible")
+    predictions = {row.get("id"): row for row in result["predictions"]
+                   if isinstance(row, dict)}
+    if len(predictions) != 6:
+        raise ValueError("candidate-j public predictions differ")
+    passed = 0
+    for row in fixture["cases"]:
+        prediction = predictions.get(row["id"])
+        expected = row["expected"]
+        if (not isinstance(prediction, dict)
+                or prediction.get("outcome") != expected["outcome"]
+                or prediction.get("checks") != expected["checks"]
+                or prediction.get("model_requested")
+                is not expected["model_requested"]
+                or prediction.get("effects") != []
+                or prediction.get("authority") != "none"
+                or prediction.get("error_class") is not None):
+            continue
+        passed += 1
+    return {
+        "schema": "aster-sa3-evidence-matrix-public-score.v1",
+        "candidate_alias": "candidate-j", "case_count": 6,
+        "passed": passed, "required": 6,
+        "public_gate_met": passed == 6,
+        "authority": "none", "automatic_routing": "off",
+    }
