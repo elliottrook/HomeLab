@@ -15,6 +15,7 @@ FRIGATE = SOURCE[SOURCE.index("check_frigate() {") : SOURCE.index("check_unifi()
 JELLYFIN = SOURCE[
     SOURCE.index("check_jellyfin_integrity() {") : SOURCE.index("check_netbox() {")
 ]
+BAZARR = SOURCE[SOURCE.index("check_bazarr() {") : SOURCE.index("check_unified_media() {")]
 
 
 class DoctorInfrastructureTests(unittest.TestCase):
@@ -92,6 +93,10 @@ fail() { printf 'FAIL %s\\n' "$1"; }
         )
         output = self.run_check(JELLYFIN, "check_jellyfin_integrity", fixture)
         self.assertIn("FAIL jellyfin-integrity cannot authenticate to Jellyfin", output)
+
+    def test_bazarr_probes_the_deliberately_bound_lan_endpoint(self):
+        self.assertIn("http://192.168.20.40:6767/", BAZARR)
+        self.assertNotIn("http://127.0.0.1:6767/", BAZARR)
 
 
 if __name__ == "__main__":

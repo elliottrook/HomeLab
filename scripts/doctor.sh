@@ -539,7 +539,8 @@ check_ai_pam() {
 check_aster_approval_readiness() {
     local state
     if state="$(ssh -o BatchMode=yes -o ConnectTimeout=8 root@192.168.50.10 \
-        'pct exec 104 -- python3 /opt/aster-agent/check_approval_readiness.py' 2>/dev/null)"; then
+        'pct exec 104 -- python3 -' \
+        < "$REPO/services/aster-agent/check_approval_readiness.py" 2>/dev/null)"; then
         pass "$state"
     else
         fail "Aster approval identity/assurance configuration is missing or inconsistent"
@@ -575,8 +576,10 @@ check_epub_narration() {
         output_mount="$(findmnt -no SOURCE /mnt/epub-aster-reader 2>/dev/null || true)"
         output_options="$(findmnt -no OPTIONS /mnt/epub-aster-reader 2>/dev/null || true)"
         timer="$(pct exec 116 -- systemctl is-active epub-narration-monitor.timer 2>/dev/null || true)"
-        worker_timer="$(pct exec 116 -- systemctl is-active epub-narration-worker.timer 2>/dev/null || true)"
-        worker_timer_enabled="$(pct exec 116 -- systemctl is-enabled epub-narration-worker.timer 2>/dev/null || true)"
+        scheduler_timer="$(systemctl is-active epub-narration-scheduler.timer 2>/dev/null || true)"
+        scheduler_timer_enabled="$(systemctl is-enabled epub-narration-scheduler.timer 2>/dev/null || true)"
+        legacy_worker_timer="$(pct exec 116 -- systemctl is-active epub-narration-worker.timer 2>/dev/null || true)"
+        legacy_worker_timer_enabled="$(pct exec 116 -- systemctl is-enabled epub-narration-worker.timer 2>/dev/null || true)"
         worker="$(pct exec 116 -- systemctl is-active epub-narration-worker.service 2>/dev/null || true)"
         limits="$(pct exec 116 -- systemctl show epub-narration-worker.service -p MemoryMax -p CPUQuotaPerSecUSec -p Nice -p IOSchedulingClass --value 2>/dev/null | tr "\n" ",")"
         status="$(pct exec 116 -- python3 -c '\''import json,pathlib,sqlite3,time
@@ -590,7 +593,7 @@ print("active="+str(sum(c.get(k,0) for k in ("extracting","narrating","aligning"
 print("ready="+str(c.get("ready",0)))
 print("failed="+str(c.get("failed",0)))
 print("status_age="+str(max(0,int(time.time()-p.stat().st_mtime))))'\'' 2>/dev/null || true)"
-        printf "source_mount=%s\nsource_options=%s\noutput_mount=%s\noutput_options=%s\ntimer=%s\nworker_timer=%s\nworker_timer_enabled=%s\nworker=%s\nlimits=%s\n%s\n" "$source_mount" "$source_options" "$output_mount" "$output_options" "$timer" "$worker_timer" "$worker_timer_enabled" "$worker" "$limits" "$status"
+        printf "source_mount=%s\nsource_options=%s\noutput_mount=%s\noutput_options=%s\ntimer=%s\nscheduler_timer=%s\nscheduler_timer_enabled=%s\nlegacy_worker_timer=%s\nlegacy_worker_timer_enabled=%s\nworker=%s\nlimits=%s\n%s\n" "$source_mount" "$source_options" "$output_mount" "$output_options" "$timer" "$scheduler_timer" "$scheduler_timer_enabled" "$legacy_worker_timer" "$legacy_worker_timer_enabled" "$worker" "$limits" "$status"
     ')"; then
         warn "Unable to check EPUB narration compiler"
         return
@@ -615,9 +618,12 @@ print("status_age="+str(max(0,int(time.time()-p.stat().st_mtime))))'\'' 2>/dev/n
          [[ ! "$source_count" =~ ^[1-9][0-9]*$ ]] ||
          [[ ! "$status_age" =~ ^[0-9]+$ ]] || (( status_age > 172800 )); then
         fail "EPUB narration monitor is disabled, stale or invalid"
-    elif ! grep -qx 'worker_timer=active' <<< "$state" ||
-         ! grep -qx 'worker_timer_enabled=enabled' <<< "$state"; then
-        fail "EPUB narration worker automation is disabled"
+    elif ! grep -qx 'scheduler_timer=active' <<< "$state" ||
+         ! grep -qx 'scheduler_timer_enabled=enabled' <<< "$state"; then
+        fail "EPUB narration Lab Hours scheduler is disabled"
+    elif ! grep -qx 'legacy_worker_timer=inactive' <<< "$state" ||
+         ! grep -qx 'legacy_worker_timer_enabled=disabled' <<< "$state"; then
+        fail "EPUB narration legacy ungated worker timer is unexpectedly enabled"
     elif ! grep -qx 'limits=4s,4294967296,15,3,' <<< "$state"; then
         fail "EPUB narration worker resource controls drifted"
     elif [[ ! "$queued" =~ ^[0-9]+$ || ! "$active" =~ ^[0-9]+$ || ! "$ready" =~ ^[0-9]+$ || ! "$failed" =~ ^[0-9]+$ ]]; then
@@ -712,7 +718,9 @@ check_bazarr() {
     local state
     if ! state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 truenas '
         container="$(docker inspect -f "{{.State.Status}}" bazarr 2>/dev/null || true)"
-        http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1:6767/ 2>/dev/null || true)"
+        # Bazarr is deliberately published only on the TrueNAS LAN address,
+        # not on loopback. Probe the actual bound endpoint from the host.
+        http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://192.168.20.40:6767/ 2>/dev/null || true)"
         policy="$(python3 - <<"PY"
 import yaml
 try:

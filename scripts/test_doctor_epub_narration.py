@@ -37,8 +37,10 @@ fail() { printf 'FAIL %s\n' "$1"; }
             "output_mount": "192.168.20.40:/mnt/Media/AsterReader",
             "output_options": "rw,nosuid,nodev,noexec",
             "timer": "active",
-            "worker_timer": "active",
-            "worker_timer_enabled": "enabled",
+            "scheduler_timer": "active",
+            "scheduler_timer_enabled": "enabled",
+            "legacy_worker_timer": "inactive",
+            "legacy_worker_timer_enabled": "disabled",
             "worker": "inactive",
             "limits": "4s,4294967296,15,3,",
             "monitor_state": "healthy",
@@ -52,13 +54,19 @@ fail() { printf 'FAIL %s\n' "$1"; }
         values.update(changes)
         return "\n".join(f"{key}={value}" for key, value in values.items())
 
-    def test_accepts_healthy_monitor_with_scheduled_worker(self):
+    def test_accepts_healthy_monitor_with_lab_hours_scheduler(self):
         self.assertIn("PASS EPUB narration monitor healthy", self.run_check(self.fixture()))
 
-    def test_rejects_disabled_worker_automation(self):
+    def test_rejects_disabled_lab_hours_scheduler(self):
         self.assertIn(
-            "FAIL EPUB narration worker automation is disabled",
-            self.run_check(self.fixture(worker_timer="inactive", worker_timer_enabled="disabled")),
+            "FAIL EPUB narration Lab Hours scheduler is disabled",
+            self.run_check(self.fixture(scheduler_timer="inactive", scheduler_timer_enabled="disabled")),
+        )
+
+    def test_rejects_reenabled_legacy_ungated_timer(self):
+        self.assertIn(
+            "FAIL EPUB narration legacy ungated worker timer is unexpectedly enabled",
+            self.run_check(self.fixture(legacy_worker_timer="active", legacy_worker_timer_enabled="enabled")),
         )
 
     def test_rejects_stale_status(self):
