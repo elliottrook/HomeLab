@@ -20,10 +20,18 @@ grant is bound to the observed target digest and permits at most one atomic
 replacement. Expiry, reuse, target drift, checkpoint drift, symlink following,
 unsafe paths and automatic retry all fail closed.
 
-Four focused synthetic tests pass. Their output is preflight eligibility only;
+Four focused synthetic plan/admission tests pass. Their output is preflight eligibility only;
 the fixture names no real host or file and performs no repair. No production
 target, checkpoint, approval, grant, mutation, restart, deployment, authority
 or routing change exists.
+
+The terminal reconciler is also source-complete. It binds the exact plan,
+admission, checkpoint and retained terminal bytes and permits only four
+internally consistent outcomes: complete, pre-effect NO-GO, rolled back or
+uncertain. Complete requires exactly one effect, exact desired final bytes and
+all three fixed postchecks true. A failed postcheck cannot pass without an
+exact rollback; uncertainty always requires manual reconciliation and never
+authorizes retry. The combined SA4 source suite passes 9/9.
 
 ## Remaining gate
 
