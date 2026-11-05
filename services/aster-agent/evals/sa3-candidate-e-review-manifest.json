@@ -3,6 +3,7 @@
   "candidate_id": "sa3-current-proposal-candidate-e",
   "candidate_source_commit": "73901010",
   "packet_freeze_commit": "8d1cfb2a",
+  "review_package_commit": "7d3d3508",
   "files": {
     "services/aster-agent/sysadmin_proposal_boundary.py": "121d61c12c2f33368176ec35bcc0047f075c1d21d4640749658bf509fce813ff",
     "services/aster-agent/sysadmin_proposal_transport.py": "9b4d98df78c69e360e2f59544a47152c7eefc58bcad7f33e74e917158c24e4fa",
