@@ -1,0 +1,73 @@
+{
+  "acceptance": [
+    "identity",
+    "1080p-playback",
+    "stereo-output",
+    "remote-navigation",
+    "restart",
+    "rollback",
+    "network-denial"
+  ],
+  "blockers": [
+    "hardware-capability-measurement",
+    "netbox-address-or-vlan-allocation",
+    "physical-chain-registration"
+  ],
+  "device_id": "astertv-guest",
+  "home_assistant_plan": {
+    "control_allowlist": [],
+    "default_control": "deny",
+    "exposed_capabilities": [
+      "media_state",
+      "remote_navigation"
+    ],
+    "room_ref": "ha-area:guest-room"
+  },
+  "kind": "astertv-onboarding-plan",
+  "mutation_authorized": false,
+  "netbox_plan": {
+    "address_ref": "netbox:pending-ip-allocation",
+    "device": "AsterTV-GuestRoom",
+    "display_chain_ref": "pending-physical-chain",
+    "mac_ref": "pending-netbox-interface",
+    "power_ref": "pending-outlet-and-recovery-label",
+    "room": "Guest room",
+    "serial_ref": "pending-physical-inventory",
+    "vlan_ref": "netbox:pending-astertv-client-vlan"
+  },
+  "network_plan": {
+    "default": "deny",
+    "flows": [
+      {
+        "destination_ref": "service:aster-remote-gateway",
+        "port": 8787,
+        "protocol": "tcp",
+        "purpose": "Aster Remote"
+      },
+      {
+        "destination_ref": "service:jellyfin",
+        "port": 8096,
+        "protocol": "tcp",
+        "purpose": "Jellyfin client"
+      }
+    ]
+  },
+  "operator_sequence": [
+    "resolve-blockers",
+    "review-generated-diff",
+    "obtain-effect-authorization",
+    "apply-one-authority-at-a-time",
+    "run-allow-deny-tests",
+    "capture-evidence",
+    "promote-lifecycle-separately"
+  ],
+  "ready_for_effects": false,
+  "recovery": [
+    "retain-old-path",
+    "checkpoint-before-effects",
+    "prove-local-console",
+    "prove-rollback-without-wiki"
+  ],
+  "schema_version": 1,
+  "source_lifecycle": "candidate"
+}

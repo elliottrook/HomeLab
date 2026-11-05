@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-onboarding-request",
+  "device_id": "astertv-guest",
+  "hardware": {
+    "serial_ref": "pending-physical-inventory",
+    "mac_ref": "pending-netbox-interface",
+    "measured_capabilities": ["pending-1080p", "pending-audio"]
+  },
+  "placement": {
+    "room": "Guest room",
+    "display_chain_ref": "pending-physical-chain",
+    "power_ref": "pending-outlet-and-recovery-label"
+  },
+  "network": {
+    "vlan_ref": "netbox:pending-astertv-client-vlan",
+    "address_ref": "netbox:pending-ip-allocation",
+    "required_flows": [
+      {"purpose": "Jellyfin client", "destination_ref": "service:jellyfin", "protocol": "tcp", "port": 8096},
+      {"purpose": "Aster Remote", "destination_ref": "service:aster-remote-gateway", "protocol": "tcp", "port": 8787}
+    ]
+  },
+  "home_assistant": {
+    "room_ref": "ha-area:guest-room",
+    "capabilities": ["media_state", "remote_navigation"],
+    "control_allowlist": []
+  },
+  "acceptance": ["identity", "1080p-playback", "stereo-output", "remote-navigation", "restart", "rollback", "network-denial"]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-lifecycle-workflows",
+  "workflows": {
+    "replacement": ["preserve-old-composition", "register-new-hardware", "measure-capability", "compile-candidate", "prove-recovery", "owner-accept", "retire-old-hardware"],
+    "credential-rotation": ["identify-custodian", "issue-parallel-credential", "test-least-privilege", "switch-one-client", "observe", "revoke-old", "record-evidence"],
+    "retirement": ["owner-confirm", "remove-service-authority", "revoke-credentials", "remove-network-paths", "archive-evidence", "secure-wipe", "mark-netbox-retired"],
+    "eol-review": ["support-status", "security-status", "performance-budget", "spares", "replacement-plan", "decision-record"]
+  },
+  "physical_confirmation_required": ["retirement", "secure-wipe", "cable-removal"],
+  "destructive_actions_implemented": false
+}
