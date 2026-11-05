@@ -2,7 +2,7 @@ import copy
 import json
 import unittest
 
-from sa3_evidence_matrix_candidate_j_quality_freeze import build
+from sa3_evidence_matrix_candidate_j_quality_freeze import build, canonical
 from sa3_evidence_matrix_candidate_j_quality_reconciliation import reconcile
 from sa3_evidence_matrix_candidate_j_quality_runtime import run_quality
 
@@ -35,8 +35,8 @@ class CandidateJQualityReconciliationTests(unittest.TestCase):
                                   model="hidden-model", monotonic=monotonic)
 
     def test_complete_gate_is_only_blind_review_eligible(self):
-        summary = reconcile(BOOKING, terminal(), self.packet,
-                            self.keys, self.result)
+        summary = reconcile(BOOKING, canonical(terminal()), self.packet,
+                            self.keys, canonical(self.result))
         self.assertEqual(20, summary["case_count"])
         self.assertEqual(14, summary["model_request_count"])
         self.assertEqual(6, summary["deterministic_abstentions"])
@@ -53,13 +53,27 @@ class CandidateJQualityReconciliationTests(unittest.TestCase):
                                ("workload", "other")):
             value = copy.deepcopy(terminal()); value[field] = changed
             with self.subTest(field=field), self.assertRaises(ValueError):
-                reconcile(BOOKING, value, self.packet, self.keys, self.result)
+                reconcile(BOOKING, canonical(value), self.packet, self.keys,
+                          canonical(self.result))
 
     def test_quality_regression_fails_closed(self):
         value = copy.deepcopy(self.result)
         value["predictions"][0]["summary"] = "Possible cause."
         with self.assertRaisesRegex(ValueError, "quality gate"):
-            reconcile(BOOKING, terminal(), self.packet, self.keys, value)
+            reconcile(BOOKING, canonical(terminal()), self.packet, self.keys,
+                      canonical(value))
+
+    def test_strict_prediction_and_duplicate_json_fail_closed(self):
+        value = copy.deepcopy(self.result)
+        value["predictions"][0]["prose_source"] = "changed"
+        with self.assertRaisesRegex(ValueError, "prediction"):
+            reconcile(BOOKING, canonical(terminal()), self.packet, self.keys,
+                      canonical(value))
+        duplicate = canonical(terminal()).replace(
+            b'"state":"complete"', b'"state":"complete","state":"complete"')
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            reconcile(BOOKING, duplicate, self.packet, self.keys,
+                      canonical(self.result))
 
 
 if __name__ == "__main__":

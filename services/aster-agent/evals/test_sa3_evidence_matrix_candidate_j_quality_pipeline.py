@@ -3,7 +3,7 @@ import unittest
 
 from sa3_evidence_matrix_candidate_j_quality_blind_review import RUBRIC
 from sa3_evidence_matrix_candidate_j_quality_decision import decide
-from sa3_evidence_matrix_candidate_j_quality_freeze import build
+from sa3_evidence_matrix_candidate_j_quality_freeze import build, canonical
 from sa3_evidence_matrix_candidate_j_quality_reconciliation import reconcile
 from sa3_evidence_matrix_candidate_j_quality_review_handoff import build_handoff
 from sa3_evidence_matrix_candidate_j_quality_runtime import run_quality
@@ -33,7 +33,8 @@ class CandidateJQualityPipelineTests(unittest.TestCase):
             "workload": "sa3-evidence-matrix-candidate-j-quality-v1",
             "production_restored": True,
         }
-        reconciled = reconcile(BOOKING, terminal, packet, keys, result)
+        reconciled = reconcile(BOOKING, canonical(terminal), packet, keys,
+                               canonical(result))
         handoff = build_handoff(packet, result)
         responses = []
         for number in range(3):
@@ -43,12 +44,15 @@ class CandidateJQualityPipelineTests(unittest.TestCase):
                 row["judgments"] = dict.fromkeys(RUBRIC, True)
             responses.append(response)
         decision = decide(packet, keys, result, responses)
-        candidate = release(decision)
+        candidate = release(decision, reconciled)
         self.assertTrue(reconciled["deterministic_gate_met"])
         self.assertTrue(decision["quality_gate_met"])
         self.assertEqual("ready-for-owner-D4-release-review",
                          candidate["candidate_status"])
         self.assertFalse(candidate["deployment_authorized"])
+        self.assertEqual(BOOKING, candidate["booking_id"])
+        self.assertEqual(reconciled["result_file_sha256"],
+                         candidate["result_file_sha256"])
         self.assertEqual("none", candidate["authority"])
         self.assertEqual("off", candidate["automatic_routing"])
         self.assertNotIn("hidden-model", json.dumps(candidate))

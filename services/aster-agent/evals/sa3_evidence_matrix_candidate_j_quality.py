@@ -4,37 +4,12 @@ from __future__ import annotations
 from sa3_evidence_matrix_candidate_j_quality_freeze import (
     canonical, validate,
 )
-from sa3_evidence_matrix_candidate_j_quality_runtime import (
-    PREDICTION_FIELDS, run_quality,
-)
+from sa3_evidence_matrix_candidate_j_quality_result_contract import prediction_index
 
 
 def score_result(packet, keys, result):
-    freeze = validate(packet, keys)
-    required = {"schema", "candidate_alias", "model", "packet_id",
-                "packet_sha256", "case_count", "model_request_count",
-                "retry_count", "predictions", "errors", "authority",
-                "automatic_routing"}
-    if (not isinstance(result, dict) or set(result) != required
-            or result["schema"] != "aster-sa3-evidence-matrix-quality-result.v1"
-            or result["candidate_alias"] != "candidate-j"
-            or not isinstance(result["model"], str) or not result["model"]
-            or result["packet_id"] != freeze["packet_id"]
-            or result["packet_sha256"] != freeze["packet_sha256"]
-            or result["case_count"] != 20
-            or result["model_request_count"] != 14
-            or result["retry_count"] != 0 or result["errors"] != []
-            or result["authority"] != "none"
-            or result["automatic_routing"] != "off"
-            or not isinstance(result["predictions"], list)
-            or len(result["predictions"]) != 20):
-        raise ValueError("candidate-j quality result is ineligible")
-    rows = {}
-    for row in result["predictions"]:
-        if (not isinstance(row, dict) or frozenset(row) != PREDICTION_FIELDS
-                or not isinstance(row.get("id"), str) or row["id"] in rows):
-            raise ValueError("candidate-j quality prediction is invalid")
-        rows[row["id"]] = row
+    validate(packet, keys)
+    rows = prediction_index(result)
     answer_keys = {row["id"]: row for row in keys["case_answer_keys"]}
     if set(rows) != set(answer_keys):
         raise ValueError("candidate-j quality identities differ")

@@ -56,7 +56,8 @@ class CandidateJQualityBlindReviewTests(unittest.TestCase):
         pending = complete(packet); pending["reviews"][0]["judgments"]["scope"] = None
         duplicate = complete(packet); duplicate["reviews"][1]["id"] = duplicate["reviews"][0]["id"]
         exposed = complete(packet); exposed["model_blind"] = False
-        for value in (pending, duplicate, exposed):
+        padded_reviewer = complete(packet); padded_reviewer["reviewer"] = " reviewer "
+        for value in (pending, duplicate, exposed, padded_reviewer):
             with self.subTest(), self.assertRaises(ValueError):
                 blind.validate_review(packet, value)
 

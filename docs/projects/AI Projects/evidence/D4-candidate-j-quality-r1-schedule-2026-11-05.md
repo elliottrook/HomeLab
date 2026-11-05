@@ -107,3 +107,27 @@ conservative decision and bounded owner-review release packet. It reaches only
 `ready-for-owner-D4-release-review`, retains authority `none` and routing
 `off`, excludes model identity and leaves deployment false. The complete
 Candidate-J suite therefore passes 50/50 end to end before the live result.
+
+## Independent release-path audit and correction
+
+An independent agent audit found two pre-run release-chain gaps. The scorer
+accepted fewer prediction invariants than the blind handoff, and the owner
+release packet consumed the quality decision without binding the exact booked
+terminal reconciliation. Both are corrected before the live result exists.
+
+One shared strict result contract now validates every prediction field,
+transport/abstention count, deterministic prose source, model binding, finite
+latency and zero-error/effect boundary for both scoring and review. Duplicate
+JSON keys fail closed in the file-oriented reconciliation, handoff, decision
+and release paths. The reconciliation now hashes the exact retained terminal
+and result file bytes. The owner release packet requires that reconciliation,
+binds its booking ID and digest, and requires the same canonical result digest
+as the three-reviewer decision. Review and artifact digests must be canonical
+64-hex values and the three review-response digests must be distinct.
+
+Reviewer names must be canonical non-whitespace strings. The decision now
+states the accurate assurance level:
+`separate-execution-not-authenticated-custody`. Candidate-J review uses three
+separately invoked model-blind review passes; it does not claim the stronger
+externally authenticated custody required by private M3 corpus governance.
+The corrected complete Candidate-J suite passes 52/52.

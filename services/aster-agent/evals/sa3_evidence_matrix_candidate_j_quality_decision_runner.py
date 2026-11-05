@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from sa3_evidence_matrix_candidate_j_quality_decision import decide
+from sa3_evidence_matrix_candidate_j_quality_result_contract import decode_unique
 
 
 def run(packet_path: Path, keys_path: Path, result_path: Path,
@@ -13,10 +14,10 @@ def run(packet_path: Path, keys_path: Path, result_path: Path,
     if len(review_paths) != 3:
         raise ValueError("exactly three review files required")
     return decide(
-        json.loads(packet_path.read_text(encoding="utf-8")),
-        json.loads(keys_path.read_text(encoding="utf-8")),
-        json.loads(result_path.read_text(encoding="utf-8")),
-        [json.loads(path.read_text(encoding="utf-8")) for path in review_paths],
+        decode_unique(packet_path.read_bytes()),
+        decode_unique(keys_path.read_bytes()),
+        decode_unique(result_path.read_bytes()),
+        [decode_unique(path.read_bytes()) for path in review_paths],
     )
 
 

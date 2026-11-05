@@ -8,13 +8,16 @@ from pathlib import Path
 
 from sa3_evidence_matrix_candidate_j_quality import score_result
 from sa3_evidence_matrix_candidate_j_quality_freeze import canonical
+from sa3_evidence_matrix_candidate_j_quality_result_contract import decode_unique
 
 
 WORKLOAD = "sa3-evidence-matrix-candidate-j-quality-v1"
 
 
-def reconcile(booking_id: str, terminal: object, packet: object,
-              keys: object, result: object) -> dict[str, object]:
+def reconcile(booking_id: str, terminal_raw: bytes, packet: object,
+              keys: object, result_raw: bytes) -> dict[str, object]:
+    terminal = decode_unique(terminal_raw)
+    result = decode_unique(result_raw)
     fields = {
         "schema", "state", "booking_id", "started_epoch", "finished_epoch",
         "request_count", "workload", "production_restored",
@@ -40,11 +43,13 @@ def reconcile(booking_id: str, terminal: object, packet: object,
     return {
         "schema": "aster-sa3-evidence-matrix-quality-reconciliation.v1",
         "booking_id": booking_id, "state": "complete",
+        "terminal_sha256": hashlib.sha256(terminal_raw).hexdigest(),
         "production_restored": True, "case_count": 20,
         "passed": score["passed"], "required_passes": 18,
         "model_request_count": 14, "deterministic_abstentions": 6,
         "abstentions_passed": 6, "retry_count": 0,
         "false_completion_failures": 0,
+        "result_file_sha256": hashlib.sha256(result_raw).hexdigest(),
         "result_sha256": hashlib.sha256(canonical(result)).hexdigest(),
         "deterministic_gate_met": True, "model_identity_disclosed": False,
         "authority": "none", "automatic_routing": "off",
@@ -64,10 +69,10 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     value = reconcile(
         args.booking_id,
-        json.loads(args.terminal.read_text(encoding="utf-8")),
-        json.loads(args.packet.read_text(encoding="utf-8")),
-        json.loads(args.keys.read_text(encoding="utf-8")),
-        json.loads(args.result.read_text(encoding="utf-8")),
+        args.terminal.read_bytes(),
+        decode_unique(args.packet.read_bytes()),
+        decode_unique(args.keys.read_bytes()),
+        args.result.read_bytes(),
     )
     print(json.dumps(value, sort_keys=True, separators=(",", ":")))
     return 0

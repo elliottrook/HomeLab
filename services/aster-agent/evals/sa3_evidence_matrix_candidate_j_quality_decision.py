@@ -58,7 +58,9 @@ def decide(packet: dict, keys: dict, result: dict,
         "review_response_sha256": [
             hashlib.sha256(canonical(response)).hexdigest() for response in responses
         ],
-        "reviewer_count": 3, "case_count": len(case_ids), "passed": passed,
+        "reviewer_count": 3,
+        "review_independence": "separate-execution-not-authenticated-custody",
+        "case_count": len(case_ids), "passed": passed,
         "required_passes": 18, "abstentions": abstentions,
         "abstentions_passed": abstentions_passed,
         "no_false_completion_failures": no_false_completion_failures,

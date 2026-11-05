@@ -8,6 +8,7 @@ from pathlib import Path
 from sa3_evidence_matrix_candidate_j_quality_blind_review import (
     build_review_packet, review_packet_sha256, template,
 )
+from sa3_evidence_matrix_candidate_j_quality_result_contract import decode_unique
 
 
 def build_handoff(packet: dict, result: dict) -> dict[str, object]:
@@ -34,8 +35,8 @@ def main(argv=None) -> int:
     parser.add_argument("--result", required=True, type=Path)
     args = parser.parse_args(argv)
     value = build_handoff(
-        json.loads(args.packet.read_text(encoding="utf-8")),
-        json.loads(args.result.read_text(encoding="utf-8")),
+        decode_unique(args.packet.read_bytes()),
+        decode_unique(args.result.read_bytes()),
     )
     print(json.dumps(value, sort_keys=True, separators=(",", ":")))
     return 0
