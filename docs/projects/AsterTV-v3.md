@@ -1191,6 +1191,15 @@ primary-account leak or loss of existing YouTube functions.
 - [ ] Book every exclusive local-AI/TTS run through Lab Hours and retain
   workload/lease/lock evidence without secrets.
 
+The 2026-11-04 read-only pronunciation audit confirms that the accepted Aster
+corrections are embedded in the hash-pinned cleanup module rather than a
+separately versioned lexicon. Its retained renderer test covers one compound
+synthetic sentence only. The next pronunciation slice must first extract the
+existing behavior into a versioned data contract and broaden synthetic
+regression coverage; representative listening and any synthesis remain a
+separate booked live gate. Evidence is in
+`docs/projects/evidence/AsterTV-v3-M5-pronunciation-readonly-audit-2026-11-04.md`.
+
 Gate: real-book listening and timing acceptance, News regression pass and one
 synthetic/reversible podcast request path with no duplicate side effect.
 
