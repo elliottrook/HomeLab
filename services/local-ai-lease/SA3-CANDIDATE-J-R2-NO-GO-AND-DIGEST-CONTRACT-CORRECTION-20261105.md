@@ -34,3 +34,38 @@ manifest entry, retains a distinct root-only rollback checkpoint, requires a
 ready lease with absent shared state/locks and refuses an active candidate-j
 unit. It does not restart a service, call a model, create a booking or infer
 promotion.
+
+## Inactive installation result
+
+The correction installed successfully from platform commit `816791af` with no
+booking, workload effect, model request or service restart. The retained
+root-only checkpoint is
+`/var/lib/local-ai-lab/checkpoints/sa3-candidate-j-digest-r2-20261105`.
+Independent postchecks accepted:
+
+- host and guest wrapper `fc283224…06f4`;
+- host transaction `c2fbcf6b…4108`;
+- derived 41-pin installed manifest `99e41a1e…9fda`;
+- unchanged EPUB adapter `59d47d79…af8c` and transaction `fb4cbcb5…a50`;
+- ready lease and absent lease/shared-operation state and locks;
+- running LXC104/110/116, active Aster Agent, accepted llama.cpp/SYCL and
+  Speech, plus active `pvescheduler` and `pvestatd`.
+
+The bounded temporary host and local stages were removed after verification;
+the rollback checkpoint remains. A new transaction requires its own distinct
+ledger booking and all fresh claim-time gates. R2 remains spent.
+
+## R3 exact booking
+
+The authoritative ledger showed the daily protected B60 reservation at
+03:10–03:55 PST and rejected 04:00 because its recovery reserve still
+overlapped. The complete 04:15–05:00 window returned `clear`. Distinct booking
+`aster-stream-a-sa3-candidate-j-20261105-0415-r3` is now scheduled for that
+exact window with the registered, hash-pinned
+`sa3-evidence-matrix-candidate-j-public-v1` workload.
+
+R3 remains conditional on immediate claim-time ledger recheck, exact installed
+hashes/custody, ready whole-host lease, acquired shared operation lock, absent
+competing work and healthy production. It may run once only. Failure or
+uncertainty retains evidence and restores production without retry; completion
+grants no routing, authority or promotion.
