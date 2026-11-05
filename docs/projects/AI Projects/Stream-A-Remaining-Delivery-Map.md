@@ -98,6 +98,14 @@
 > dispatcher owns the one claim. Continue offline review/reconciliation source
 > work until terminal evidence exists; do not manually invoke or retry it.
 
+> **Candidate-i downstream boundary ready:** the
+> [schema-v2 blind-review, reconciliation and decision path](evidence/D4-candidate-i-blind-review-and-decision-boundary-2026-11-04.md)
+> now passes 33/33 candidate-i tests. It requires a complete 20-row result with
+> 14 requests and six no-transport abstentions, strips model/runtime metadata,
+> and applies the frozen three-reviewer conservative gate. This closes the
+> post-run source pause but does not prejudge R1 or authorize a retry, route or
+> promotion.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
