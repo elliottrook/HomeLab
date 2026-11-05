@@ -63,3 +63,11 @@ investigation release candidate. The approval advances the programme only to
 bounded SA4 supervised-repair-class design. It does not authorize deployment,
 model/backend changes, routing, tools, authority, a production target or a
 repair effect.
+
+The exact content-free [reconciliation](D4-candidate-j-quality-r1-reconciliation-2026-11-05.json),
+three [blind](D4-candidate-j-quality-r1-blind-review-1-2026-11-05.json)
+[review](D4-candidate-j-quality-r1-blind-review-2-2026-11-05.json)
+[responses](D4-candidate-j-quality-r1-blind-review-3-2026-11-05.json),
+[conservative decision](D4-candidate-j-quality-r1-decision-2026-11-05.json)
+and [owner release candidate](D4-candidate-j-quality-r1-owner-release-candidate-2026-11-05.json)
+are retained alongside this narrative evidence.
