@@ -47,6 +47,10 @@ class ReservedRunnerTests(unittest.TestCase):
         spec = runner.workload("sa3-evidence-matrix-candidate-j-public-v1")
         self.assertIn(spec.runner_kind, runner.REGISTERED_RUNNER_KINDS)
 
+    def test_candidate_j_quality_runner_kind_is_admitted(self):
+        spec = runner.workload("sa3-evidence-matrix-candidate-j-quality-v1")
+        self.assertIn(spec.runner_kind, runner.REGISTERED_RUNNER_KINDS)
+
     def test_commands_bind_exact_booking_identity_and_deadline(self):
         booking={"booking_id":"test-booking-01","end_epoch":4600,
                  "workload":"accepted-9b-direct-control-smoke-v1"}

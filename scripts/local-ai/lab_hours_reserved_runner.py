@@ -37,6 +37,7 @@ REGISTERED_RUNNER_KINDS = frozenset({
     "sa3-evidence-envelope-quality",
     "sa3-evidence-envelope-candidate-i-quality",
     "sa3-evidence-matrix-candidate-j-public",
+    "sa3-evidence-matrix-candidate-j-quality",
     "m3-joint-semantic-35b",
 })
 
@@ -272,8 +273,10 @@ def run(booking_id: str) -> int:
                            if spec.runner_kind=="sa3-evidence-envelope-candidate-i-quality" else
                           ("sa3-evidence-matrix-candidate-j-public-complete"
                            if spec.runner_kind=="sa3-evidence-matrix-candidate-j-public" else
+                          ("sa3-evidence-matrix-candidate-j-quality-complete"
+                           if spec.runner_kind=="sa3-evidence-matrix-candidate-j-quality" else
                           ("m3-joint-semantic-public-complete"
-                           if spec.runner_kind=="m3-joint-semantic-35b" else "pilot-complete"))))))
+                           if spec.runner_kind=="m3-joint-semantic-35b" else "pilot-complete")))))))
         receipt_body=receipt.get("receipt")
         receipt_valid=(isinstance(receipt_body,dict)
             and receipt_body.get("exit_status")==0
@@ -292,7 +295,8 @@ def run(booking_id: str) -> int:
                         for c in receipt_body["prediction_sha256"]))
         elif spec.runner_kind in {
                 "sa3-evidence-envelope-quality",
-                "sa3-evidence-envelope-candidate-i-quality"}:
+                "sa3-evidence-envelope-candidate-i-quality",
+                "sa3-evidence-matrix-candidate-j-quality"}:
             receipt_valid=(receipt_valid
                 and set(receipt)=={"effects","production_restored","receipt"}
                 and set(receipt_body)=={"exit_status","profile","request_count",

@@ -183,6 +183,9 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
     elif args.workload_profile == "sa3-evidence-matrix-candidate-j-public-v1":
         from sa3_candidate_j_evidence_matrix_transaction import execute
         from sa3_candidate_j_evidence_matrix_listener_adapter import run as run_sa3_listener
+    elif args.workload_profile == "sa3-evidence-matrix-candidate-j-quality-v1":
+        from sa3_candidate_j_quality_transaction import execute
+        from sa3_candidate_j_quality_listener_adapter import run as run_sa3_listener
     else:
         raise SupervisorError("SA3 workload profile is not registered")
 
@@ -336,6 +339,7 @@ def _parser() -> argparse.ArgumentParser:
         "sa3-evidence-envelope-quality-v1",
         "sa3-evidence-envelope-candidate-i-quality-v1",
         "sa3-evidence-matrix-candidate-j-public-v1",
+        "sa3-evidence-matrix-candidate-j-quality-v1",
         "m3-joint-semantic-35b-public-v1"),
         default="accepted-9b-direct-control-smoke-v1")
     parser.add_argument("--retain-root", default="/var/lib/local-ai-lab/lab-hours-attempts")
@@ -371,7 +375,8 @@ def main(argv: list[str] | None = None) -> int:
                 "sa3-expanded-source-quality-v1",
                 "sa3-evidence-envelope-quality-v1",
                 "sa3-evidence-envelope-candidate-i-quality-v1",
-                "sa3-evidence-matrix-candidate-j-public-v1"}:
+                "sa3-evidence-matrix-candidate-j-public-v1",
+                "sa3-evidence-matrix-candidate-j-quality-v1"}:
             return _run_sa3(args, paths, runner=runner)
         if args.workload_profile == "m3-joint-semantic-35b-public-v1":
             return _run_m3(args, paths, runner=runner)

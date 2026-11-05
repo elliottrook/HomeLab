@@ -393,6 +393,52 @@ class FullInferenceRuntimePilotTests(unittest.TestCase):
         self.assertIn(("listener","lease-j",5,1900),events)
         self.assertIn("restore",events)
 
+    def test_candidate_j_quality_uses_2700_second_key_free_transaction(self):
+        events=[]
+        class Producer:
+            def __init__(self,*a,**k): pass
+            def collect(self,*,cycle,session_start_epoch,lab_seconds):
+                events.append(("collect",lab_seconds))
+                return SimpleNamespace(lab_end_epoch=2800)
+        class Controller:
+            def __init__(self,*a,**k): pass
+            def begin(self,value,*,lab_seconds):
+                events.append(("begin",lab_seconds))
+                return SimpleNamespace(lease_id="lease-jq",generation=6)
+            def heartbeat(self,now): events.append("heartbeat")
+            def restore(self,plan,*,now_epoch,owner_present): events.append("restore")
+        def execute(**kwargs):
+            plan=kwargs["controller"].begin(SimpleNamespace(),lab_seconds=2700)
+            value=kwargs["workload_runner"](
+                heartbeat=kwargs["heartbeat"],deadline_epoch=2800)
+            kwargs["cleanup"](); kwargs["controller"].restore(
+                plan,now_epoch=100,owner_present=True)
+            return {"effects":"sa3-evidence-matrix-candidate-j-quality-complete",
+                    "production_restored":True,"receipt":value}
+        def listener(**kwargs):
+            events.append(("listener",kwargs["lease_id"],kwargs["generation"],
+                           kwargs["deadline_epoch"]))
+            return {"exit_status":0,
+                    "profile":"sa3-evidence-matrix-candidate-j-quality-v1",
+                    "request_count":20,"model_request_count":14,"case_count":20,
+                    "prediction_sha256":"a"*64,"error_count":0}
+        with TemporaryDirectory() as tmp:
+            args=self.args();args.state_root=Path(tmp)/"state";args.retain_root=tmp
+            args.workload_profile="sa3-evidence-matrix-candidate-j-quality-v1"
+            with patch.object(runtime,"LocalProxmoxFullDrainSourceProducer",Producer), \
+                 patch.object(runtime,"LocalProxmoxFullDrainValidator",lambda *a,**k:object()), \
+                 patch.object(runtime,"FullInferenceDrainController",Controller), \
+                 patch.object(runtime,"lab_is_absent",lambda *a,**k:True), \
+                 patch("sa3_candidate_j_quality_transaction.execute",execute), \
+                 patch("sa3_candidate_j_quality_listener_adapter.run",listener):
+                self.assertEqual(runtime._run_sa3(
+                    args,runtime.FullDrainPaths(args.state_root),
+                    runner=lambda *a:(0,""),gpu_users=lambda:frozenset(),
+                    wall_clock=lambda:100),0)
+        self.assertIn(("collect",2700),events)
+        self.assertIn(("listener","lease-jq",6,2800),events)
+        self.assertIn("restore",events)
+
     def test_m3_profile_uses_bounded_2700_second_preflight_and_fixed_transaction(self):
         events=[]
         class Producer:
