@@ -64,3 +64,11 @@ three review files before reading any input, delegates all schema, identity and
 conservative-intersection checks to the frozen decision, emits only the bounded
 content-free decision and keeps promotion explicitly unauthorized. The full
 Candidate-J suite passes 47/47.
+
+A passing decision can now be converted into a bounded owner-review release
+candidate without granting an effect. The builder requires the exact passing
+20-case/three-reviewer decision, all six abstentions and zero false-completion
+failures. Its output recommends only acceptance as the D4 investigation
+release candidate and names bounded SA4 repair-class design as the next
+milestone; owner decision remains required and deployment, authority, routing
+and promotion remain false. The full Candidate-J suite passes 49/49.
