@@ -1,0 +1,48 @@
+{
+  "schema": "aster-tts-pronunciation-corpus.v1",
+  "language": "en-CA",
+  "passages": [
+    {
+      "id": "news",
+      "title": "Synthetic news briefing",
+      "source_class": "synthetic",
+      "targets": ["ordinary news vocabulary", "names", "sentence context"],
+      "text": "Good evening. Provincial officials say the coastal ferry will return to service after crews complete a routine inspection. In Victoria, Maya Chen reported that the revised schedule should reduce delays for commuters and visitors. A separate wildfire update said cooler weather helped crews near Kamloops, although residents were asked to remain prepared. The public record will be updated on Friday, and the minister will present the final plan next week."
+    },
+    {
+      "id": "homographs",
+      "title": "Common homographs in context",
+      "source_class": "synthetic",
+      "targets": ["record", "read", "lead", "live", "close", "minute", "present", "content", "produce"],
+      "text": "Please record the new record after you have read the note I will read aloud. The lead guide will lead the group past the old lead pipe. We live near the studio that will broadcast the concert live. Close the gate when you stand close to it. The minute hand moved after a minute. I will present the present to the chair. The editor was content with the content. Local farms produce fresh produce."
+    },
+    {
+      "id": "names_places",
+      "title": "Canadian names and places",
+      "source_class": "synthetic",
+      "targets": ["British Columbia", "Tsawwassen", "Nanaimo", "Squamish", "David Eby", "Lutron Caseta"],
+      "text": "British Columbia Premier David Eby spoke in Nanaimo before travelling from Tsawwassen through Vancouver. Reporters from Squamish, Chilliwack, Kelowna and Prince George joined the briefing. Jason asked Aster to check whether the Lutron Caseta lights were still on. The assistant confirmed that the Victoria room was quiet and that the Canadian ferry notice had not changed."
+    },
+    {
+      "id": "numbers",
+      "title": "Numbers, money and abbreviations",
+      "source_class": "synthetic",
+      "targets": ["currency", "dates", "percentages", "911", "U.S.", "B.C.", "Roman numerals"],
+      "text": "On November 4, 2026, the B.C. program reported CA$12.75 million in funding and a 3.8 percent increase. The U.S. estimate was $4,250, while phase III remained under review. At 7:15 a.m., dispatchers received a 911 call and sent two crews to 1200 Douglas Street. The report lists 24 rooms, 1,906 responses and a target of 99.5 percent availability."
+    },
+    {
+      "id": "long_sentence",
+      "title": "Long sentence with clause boundaries",
+      "source_class": "synthetic",
+      "targets": ["clause splitting", "context retention", "prosody"],
+      "text": "Although the first forecast suggested a calm afternoon, the operations team kept the shelter open because a narrow band of heavy rain was moving across the island, ferry traffic was already slowing near the terminal, and several rural roads had begun to collect standing water; by early evening, however, the warning had been reduced, the final sailing was expected to leave on time, and officials said the remaining closures would be reviewed before midnight."
+    },
+    {
+      "id": "boundary_context",
+      "title": "Repeated ordinary words across unit boundaries",
+      "source_class": "synthetic",
+      "targets": ["short-unit instability", "repeat determinism", "word-boundary context"],
+      "text": "The council accepted the ordinary recommendation after a careful public discussion. The recommendation described a practical maintenance program for neighbourhood roads, community centres and emergency equipment. Members said the program was reasonable, affordable and ready to begin. After the meeting, the communications director prepared a concise summary for the morning briefing. The summary repeated the recommendation accurately, without changing its meaning or inventing additional details."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "qwen3-tts-0.6b-base-q8-cpu",
+  "engine": "qwentts.cpp-5916bf7",
+  "model": "qwen-talker-0.6b-base-Q8_0.gguf",
+  "codec": "qwen-tokenizer-12hz-Q8_0.gguf",
+  "mode": "base-clone",
+  "backend": "ggml-cpu",
+  "seed": 20261104,
+  "language": "English",
+  "reference": "synthetic-kokoro-bm-daniel",
+  "artifact_pins": {
+    "source_commit": "5916bf7c79dbb4e66fc059cdc507a79a23a28bb4",
+    "ggml_commit": "cc5df49a6b878db2b68b9a7b45976e279594627d",
+    "hf_revision": "b7ee2e8c7459c3bea99da23e3d178125a7d1713c",
+    "binary_sha256": "aea3907bfda5c95763e0e53c48d09602c83cac80858eb673aa67f71923aefba6",
+    "model_sha256": "d54dbaf10591421fa764ed630d764efa717ae40cd959bd48c66d4eb1af226426",
+    "codec_sha256": "1883beeed99348fc35e23dd225e9082f93f6f8c109330a33d935baa8acdbfd94",
+    "reference_wav_sha256": "1b026d7883793e7eb75f384629101a8a7994dda341719dc6ebd090319cae8e39",
+    "reference_text_sha256": "3b51c819ae7bd04bdf13c8a9183696f76ba77cce04ddcbb02d024927944e6733"
+  }
+}
