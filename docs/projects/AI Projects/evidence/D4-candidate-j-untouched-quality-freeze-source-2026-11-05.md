@@ -23,11 +23,15 @@ The source validator reports:
 - model calls authorized: false.
 
 The packet identity is explicitly distinct from the spent Candidate-G,
-Candidate-I and Candidate-J public fixtures. The combined Candidate-J quality,
-reconciliation, public, batch, runner, contract and source-freeze suite passes
-24/24.
+Candidate-I and Candidate-J public fixtures. The exact no-retry quality batch
+and deterministic scorer are now also source-complete. They require 20 rows,
+exactly 14 model requests, six no-transport abstentions, zero retries, errors
+or effects and the frozen packet identity. The scorer requires at least 18/20
+deterministic passes, all six abstentions and zero false-completion failures;
+it cannot make the later three-reviewer semantic decision. The combined suite
+passes 27/27.
 
-Next is an independent source review and a model-identity-blind result/reviewer
+Next is an independent source review and a model-identity-blind reviewer/
 decision contract fixed before any execution. Only after those offline gates
 pass may the packet and keys be materialized into separate custody, registered
 as a new hash-pinned workload and considered for one booked run. The frozen

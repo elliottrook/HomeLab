@@ -15,7 +15,8 @@
 > [20-case boundary](evidence/D4-candidate-j-untouched-quality-freeze-source-2026-11-05.md)
 > now fixes 14 future hypothesis-selection requests and six mandatory
 > no-transport abstentions. Packet identity is `bdc0d351…db36c`, key identity
-> is `cab2790d…d526`, and the combined suite passes 24/24. Nothing has executed.
+> is `cab2790d…d526`, and the exact no-retry batch plus deterministic scorer
+> are source-complete; the combined suite passes 27/27. Nothing has executed.
 > Independent source review and a frozen model-blind decision path are next;
 > materialization, registration and any booked run remain later gates.
 
