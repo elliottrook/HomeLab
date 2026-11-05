@@ -200,6 +200,19 @@
 > source tests now pass 20/20, so reconciliation need not pause for new source
 > after R3 reaches a terminal state.
 
+> **Candidate-j R3 transaction pass / overall NO-GO, 2026-11-05 05:05:** the
+> [distinct transaction](evidence/D4-candidate-j-r3-transaction-pass-postcheck-no-go-2026-11-05.md)
+> claimed exactly and completed restored in 224 seconds. Independent scoring
+> accepted 6/6 cases, two model requests, four deterministic abstentions and
+> zero retries/errors/effects. Lease, locks, Candidate-J process and core
+> production postchecks pass. The exact-cycle gate is still NO-GO because the
+> required EPUB scheduler timer is disabled/inactive and its service is failed;
+> that state predates R3 and the separate 01:00 EPUB ladder also failed
+> `worker-not-active`. R3 is spent and is not retried. The EPUB owner must
+> restore and evidence its scheduler/worker before Stream A decides whether a
+> new distinct Candidate-J transaction is justified; no untouched evaluation
+> or promotion follows from this run.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
