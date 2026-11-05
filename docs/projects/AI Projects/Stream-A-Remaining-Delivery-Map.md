@@ -482,7 +482,9 @@ tests. They now also pin the 11 tensor shapes/order, explicit Xavier fan values,
 zero biases and the 46,848-value initialization replay digest; the recipe binds
 that exact source. A portable reference forward path fixes byte lookup,
 cross-correlation, pooling, hidden/output layers, stable ties and softmax, with
-a sparse end-to-end layout test. The source suite passes 80/80. No
+a sparse end-to-end layout test. Validation-only selection fixes all 40 epoch
+tie-breaks and the 0.005 threshold grid, requires at least 116 raw/guard-exact
+accepted rows, and excludes sealed evaluation. The source suite passes 84/84. No
 corpus/evaluation content, training step or retained model artifact is consumed
 or created.
 

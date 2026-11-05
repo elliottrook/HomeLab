@@ -98,7 +98,8 @@
     "reference_forward_source_sha256": "8e972ae5b661e0c73815e7e1a49674cff421f9a8d960804b3cce395e46ca9a8e",
     "reference_primitives_source_sha256": "b42583072ae2e5a21e66284fea80cf3f41a0bf036a9aec1ef5c7d32b73c2df61",
     "route_effects": "forbidden",
-    "tools": "forbidden"
+    "tools": "forbidden",
+    "validation_selection_source_sha256": "e1f69f8f800882c035d94c7bb991668971d640c4c45828ab771cb0066a1fb2ba"
   },
   "schema": "aster-nlu-j2-training-recipe-manifest.v1",
   "status": "source-only-not-trained",

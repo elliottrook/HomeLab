@@ -74,8 +74,12 @@ biases and a 46,848-value initialization replay digest
 lookup, odd-width same-zero cross-correlation, ReLU/global max pooling, hidden
 and output layers, stable label tie-breaking and max-shifted softmax. A sparse
 path test fixes the weight layouts end to end. The recipe manifest binds both
-reference sources and those semantics; its current file identity is
-`71cb32f9…7f6c`. The expanded J2 source suite passes 80/80. No training step,
+reference sources and those semantics. Deterministic validation-only selection
+now implements all 40 epoch tie-breaks and the 0.005 margin grid, admitting a
+threshold only when at least 116 accepted rows are both raw- and guard-exact;
+sealed evaluation inputs are absent. The recipe binds that source too, and its
+current file identity is `3c3de3a4…a099`. The expanded J2 source suite passes
+84/84. No training step,
 corpus row, evaluation content or retained model artifact is created.
 
 The future artifact boundary is now executable source rather than prose. It
