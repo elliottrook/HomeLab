@@ -58,3 +58,9 @@ only the complete frozen result shape, emits the bound 20-case review packet
 and empty review template, requires three distinct reviewers, and excludes the
 result's model/backend identity. Incomplete output fails closed. With this
 handoff included, the complete Candidate-J suite passes 45/45.
+
+The frozen decision now also has a file-oriented runner. It requires exactly
+three review files before reading any input, delegates all schema, identity and
+conservative-intersection checks to the frozen decision, emits only the bounded
+content-free decision and keeps promotion explicitly unauthorized. The full
+Candidate-J suite passes 47/47.
