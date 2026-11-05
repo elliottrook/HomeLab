@@ -624,13 +624,14 @@ hash-bound design authority and synthetic reference library but still needs
 owner visual acceptance. M4 has deterministic plan-only SBOM, compatibility,
 performance and composition-guard foundations; the immutable v2.0.7 archive is
 locally hash-verified and synthetic interrupted promotion/rollback is proven,
-M4 now builds deterministic hash-bound candidate appliance bundles. Ten
+M4 now builds deterministic hash-bound candidate appliance bundles. Eleven
 overlays have complete contracts, including target-aware release guard, Remote,
 Bedroom Wi-Fi/audio, Family restart/audio and the reconciled 12-file TV-details
 tree, target-specific current News playback outputs, and Family media lifecycle
-with hash-pinned Intro Skipper external state, plus the assertion-bound Family
-equipment bridge. Bedroom and Family have no overlay blocker; this is release
-eligibility only and did not deploy either. Jen remains blocked by eight, and Guest
+with hash-pinned Intro Skipper external state, the assertion-bound Family
+equipment bridge, and Jen's immutable account registry with mutable identity
+state excluded. Bedroom and Family have no overlay blocker; this is release
+eligibility only and did not deploy either. Jen remains blocked by seven, and Guest
 remains a non-deployed candidate. M5's Guest fixture fails closed on unresolved physical and
 NetBox facts. Both M6 skills are installed from a hash manifest and passed
 independent effect-free forward tests. No published wiki, Aster mirror or live
@@ -656,7 +657,7 @@ migration.
 | 2026-11-05 | Built and validated the additive M2 HomeLab Wiki candidate | Local `homelab-wiki` commit `1fdcf6a`; `docs/projects/evidence/AsterTV-Platform-M2-wiki-candidate-2026-11-05.md`; two pinned intake sources | 25 pages, 3/3 tests and real bounded source fetches pass; human acceptance/push/LXC publication/mirror remain pending; no live system changed |
 | 2026-11-05 | Built M3–M6 platform foundations | `docs/projects/evidence/AsterTV-Platform-M3-M6-foundations-2026-11-05.md`; design, release-plan, onboarding and skill packages | Hash-bound design assets and fixtures, plan-only SBOM/guards, least-privilege Guest planning and two independently tested skills; no appliance/wiki publication |
 | 2026-11-05 | Verified the immutable base and transaction recovery | v2.0.7 archive hash, 17/17 fleet/release tests, synthetic interruption and rollback fixture | All plans now prove the base artifact; deployment remains blocked until every overlay declares exact payload paths/hashes and guard/Doctor integration is complete |
-| 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 31/31 fleet/release tests | Four byte-stable candidate bundles build; ten contracts are complete; Bedroom and Family are eligible but not deployed; all eight remaining incomplete contracts are Jen-specific |
+| 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 32/32 fleet/release tests | Eleven contracts are complete; Bedroom and Family are eligible but not deployed; Jen's immutable account boundary is materialized and all seven remaining incomplete contracts are Jen-specific |
 
 ## Close-out
 

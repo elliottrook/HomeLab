@@ -9,14 +9,17 @@
   "targets": ["astertv-jen"],
   "owns": ["kodi/astertv-profile-registry", "kodi/profile-capability-policy"],
   "payload_sources": [
-    "services/kodi/astertv-v3/accounts/addon/script.asterprofiles.v3lab",
-    "services/kodi/astertv-v3/accounts/registry.py",
-    "services/kodi/astertv-v3/accounts/access_policy.py",
-    "services/kodi/astertv-v3/accounts/authority.py",
-    "services/kodi/astertv-v3/accounts/identity_resolver.py",
-    "services/kodi/astertv-v3/accounts/keymaps/z-astertv-v3-m2-profile-gate.xml"
+    "services/kodi/astertv-fleet/materialized/jen-account-registry",
+    "services/kodi/astertv-fleet/materialize_jen_account_registry.py"
   ],
-  "payload_blockers": ["mutable-profile-and-authority-state-needs-merge-contract"],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "kodi", "key": "addon.script.asterprofiles.v3lab.enabled", "expected": true, "sensitive": false},
+    {"authority": "kodi", "key": "profile-registry.schema", "expected": 1, "sensitive": false},
+    {"authority": "kodi", "key": "profile-registry.authority-present", "expected": true, "sensitive": false},
+    {"authority": "filesystem", "key": "profile-registry.mutable-state.mode", "expected": "0600", "sensitive": false}
+  ],
   "secret_refs": ["jen-profile-authority"],
   "rollback_ref": "astertv-v3-m2-jen-authority-r9-final-20261104",
   "tests": ["services/kodi/astertv-v3/accounts/test_authority.py"]

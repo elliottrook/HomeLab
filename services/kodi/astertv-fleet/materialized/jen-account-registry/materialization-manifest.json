@@ -1,0 +1,82 @@
+{
+  "files": [
+    {
+      "bytes": 4190,
+      "destination": "/storage/.kodi/addons/script.asterprofiles.v3lab/access_policy.py",
+      "mode": "0644",
+      "sha256": "3572c543852767cd5f94a0f0dee770352278da5ac366db310440c6b9d69ac775"
+    },
+    {
+      "bytes": 757,
+      "destination": "/storage/.kodi/addons/script.asterprofiles.v3lab/addon.xml",
+      "mode": "0644",
+      "sha256": "f6c4e1485605d9a2c23c4302c07d575f889ced38368551973a6e4c94a9733e0a"
+    },
+    {
+      "bytes": 3619,
+      "destination": "/storage/.kodi/addons/script.asterprofiles.v3lab/authority.py",
+      "mode": "0644",
+      "sha256": "72452de8cb95e1c23ab46e280a7b9b23df24a938ddfa331bf826ea7ede9f074c"
+    },
+    {
+      "bytes": 5276,
+      "destination": "/storage/.kodi/addons/script.asterprofiles.v3lab/default.py",
+      "mode": "0644",
+      "sha256": "0ae2757ee1375a67206bf9f5e2da8f251aec7c7ac10baebd2209ad89fd20ab5f"
+    },
+    {
+      "bytes": 7403,
+      "destination": "/storage/.kodi/addons/script.asterprofiles.v3lab/identity_resolver.py",
+      "mode": "0644",
+      "sha256": "131046f36532bac15c2a714f41bc4929c3fcc64f84ec7424318db95b49c0d872"
+    },
+    {
+      "bytes": 8662,
+      "destination": "/storage/.kodi/addons/script.asterprofiles.v3lab/registry.py",
+      "mode": "0644",
+      "sha256": "74b72936fad9d249ada975c04014ddc36ff586206738e260179d363932d54663"
+    },
+    {
+      "bytes": 2079,
+      "destination": "/storage/.kodi/addons/script.asterprofiles.v3lab/service.py",
+      "mode": "0644",
+      "sha256": "b82bd0fa44388eaf8e089b32589c8135c39ae0817a82183dd311a5f0249d225b"
+    },
+    {
+      "bytes": 1354,
+      "destination": "/storage/.kodi/addons/script.asterprofiles.v3lab/synthetic-fixture.json",
+      "mode": "0644",
+      "sha256": "b6eda6809b545b26dbf2d319280cbe6056b88b8fca224f1bc1b26b6376cf8f31"
+    },
+    {
+      "bytes": 654,
+      "destination": "/storage/.kodi/keymaps/z-astertv-v3-m2-profile-gate.xml",
+      "mode": "0644",
+      "sha256": "ee63bc5bc43e010960bc826596fb0feca4a563447ce3389b76f7eacd98cd0de4"
+    }
+  ],
+  "id": "jen-account-registry",
+  "kind": "astertv-materialized-overlay",
+  "mutable_state": [
+    {
+      "bundled": false,
+      "path": "/storage/.kodi/userdata/addon_data/script.asterprofiles.v3lab/profiles.json",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "path": "/storage/.kodi/userdata/addon_data/script.asterprofiles.v3lab/authority.json",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "path": "/storage/.kodi/userdata/profiles.xml",
+      "sensitive": false
+    }
+  ],
+  "renderer": {
+    "path": "services/kodi/astertv-v3/accounts/build_jen_candidate.py",
+    "sha256": "c7c37732b420d1516ae86b7c305bf526185b9ae0a59934e7efd02360b4a0b7da"
+  },
+  "schema_version": 1
+}

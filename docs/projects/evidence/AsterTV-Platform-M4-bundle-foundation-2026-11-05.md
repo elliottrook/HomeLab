@@ -9,10 +9,11 @@ base release and ordered overlay source bytes. The guard contract includes
 expected payload hashes and required external dependencies.
 
 This is deliberately a **candidate build gate**, not a deployment approval.
-Ten overlays now have complete contracts: Family restart, target-aware release
+Eleven overlays now have complete contracts: Family restart, target-aware release
 guard, Bedroom Wi-Fi, Bedroom stereo assertions, Family Dolby/HDR assertions
 the target-aware Remote client, the reconciled TV-details tree, and target-aware
-News playback, Family media lifecycle, and the Family equipment bridge. The other eight
+News playback, Family media lifecycle, the Family equipment bridge, and Jen's
+immutable account-registry code. The other seven
 overlay definitions name their exact current inputs and explicit blockers.
 Plans build successfully; Bedroom is now the first composition eligible for a
 future promotion transaction. No promotion was performed.
@@ -25,14 +26,15 @@ future promotion transaction. No promotion was performed.
   contracts and must never be copied into a public bundle.
 - Intro Skipper lacks the required SHA-256 and provenance record.
 - Jen low-spec setup transforms more than 25 undeclared v2 files.
-- Account, Aster client, Guest and Home installers duplicate payload ownership.
+- Aster client, Guest and Home installers still duplicate payload ownership;
+  the account registry now owns the shared immutable account code explicitly.
 - The accepted remote-client service hash and current source need reconciliation.
 - Shared family-manifest state must remain an assertion/merge surface rather
   than being copied from one appliance over another.
 
 ## Verification
 
-- Fleet/release suite: 31/31 passing, including typed assertion drift and
+- Fleet/release suite: 32/32 passing, including typed assertion drift and
   target isolation.
 - Four deterministic bundles build from the locally verified immutable release.
 - Repeated builds are byte-identical.
@@ -63,15 +65,18 @@ future promotion transaction. No promotion was performed.
 - The Family equipment bridge is a preserve-and-verify external composition:
   exact HA/Agent/Remote recovery sources are bundled, device guard paths exclude
   external hosts, and seven HA/Agent/OPNsense/key assertions carry live state.
+- Jen's account registry materializes nine immutable add-on/keymap files while
+  explicitly excluding mutable profile, authority and credential-bearing state.
+  The remaining Jen overlays must depend on that owner instead of rewriting it.
 - Bedroom and Family have no incomplete overlay contracts and are the two
-  deployable bundle-build plans. Jen remains blocked by eight overlays, and Guest remains a
+  deployable bundle-build plans. Jen remains blocked by seven overlays, and Guest remains a
   non-deployed candidate.
 - Payload and dependency drift tests fail closed.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 
 ## Next
 
-Resolve Jen's duplicated account/client ownership, then materialize its eight
+Resolve the remaining Jen client/feature ownership, then materialize its seven
 remaining overlays. Continue defining typed assertions/external artifacts and
 mutable-state exclusions one overlay at a time. Bedroom/Family eligibility does
 not authorize deployment; both must still pass Doctor observation and later

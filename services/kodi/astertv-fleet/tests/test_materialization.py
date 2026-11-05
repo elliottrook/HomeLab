@@ -29,6 +29,9 @@ MEDIA_SPEC.loader.exec_module(MEDIA_MODULE)
 EQUIPMENT_SPEC = importlib.util.spec_from_file_location("family_equipment_materializer", ROOT / "materialize_family_equipment_bridge.py")
 EQUIPMENT_MODULE = importlib.util.module_from_spec(EQUIPMENT_SPEC)
 EQUIPMENT_SPEC.loader.exec_module(EQUIPMENT_MODULE)
+ACCOUNT_SPEC = importlib.util.spec_from_file_location("jen_account_materializer", ROOT / "materialize_jen_account_registry.py")
+ACCOUNT_MODULE = importlib.util.module_from_spec(ACCOUNT_SPEC)
+ACCOUNT_SPEC.loader.exec_module(ACCOUNT_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -122,6 +125,14 @@ class MaterializationTests(unittest.TestCase):
             EQUIPMENT_MODULE.PINNED["/opt/aster-agent/aster_remote.py"],
         )
         self.assertTrue(all(not row.get("bundled", True) for row in manifest["mutable_state"]))
+
+    def test_jen_account_payload_excludes_mutable_profile_authority(self):
+        files, manifest = ACCOUNT_MODULE.render()
+        self.assertEqual(len(files), 9)
+        self.assertIn("addons/script.asterprofiles.v3lab/registry.py", files)
+        self.assertFalse(any(path.endswith("profiles.json") or path.endswith("authority.json")
+                             for path in files))
+        self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
 
 
 if __name__ == "__main__":

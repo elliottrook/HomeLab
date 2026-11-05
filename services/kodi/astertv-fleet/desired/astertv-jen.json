@@ -1,6 +1,6 @@
 {
   "channel": "v3-lab",
-  "composition_sha256": "c5ada189be7dc498c93be078d361ca4f882cdca47fb9bffe13d0526566d37972",
+  "composition_sha256": "3664525bb7ea1357058049eb925fed0406a2c1505d0f134c1ac43e27f1b0e993",
   "deployed": true,
   "device_id": "astertv-jen",
   "external_integrations": [
@@ -155,44 +155,59 @@
   "payloads": {
     "jen-account-registry": [
       {
+        "bytes": 3703,
+        "path": "services/kodi/astertv-fleet/materialize_jen_account_registry.py",
+        "sha256": "a0875426027a6dbfa20d4fd5ac575b786277d561d567390cb2382474a248a925"
+      },
+      {
         "bytes": 4190,
-        "path": "services/kodi/astertv-v3/accounts/access_policy.py",
+        "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/addons/script.asterprofiles.v3lab/access_policy.py",
         "sha256": "3572c543852767cd5f94a0f0dee770352278da5ac366db310440c6b9d69ac775"
       },
       {
         "bytes": 757,
-        "path": "services/kodi/astertv-v3/accounts/addon/script.asterprofiles.v3lab/addon.xml",
+        "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/addons/script.asterprofiles.v3lab/addon.xml",
         "sha256": "f6c4e1485605d9a2c23c4302c07d575f889ced38368551973a6e4c94a9733e0a"
       },
       {
-        "bytes": 5276,
-        "path": "services/kodi/astertv-v3/accounts/addon/script.asterprofiles.v3lab/default.py",
-        "sha256": "0ae2757ee1375a67206bf9f5e2da8f251aec7c7ac10baebd2209ad89fd20ab5f"
-      },
-      {
-        "bytes": 2079,
-        "path": "services/kodi/astertv-v3/accounts/addon/script.asterprofiles.v3lab/service.py",
-        "sha256": "b82bd0fa44388eaf8e089b32589c8135c39ae0817a82183dd311a5f0249d225b"
-      },
-      {
         "bytes": 3619,
-        "path": "services/kodi/astertv-v3/accounts/authority.py",
+        "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/addons/script.asterprofiles.v3lab/authority.py",
         "sha256": "72452de8cb95e1c23ab46e280a7b9b23df24a938ddfa331bf826ea7ede9f074c"
       },
       {
+        "bytes": 5276,
+        "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/addons/script.asterprofiles.v3lab/default.py",
+        "sha256": "0ae2757ee1375a67206bf9f5e2da8f251aec7c7ac10baebd2209ad89fd20ab5f"
+      },
+      {
         "bytes": 7403,
-        "path": "services/kodi/astertv-v3/accounts/identity_resolver.py",
+        "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/addons/script.asterprofiles.v3lab/identity_resolver.py",
         "sha256": "131046f36532bac15c2a714f41bc4929c3fcc64f84ec7424318db95b49c0d872"
       },
       {
+        "bytes": 8662,
+        "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/addons/script.asterprofiles.v3lab/registry.py",
+        "sha256": "74b72936fad9d249ada975c04014ddc36ff586206738e260179d363932d54663"
+      },
+      {
+        "bytes": 2079,
+        "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/addons/script.asterprofiles.v3lab/service.py",
+        "sha256": "b82bd0fa44388eaf8e089b32589c8135c39ae0817a82183dd311a5f0249d225b"
+      },
+      {
+        "bytes": 1354,
+        "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/addons/script.asterprofiles.v3lab/synthetic-fixture.json",
+        "sha256": "b6eda6809b545b26dbf2d319280cbe6056b88b8fca224f1bc1b26b6376cf8f31"
+      },
+      {
         "bytes": 654,
-        "path": "services/kodi/astertv-v3/accounts/keymaps/z-astertv-v3-m2-profile-gate.xml",
+        "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/keymaps/z-astertv-v3-m2-profile-gate.xml",
         "sha256": "ee63bc5bc43e010960bc826596fb0feca4a563447ce3389b76f7eacd98cd0de4"
       },
       {
-        "bytes": 8662,
-        "path": "services/kodi/astertv-v3/accounts/registry.py",
-        "sha256": "74b72936fad9d249ada975c04014ddc36ff586206738e260179d363932d54663"
+        "bytes": 2772,
+        "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/materialization-manifest.json",
+        "sha256": "d329f6ddfa899a5328a15a6eb10fda74e357f268421d074615e9e012d76e0f2f"
       }
     ],
     "jen-aster-client": [
@@ -634,7 +649,7 @@
   "source_hashes": {
     "devices/astertv-jen.yaml": "9fca66440ca0c0c61a151e6a7e8e273f676f3f36e696526a9ce4ff26004a7aca",
     "hardware/lenovo-m93p-jen.yaml": "62596413e3f508c77048cfccc3203cca847607ab84383d9cffb4d8768f0db101",
-    "overlays/jen-account-registry.yaml": "74060b05e5566f215c3ad75c15e710f6edf44f2778aca0be7d60e6dcaac9f2cc",
+    "overlays/jen-account-registry.yaml": "b3020ba22421c98e14516e2e442e78fb74164182cb176f546b30d5ddf4d37750",
     "overlays/jen-aster-client.yaml": "4637105ae8769d32a2ad9b6e6f70f9b1b3f167a38cb2e36917b71d00ba4044fc",
     "overlays/jen-guest-catalogue.yaml": "d3ba169d592a0100054f8b1c41d361277a3326d5dc4371f80725d44f3a609051",
     "overlays/jen-home-cameras.yaml": "645eae905ecd73c776210f9978678fdc342d8e6df88b991041725f6dd7981557",
