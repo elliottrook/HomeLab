@@ -1,0 +1,366 @@
+From 5cad10576098fec46672a7b39918d66538b41a75 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 5 Nov 2026 15:29:12 -0700
+Subject: [PATCH] Restore controlled SIGTERM inactive state and use completed
+ integrity clock
+
+---
+ ...l_b60_completed_integrity_qualification.py | 77 +++++++++++++++++++
+ scripts/local-ai/lab_hours_exclusive_cli.py   |  1 +
+ .../lab_hours_inactive_state_helper_update.py | 69 +++++++++++++++++
+ scripts/local-ai/lab_hours_proxmox_adapter.py | 18 ++++-
+ scripts/local-ai/lab_hours_source_update.py   |  2 +
+ scripts/local-ai/lab_hours_unit_adapter.py    | 27 +++++++
+ ...t_b60_completed_integrity_qualification.py | 18 +++++
+ .../test_lab_hours_source_update_host.py      |  6 ++
+ .../local-ai/test_lab_hours_unit_adapter.py   | 25 +++++-
+ 9 files changed, 239 insertions(+), 4 deletions(-)
+ create mode 100644 scripts/local-ai/install_b60_completed_integrity_qualification.py
+ create mode 100644 scripts/local-ai/lab_hours_inactive_state_helper_update.py
+ create mode 100644 scripts/local-ai/test_b60_completed_integrity_qualification.py
+
+diff --git a/scripts/local-ai/install_b60_completed_integrity_qualification.py b/scripts/local-ai/install_b60_completed_integrity_qualification.py
+new file mode 100644
+index 0000000..fd7ab02
+--- /dev/null
++++ b/scripts/local-ai/install_b60_completed_integrity_qualification.py
+@@ -0,0 +1,77 @@
++"""Arm one future restore-only clock using an already completed fresh scan.
++
++Creates no preparation clock, so integrity can finish before another owner's
++reserved window. Actual admission revalidates archive identity and freshness.
++"""
++import argparse,hashlib,json,os,time
++from pathlib import Path
++from datetime import datetime
++from zoneinfo import ZoneInfo
++from host_exclusion import host_exclusion
++from lab_hours_exclusive_profile import load_profile,protected_bytes
++from lab_hours_exclusive_session import IDENTITY,SessionError,canonical
++from lab_hours_reservations import ReservationStore
++from retained_archive_integrity import load_root_owned,verify,fixed_proxmox_inventory,fixed_resolve
++from install_b60_daytime_qualification import ROOT,PACKAGE,UNITS,call,day_window_invalid,unit_files
++
++
++def qualification_files(booking):
++    prefix='b60-exclusive-qualification-'+booking['booking_id']
++    return {name:body for name,body in unit_files(booking,'unused').items() if name.startswith(prefix+'.')}
++
++
++def validate_terminal(terminal,booking,proof):
++    if (terminal.get('schema')!='aster-exclusive-integrity-result.v1'
++            or terminal.get('booking_id')!=booking['booking_id']
++            or terminal.get('state')!='complete' or terminal.get('ai_stack_effects') is not False
++            or terminal.get('archive_receipt')!=proof):
++        raise SessionError('COMPLETED_INTEGRITY_REQUIRED')
++
++
++def install(booking_id):
++    if os.geteuid()!=0 or os.uname().nodename!='proxmox' or not IDENTITY.fullmatch(booking_id):
++        raise SessionError('QUALIFICATION_SCHEDULE_IDENTITY')
++    with host_exclusion(ROOT):
++        if any(p.exists() or p.is_symlink() for p in (ROOT/'lease.json',ROOT/'lease.lock',
++                ROOT/'full-inference-drain.json',ROOT/'full-inference-drain.lock',
++                Path('/run/local-ai-lab-operation.lock'))):raise SessionError('SHARED_HOST_NOT_READY')
++        if json.loads(call(('/usr/local/sbin/local-ai-lease','status'))) not in ('ready',{'state':'ready'}):
++            raise SessionError('SHARED_HOST_NOT_READY')
++        profile=load_profile(ROOT/'exclusive-activations'/(booking_id+'.json'),PACKAGE)
++        booking=ReservationStore(ROOT/'reservations',expected_uid=0).get(booking_id)
++        if (profile['qualification_only'] is not True or profile['experiment'] is not None
++                or profile['booking_id']!=booking_id or booking.get('owner')!='b60-stream-a'
++                or booking.get('owner')!=profile['owner'] or booking.get('kind')!='exclusive-stack'
++                or booking.get('state')!='reserved' or booking['start_epoch']<time.time()+300
++                or day_window_invalid(booking)):
++            raise SessionError('FUTURE_RESTORE_ONLY_BOOKING_REQUIRED')
++        terminal_path=ROOT/'exclusive-integrity'/booking_id/'terminal.json'
++        terminal_bytes=protected_bytes(terminal_path)
++        terminal=json.loads(terminal_bytes);receipt=load_root_owned()
++        zone=ZoneInfo('America/Vancouver');cycle=datetime.fromtimestamp(time.time(),zone).strftime('%Y_%m_%d')
++        inventory=fixed_proxmox_inventory()
++        proof=verify(receipt,inventory,date=cycle,now_epoch=int(time.time()),resolve=fixed_resolve,lstat=os.lstat)
++        verify(receipt,inventory,date=cycle,now_epoch=booking['start_epoch']+120,resolve=fixed_resolve,lstat=os.lstat)
++        validate_terminal(terminal,booking,proof)
++        files=qualification_files(booking)
++        if len(files)!=2 or any((UNITS/n).exists() or (UNITS/n).is_symlink() for n in files):
++            raise SessionError('QUALIFICATION_UNIT_ALREADY_EXISTS')
++        for name,body in files.items():
++            fd=os.open(UNITS/name,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o644)
++            with os.fdopen(fd,'w') as stream:stream.write(body);stream.flush();os.fsync(stream.fileno())
++        call(('systemd-analyze','verify',*(str(UNITS/name) for name in files)))
++        call(('systemctl','daemon-reload'))
++        timers=[n for n in files if n.endswith('.timer')]
++        call(('systemctl','enable','--now',*timers))
++        return {'state':'qualification-scheduled','booking_id':booking_id,'timers':timers,
++            'preparation_timer_created':False,'model_experiment_scheduled':False,
++            'integrity_terminal_sha256':hashlib.sha256(terminal_bytes).hexdigest(),
++            'archive_receipt':proof,'unit_sha256':{n:hashlib.sha256(v.encode()).hexdigest() for n,v in files.items()}}
++
++
++if __name__=='__main__':
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--booking-id',required=True)
++    p.add_argument('--schedule-qualification',action='store_true',required=True);a=p.parse_args()
++    try:print(json.dumps(install(a.booking_id),sort_keys=True))
++    except Exception as e:
++        print(json.dumps({'state':'no_go','failure_code':str(e) if isinstance(e,SessionError) else type(e).__name__}));raise SystemExit(1)
+diff --git a/scripts/local-ai/lab_hours_exclusive_cli.py b/scripts/local-ai/lab_hours_exclusive_cli.py
+index 5de1539..562407c 100644
+--- a/scripts/local-ai/lab_hours_exclusive_cli.py
++++ b/scripts/local-ai/lab_hours_exclusive_cli.py
+@@ -27,6 +27,7 @@ PACKAGE=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
+ # reviewed constants may cross the journal boundary; never forward unit output,
+ # subprocess arguments, configuration or an arbitrary exception string.
+ UNIT_FAILURE_CODES=frozenset({
++    'INACTIVE_FAILURE_NOT_CONTROLLED_STOP','INACTIVE_STATE_NOT_RESTORED',
+     'TIMER_RESUME_PROFILE_UNSUPPORTED','TIMER_MUST_BE_STOPPED_BEFORE_REARM',
+     'TIMER_RESUME_IDENTITY','TIMER_RESUME_OBSERVATION','MONOTONIC_TIMER_ENTRY_NOT_IDLE',
+     'MONOTONIC_TIMER_RESUME_WINDOW','MONOTONIC_TIMER_RESUME_FAILED',
+diff --git a/scripts/local-ai/lab_hours_inactive_state_helper_update.py b/scripts/local-ai/lab_hours_inactive_state_helper_update.py
+new file mode 100644
+index 0000000..7db07cb
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_inactive_state_helper_update.py
+@@ -0,0 +1,69 @@
++"""Exact one-file guest helper update; host caller must hold shared exclusion."""
++import hashlib
++import os
++from pathlib import Path
++import subprocess
++
++from lab_hours_file_checkpoint import FileCheckpoint, CheckpointError
++
++OLD='e7869856219ba14ca1b8d4db5fd29654b48666eef4d21e26b77772d13805312f'
++NEW='3be54aa161ef08b4c32ff055249a2b9fec120f60818f651a5edc38c8595818a6'
++NAME='lab_hours_unit_adapter.py'
++
++
++def digest(path):
++    info=path.lstat()
++    if path.is_symlink() or not path.is_file() or info.st_nlink!=1:
++        raise CheckpointError('HELPER_CUSTODY')
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def update(target, candidate, checkpoint, *, uid, validate):
++    target,candidate,checkpoint=map(Path,(target,candidate,checkpoint))
++    for p in (target,candidate):
++        for parent in (p.parent,*p.parents[1:]):
++            if parent.is_symlink() or not parent.is_dir() or parent.stat().st_uid!=uid or parent.stat().st_mode&0o022:
++                raise CheckpointError('HELPER_PARENT_CUSTODY')
++        if p.stat().st_uid!=uid or p.stat().st_mode&0o777!=0o600:
++            raise CheckpointError('HELPER_CUSTODY')
++    if digest(target)!=OLD or digest(candidate)!=NEW or checkpoint.exists():
++        raise CheckpointError('HELPER_SOURCE_OR_ATTEMPT_DRIFT')
++    checkpoint.mkdir(mode=0o700,parents=True)
++    files=FileCheckpoint(checkpoint/'files',allowed_roots=(),allowed_files=(target,),expected_uid=uid)
++    receipt=files.capture([str(target)])
++    if not files.verify(receipt):raise CheckpointError('HELPER_CHECKPOINT_UNVERIFIED')
++    temp=checkpoint/'candidate.py'
++    fd=os.open(temp,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++    with os.fdopen(fd,'wb') as stream:
++        stream.write(candidate.read_bytes());stream.flush();os.fsync(stream.fileno())
++    if digest(temp)!=NEW or digest(target)!=OLD or temp.stat().st_dev!=target.stat().st_dev:
++        raise CheckpointError('HELPER_COMPARE_FAILED')
++    os.replace(temp,target)
++    try:
++        if digest(target)!=NEW or validate(target.parent) is not True:
++            raise CheckpointError('HELPER_IMPORT_FAILED')
++    except BaseException:
++        if digest(target)!=NEW:raise CheckpointError('HELPER_UNKNOWN_DRIFT_RETAINED')
++        files.restore(receipt)
++        if digest(target)!=OLD:raise CheckpointError('HELPER_ROLLBACK_FAILED')
++        raise
++    fd=os.open(target.parent,os.O_RDONLY)
++    try:os.fsync(fd)
++    finally:os.close(fd)
++    return {'state':'helper-installed','checkpoint_sha256':receipt,'sha256':NEW}
++
++
++def main():
++    import json
++    target=Path('/usr/local/libexec/local-ai-lease/entry-checkpoint')/NAME
++    stage=Path('/root/b60-inactive-state-helper-20261105-v1')
++    checkpoint=Path('/var/lib/local-ai-lab-entry/source-updates/inactive-sigterm-state-20261105-v1')
++    if os.geteuid()!=0:raise CheckpointError('ROOT_REQUIRED')
++    def validate(root):
++        code='import sys;sys.path.insert(0,sys.argv[1]);import lab_hours_unit_adapter'
++        p=subprocess.run(['/usr/bin/python3','-B','-I','-c',code,str(root)],capture_output=True,timeout=10)
++        return p.returncode==0
++    print(json.dumps(update(target,stage/NAME,checkpoint,uid=0,validate=validate),sort_keys=True))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/local-ai/lab_hours_proxmox_adapter.py b/scripts/local-ai/lab_hours_proxmox_adapter.py
+index 062de36..8ae48a9 100644
+--- a/scripts/local-ai/lab_hours_proxmox_adapter.py
++++ b/scripts/local-ai/lab_hours_proxmox_adapter.py
+@@ -216,8 +216,22 @@ class ProxmoxEntryAdapter:
+             raise SessionError('MOUNT_DRIFT_REQUIRES_DECLARED_RECOVERY')
+         for guest in self.profile['guest_plans']:
+             if self._guest(guest,'restore',deadline).get('verified') is not True: return False
+-        return self.units.restore(self.private['units'],deadline,
+-            configuration_restored=True,timer_resume_safe=self.timers)
++        try:
++            return self.units.restore(self.private['units'],deadline,
++                configuration_restored=True,timer_resume_safe=self.timers)
++        finally:
++            if self.units.cleared_failures:
++                name='unit-state-recovery.json'
++                previous=self.store.read(name) if (self.store.root/name).exists() else {
++                    'schema':'aster-unit-state-recovery.v1','booking_id':self.private['booking_id'],'events':[]}
++                if (previous.get('schema')!='aster-unit-state-recovery.v1'
++                        or previous.get('booking_id')!=self.private['booking_id']):
++                    raise SessionError('UNIT_RECOVERY_EVIDENCE_DRIFT')
++                for event in self.units.cleared_failures:
++                    if event not in previous['events']:
++                        previous['events'].append(event)
++                if len(previous['events'])>64:raise SessionError('UNIT_RECOVERY_EVIDENCE_DRIFT')
++                self.store.write(name,previous)
+ 
+     def verify_entry(self,entry):
+         self._load(); deadline=max(self.private['end_epoch'],self.clock()+120)
+diff --git a/scripts/local-ai/lab_hours_source_update.py b/scripts/local-ai/lab_hours_source_update.py
+index b2d0371..dce54b1 100644
+--- a/scripts/local-ai/lab_hours_source_update.py
++++ b/scripts/local-ai/lab_hours_source_update.py
+@@ -18,6 +18,8 @@ CLAIM_MAP = 'e16b3bfe02f8a12e08271b6e95baddf206192cbd37e765d0d9c5dee929608b82'
+ CLAIM_CHANGED = ('lab_hours_exclusive_boundary.py', 'lab_hours_proxmox_adapter.py',
+                  'lab_hours_reservations.py')
+ TRANSITIONS = {
++    ('96201c5d13d42886055f708a5c33b70108c51fdbbcd018bf28592458cf8dd4bd', 'd6fbea5c7343f15809fc41830c9db6f1f865126e93c97359f5c65c928314f3ff'):
++        (('lab_hours_exclusive_cli.py', 'lab_hours_proxmox_adapter.py', 'lab_hours_unit_adapter.py'), 'inactive-sigterm-state-20261105-v1'),
+     ('3967a1b3e7d9e0fde83a7c765f24efcf88508274d88dc82bd00a970e89ec4a82', '96201c5d13d42886055f708a5c33b70108c51fdbbcd018bf28592458cf8dd4bd'):
+         (('lab_hours_owner_scope.py',), 'owner-absence-fence-20261105-v1'),
+     ('529fea8dda6433ce483ae5fb6b31aa0cd74bc4d53600adb4f97383a5f7847124', '3967a1b3e7d9e0fde83a7c765f24efcf88508274d88dc82bd00a970e89ec4a82'):
+diff --git a/scripts/local-ai/lab_hours_unit_adapter.py b/scripts/local-ai/lab_hours_unit_adapter.py
+index 9333302..44a1f6b 100644
+--- a/scripts/local-ai/lab_hours_unit_adapter.py
++++ b/scripts/local-ai/lab_hours_unit_adapter.py
+@@ -22,6 +22,7 @@ class UnitStateError(RuntimeError): pass
+ class ProxmoxUnitAdapter:
+     def __init__(self, runner, *, clock=time.time):
+         self.runner,self.clock=runner,clock
++        self.cleared_failures=[]
+ 
+     def call(self, guest, unit, args, deadline):
+         if (guest,unit) not in SCOPE:
+@@ -125,6 +126,32 @@ class ProxmoxUnitAdapter:
+                     raise UnitStateError('NO_REPLAY_TIMER_REARM_FAILED')
+             self.effect(row,('start','--no-block') if row['active']=='activating'
+                         else (('start',) if row['active']=='active' else ('stop',)),deadline)
++            if row['active']=='inactive':
++                observed=self.observe(row['guest'],row['unit'],deadline)
++                if observed['ActiveState']=='failed':
++                    # stop can leave an interrupted oneshot failed after it is
++                    # quiescent. Reset only a proven controlled SIGTERM; never
++                    # hide OOM, device, timeout, exit-code or unknown failures.
++                    if (row['enablement']!='static' or not row['unit'].endswith('.service')
++                            or observed['MainPID']!='0' or observed['TasksCurrent'] not in {'0','','[not set]'}):
++                        raise UnitStateError('INACTIVE_FAILURE_NOT_CONTROLLED_STOP')
++                    code,raw=self.call(row['guest'],row['unit'],('show','--no-pager',
++                        '--property=Result,ExecMainCode,ExecMainStatus'),deadline)
++                    lines=raw.splitlines()
++                    if len(raw)>4096 or len(lines)!=3 or any(line.count('=')!=1 for line in lines):
++                        raise UnitStateError('INACTIVE_FAILURE_NOT_CONTROLLED_STOP')
++                    fields=dict(line.split('=',1) for line in lines)
++                    if len(fields)!=3:raise UnitStateError('INACTIVE_FAILURE_NOT_CONTROLLED_STOP')
++                    if code or fields!={'Result':'signal','ExecMainCode':'2','ExecMainStatus':'15'}:
++                        raise UnitStateError('INACTIVE_FAILURE_NOT_CONTROLLED_STOP')
++                    self.cleared_failures.append({'guest':row['guest'],'unit':row['unit'],
++                        'prior_state':'failed','result':'signal','exit_code':2,'signal':15,
++                        'observed_epoch':int(self.clock()),'state_reset':'intended',
++                        'application_job_success_claimed':False})
++                    self.effect(row,('reset-failed',),deadline)
++                    if self.observe(row['guest'],row['unit'],deadline)['ActiveState']!='inactive':
++                        raise UnitStateError('INACTIVE_STATE_NOT_RESTORED')
++                    self.cleared_failures[-1]['state_reset']='observed-inactive'
+         return self.verify(entry,deadline)
+ 
+     def verify(self, entry, deadline):
+diff --git a/scripts/local-ai/test_b60_completed_integrity_qualification.py b/scripts/local-ai/test_b60_completed_integrity_qualification.py
+new file mode 100644
+index 0000000..98e1f7c
+--- /dev/null
++++ b/scripts/local-ai/test_b60_completed_integrity_qualification.py
+@@ -0,0 +1,18 @@
++import unittest
++from install_b60_completed_integrity_qualification import qualification_files,validate_terminal
++from lab_hours_exclusive_session import SessionError
++class CompletedIntegrityClockTests(unittest.TestCase):
++    def test_only_booked_qualification_clock_without_preparation(self):
++        b={'booking_id':'b60-exclusive-20261105-day-r3','start_epoch':1793924100}
++        files=qualification_files(b)
++        self.assertEqual(len(files),2)
++        self.assertFalse(any('integrity' in n for n in files))
++        timer=next(v for k,v in files.items() if k.endswith('.timer'))
++        self.assertIn('OnCalendar=2026-11-05 17:15:00 America/Vancouver',timer)
++        self.assertIn('Persistent=false',timer)
++    def test_failed_mismatched_or_stack_effecting_scan_refused(self):
++        b={'booking_id':'b60-exclusive-20261105-day-r3'}
++        t={'schema':'aster-exclusive-integrity-result.v1','booking_id':b['booking_id'],'state':'complete','ai_stack_effects':False,'archive_receipt':'proof'}
++        validate_terminal(t,b,'proof')
++        for key,value in [('booking_id','other'),('state','no_go'),('ai_stack_effects',True),('archive_receipt','old')]:
++            with self.assertRaises(SessionError):validate_terminal(dict(t,**{key:value}),b,'proof')
+diff --git a/scripts/local-ai/test_lab_hours_source_update_host.py b/scripts/local-ai/test_lab_hours_source_update_host.py
+index b7259c0..4f35ee0 100644
+--- a/scripts/local-ai/test_lab_hours_source_update_host.py
++++ b/scripts/local-ai/test_lab_hours_source_update_host.py
+@@ -123,3 +123,9 @@ class OwnerAbsenceHostAdapterTests(HostAdapterTests):
+     old_bundle=Path(os.environ.get('B60_OWNER_ABSENCE_OLD_SOURCE_BUNDLE','/private/tmp/b60-timer-recovery-candidate-20261105-v2'))
+     new_bundle=Path(os.environ.get('B60_OWNER_ABSENCE_NEW_SOURCE_BUNDLE','/private/tmp/b60-timer-recovery-candidate-20261105-v3'))
+     changed=('lab_hours_owner_scope.py',)
++
++
++class InactiveSigtermHostAdapterTests(HostAdapterTests):
++    old_bundle=Path('/private/tmp/b60-timer-recovery-candidate-20261105-v3')
++    new_bundle=Path('/private/tmp/b60-inactive-state-candidate-20261105-v1')
++    changed=('lab_hours_exclusive_cli.py', 'lab_hours_proxmox_adapter.py', 'lab_hours_unit_adapter.py')
+diff --git a/scripts/local-ai/test_lab_hours_unit_adapter.py b/scripts/local-ai/test_lab_hours_unit_adapter.py
+index f5d112d..9ef572c 100644
+--- a/scripts/local-ai/test_lab_hours_unit_adapter.py
++++ b/scripts/local-ai/test_lab_hours_unit_adapter.py
+@@ -13,6 +13,8 @@ class Systemd:
+         self.calls.append((command,timeout)); guest=command[2]; unit=command[-1]
+         if command[-1]=='daemon-reload': return 0,''
+         args=command[5:-1]; state=self.units[(guest,unit)]
++        if args[0]=='show' and '--property=Result,ExecMainCode,ExecMainStatus' in args:
++            return 0,getattr(self,'termination','Result=signal\nExecMainCode=2\nExecMainStatus=15\n')
+         if args[0]=='show':
+             active,enabled=state
+             base=f'LoadState=loaded\nActiveState={active}\nUnitFileState={enabled}\n'
+@@ -25,7 +27,8 @@ class Systemd:
+         elif args[0]=='enable': state[1]='enabled-runtime' if '--runtime' in args else 'enabled'
+         elif args[0]=='disable': state[1]='disabled'
+         elif args[0]=='start': state[0]='active'
+-        elif args[0]=='stop': state[0]='inactive'
++        elif args[0]=='stop': state[0]='failed' if getattr(self,'failed_stop',False) and unit.endswith('.service') else 'inactive'
++        elif args[0]=='reset-failed':state[0]='inactive'
+         return 0,''
+ 
+ 
+@@ -114,4 +117,22 @@ class UnitAdapterTests(unittest.TestCase):
+                             for c,_ in self.runner.calls))
+ 
+ 
+-if __name__=='__main__': unittest.main()
++
++
++
++    def test_controlled_stopped_inactive_oneshot_resets_state_without_start(self):
++        row={'guest':'116','unit':'epub-narration-worker.service','active':'inactive','enablement':'static'}
++        self.runner.units[('116',row['unit'])]=['failed','static'];self.runner.failed_stop=True
++        self.assertTrue(self.adapter.restore([row],2000,configuration_restored=True,timer_resume_safe=True))
++        self.assertFalse(self.adapter.cleared_failures[0]['application_job_success_claimed'])
++        self.assertFalse(any(c[5]=='start' for c,t in self.runner.calls if len(c)>5))
++
++    def test_unknown_oom_or_different_signal_is_not_cleared(self):
++        row={'guest':'116','unit':'epub-narration-worker.service','active':'inactive','enablement':'static'}
++        for result,code,status in [('oom-kill','2','9'),('exit-code','1','1'),('signal','2','9')]:
++            self.runner.units[('116',row['unit'])]=['failed','static'];self.runner.failed_stop=True
++            self.runner.termination=f'Result={result}\nExecMainCode={code}\nExecMainStatus={status}\n'
++            self.runner.calls.clear()
++            with self.assertRaisesRegex(UnitStateError,'NOT_CONTROLLED_STOP'):
++                self.adapter.restore([row],2000,configuration_restored=True,timer_resume_safe=True)
++            self.assertFalse(any('reset-failed' in c for c,t in self.runner.calls))
+-- 
+2.50.1 (Apple Git-155)
+

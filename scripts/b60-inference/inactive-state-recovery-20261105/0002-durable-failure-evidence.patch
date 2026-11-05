@@ -1,0 +1,154 @@
+From 14224398a7a604207153e317ee62e6622e47906d Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 5 Nov 2026 15:34:32 -0700
+Subject: [PATCH] Journal interrupted-worker recovery before clearing systemd
+ failure
+
+---
+ .../lab_hours_inactive_state_helper_update.py |  2 +-
+ scripts/local-ai/lab_hours_proxmox_adapter.py | 33 +++++++++----------
+ scripts/local-ai/lab_hours_source_update.py   |  2 +-
+ scripts/local-ai/lab_hours_unit_adapter.py    |  5 ++-
+ .../test_lab_hours_source_update_host.py      |  2 +-
+ .../local-ai/test_lab_hours_unit_adapter.py   | 11 +++++++
+ 6 files changed, 34 insertions(+), 21 deletions(-)
+
+diff --git a/scripts/local-ai/lab_hours_inactive_state_helper_update.py b/scripts/local-ai/lab_hours_inactive_state_helper_update.py
+index 7db07cb..fedc9e3 100644
+--- a/scripts/local-ai/lab_hours_inactive_state_helper_update.py
++++ b/scripts/local-ai/lab_hours_inactive_state_helper_update.py
+@@ -7,7 +7,7 @@ import subprocess
+ from lab_hours_file_checkpoint import FileCheckpoint, CheckpointError
+ 
+ OLD='e7869856219ba14ca1b8d4db5fd29654b48666eef4d21e26b77772d13805312f'
+-NEW='3be54aa161ef08b4c32ff055249a2b9fec120f60818f651a5edc38c8595818a6'
++NEW='f4781de620e9c0c10bf01eab162eb2564d8baf1d4d84670117649d368325bcbd'
+ NAME='lab_hours_unit_adapter.py'
+ 
+ 
+diff --git a/scripts/local-ai/lab_hours_proxmox_adapter.py b/scripts/local-ai/lab_hours_proxmox_adapter.py
+index 8ae48a9..b38c5d9 100644
+--- a/scripts/local-ai/lab_hours_proxmox_adapter.py
++++ b/scripts/local-ai/lab_hours_proxmox_adapter.py
+@@ -23,7 +23,7 @@ class ProxmoxEntryAdapter:
+         self.store,self.bookings,self.profile=store,bookings,profile
+         self.runner,self.admission,self.arm=runner,admission,arm_guardian
+         self.clock=clock
+-        self.units=ProxmoxUnitAdapter(runner,clock=clock)
++        self.units=ProxmoxUnitAdapter(runner,clock=clock,record_recovery=self._record_unit_recovery)
+         self.timers=CalendarTimerResume(self.units,booking_id=profile.get('booking_id'),clock=clock)
+         self.boundary=ExclusiveHostBoundary(root,operation,bookings,ready=self._ready)
+         self.private=None
+@@ -216,22 +216,21 @@ class ProxmoxEntryAdapter:
+             raise SessionError('MOUNT_DRIFT_REQUIRES_DECLARED_RECOVERY')
+         for guest in self.profile['guest_plans']:
+             if self._guest(guest,'restore',deadline).get('verified') is not True: return False
+-        try:
+-            return self.units.restore(self.private['units'],deadline,
+-                configuration_restored=True,timer_resume_safe=self.timers)
+-        finally:
+-            if self.units.cleared_failures:
+-                name='unit-state-recovery.json'
+-                previous=self.store.read(name) if (self.store.root/name).exists() else {
+-                    'schema':'aster-unit-state-recovery.v1','booking_id':self.private['booking_id'],'events':[]}
+-                if (previous.get('schema')!='aster-unit-state-recovery.v1'
+-                        or previous.get('booking_id')!=self.private['booking_id']):
+-                    raise SessionError('UNIT_RECOVERY_EVIDENCE_DRIFT')
+-                for event in self.units.cleared_failures:
+-                    if event not in previous['events']:
+-                        previous['events'].append(event)
+-                if len(previous['events'])>64:raise SessionError('UNIT_RECOVERY_EVIDENCE_DRIFT')
+-                self.store.write(name,previous)
++        return self.units.restore(self.private['units'],deadline,
++            configuration_restored=True,timer_resume_safe=self.timers)
++
++    def _record_unit_recovery(self,event):
++        # Durable intent precedes reset-failed; observed state follows it. Owner
++        # loss cannot silently erase the original interrupted-job evidence.
++        name='unit-state-recovery.json'
++        previous=self.store.read(name) if (self.store.root/name).exists() else {
++            'schema':'aster-unit-state-recovery.v1','booking_id':self.profile['booking_id'],'events':[]}
++        if (previous.get('schema')!='aster-unit-state-recovery.v1'
++                or previous.get('booking_id')!=self.profile['booking_id']):
++            raise SessionError('UNIT_RECOVERY_EVIDENCE_DRIFT')
++        if event not in previous['events']:previous['events'].append(event)
++        if len(previous['events'])>64:raise SessionError('UNIT_RECOVERY_EVIDENCE_DRIFT')
++        self.store.write(name,previous)
+ 
+     def verify_entry(self,entry):
+         self._load(); deadline=max(self.private['end_epoch'],self.clock()+120)
+diff --git a/scripts/local-ai/lab_hours_source_update.py b/scripts/local-ai/lab_hours_source_update.py
+index dce54b1..5ad5f1f 100644
+--- a/scripts/local-ai/lab_hours_source_update.py
++++ b/scripts/local-ai/lab_hours_source_update.py
+@@ -18,7 +18,7 @@ CLAIM_MAP = 'e16b3bfe02f8a12e08271b6e95baddf206192cbd37e765d0d9c5dee929608b82'
+ CLAIM_CHANGED = ('lab_hours_exclusive_boundary.py', 'lab_hours_proxmox_adapter.py',
+                  'lab_hours_reservations.py')
+ TRANSITIONS = {
+-    ('96201c5d13d42886055f708a5c33b70108c51fdbbcd018bf28592458cf8dd4bd', 'd6fbea5c7343f15809fc41830c9db6f1f865126e93c97359f5c65c928314f3ff'):
++    ('96201c5d13d42886055f708a5c33b70108c51fdbbcd018bf28592458cf8dd4bd', 'e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2'):
+         (('lab_hours_exclusive_cli.py', 'lab_hours_proxmox_adapter.py', 'lab_hours_unit_adapter.py'), 'inactive-sigterm-state-20261105-v1'),
+     ('3967a1b3e7d9e0fde83a7c765f24efcf88508274d88dc82bd00a970e89ec4a82', '96201c5d13d42886055f708a5c33b70108c51fdbbcd018bf28592458cf8dd4bd'):
+         (('lab_hours_owner_scope.py',), 'owner-absence-fence-20261105-v1'),
+diff --git a/scripts/local-ai/lab_hours_unit_adapter.py b/scripts/local-ai/lab_hours_unit_adapter.py
+index 44a1f6b..ed5eb87 100644
+--- a/scripts/local-ai/lab_hours_unit_adapter.py
++++ b/scripts/local-ai/lab_hours_unit_adapter.py
+@@ -20,9 +20,10 @@ class UnitStateError(RuntimeError): pass
+ 
+ 
+ class ProxmoxUnitAdapter:
+-    def __init__(self, runner, *, clock=time.time):
++    def __init__(self, runner, *, clock=time.time, record_recovery=None):
+         self.runner,self.clock=runner,clock
+         self.cleared_failures=[]
++        self.record_recovery=record_recovery or (lambda event:None)
+ 
+     def call(self, guest, unit, args, deadline):
+         if (guest,unit) not in SCOPE:
+@@ -148,10 +149,12 @@ class ProxmoxUnitAdapter:
+                         'prior_state':'failed','result':'signal','exit_code':2,'signal':15,
+                         'observed_epoch':int(self.clock()),'state_reset':'intended',
+                         'application_job_success_claimed':False})
++                    self.record_recovery(dict(self.cleared_failures[-1]))
+                     self.effect(row,('reset-failed',),deadline)
+                     if self.observe(row['guest'],row['unit'],deadline)['ActiveState']!='inactive':
+                         raise UnitStateError('INACTIVE_STATE_NOT_RESTORED')
+                     self.cleared_failures[-1]['state_reset']='observed-inactive'
++                    self.record_recovery(dict(self.cleared_failures[-1]))
+         return self.verify(entry,deadline)
+ 
+     def verify(self, entry, deadline):
+diff --git a/scripts/local-ai/test_lab_hours_source_update_host.py b/scripts/local-ai/test_lab_hours_source_update_host.py
+index 4f35ee0..32475f2 100644
+--- a/scripts/local-ai/test_lab_hours_source_update_host.py
++++ b/scripts/local-ai/test_lab_hours_source_update_host.py
+@@ -127,5 +127,5 @@ class OwnerAbsenceHostAdapterTests(HostAdapterTests):
+ 
+ class InactiveSigtermHostAdapterTests(HostAdapterTests):
+     old_bundle=Path('/private/tmp/b60-timer-recovery-candidate-20261105-v3')
+-    new_bundle=Path('/private/tmp/b60-inactive-state-candidate-20261105-v1')
++    new_bundle=Path('/private/tmp/b60-inactive-state-candidate-20261105-v2')
+     changed=('lab_hours_exclusive_cli.py', 'lab_hours_proxmox_adapter.py', 'lab_hours_unit_adapter.py')
+diff --git a/scripts/local-ai/test_lab_hours_unit_adapter.py b/scripts/local-ai/test_lab_hours_unit_adapter.py
+index 9ef572c..e4fd0b3 100644
+--- a/scripts/local-ai/test_lab_hours_unit_adapter.py
++++ b/scripts/local-ai/test_lab_hours_unit_adapter.py
+@@ -136,3 +136,14 @@ class UnitAdapterTests(unittest.TestCase):
+             with self.assertRaisesRegex(UnitStateError,'NOT_CONTROLLED_STOP'):
+                 self.adapter.restore([row],2000,configuration_restored=True,timer_resume_safe=True)
+             self.assertFalse(any('reset-failed' in c for c,t in self.runner.calls))
++
++    def test_failure_evidence_is_recorded_before_reset_and_after_observation(self):
++        row={'guest':'116','unit':'epub-narration-worker.service','active':'inactive','enablement':'static'}
++        self.runner.units[('116',row['unit'])]=['failed','static'];self.runner.failed_stop=True
++        events=[]
++        def record(event):
++            if not events:self.assertFalse(any('reset-failed' in c for c,t in self.runner.calls))
++            events.append(dict(event))
++        self.adapter.record_recovery=record
++        self.adapter.restore([row],2000,configuration_restored=True,timer_resume_safe=True)
++        self.assertEqual([e['state_reset'] for e in events],['intended','observed-inactive'])
+-- 
+2.50.1 (Apple Git-155)
+
