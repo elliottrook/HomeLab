@@ -20,7 +20,12 @@
 > identity is `53cfd6a5…41132`, key identity
 > is `cab2790d…d526`, and the exact no-retry batch plus deterministic scorer
 > are source-complete; the combined suite passes 28/28. Nothing has executed.
-> The frozen model-blind decision path is next;
+> The [model-blind decision path](evidence/D4-candidate-j-blind-review-and-decision-boundary-2026-11-05.md)
+> is now also source-complete: model and transport identity are excluded,
+> exactly three distinct reviewers are required, and the conservative gate is
+> fixed at 18/20, all 6 abstentions and zero false-completion failures. The
+> complete Candidate-J suite passes 36/36. Separate packet/key custody,
+> hash-pinned workload registration and one exact booked run are next;
 > materialization, registration and any booked run remain later gates.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
