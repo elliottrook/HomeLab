@@ -69,3 +69,35 @@ hashes/custody, ready whole-host lease, acquired shared operation lock, absent
 competing work and healthy production. It may run once only. Failure or
 uncertainty retains evidence and restores production without retry; completion
 grants no routing, authority or promotion.
+
+## R3 terminal reconciliation
+
+R3 claimed exactly at 04:15:00 PST and its Candidate-J transaction completed
+at 04:18:44 after 224 seconds. The authoritative ledger reports
+`complete`/`COMPLETE`; the root-custodied terminal binds the exact workload,
+six requests and `production_restored=true`.
+
+Independent strict reconciliation accepted the 3,838-byte root:root mode-0600
+one-link regular result at SHA-256 `ae5b10d7…79c6`. It contains exactly six
+cases, two model requests, four deterministic abstentions, zero retries, zero
+errors, zero effects, authority `none` and automatic routing `off`; the frozen
+public score is 6/6. The lease is ready, shared state/locks and Candidate-J
+processes are absent, LXC104/110/114/116 are running, Aster Agent, accepted
+llama.cpp/SYCL, Speech, both News timers, dispatcher, Doctor and Proxmox
+daemons are healthy.
+
+The exact-cycle reconciliation is nevertheless **NO-GO** at its first failed
+postcheck: `epub-narration-scheduler.timer` is disabled/inactive and its
+service is failed with exit 75. This predates R3: the service last failed at
+19:47:34 PST and the timer stopped at 19:48:58 on November 4. The separately
+booked 01:00 EPUB resource-ladder attempt later failed at 01:03:07 with bounded
+cause `worker-not-active`, `restored=true` and zero stages. Candidate-J did not
+create this state and restored its own production transaction, but the
+predeclared R3 success gate required a healthy EPUB timer/worker.
+
+R3 is spent and is not retried. Its clean Candidate-J result is retained but
+does not advance to an untouched evaluation freeze under this exact-cycle
+gate. The EPUB owner must reconcile and restore the scheduler/worker in its own
+project, retain that evidence, and then Stream A can decide whether a new
+distinct Candidate-J transaction is justified. No automatic retry, promotion
+or route follows.
