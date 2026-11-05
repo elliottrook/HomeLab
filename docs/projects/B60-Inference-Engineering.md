@@ -12,6 +12,11 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [received Candidate-J D4 release envelope](B60-Inference-Engineering/peer-release-receipt-20261105.md)
+records the owner-reported18/20 blind-quality acceptance with no deployment or
+policy grant. B60 daytime qualification remains armed; its actual results and
+27B+ complete-answer capability/latency milestone remain unproven.
+
 The [daytime November5 qualification is operationally armed](B60-Inference-Engineering/daytime-qualification-armed-20261105.md):
 11:35 fresh integrity,12:30 restore-only, restoration by13:15. Actual source
 migration/five guest helper updates/fresh plans are complete;30 source pins,
