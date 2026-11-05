@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "kodi-22-0-rc1-piers",
+      "kind": "git",
+      "title": "Kodi 22.0 RC1 Piers product source",
+      "owner": "Kodi",
+      "canonical_url": "https://github.com/xbmc/xbmc.git",
+      "boundary": {"type": "repository-paths", "value": "README.md,LICENSE.md"},
+      "source_class": "upstream",
+      "media_type": "text/markdown",
+      "version_policy": "installed-release",
+      "refresh_hours": 8760,
+      "size_limit_bytes": 524288,
+      "license_status": "permitted",
+      "mirror_policy": "allow-derived",
+      "license_id": "GPL-2.0-or-later",
+      "enabled": true,
+      "git_ref": "22.0rc1-Piers",
+      "expected_commit": "28ea2eac1eb7af8fdcbd2672d933ce87f594be79"
+    },
+    {
+      "id": "libreelec-documentation-2026-11-05",
+      "kind": "git",
+      "title": "LibreELEC installation, update, audio, EDID and recovery documentation",
+      "owner": "LibreELEC",
+      "canonical_url": "https://github.com/LibreELEC/documentation.git",
+      "boundary": {"type": "repository-paths", "value": "README.md,LICENSE.md,installation/intel-x86-64-generic.md,installation/security.md,configuration/4k-hdr.md,configuration/edid.md,configuration/pulseaudio.md,configuration/startup-shutdown.md,support/log-files.md,support/update.md"},
+      "source_class": "upstream",
+      "media_type": "text/markdown",
+      "version_policy": "reviewed-commit-for-nightly-20261021",
+      "refresh_hours": 720,
+      "size_limit_bytes": 1048576,
+      "license_status": "permitted",
+      "mirror_policy": "human-only",
+      "license_id": "CC-BY-NC-SA-4.0",
+      "enabled": true,
+      "git_ref": "master",
+      "expected_commit": "b6dbb88400ed805ea9a81dafe0cf110db55f7f4a"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # AsterTV Platform Engineering and Design Operations
 
-> Status: Active — Stream A; M0–M1 complete, M2 next
+> Status: Active — Stream A; M0–M1 complete, M2 local candidate ready for acceptance
 >
 > Owner: Jason
 >
@@ -498,13 +498,18 @@ with no live appliance changed.
 
 ### M2 — Existing wiki expansion and curricula
 
-- [ ] Add AsterTV navigation/pages to `homelab-wiki` and register pinned sources
+- [x] Add AsterTV navigation/pages to `homelab-wiki` and register pinned sources
   through existing intake.
-- [ ] Author curricula, onboarding, operations, recovery, incidents and labs.
-- [ ] Add authority/review metadata and link/freshness tests; derive mirror only
+- [x] Author curricula, onboarding, operations, recovery, incidents and labs.
+- [x] Add authority/review metadata and link/freshness tests; derive mirror only
   after human content is accepted.
 
 **Gate:** a new engineer safely plans a synthetic repair from Start Here alone.
+
+The additive local candidate passes its automated gate at wiki commit
+`1fdcf6a`. Human content acceptance, remote synchronization, the established
+LXC 113 site build/publication and post-acceptance mirror derivation remain
+deliberately pending; no live wiki or mirror changed in M2 preparation.
 
 ### M3 — Design authority and pattern library
 
@@ -607,18 +612,21 @@ media mutation, playback interruption, unknown identity or broader firewall.
 
 ## Current resume state
 
-**Milestone:** M2 existing wiki expansion and curricula.
+**Milestone:** M2 candidate acceptance and existing-wiki publication, then M3.
 
 **Verified:** M0 accepted pinned identities for Family, Bedroom and Jen, recorded
 Guest as not deployed, classified the existing wiki/reference/NetBox/release
 authorities and mapped every accepted current difference. M1 restored the
 release lifecycle authority and compiled all four devices reproducibly; eight
 tests include deliberate ownership, dependency, compatibility, candidate and
-secret-bearing failures. No wiki repo, skill or live device changed.
+secret-bearing failures. M2 is a local wiki candidate only; no published wiki,
+skill, Aster mirror or live device changed.
 
-**Next:** extend the existing `homelab-wiki` and LXC 113 intake/collector path
-with AsterTV Start Here, fleet/device/operations pages and pinned curricula.
-Build and validate the candidate locally before any wiki publication.
+**Next:** owner-review the 25-page existing-wiki candidate, then obtain the
+required immediate confirmation before each Forgejo push. Build/publish through
+the established LXC 113 path and derive the Aster mirror only after human
+content is accepted. M3 design-authority work can proceed locally without
+publishing this candidate.
 
 ## Evidence log
 
@@ -630,6 +638,7 @@ Build and validate the candidate locally before any wiki publication.
 | 2026-11-05 | Owner approved the recorded Stream A envelope | Explicit approval in the project thread; repository rules still require immediate approval before each push | Opened M0/M1 with local/read-only work only |
 | 2026-11-05 | Completed M0 authority/corpus/fleet inventory | `docs/projects/evidence/AsterTV-Platform-M0-authority-corpus-inventory-2026-11-05.md`; pinned read-only checks found Family, Bedroom and Jen on the recorded LibreELEC build with enabled guards | All active differences have a migration destination; Guest remains a non-deployed candidate; no live system changed |
 | 2026-11-05 | Completed M1 lifecycle and composition foundation | `docs/Environment-and-Release-Lifecycle.md`; `services/kodi/astertv-fleet/`; `docs/projects/evidence/AsterTV-Platform-M1-composition-foundation-2026-11-05.md` | Four devices compile deterministically; three remain deployed unchanged and Guest remains candidate; 8/8 gates pass including deliberate conflicts and secret rejection |
+| 2026-11-05 | Built and validated the additive M2 HomeLab Wiki candidate | Local `homelab-wiki` commit `1fdcf6a`; `docs/projects/evidence/AsterTV-Platform-M2-wiki-candidate-2026-11-05.md`; two pinned intake sources | 25 pages, 3/3 tests and real bounded source fetches pass; human acceptance/push/LXC publication/mirror remain pending; no live system changed |
 
 ## Close-out
 

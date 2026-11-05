@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-11-05 — Build the AsterTV department in the existing HomeLab Wiki
+
+- Added a 25-page AsterTV engineering department candidate to the existing
+  private MkDocs wiki, including Start Here, fleet/devices, lifecycle,
+  operations curricula, incidents, recovery, training and a synthetic repair.
+- Preserved the Human Wiki Contract and declared owner, authority,
+  applicability, review, sources and recovery on every new page.
+- Added link/freshness/secret/completeness gates with 3/3 tests, including
+  expired-review and broken-link failures.
+- Registered bounded, commit-pinned Kodi and LibreELEC source candidates through
+  the existing intake contract and verified both with real fail-closed fetches.
+- Kept the local wiki candidate unpublished and the Aster mirror unchanged
+  pending human acceptance and the required Forgejo synchronization approvals.
+
 ## 2026-11-05 — Establish deterministic AsterTV fleet composition
 
 - Restored the missing HomeLab environment/release lifecycle authority covering
