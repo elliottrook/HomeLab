@@ -1,0 +1,47 @@
+{
+  "checkpoint": "astertv-media-lifecycle-AsterTV-Family-20261105-031033",
+  "external_artifact": "services/kodi/astertv-fleet/payload-definitions/family-intro-skipper.json",
+  "files": [
+    {
+      "bytes": 12427,
+      "destination": "/storage/.kodi/addons/plugin.video.asterhome/library.py",
+      "mode": "0644",
+      "sha256": "fabba2745f5009f449b119af6a83a8b7139efcabc4f7a1570fb6cccf4db12045"
+    },
+    {
+      "bytes": 3062,
+      "destination": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/manifest.json",
+      "mode": "0644",
+      "sha256": "08692c763ea23e807113f6c3aa8a83d801bd23553b8f1f4999dd2ac79e932b14"
+    },
+    {
+      "bytes": 10392,
+      "destination": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/resources/lib/movie_player.py",
+      "mode": "0644",
+      "sha256": "8970897a29c8160207d6e07cc391abbb932c1f566017514f0661a3618663512a"
+    },
+    {
+      "bytes": 11844,
+      "destination": "/storage/.kodi/addons/skin.asterhome/tools/next_episode.py",
+      "mode": "0644",
+      "sha256": "875b413fa63b5fd618398824ec1ddf10d7a46822d7bd9ede20e6f40896cf5c6b"
+    }
+  ],
+  "id": "family-media-lifecycle",
+  "kind": "astertv-materialized-overlay",
+  "mutable_state": [
+    {
+      "destination": "/storage/.kodi/addons/script.asterruntime/family-manifest.json",
+      "reason": "shared composition manifest; preserve and verify component relationship"
+    },
+    {
+      "authority": "jellyfin-server",
+      "reason": "server plugin files and databases remain on TrueNAS and are asserted"
+    }
+  ],
+  "renderer": {
+    "path": "services/kodi/astertv-v3/deploy/media-lifecycle/repair.py",
+    "sha256": "74817d8f2a398c67f5f9d5ca6012775ce02ac689f70b30e56e61fc33adb03053"
+  },
+  "schema_version": 1
+}

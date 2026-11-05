@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "0cdec27de6777c30a6e31ad61e0ebc8f49ed5c48f15415b4e6986b20e223b2bc",
+  "composition_sha256": "8d2c60ca24c791da167cdd7c4f2a4397c9b9caa5af0b271b90367f68b6ad807b",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [
@@ -43,6 +43,41 @@
       "expected": "0600",
       "key": "asterremote-client-key.mode",
       "overlay": "remote-client-v3",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": "matches-installed-manifest",
+      "key": "family-manifest.component.aster-global-search-ui22",
+      "overlay": "family-media-lifecycle",
+      "sensitive": false
+    },
+    {
+      "authority": "jellyfin",
+      "expected": "12.0.5.0",
+      "key": "plugin.intro-skipper.version",
+      "overlay": "family-media-lifecycle",
+      "sensitive": false
+    },
+    {
+      "authority": "jellyfin",
+      "expected": "12.1.0.0",
+      "key": "plugin.intro-skipper.target-abi",
+      "overlay": "family-media-lifecycle",
+      "sensitive": false
+    },
+    {
+      "authority": "jellyfin",
+      "expected": false,
+      "key": "plugin.intro-skipper.auto-update",
+      "overlay": "family-media-lifecycle",
+      "sensitive": false
+    },
+    {
+      "authority": "jellyfin",
+      "expected": "f6fac284072f2af01b56f1388f215d3ebdadeee79bba6e84de8ed776546918b9",
+      "key": "plugin.intro-skipper.dll-sha256",
+      "overlay": "family-media-lifecycle",
       "sensitive": false
     },
     {
@@ -179,6 +214,34 @@
       "overlay": "family-kodi-restart",
       "path": "/storage/.kodi/addons/skin.asterhome/tools/select_dispatch.py",
       "sha256": "d5f1bea969f2acf8d084949ff84c24353c60bc29e6ad42ea4c22160a445d43f1"
+    },
+    {
+      "bytes": 12427,
+      "mode": "0644",
+      "overlay": "family-media-lifecycle",
+      "path": "/storage/.kodi/addons/plugin.video.asterhome/library.py",
+      "sha256": "fabba2745f5009f449b119af6a83a8b7139efcabc4f7a1570fb6cccf4db12045"
+    },
+    {
+      "bytes": 3062,
+      "mode": "0644",
+      "overlay": "family-media-lifecycle",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/manifest.json",
+      "sha256": "08692c763ea23e807113f6c3aa8a83d801bd23553b8f1f4999dd2ac79e932b14"
+    },
+    {
+      "bytes": 10392,
+      "mode": "0644",
+      "overlay": "family-media-lifecycle",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/resources/lib/movie_player.py",
+      "sha256": "8970897a29c8160207d6e07cc391abbb932c1f566017514f0661a3618663512a"
+    },
+    {
+      "bytes": 11844,
+      "mode": "0644",
+      "overlay": "family-media-lifecycle",
+      "path": "/storage/.kodi/addons/skin.asterhome/tools/next_episode.py",
+      "sha256": "875b413fa63b5fd618398824ec1ddf10d7a46822d7bd9ede20e6f40896cf5c6b"
     },
     {
       "bytes": 2954,

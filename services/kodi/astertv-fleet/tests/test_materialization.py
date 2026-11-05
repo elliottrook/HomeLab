@@ -23,6 +23,9 @@ TV_SPEC.loader.exec_module(TV_MODULE)
 NEWS_SPEC = importlib.util.spec_from_file_location("news_playback_materializer", ROOT / "materialize_news_playback.py")
 NEWS_MODULE = importlib.util.module_from_spec(NEWS_SPEC)
 NEWS_SPEC.loader.exec_module(NEWS_MODULE)
+MEDIA_SPEC = importlib.util.spec_from_file_location("family_media_materializer", ROOT / "materialize_family_media_lifecycle.py")
+MEDIA_MODULE = importlib.util.module_from_spec(MEDIA_SPEC)
+MEDIA_SPEC.loader.exec_module(MEDIA_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -96,6 +99,15 @@ class MaterializationTests(unittest.TestCase):
                     for row in manifest["files"] if row["scope"] == device_id}
             self.assertEqual(rows, expected)
         self.assertFalse(any(path.endswith("family-manifest.json") for path in files))
+
+    def test_family_media_lifecycle_replays_checkpoint_and_excludes_shared_state(self):
+        files, manifest = MEDIA_MODULE.render()
+        self.assertEqual({path: MEDIA_MODULE.sha(data) for path, data in files.items()},
+                         MEDIA_MODULE.EXPECTED_FINAL)
+        self.assertEqual(len(files), 4)
+        self.assertFalse(any(path.endswith("family-manifest.json") for path in files))
+        self.assertEqual(manifest["checkpoint"],
+                         "astertv-media-lifecycle-AsterTV-Family-20261105-031033")
 
 
 if __name__ == "__main__":

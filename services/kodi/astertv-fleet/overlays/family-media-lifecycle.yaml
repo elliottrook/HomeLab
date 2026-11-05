@@ -8,8 +8,20 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-family"],
   "owns": ["kodi/script.asterruntime/continue-watching-filter", "jellyfin/intro-skipper-compatibility"],
-  "payload_sources": ["services/kodi/astertv-v3/deploy/media-lifecycle"],
-  "payload_blockers": ["rendered-runtime-files-not-materialized", "intro-skipper-artifact-lacks-sha256-provenance"],
+  "payload_sources": [
+    "services/kodi/astertv-fleet/materialized/family-media-lifecycle",
+    "services/kodi/astertv-fleet/materialize_family_media_lifecycle.py",
+    "services/kodi/astertv-fleet/payload-definitions/family-intro-skipper.json"
+  ],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "kodi", "key": "family-manifest.component.aster-global-search-ui22", "expected": "matches-installed-manifest", "sensitive": false},
+    {"authority": "jellyfin", "key": "plugin.intro-skipper.version", "expected": "12.0.5.0", "sensitive": false},
+    {"authority": "jellyfin", "key": "plugin.intro-skipper.target-abi", "expected": "12.1.0.0", "sensitive": false},
+    {"authority": "jellyfin", "key": "plugin.intro-skipper.auto-update", "expected": false, "sensitive": false},
+    {"authority": "jellyfin", "key": "plugin.intro-skipper.dll-sha256", "expected": "f6fac284072f2af01b56f1388f215d3ebdadeee79bba6e84de8ed776546918b9", "sensitive": false}
+  ],
   "secret_refs": ["jellyfin-family-client"],
   "rollback_ref": "astertv-media-lifecycle-AsterTV-Family-20261105-031033",
   "tests": ["services/kodi/astertv-v3/deploy/media-lifecycle/test_repair.py"]

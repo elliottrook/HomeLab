@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "0cdec27de6777c30a6e31ad61e0ebc8f49ed5c48f15415b4e6986b20e223b2bc",
+  "composition_sha256": "8d2c60ca24c791da167cdd7c4f2a4397c9b9caa5af0b271b90367f68b6ad807b",
   "deployed": true,
   "device_id": "astertv-family",
   "external_integrations": [
@@ -204,24 +204,39 @@
     ],
     "family-media-lifecycle": [
       {
-        "bytes": 1189,
-        "path": "services/kodi/astertv-v3/deploy/media-lifecycle/README.md",
-        "sha256": "d8148382b17948e9f86124a05e1dcfe6661358609a93fe954ba264db388ce934"
+        "bytes": 5374,
+        "path": "services/kodi/astertv-fleet/materialize_family_media_lifecycle.py",
+        "sha256": "0d5adc8cc3525f6e6a1fadb8d2d7d8edfded4e7418024589372916943e22595d"
       },
       {
-        "bytes": 8019,
-        "path": "services/kodi/astertv-v3/deploy/media-lifecycle/repair.py",
-        "sha256": "74817d8f2a398c67f5f9d5ca6012775ce02ac689f70b30e56e61fc33adb03053"
+        "bytes": 1769,
+        "path": "services/kodi/astertv-fleet/materialized/family-media-lifecycle/materialization-manifest.json",
+        "sha256": "470d565098a9db9e3d4c77e124ced910368aa48cd7e79d943451ae250c7de705"
       },
       {
-        "bytes": 5343,
-        "path": "services/kodi/astertv-v3/deploy/media-lifecycle/repair_jellyfin_intro_skipper.py",
-        "sha256": "afe2961bcb28f8810fe1b6432c2abb56ed9238d29522f4f25d5739733427fe14"
+        "bytes": 12427,
+        "path": "services/kodi/astertv-fleet/materialized/family-media-lifecycle/plugin.video.asterhome/library.py",
+        "sha256": "fabba2745f5009f449b119af6a83a8b7139efcabc4f7a1570fb6cccf4db12045"
       },
       {
-        "bytes": 3496,
-        "path": "services/kodi/astertv-v3/deploy/media-lifecycle/test_repair.py",
-        "sha256": "cc3c93571ac300a8c41f1535408cde0929c358e36c1a8b988d2eb0688632cbd7"
+        "bytes": 3062,
+        "path": "services/kodi/astertv-fleet/materialized/family-media-lifecycle/script.asterruntime/aster-global-search-ui22/manifest.json",
+        "sha256": "08692c763ea23e807113f6c3aa8a83d801bd23553b8f1f4999dd2ac79e932b14"
+      },
+      {
+        "bytes": 10392,
+        "path": "services/kodi/astertv-fleet/materialized/family-media-lifecycle/script.asterruntime/aster-global-search-ui22/resources/lib/movie_player.py",
+        "sha256": "8970897a29c8160207d6e07cc391abbb932c1f566017514f0661a3618663512a"
+      },
+      {
+        "bytes": 11844,
+        "path": "services/kodi/astertv-fleet/materialized/family-media-lifecycle/skin.asterhome/tools/next_episode.py",
+        "sha256": "875b413fa63b5fd618398824ec1ddf10d7a46822d7bd9ede20e6f40896cf5c6b"
+      },
+      {
+        "bytes": 608,
+        "path": "services/kodi/astertv-fleet/payload-definitions/family-intro-skipper.json",
+        "sha256": "5ab9f8c0f96619f364bf794c5a365e4ce08fcaca2f2349439a7292694038d248"
       }
     ],
     "news-playback-v3": [
@@ -423,7 +438,7 @@
     "overlays/family-dolby-hdr.yaml": "5e3d4d71a769d47af52ca79739cded5c5715fbd22195c0838ce2fa92329fec5e",
     "overlays/family-equipment-bridge.yaml": "1d4adc9bd0abbdab87b15f44568ab1dbcab6be5828dcba4cb8bbf1197a0a78ea",
     "overlays/family-kodi-restart.yaml": "9901c11256920a09b1cd351f1b71c1ce65cfd164b09fe18f004455c4b696b521",
-    "overlays/family-media-lifecycle.yaml": "9d88eecceafccbf0e60d49a15c2b5d5749eeaa8214ee840c8d36e189feba194b",
+    "overlays/family-media-lifecycle.yaml": "0e6a77c62363e32ceaa70c801d07a7a5b79d297929abe99344c631ab02503e61",
     "overlays/news-playback-v3.yaml": "6d10196250e67c58dcde41122aa4da689c97392298abe32e075613e122a3af2f",
     "overlays/release-guard-v1.yaml": "a3afc7db25e4c295b3f4bd944f32e4cf47fa0ccefae2cbf182edbed38214c038",
     "overlays/remote-client-v3.yaml": "40267e62ec475ce2318ea20bf5f8771943a46b30b60ace77ac91ea96a8cc948a",

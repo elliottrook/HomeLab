@@ -9,10 +9,10 @@ base release and ordered overlay source bytes. The guard contract includes
 expected payload hashes and required external dependencies.
 
 This is deliberately a **candidate build gate**, not a deployment approval.
-Eight overlays now have complete contracts: Family restart, target-aware release
+Nine overlays now have complete contracts: Family restart, target-aware release
 guard, Bedroom Wi-Fi, Bedroom stereo assertions, Family Dolby/HDR assertions
 the target-aware Remote client, the reconciled TV-details tree, and target-aware
-News playback. The other 10
+News playback, and Family media lifecycle. The other nine
 overlay definitions name their exact current inputs and explicit blockers.
 Plans build successfully; Bedroom is now the first composition eligible for a
 future promotion transaction. No promotion was performed.
@@ -32,7 +32,7 @@ future promotion transaction. No promotion was performed.
 
 ## Verification
 
-- Fleet/release suite: 29/29 passing, including typed assertion drift and
+- Fleet/release suite: 30/30 passing, including typed assertion drift and
   target isolation.
 - Four deterministic bundles build from the locally verified immutable release.
 - Repeated builds are byte-identical.
@@ -57,15 +57,18 @@ future promotion transaction. No promotion was performed.
   and Jen predecessors. Jen already has the current revision; the Family
   candidate advances from its older accepted revision. Shared manifest state
   is preserved and verified semantically rather than copied between hosts.
+- Family media lifecycle replays four runtime files from its exact checkpoint.
+  Intro Skipper is represented as a Jellyfin server assertion with pinned ZIP
+  and DLL SHA-256 values; plugin databases and server state are not bundled.
 - Bedroom has no incomplete overlay contract and is the sole deployable plan.
-  Family remains blocked by two overlays, Jen by eight, and Guest remains a
+  Family remains blocked only by its equipment bridge, Jen by eight, and Guest remains a
   non-deployed candidate.
 - Payload and dependency drift tests fail closed.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 
 ## Next
 
-Materialize Family lifecycle next, then equipment state. Continue defining typed assertions/external artifacts and
+Materialize Family equipment state next. Continue defining typed assertions/external artifacts and
 mutable-state exclusions one overlay at a time. Bedroom eligibility does not
 authorize deployment; it must still pass Doctor observation and the later M8
 promotion gate.

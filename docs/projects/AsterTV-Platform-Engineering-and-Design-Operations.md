@@ -612,7 +612,7 @@ media mutation, playback interruption, unknown identity or broader firewall.
 
 ## Current resume state
 
-**Milestone:** M2/M3 owner acceptance and publication gates; M4 Bedroom bundle and shared News contract complete.
+**Milestone:** M2/M3 owner acceptance and publication gates; M4 Bedroom bundle complete and Family down to one blocker.
 
 **Verified:** M0 accepted pinned identities for Family, Bedroom and Jen, recorded
 Guest as not deployed, classified the existing wiki/reference/NetBox/release
@@ -624,12 +624,13 @@ hash-bound design authority and synthetic reference library but still needs
 owner visual acceptance. M4 has deterministic plan-only SBOM, compatibility,
 performance and composition-guard foundations; the immutable v2.0.7 archive is
 locally hash-verified and synthetic interrupted promotion/rollback is proven,
-M4 now builds deterministic hash-bound candidate appliance bundles. Eight
+M4 now builds deterministic hash-bound candidate appliance bundles. Nine
 overlays have complete contracts, including target-aware release guard, Remote,
 Bedroom Wi-Fi/audio, Family restart/audio and the reconciled 12-file TV-details
-tree plus target-specific current News playback outputs. Bedroom is the first
+tree, target-specific current News playback outputs, and Family media lifecycle
+with hash-pinned Intro Skipper external state. Bedroom is the first
 composition with no overlay blocker; this is release eligibility only and did
-not deploy it. Family remains blocked by two overlays, Jen by eight, and Guest
+not deploy it. Family remains blocked only by its equipment bridge, Jen by eight, and Guest
 remains a non-deployed candidate. M5's Guest fixture fails closed on unresolved physical and
 NetBox facts. Both M6 skills are installed from a hash manifest and passed
 independent effect-free forward tests. No published wiki, Aster mirror or live
@@ -638,7 +639,7 @@ AsterTV changed.
 **Next:** owner-review the 25-page wiki and generated design reference, then
 obtain the required immediate confirmation before each Forgejo push. Build the
 wiki through the established LXC 113 path only after content acceptance. In
-parallel, materialize Family lifecycle and equipment overlays, and finish
+parallel, materialize Family equipment state and finish
 Doctor observation before any appliance
 migration.
 
@@ -655,7 +656,7 @@ migration.
 | 2026-11-05 | Built and validated the additive M2 HomeLab Wiki candidate | Local `homelab-wiki` commit `1fdcf6a`; `docs/projects/evidence/AsterTV-Platform-M2-wiki-candidate-2026-11-05.md`; two pinned intake sources | 25 pages, 3/3 tests and real bounded source fetches pass; human acceptance/push/LXC publication/mirror remain pending; no live system changed |
 | 2026-11-05 | Built M3–M6 platform foundations | `docs/projects/evidence/AsterTV-Platform-M3-M6-foundations-2026-11-05.md`; design, release-plan, onboarding and skill packages | Hash-bound design assets and fixtures, plan-only SBOM/guards, least-privilege Guest planning and two independently tested skills; no appliance/wiki publication |
 | 2026-11-05 | Verified the immutable base and transaction recovery | v2.0.7 archive hash, 17/17 fleet/release tests, synthetic interruption and rollback fixture | All plans now prove the base artifact; deployment remains blocked until every overlay declares exact payload paths/hashes and guard/Doctor integration is complete |
-| 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 29/29 fleet/release tests | Four byte-stable candidate bundles build; eight contracts are complete; TV details and News are provenance-bound; Bedroom is eligible but not deployed; 10 incomplete contracts and Doctor gates remain |
+| 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 30/30 fleet/release tests | Four byte-stable candidate bundles build; nine contracts are complete; TV details, News and Family lifecycle are provenance-bound; Bedroom is eligible but not deployed; Family has one blocker; nine incomplete contracts remain |
 
 ## Close-out
 

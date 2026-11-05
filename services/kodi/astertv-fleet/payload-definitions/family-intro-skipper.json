@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-external-artifact-contract",
+  "id": "family-intro-skipper",
+  "authority": "jellyfin-server",
+  "artifact": {
+    "name": "intro-skipper-v12.0.5.0.zip",
+    "sha256": "5a3ce9686f79ef064bef69fa18708171acc2106707fca8beaed03a22b12d9f24",
+    "installed_dll_sha256": "f6fac284072f2af01b56f1388f215d3ebdadeee79bba6e84de8ed776546918b9"
+  },
+  "state": {
+    "version": "12.0.5.0",
+    "target_abi": "12.1.0.0",
+    "status": "Active",
+    "auto_update": false
+  },
+  "custody": "TrueNAS Jellyfin plugin dataset and protected configuration backup",
+  "bundled": false
+}

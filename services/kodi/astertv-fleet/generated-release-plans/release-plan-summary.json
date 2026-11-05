@@ -18,8 +18,7 @@
       "blockers": [
         "release-artifact-not-locally-verified",
         "composition-bundle-not-built",
-        "overlay-payload-incomplete:family-equipment-bridge",
-        "overlay-payload-incomplete:family-media-lifecycle"
+        "overlay-payload-incomplete:family-equipment-bridge"
       ],
       "bundle_built": false,
       "bundle_sha256": null,
