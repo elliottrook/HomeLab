@@ -19,7 +19,11 @@ ROOMS = {
     "AsterTV-Family": Path("/storage/.aster-v3/m8-remote"),
     "AsterTV-Bedroom": Path("/storage/.aster-v3/m8-remote"),
 }
-OLD_SERVICE = "22e06499cf045ac58a1f60117b7bcf51eea8de2687812ef0f2783716ea99207a"
+OLD_SERVICES = {
+    "AsterTV-Jen": "6e0332240664de1c20e3add04331909c0feaf0c27c31a5ea0e99bd99365e75da",
+    "AsterTV-Family": "22e06499cf045ac58a1f60117b7bcf51eea8de2687812ef0f2783716ea99207a",
+    "AsterTV-Bedroom": "22e06499cf045ac58a1f60117b7bcf51eea8de2687812ef0f2783716ea99207a",
+}
 LIVE = Path("/storage/.kodi/addons/service.asterremote/service.py")
 CHECKPOINTS = Path("/storage/.aster-checkpoints")
 
@@ -53,7 +57,7 @@ def install(source, identifier):
     if host not in ROOMS or os.getuid() != 0: raise RuntimeError("room-root-only")
     stable = ROOMS[host]; stable_service = stable / "service.asterremote/service.py"
     manifest = stable / "manifest.json"
-    if sha(LIVE) != OLD_SERVICE or sha(stable_service) != OLD_SERVICE:
+    if sha(LIVE) != OLD_SERVICES[host] or sha(stable_service) != OLD_SERVICES[host]:
         raise RuntimeError("remote-client-predecessor-drift")
     if rpc("Player.GetActivePlayers"): raise RuntimeError("active-playback")
     checkpoint = CHECKPOINTS / identifier
