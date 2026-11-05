@@ -1423,7 +1423,12 @@ HA-to-Onkyo `60128/TCP+UDP` path and native Onkyo integration now expose the
 idle main entity as `Family Room Receiver`; Zone 2/3 are excluded. The owner
 also completed native LG on-screen pairing and the verified
 `OLED55G4SUB.DCCQLJR` entity is live as `Bedroom TV`. No equipment command has
-yet been issued and Remote equipment controls remain disabled.
+yet been issued and Remote equipment controls remain disabled. The Family TCL
+is now paired locally as `Family Room TV`; its network MAC is reserved at
+`192.168.30.162`, a host-specific rule blocks normal Internet egress after
+local DNS/NTP, and the loaded rule is recording denied packets without breaking
+Home Assistant state. Its separately advertised Bluetooth MAC was caught and
+removed from the reservation before lease turnover.
 
 - [ ] Inventory the exact Family television and Onkyo receiver plus the Bedroom
   LG television, soundbar/receiver, connection paths, network capabilities,

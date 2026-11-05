@@ -100,3 +100,35 @@ These integrations establish identity and fresh observation only. Aster Remote
 equipment controls remain disabled until explicit command/feedback,
 duplicate-command, standby/wake and physical-remote recovery tests pass.
 
+### Family TCL local-only control boundary
+
+The powered Family television advertised `_androidtvremote2._tcp` as **Family
+Room TV** at `192.168.30.162:6466`, with wake port `6465` and Bluetooth address
+`0C:91:60:75:7C:5D`. Its Google Cast record independently identified model
+`Smart TV Pro`, manufacturer TCL and port `8009`. The authoritative DHCP lease
+shows network-interface MAC `0C:91:60:75:7C:5C`; the Bluetooth address is not a
+DHCP identity.
+
+OPNsense rule `bfaf8ab8-9e66-43fe-8be0-f25a6ca13d47` blocks this one host to
+`any` on IoT at sequence `950`, after the existing local DNS/NTP permits and
+private-network block but before the general IoT Internet permit. Its
+checkpoint and proof are
+`config-astertv-m7-family-tcl-wan-{before,proof}-20261105.*`. The loaded PF rule
+immediately accumulated denied packets while Android TV Remote discovery and
+Home Assistant local state stayed live.
+
+The owner completed the television's native pairing code flow. Home Assistant
+created `media_player.family_room_tv` and `remote.family_room_tv`, both
+reporting `on`, for device ID `a07a69273c840d81e53346d9c3500b27` and config
+entry `01M6PNBDBDHEN6ENK4H691HG9C`. No control command was sent.
+
+The first reservation draft used the integration-advertised Bluetooth address
+ending `5D`. A post-reload comparison against the authoritative DHCP lease
+caught the mismatch before lease turnover. The reservation was corrected in
+place, with its own immutable before/proof pair, to network MAC ending `5C`.
+The running dnsmasq configuration now contains exactly
+`dhcp-host=0c:91:60:75:7c:5c,192.168.30.162,family-room-tv`; Home Assistant
+observation and the privacy rule remained live throughout. The clean-install
+script and regression test also use `5C`, while the one-time correction and
+its test retain the incident/recovery evidence.
+
