@@ -12,6 +12,7 @@ PLAN_SHA = "1" * 64
 GRANT_SHA = "2" * 64
 TARGET_SHA = "3" * 64
 EVIDENCE_SHA = "4" * 64
+REGISTRATION_SHA = "5" * 64
 
 
 class SA4OneUseGrantLedgerTests(unittest.TestCase):
@@ -26,6 +27,7 @@ class SA4OneUseGrantLedgerTests(unittest.TestCase):
     def initialize(self):
         return self.store.initialize(
             grant_id=GRANT, plan_sha256=PLAN_SHA, grant_sha256=GRANT_SHA,
+            target_registration_sha256=REGISTRATION_SHA,
             target_sha256=TARGET_SHA, now_epoch=100, expires_epoch=1000)
 
     def test_exact_grant_claim_and_terminal_consumption_are_one_use(self):
@@ -95,7 +97,9 @@ class SA4OneUseGrantLedgerTests(unittest.TestCase):
         with self.assertRaises(ledger.LedgerError):
             self.store.initialize(
                 grant_id=GRANT, plan_sha256=PLAN_SHA,
-                grant_sha256=GRANT_SHA, target_sha256=TARGET_SHA,
+                grant_sha256=GRANT_SHA,
+                target_registration_sha256=REGISTRATION_SHA,
+                target_sha256=TARGET_SHA,
                 now_epoch=100, expires_epoch=3701)
         self.initialize()
         for now, deadline in ((1000, 1001), (200, 1101), (200, 200)):

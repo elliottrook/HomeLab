@@ -10,6 +10,7 @@ import sa4_authenticated_authority_v1 as authority
 import sa4_filesystem_evidence_v1 as filesystem
 import sa4_one_use_grant_ledger_v1 as ledger_module
 import sa4_single_file_repair_contract_v1 as contract
+import sa4_target_registry_v1 as target_registry
 
 
 def compose(plan_raw: bytes, approval_raw: bytes, approval_proof_raw: bytes,
@@ -20,6 +21,8 @@ def compose(plan_raw: bytes, approval_raw: bytes, approval_proof_raw: bytes,
     if not isinstance(ledger, ledger_module.OneUseLedger):
         raise ValueError("SA4 one-use ledger is not the frozen implementation")
     plan = contract.validate_plan(plan_raw)
+    registration_sha256 = target_registry.registration_sha256(
+        target_registry.resolve_schema_fixture(plan["target_id"]))
     authenticated = authority.verify(
         plan_raw, approval_raw, approval_proof_raw,
         grant_raw, grant_proof_raw, now_epoch)
@@ -28,6 +31,10 @@ def compose(plan_raw: bytes, approval_raw: bytes, approval_proof_raw: bytes,
     if (record["state"] != "ready" or record["use_count"] != 0
             or record["plan_sha256"] != authenticated["plan_sha256"]
             or record["grant_sha256"] != authenticated["grant_sha256"]
+            or record["target_registration_sha256"]
+            != registration_sha256
+            or measured["target_registration_sha256"]
+            != registration_sha256
             or record["target_sha256"] != measured["target_bytes_sha256"]
             or record["target_sha256"]
             != plan["precondition"]["expected_sha256"]
@@ -53,6 +60,7 @@ def compose(plan_raw: bytes, approval_raw: bytes, approval_proof_raw: bytes,
         "grant_sha256": authenticated["grant_sha256"],
         "grant_proof_sha256": authenticated["grant_proof_sha256"],
         "filesystem_evidence_sha256": measured["evidence_sha256"],
+        "target_registration_sha256": registration_sha256,
         "target_before_sha256": measured["target_bytes_sha256"],
         "checkpoint_sha256": measured["checkpoint_bytes_sha256"],
         "authority_authenticated": True,

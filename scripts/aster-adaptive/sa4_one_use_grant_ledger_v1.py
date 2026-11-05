@@ -151,6 +151,7 @@ class OneUseLedger:
     @staticmethod
     def _validate_record(value: object) -> None:
         base = {"schema", "grant_id", "plan_sha256", "grant_sha256",
+                "target_registration_sha256",
                 "target_sha256", "created_epoch", "expires_epoch", "state",
                 "use_count", "automatic_retry", "authority",
                 "effect_authorized"}
@@ -168,7 +169,8 @@ class OneUseLedger:
         if (set(value) != expected or value["schema"] != SCHEMA
                 or not _identity(value["grant_id"])
                 or any(not _digest(value[name]) for name in (
-                    "plan_sha256", "grant_sha256", "target_sha256"))
+                    "plan_sha256", "grant_sha256",
+                    "target_registration_sha256", "target_sha256"))
                 or type(value["created_epoch"]) is not int
                 or type(value["expires_epoch"]) is not int
                 or not value["created_epoch"] < value["expires_epoch"]
@@ -196,10 +198,12 @@ class OneUseLedger:
             raise LedgerError("SA4 ledger terminal binding changed")
 
     def initialize(self, *, grant_id: str, plan_sha256: str, grant_sha256: str,
-                   target_sha256: str, now_epoch: int,
+                   target_registration_sha256: str, target_sha256: str,
+                   now_epoch: int,
                    expires_epoch: int) -> dict[str, object]:
         value = {"schema": SCHEMA, "grant_id": grant_id,
                  "plan_sha256": plan_sha256, "grant_sha256": grant_sha256,
+                 "target_registration_sha256": target_registration_sha256,
                  "target_sha256": target_sha256,
                  "created_epoch": now_epoch, "expires_epoch": expires_epoch,
                  "state": "ready", "use_count": 0,

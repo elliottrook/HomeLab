@@ -3,6 +3,7 @@ import unittest
 
 import sa4_filesystem_evidence_v1 as filesystem
 import sa4_single_file_repair_contract_v1 as contract
+import sa4_target_registry_v1 as target_registry
 from test_sa4_single_file_repair_contract_v1 import plan
 
 
@@ -23,6 +24,10 @@ def evidence(plan_raw):
         "schema": "aster-sa4-filesystem-preflight-evidence.v1",
         "plan_sha256": filesystem.sha256(plan_raw),
         "target_id": "sa4-synthetic-fixture", "measurement_epoch": 100,
+        "target_registration_sha256":
+            target_registry.registration_sha256(
+                target_registry.resolve_schema_fixture(
+                    "sa4-synthetic-fixture")),
         "capture": {"host_id": "synthetic-host",
                     "path": "/synthetic/aster/example.conf",
                     "open_flags": list(filesystem.OPEN_FLAGS),
@@ -128,6 +133,12 @@ class SA4FilesystemEvidenceTests(unittest.TestCase):
         raw = contract.canonical(self.value).replace(
             b'"effects":0', b'"effects":0,"effects":0')
         with self.assertRaises(ValueError): filesystem.validate(self.plan_raw, raw)
+
+    def test_target_registration_digest_drift_fails_closed(self):
+        value = copy.deepcopy(self.value)
+        value["target_registration_sha256"] = "0" * 64
+        with self.assertRaises(ValueError):
+            self.validate(value)
 
 
 if __name__ == "__main__": unittest.main()

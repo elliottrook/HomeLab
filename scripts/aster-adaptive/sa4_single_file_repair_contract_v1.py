@@ -7,6 +7,7 @@ from pathlib import PurePosixPath
 import re
 
 from nlu_threshold_policy import decode_unique_json
+import sa4_target_registry_v1 as target_registry
 
 
 HEX64 = re.compile(r"[0-9a-f]{64}")
@@ -15,18 +16,6 @@ MODE = re.compile(r"0[0-7]{3}")
 POSTCHECKS = ("target-bytes", "target-metadata", "consumer-read-only-health")
 EXCLUSIONS = ("credentials", "firewall", "network", "model",
               "service-restart", "shared-infrastructure")
-REGISTERED_TARGETS = {
-    "sa4-synthetic-fixture": {
-        "target": {"host_id": "synthetic-host",
-                   "path": "/synthetic/aster/example.conf",
-                   "type": "regular-file", "follow_symlinks": False,
-                   "owner": "root", "group": "root", "mode": "0644"},
-        "classification": "low-criticality-read-only-adapter",
-        "consumer_postcheck": "consumer-read-only-health",
-    },
-}
-
-
 def canonical(value: object) -> bytes:
     return (json.dumps(value, sort_keys=True, separators=(",", ":"),
                        allow_nan=False) + "\n").encode()
@@ -62,14 +51,24 @@ def validate_plan(raw: bytes) -> dict[str, object]:
     if not isinstance(value, dict) or set(value) != fields:
         raise ValueError("SA4 repair plan shape changed")
     target, before, change = value["target"], value["precondition"], value["change"]
-    registered = REGISTERED_TARGETS.get(value.get("target_id"))
+    try:
+        registered = target_registry.resolve_schema_fixture(
+            value.get("target_id"))
+    except (TypeError, ValueError):
+        registered = None
+    registered_target = None if registered is None else {
+        "host_id": registered.host_id, "path": registered.path,
+        "type": "regular-file", "follow_symlinks": False,
+        "owner": registered.owner, "group": registered.group,
+        "mode": registered.mode,
+    }
     if (value["schema"] != "aster-sa4-single-file-repair-plan.v1"
             or not _identity(value["plan_id"])
-            or not isinstance(registered, dict)
-            or registered.get("classification")
+            or registered is None
+            or registered.classification
             != "low-criticality-read-only-adapter"
-            or registered.get("consumer_postcheck") not in POSTCHECKS
-            or target != registered.get("target")
+            or registered.postcheck_ids != POSTCHECKS
+            or target != registered_target
             or not isinstance(value["candidate_release_sha256"], str)
             or not HEX64.fullmatch(value["candidate_release_sha256"])
             or value["repair_class"] != "single-file-configuration-drift"

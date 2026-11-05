@@ -9,6 +9,7 @@ import sa4_authenticated_authority_v1 as authority
 import sa4_one_use_grant_ledger_v1 as ledger_module
 import sa4_preflight_composition_v1 as composition
 import sa4_single_file_repair_contract_v1 as contract
+import sa4_target_registry_v1 as target_registry
 from test_sa4_authenticated_authority_v1 import inputs as authority_inputs
 from test_sa4_filesystem_evidence_v1 import evidence as filesystem_evidence
 
@@ -28,6 +29,9 @@ class SA4PreflightCompositionTests(unittest.TestCase):
             grant_id=grant["grant_id"],
             plan_sha256=authority.sha256(self.plan_raw),
             grant_sha256=authority.sha256(self.grant_raw),
+            target_registration_sha256=target_registry.registration_sha256(
+                target_registry.resolve_schema_fixture(
+                    "sa4-synthetic-fixture")),
             target_sha256=grant["target_sha256"],
             now_epoch=100, expires_epoch=grant["expires_epoch"])
 

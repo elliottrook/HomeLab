@@ -58,6 +58,13 @@ The source identities are `c126541a…c9e5a3` (authority),
 `929f1427…372223` (ledger), `216f7d83…3fe447` (filesystem evidence) and
 `b3441233…b0743f` (composition).
 
+The follow-on [compiled target registry boundary](SA4-compiled-target-registry-boundary-2026-11-05.md)
+now separates the synthetic schema fixture from an intentionally empty
+production registry and cross-binds the exact registration into filesystem,
+ledger and composition evidence. The expanded SA4 suite passes 36/36. This
+closes caller-nominated target/path/postcheck injection in source but still
+authorizes no measurement or repair effect.
+
 ## Remaining real-world gate
 
 No production target or real key is registered. The filesystem measurements

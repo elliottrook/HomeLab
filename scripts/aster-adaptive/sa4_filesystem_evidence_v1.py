@@ -9,6 +9,7 @@ import hashlib
 import re
 
 import sa4_single_file_repair_contract_v1 as contract
+import sa4_target_registry_v1 as target_registry
 from nlu_threshold_policy import decode_unique_json
 
 
@@ -64,7 +65,8 @@ def validate(plan_raw: bytes, evidence_raw: bytes) -> dict[str, object]:
     """Validate exact synthetic preflight measurements and authorize nothing."""
     plan = contract.validate_plan(plan_raw)
     value = decode_unique_json(evidence_raw)
-    fields = {"schema", "plan_sha256", "target_id", "measurement_epoch",
+    fields = {"schema", "plan_sha256", "target_id",
+              "target_registration_sha256", "measurement_epoch",
               "capture", "target", "checkpoint", "temporary", "controls",
               "postcheck_receipts", "effects", "authority",
               "automatic_routing"}
@@ -73,6 +75,9 @@ def validate(plan_raw: bytes, evidence_raw: bytes) -> dict[str, object]:
             or value["plan_sha256"] != sha256(plan_raw)
             or value["target_id"] != "sa4-synthetic-fixture"
             or plan["target_id"] != value["target_id"]
+            or value["target_registration_sha256"]
+            != target_registry.registration_sha256(
+                target_registry.resolve_schema_fixture(value["target_id"]))
             or type(value["measurement_epoch"]) is not int
             or value["measurement_epoch"] <= 0
             or value["effects"] != 0 or value["authority"] != "none"
@@ -156,6 +161,7 @@ def validate(plan_raw: bytes, evidence_raw: bytes) -> dict[str, object]:
         "schema": "aster-sa4-filesystem-evidence-validation.v1",
         "plan_sha256": sha256(plan_raw),
         "evidence_sha256": sha256(evidence_raw),
+        "target_registration_sha256": value["target_registration_sha256"],
         "target_bytes_sha256": target["bytes_sha256"],
         "checkpoint_bytes_sha256": checkpoint["file"]["bytes_sha256"],
         "no_follow_descriptor_proven": True,
