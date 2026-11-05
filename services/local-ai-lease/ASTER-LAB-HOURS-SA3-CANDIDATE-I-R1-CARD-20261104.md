@@ -12,6 +12,11 @@
 R1 is candidate-i's first and only authorized attempt on its untouched packet.
 Candidate-g R8 and its packet remain spent.
 
+The ledger was rechecked clear immediately before the reservation was saved.
+The authoritative record is now `scheduled`, with start epoch `1793838600`,
+end epoch `1793842200` and restore buffer `900`. The dispatcher, not this
+card, owns the one claim at 17:30.
+
 ## Installed boundary
 
 Installed candidate-i proof binds:
