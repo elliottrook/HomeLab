@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [daytime November5 qualification is operationally armed](B60-Inference-Engineering/daytime-qualification-armed-20261105.md):
+11:35 fresh integrity,12:30 restore-only, restoration by13:15. Actual source
+migration/five guest helper updates/fresh plans are complete;30 source pins,
+five plans and15 consumers independently verify.194 controller,5 daytime,115
+B60 and31 target tests pass. A12:40 result continuation is created. No model
+ran or live qualification success is claimed; do not duplicate the owner.
+
 The [actual November5 qualification](B60-Inference-Engineering/qualification-no-go-20261105.md)
 passed integrity/admission but the owner stopped before checkpoint with
 HOST_ADAPTER_COMMAND_FAILED. First-guest metadata now differs by two added
