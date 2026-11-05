@@ -22,9 +22,17 @@ authority `not-granted`, automatic routing `off` and an exact self-hash.
 Duplicate JSON keys, a stale self-hash, any artifact substitution or any
 attempt to broaden the scope fails closed.
 
-The expanded J2 source suite passes 53/53. No acceptance artifact has been
-created because Jason has not yet made the exact owner decision on these four
-hashes. A later valid record will capture that decision; it will not
-authenticate external custody or authorize training. The separately controlled
-custody signer and sealed evaluation custodian remain independent gates.
+The expanded J2 source suite passes 53/53. Jason subsequently approved the
+exact candidate-v4 review card. That decision is now retained as the regular,
+one-link, mode-0600 owner record
+`owner-acceptance-jason.json`, file SHA-256
+`9e7eb6f76396088b5650647d0c7970b5659711ff94fd3c0c16fd504619bf393b`
+and internal receipt SHA-256
+`09197a4d3bc430caa285f2cd2b5911802afaf998e11bd46a6e65bb014b1bdb02`.
+The frozen validator accepts it against all four exact artifact identities.
+
+This records corpus-release acceptance only. It does not authenticate external
+custody or authorize training, sealed-evaluation access, authority or routing.
+The separately controlled custody signer and sealed evaluation custodian remain
+independent gates.
 

@@ -233,8 +233,11 @@ now makes Jason's eventual candidate-v4 decision fail closed against the exact
 corpus, normalized set, label-review and quality-review hashes. It can record
 only corpus-release acceptance and explicitly keeps training, sealed evaluation
 access, authority and routing off. The expanded J2 suite passes 53/53. No owner
-acceptance record exists yet, and this structural boundary does not substitute
-for the separately controlled custody signer or evaluation custodian.
+acceptance record existed at source freeze. Jason's subsequent exact-card
+approval is now retained and validates as corpus-release-only at file SHA-256
+`9e7eb6f7…393b`. It does not substitute for the separately controlled custody
+signer or evaluation custodian, and training, sealed-evaluation access,
+authority and automatic routing remain off.
 
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
