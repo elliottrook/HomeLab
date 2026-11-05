@@ -1,7 +1,37 @@
 {
-  "composition_sha256": "3d768b4d834f2a028713e62b609608f732ec4a97123aa6b01e37ec3b40bb022f",
+  "composition_sha256": "7bdba3871599b0cbca8ae20e1fda746a797629a8becdf7d48b553f0bb3d41663",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-bedroom",
+  "expected_assertions": [
+    {
+      "authority": "kodi",
+      "expected": "stereo",
+      "key": "audio.output-contract",
+      "overlay": "bedroom-stereo",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": false,
+      "key": "audio.passthrough",
+      "overlay": "bedroom-stereo",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": 2,
+      "key": "audio.channels",
+      "overlay": "bedroom-stereo",
+      "sensitive": false
+    },
+    {
+      "authority": "libreelec",
+      "expected": "disabled",
+      "key": "wifi.power-save",
+      "overlay": "bedroom-wifi-stability",
+      "sensitive": false
+    }
+  ],
   "expected_payloads": [
     {
       "bytes": 260,

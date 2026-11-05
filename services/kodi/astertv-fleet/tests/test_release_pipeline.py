@@ -129,6 +129,23 @@ class ReleasePipelineTests(unittest.TestCase):
         self.assertEqual(result["payload_mismatches"], ["ui:file.xml"])
         self.assertEqual(result["unavailable_dependencies"], ["jellyfin"])
 
+    def test_guard_detects_typed_assertion_drift(self):
+        contract = {
+            "schema_version": 1, "kind": "composition-guard-contract",
+            "device_id": "box", "composition_sha256": "abc",
+            "expected_resources": [], "registered_extras": [],
+            "expected_assertions": [{"overlay": "audio", "authority": "kodi",
+                                     "key": "audio.passthrough", "expected": True,
+                                     "sensitive": False}],
+        }
+        observed = {"schema_version": 1, "kind": "composition-observation",
+                    "device_id": "box", "composition_sha256": "abc",
+                    "resources": [], "dependencies": {}, "payloads": [],
+                    "assertions": {"kodi:audio.passthrough": False}}
+        result = GUARD.inspect(contract, observed)
+        self.assertEqual(result["outcome"], "drift")
+        self.assertEqual(result["assertion_mismatches"], ["audio:kodi:audio.passthrough"])
+
     def test_wrong_artifact_hash_fails_closed(self):
         with tempfile.TemporaryDirectory() as artifacts, tempfile.TemporaryDirectory() as destination:
             release = json.loads((ROOT / "releases/astertv-v2.0.7-2026-10-31.yaml").read_text())

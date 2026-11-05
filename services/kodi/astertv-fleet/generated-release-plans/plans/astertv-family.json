@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-family-14c263b4c69a.tar.gz",
+    "name": "astertv-family-a76e05f14490.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,12 +22,14 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "14c263b4c69a75ec9b7fc2780621f18d26e6903a7c077c75f4386724dc53dac6",
+  "composition_sha256": "a76e05f14490cc4c2b02a5ab40d6cc98d2544df9051ac30c2b1b026ee283d2ee",
   "deployable": false,
   "device_id": "astertv-family",
   "kind": "release-plan",
   "overlays": [
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [],
       "id": "release-guard-v1",
       "layer": "recovery",
@@ -36,8 +38,10 @@
         "systemd/astertv-release-guard.service",
         "state/accepted-manifest-envelope"
       ],
-      "payload_blockers": [],
-      "payload_status": "complete",
+      "payload_blockers": [
+        "host-bound-systemd-unit-and-accepted-envelope-not-materialized"
+      ],
+      "payload_status": "incomplete",
       "payloads": [
         {
           "bytes": 260,
@@ -71,6 +75,33 @@
       ]
     },
     {
+      "apply_strategy": "preserve-and-verify",
+      "assertions": [
+        {
+          "authority": "kodi",
+          "expected": "hdmi0-exclusive",
+          "key": "audio.route",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": true,
+          "key": "audio.dolby-passthrough",
+          "sensitive": false
+        },
+        {
+          "authority": "systemd",
+          "expected": true,
+          "key": "pulseaudio.masked",
+          "sensitive": false
+        },
+        {
+          "authority": "display",
+          "expected": true,
+          "key": "hdr",
+          "sensitive": false
+        }
+      ],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -99,6 +130,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -153,6 +186,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "remote-client-v3"
       ],
@@ -225,6 +260,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -234,15 +271,38 @@
       "owns": [
         "kodi/skin.asterhome/settings-restart-action"
       ],
-      "payload_blockers": [
-        "rendered-settings-dispatch-helper-and-manifests-not-materialized"
-      ],
-      "payload_status": "incomplete",
+      "payload_blockers": [],
+      "payload_status": "complete",
       "payloads": [
         {
-          "bytes": 6289,
-          "path": "services/kodi/astertv-v2/reconciliation/apply_family_restart_button.py",
-          "sha256": "847e8b2c81cd38282cb80223029b0e192667eab375a3e866487252a273936d44"
+          "bytes": 6220,
+          "path": "services/kodi/astertv-fleet/materialize_family_kodi_restart.py",
+          "sha256": "2f3954e7fc1394bdaa1ada626ed109c88161056c462ab830b9d3ebbcbf45456f"
+        },
+        {
+          "bytes": 1258,
+          "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/materialization-manifest.json",
+          "sha256": "a9f0835b759bcc210daa28f821d1250ffa663c68a8474cf2a3561f2da0a2380e"
+        },
+        {
+          "bytes": 4090,
+          "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/script.asterruntime/family-manifest.json",
+          "sha256": "e910682be6fafa67c30112d6b36b12e357bfdce7a8c35842cc3ee9515a01d2dc"
+        },
+        {
+          "bytes": 13169,
+          "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/skin.asterhome/1080i/Settings.xml",
+          "sha256": "6631572929ef6d1fbcc94387cc45a1b12458541374a59e5f8432d9bae697adc4"
+        },
+        {
+          "bytes": 607,
+          "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/skin.asterhome/tools/restart_astertv.py",
+          "sha256": "f48970d852e3856b5735934fcd497af0a4831df79a78774cc2115a06793f5c04"
+        },
+        {
+          "bytes": 8334,
+          "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/skin.asterhome/tools/select_dispatch.py",
+          "sha256": "d5f1bea969f2acf8d084949ff84c24353c60bc29e6ad42ea4c22160a445d43f1"
         }
       ],
       "rollback_ref": "family settings restart checkpoint",
@@ -251,6 +311,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -294,6 +356,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -320,6 +384,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -482,10 +548,10 @@
   "promotion_blockers": [
     "release-artifact-not-locally-verified",
     "composition-bundle-not-built",
+    "overlay-payload-incomplete:release-guard-v1",
     "overlay-payload-incomplete:family-dolby-hdr",
     "overlay-payload-incomplete:remote-client-v3",
     "overlay-payload-incomplete:family-equipment-bridge",
-    "overlay-payload-incomplete:family-kodi-restart",
     "overlay-payload-incomplete:family-media-lifecycle",
     "overlay-payload-incomplete:news-playback-v3",
     "overlay-payload-incomplete:tv-details-v3"

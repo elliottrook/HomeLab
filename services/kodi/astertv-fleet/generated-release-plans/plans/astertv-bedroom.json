@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-bedroom-3d768b4d834f.tar.gz",
+    "name": "astertv-bedroom-7bdba3871599.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,12 +22,14 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "3d768b4d834f2a028713e62b609608f732ec4a97123aa6b01e37ec3b40bb022f",
+  "composition_sha256": "7bdba3871599b0cbca8ae20e1fda746a797629a8becdf7d48b553f0bb3d41663",
   "deployable": false,
   "device_id": "astertv-bedroom",
   "kind": "release-plan",
   "overlays": [
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [],
       "id": "release-guard-v1",
       "layer": "recovery",
@@ -36,8 +38,10 @@
         "systemd/astertv-release-guard.service",
         "state/accepted-manifest-envelope"
       ],
-      "payload_blockers": [],
-      "payload_status": "complete",
+      "payload_blockers": [
+        "host-bound-systemd-unit-and-accepted-envelope-not-materialized"
+      ],
+      "payload_status": "incomplete",
       "payloads": [
         {
           "bytes": 260,
@@ -71,6 +75,27 @@
       ]
     },
     {
+      "apply_strategy": "preserve-and-verify",
+      "assertions": [
+        {
+          "authority": "kodi",
+          "expected": "stereo",
+          "key": "audio.output-contract",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": false,
+          "key": "audio.passthrough",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": 2,
+          "key": "audio.channels",
+          "sensitive": false
+        }
+      ],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -97,6 +122,15 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [
+        {
+          "authority": "libreelec",
+          "expected": "disabled",
+          "key": "wifi.power-save",
+          "sensitive": false
+        }
+      ],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -129,6 +163,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -183,6 +219,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -339,6 +377,7 @@
   "promotion_blockers": [
     "release-artifact-not-locally-verified",
     "composition-bundle-not-built",
+    "overlay-payload-incomplete:release-guard-v1",
     "overlay-payload-incomplete:bedroom-stereo",
     "overlay-payload-incomplete:bedroom-wifi-stability",
     "overlay-payload-incomplete:remote-client-v3",

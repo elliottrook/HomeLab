@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "14c263b4c69a75ec9b7fc2780621f18d26e6903a7c077c75f4386724dc53dac6",
+  "composition_sha256": "a76e05f14490cc4c2b02a5ab40d6cc98d2544df9051ac30c2b1b026ee283d2ee",
   "deployed": true,
   "device_id": "astertv-family",
   "external_integrations": [
@@ -172,9 +172,34 @@
     ],
     "family-kodi-restart": [
       {
-        "bytes": 6289,
-        "path": "services/kodi/astertv-v2/reconciliation/apply_family_restart_button.py",
-        "sha256": "847e8b2c81cd38282cb80223029b0e192667eab375a3e866487252a273936d44"
+        "bytes": 6220,
+        "path": "services/kodi/astertv-fleet/materialize_family_kodi_restart.py",
+        "sha256": "2f3954e7fc1394bdaa1ada626ed109c88161056c462ab830b9d3ebbcbf45456f"
+      },
+      {
+        "bytes": 1258,
+        "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/materialization-manifest.json",
+        "sha256": "a9f0835b759bcc210daa28f821d1250ffa663c68a8474cf2a3561f2da0a2380e"
+      },
+      {
+        "bytes": 4090,
+        "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/script.asterruntime/family-manifest.json",
+        "sha256": "e910682be6fafa67c30112d6b36b12e357bfdce7a8c35842cc3ee9515a01d2dc"
+      },
+      {
+        "bytes": 13169,
+        "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/skin.asterhome/1080i/Settings.xml",
+        "sha256": "6631572929ef6d1fbcc94387cc45a1b12458541374a59e5f8432d9bae697adc4"
+      },
+      {
+        "bytes": 607,
+        "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/skin.asterhome/tools/restart_astertv.py",
+        "sha256": "f48970d852e3856b5735934fcd497af0a4831df79a78774cc2115a06793f5c04"
+      },
+      {
+        "bytes": 8334,
+        "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/skin.asterhome/tools/select_dispatch.py",
+        "sha256": "d5f1bea969f2acf8d084949ff84c24353c60bc29e6ad42ea4c22160a445d43f1"
       }
     ],
     "family-media-lifecycle": [
@@ -395,12 +420,12 @@
   "source_hashes": {
     "devices/astertv-family.yaml": "93d22da168511fec85e4a51b01ffe695dce8fa0f7d65b29cc5e6712c2a2ca5b7",
     "hardware/intel-n95-family.yaml": "53ae62f6c3363356c390454e07219f18b50f12e4c87946eeaa0db04864f9f0ec",
-    "overlays/family-dolby-hdr.yaml": "1cc0c16ec1ae59af70c939ee9883e2f4ae762bbf75110e2f6437e608c6c4bfeb",
+    "overlays/family-dolby-hdr.yaml": "42ad57e62868af5901bfb5850a583e54bd5483cad8c1c5a7726cd5980bb46de2",
     "overlays/family-equipment-bridge.yaml": "1d4adc9bd0abbdab87b15f44568ab1dbcab6be5828dcba4cb8bbf1197a0a78ea",
-    "overlays/family-kodi-restart.yaml": "210955dd55b9a1f7fde3979df685259f84cc838bbb2cd3bbf9ea533eeb1a9947",
+    "overlays/family-kodi-restart.yaml": "9901c11256920a09b1cd351f1b71c1ce65cfd164b09fe18f004455c4b696b521",
     "overlays/family-media-lifecycle.yaml": "9d88eecceafccbf0e60d49a15c2b5d5749eeaa8214ee840c8d36e189feba194b",
     "overlays/news-playback-v3.yaml": "85899313ea59ef6f76031497fb89162804bb8b3877c01fe5bfa83c5b2dd481c9",
-    "overlays/release-guard-v1.yaml": "90950ac786add2624904d18310f2b0f00dbf91aff3674b7d3646d728729ce558",
+    "overlays/release-guard-v1.yaml": "05c4ad6e6a38e754a5c7efd8c4a86953a0375dc197cc6d24ea09712f61695b78",
     "overlays/remote-client-v3.yaml": "93e9ee37dc1a7658ebb9e4d71813406c5e95efbb708bcdaeacc586e8cfd5d427",
     "overlays/tv-details-v3.yaml": "f286da4c579d60db3c6db858cf30c00353e8db861cc1bbd624c402ef81c0c115",
     "peripherals/family-tcl-onkyo.yaml": "659600d4af2c3f39f0d7b33e5d7d941409163aaa587b7fd624db60ce44f514e5",

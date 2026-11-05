@@ -16,6 +16,8 @@
     "payload_sources": {"type": "array", "minItems": 1, "uniqueItems": true},
     "payload_status": {"enum": ["incomplete", "complete"]},
     "payload_blockers": {"type": "array", "uniqueItems": true},
+    "apply_strategy": {"enum": ["install", "preserve-and-verify", "render-and-install"]},
+    "assertions": {"type": "array"},
     "secret_refs": {"type": "array", "uniqueItems": true},
     "rollback_ref": {"type": "string"},
     "tests": {"type": "array", "minItems": 1}

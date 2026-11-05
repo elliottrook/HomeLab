@@ -10,6 +10,12 @@
   "owns": ["kodi/settings/bedroom-stereo-output"],
   "payload_sources": ["services/kodi/astertv-fleet/payload-definitions/bedroom-stereo.json"],
   "payload_blockers": ["kodi-audio-target-not-materialized-from-pinned-base"],
+  "apply_strategy": "preserve-and-verify",
+  "assertions": [
+    {"authority": "kodi", "key": "audio.output-contract", "expected": "stereo", "sensitive": false},
+    {"authority": "kodi", "key": "audio.passthrough", "expected": false, "sensitive": false},
+    {"authority": "kodi", "key": "audio.channels", "expected": 2, "sensitive": false}
+  ],
   "secret_refs": [],
   "rollback_ref": "astertv-v2.0.7-release-20261031-bedroom",
   "tests": ["services/kodi/astertv-v2/validate_release.py"]

@@ -8,8 +8,12 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-family"],
   "owns": ["kodi/skin.asterhome/settings-restart-action"],
-  "payload_sources": ["services/kodi/astertv-v2/reconciliation/apply_family_restart_button.py"],
-  "payload_blockers": ["rendered-settings-dispatch-helper-and-manifests-not-materialized"],
+  "payload_sources": [
+    "services/kodi/astertv-fleet/materialized/family-kodi-restart",
+    "services/kodi/astertv-fleet/materialize_family_kodi_restart.py"
+  ],
+  "payload_status": "complete",
+  "payload_blockers": [],
   "secret_refs": [],
   "rollback_ref": "family settings restart checkpoint",
   "tests": ["services/kodi/astertv-v2/reconciliation/apply_family_restart_button.py"]

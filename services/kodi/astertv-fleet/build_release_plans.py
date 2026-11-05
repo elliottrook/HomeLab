@@ -135,6 +135,8 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
                 "payloads": desired["payloads"][overlay_id],
                 "payload_status": overlay.get("payload_status", "incomplete"),
                 "payload_blockers": overlay.get("payload_blockers", ["payload-contract-not-reviewed"]),
+                "apply_strategy": overlay.get("apply_strategy", "install"),
+                "assertions": overlay.get("assertions", []),
             })
             components.append({
                 "type": "application",
@@ -167,6 +169,11 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
             "registered_extras": [],
             "mutable_exclusions": ["userdata/Database", "userdata/Thumbnails", "userdata/addon_data", "cache", "temp"],
             "required_dependencies": sorted(desired["external_integrations"]),
+            "expected_assertions": [
+                dict(assertion, overlay=overlay_id)
+                for overlay_id in desired["overlays"]
+                for assertion in overlays[overlay_id].get("assertions", [])
+            ],
             "dependency_policy": "all-required-available",
         }
         bundle_name = f'{desired["device_id"]}-{desired["composition_sha256"][:12]}.tar.gz'

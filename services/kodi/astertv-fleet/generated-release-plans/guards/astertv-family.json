@@ -1,7 +1,37 @@
 {
-  "composition_sha256": "14c263b4c69a75ec9b7fc2780621f18d26e6903a7c077c75f4386724dc53dac6",
+  "composition_sha256": "a76e05f14490cc4c2b02a5ab40d6cc98d2544df9051ac30c2b1b026ee283d2ee",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
+  "expected_assertions": [
+    {
+      "authority": "kodi",
+      "expected": "hdmi0-exclusive",
+      "key": "audio.route",
+      "overlay": "family-dolby-hdr",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": true,
+      "key": "audio.dolby-passthrough",
+      "overlay": "family-dolby-hdr",
+      "sensitive": false
+    },
+    {
+      "authority": "systemd",
+      "expected": true,
+      "key": "pulseaudio.masked",
+      "overlay": "family-dolby-hdr",
+      "sensitive": false
+    },
+    {
+      "authority": "display",
+      "expected": true,
+      "key": "hdr",
+      "overlay": "family-dolby-hdr",
+      "sensitive": false
+    }
+  ],
   "expected_payloads": [
     {
       "bytes": 260,
@@ -136,10 +166,40 @@
       "sha256": "a0caa81000a091c6758de8e8135611970ecee3756d295c81aa3aaa40068c960a"
     },
     {
-      "bytes": 6289,
+      "bytes": 6220,
       "overlay": "family-kodi-restart",
-      "path": "services/kodi/astertv-v2/reconciliation/apply_family_restart_button.py",
-      "sha256": "847e8b2c81cd38282cb80223029b0e192667eab375a3e866487252a273936d44"
+      "path": "services/kodi/astertv-fleet/materialize_family_kodi_restart.py",
+      "sha256": "2f3954e7fc1394bdaa1ada626ed109c88161056c462ab830b9d3ebbcbf45456f"
+    },
+    {
+      "bytes": 1258,
+      "overlay": "family-kodi-restart",
+      "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/materialization-manifest.json",
+      "sha256": "a9f0835b759bcc210daa28f821d1250ffa663c68a8474cf2a3561f2da0a2380e"
+    },
+    {
+      "bytes": 4090,
+      "overlay": "family-kodi-restart",
+      "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/script.asterruntime/family-manifest.json",
+      "sha256": "e910682be6fafa67c30112d6b36b12e357bfdce7a8c35842cc3ee9515a01d2dc"
+    },
+    {
+      "bytes": 13169,
+      "overlay": "family-kodi-restart",
+      "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/skin.asterhome/1080i/Settings.xml",
+      "sha256": "6631572929ef6d1fbcc94387cc45a1b12458541374a59e5f8432d9bae697adc4"
+    },
+    {
+      "bytes": 607,
+      "overlay": "family-kodi-restart",
+      "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/skin.asterhome/tools/restart_astertv.py",
+      "sha256": "f48970d852e3856b5735934fcd497af0a4831df79a78774cc2115a06793f5c04"
+    },
+    {
+      "bytes": 8334,
+      "overlay": "family-kodi-restart",
+      "path": "services/kodi/astertv-fleet/materialized/family-kodi-restart/skin.asterhome/tools/select_dispatch.py",
+      "sha256": "d5f1bea969f2acf8d084949ff84c24353c60bc29e6ad42ea4c22160a445d43f1"
     },
     {
       "bytes": 1189,

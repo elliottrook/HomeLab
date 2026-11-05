@@ -15,8 +15,8 @@
     "services/kodi/astertv-v3/reliability/service.aster.reliability/recovery_policy.py",
     "services/kodi/astertv-v3/reliability/service.aster.reliability/service.py"
   ],
-  "payload_status": "complete",
-  "payload_blockers": [],
+  "payload_status": "incomplete",
+  "payload_blockers": ["host-bound-systemd-unit-and-accepted-envelope-not-materialized"],
   "secret_refs": [],
   "rollback_ref": "host-bound accepted payload and predecessor checkpoint",
   "tests": ["services/kodi/astertv-v3/reliability/test_reliability.py"]

@@ -9,7 +9,7 @@ base release and ordered overlay source bytes. The guard contract includes
 expected payload hashes and required external dependencies.
 
 This is deliberately a **candidate build gate**, not a deployment approval.
-Only `release-guard-v1` currently has a complete payload contract. The other 17
+`family-kodi-restart` is the first complete payload contract. The other 17
 overlay definitions name their exact current inputs and explicit blockers.
 Plans therefore build successfully but remain non-deployable.
 
@@ -27,11 +27,13 @@ Plans therefore build successfully but remain non-deployable.
 
 ## Verification
 
-- Fleet/release suite: 19/19 passing.
+- Fleet/release suite: 21/21 passing, including typed assertion drift.
 - Four deterministic bundles build from the locally verified immutable release.
 - Repeated builds are byte-identical.
 - Guest stays non-deployable.
-- Family, Bedroom and Jen remain blocked by incomplete overlay payload contracts.
+- The Family restart overlay is reproducibly rendered from exact predecessor
+  members in the pinned release; its four outputs and renderer are hash-bound.
+- Family, Bedroom and Jen remain blocked by their other incomplete overlay payload contracts.
 - Payload and dependency drift tests fail closed.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 

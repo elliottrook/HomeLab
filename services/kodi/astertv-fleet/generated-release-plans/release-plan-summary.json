@@ -7,6 +7,7 @@
       "blockers": [
         "release-artifact-not-locally-verified",
         "composition-bundle-not-built",
+        "overlay-payload-incomplete:release-guard-v1",
         "overlay-payload-incomplete:bedroom-stereo",
         "overlay-payload-incomplete:bedroom-wifi-stability",
         "overlay-payload-incomplete:remote-client-v3",
@@ -22,10 +23,10 @@
       "blockers": [
         "release-artifact-not-locally-verified",
         "composition-bundle-not-built",
+        "overlay-payload-incomplete:release-guard-v1",
         "overlay-payload-incomplete:family-dolby-hdr",
         "overlay-payload-incomplete:remote-client-v3",
         "overlay-payload-incomplete:family-equipment-bridge",
-        "overlay-payload-incomplete:family-kodi-restart",
         "overlay-payload-incomplete:family-media-lifecycle",
         "overlay-payload-incomplete:news-playback-v3",
         "overlay-payload-incomplete:tv-details-v3"
@@ -52,6 +53,7 @@
       "blockers": [
         "release-artifact-not-locally-verified",
         "composition-bundle-not-built",
+        "overlay-payload-incomplete:release-guard-v1",
         "overlay-payload-incomplete:jen-account-registry",
         "overlay-payload-incomplete:jen-aster-client",
         "overlay-payload-incomplete:jen-guest-catalogue",

@@ -59,10 +59,23 @@ def inspect(contract: dict, observed: dict) -> dict:
         f"{overlay}:{path}" for overlay, path in observed_payloads
         if (overlay, path) not in expected_payloads
     )
+    expected_assertions = {
+        (item["overlay"], item["authority"], item["key"]): item["expected"]
+        for item in contract.get("expected_assertions", [])
+    }
+    observed_assertions = observed.get("assertions", {})
+    if not isinstance(observed_assertions, dict):
+        raise ValueError("observation-assertions")
+    assertion_mismatches = sorted(
+        f"{overlay}:{authority}:{key}"
+        for (overlay, authority, key), expected_value in expected_assertions.items()
+        if observed_assertions.get(f"{authority}:{key}") != expected_value
+    )
     composition_mismatch = observed.get("composition_sha256") != contract["composition_sha256"]
     outcome = "clean"
     if (missing or unknown or unavailable or composition_mismatch or
-            missing_payloads or payload_mismatches or unknown_payloads):
+            missing_payloads or payload_mismatches or unknown_payloads or
+            assertion_mismatches):
         outcome = "drift"
     elif registered_extra:
         outcome = "registered-extra"
@@ -78,6 +91,7 @@ def inspect(contract: dict, observed: dict) -> dict:
         "missing_payloads": missing_payloads,
         "payload_mismatches": payload_mismatches,
         "unknown_payloads": unknown_payloads,
+        "assertion_mismatches": assertion_mismatches,
     }
 
 

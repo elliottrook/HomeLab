@@ -189,6 +189,19 @@ def validate_registry(releases: dict[str, dict], hardware: dict[str, dict],
             raise FleetError(f"complete-payload-has-blockers:{overlay['id']}")
         if payload_status == "incomplete" and not payload_blockers:
             raise FleetError(f"incomplete-payload-without-blockers:{overlay['id']}")
+        if overlay.get("apply_strategy", "install") not in {
+                "install", "preserve-and-verify", "render-and-install"}:
+            raise FleetError(f"invalid-apply-strategy:{overlay['id']}")
+        assertions = overlay.get("assertions", [])
+        if not isinstance(assertions, list):
+            raise FleetError(f"invalid-assertions:{overlay['id']}")
+        for assertion in assertions:
+            if not isinstance(assertion, dict) or not all(
+                    isinstance(assertion.get(key), str) and assertion.get(key)
+                    for key in ("authority", "key")) or "expected" not in assertion:
+                raise FleetError(f"invalid-assertion:{overlay['id']}")
+            if assertion.get("sensitive", False) is not False:
+                raise FleetError(f"sensitive-assertion:{overlay['id']}:{assertion.get('key')}")
         for release_id in overlay["compatible_releases"]:
             if release_id not in releases:
                 raise FleetError(f"unknown-overlay-release:{overlay['id']}:{release_id}")

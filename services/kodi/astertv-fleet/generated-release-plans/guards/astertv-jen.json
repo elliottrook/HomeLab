@@ -1,7 +1,8 @@
 {
-  "composition_sha256": "908a0761e3b7d4ed770b3687c6fe3f2db35c06add30b800071714a9242e854f8",
+  "composition_sha256": "1bc79cf8a29a78a82d8ba53ae814ff80c86ea9e6a653de0af678e4ccf4186b1e",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-jen",
+  "expected_assertions": [],
   "expected_payloads": [
     {
       "bytes": 260,

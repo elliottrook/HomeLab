@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-jen-908a0761e3b7.tar.gz",
+    "name": "astertv-jen-1bc79cf8a29a.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,12 +22,14 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "908a0761e3b7d4ed770b3687c6fe3f2db35c06add30b800071714a9242e854f8",
+  "composition_sha256": "1bc79cf8a29a78a82d8ba53ae814ff80c86ea9e6a653de0af678e4ccf4186b1e",
   "deployable": false,
   "device_id": "astertv-jen",
   "kind": "release-plan",
   "overlays": [
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [],
       "id": "release-guard-v1",
       "layer": "recovery",
@@ -36,8 +38,10 @@
         "systemd/astertv-release-guard.service",
         "state/accepted-manifest-envelope"
       ],
-      "payload_blockers": [],
-      "payload_status": "complete",
+      "payload_blockers": [
+        "host-bound-systemd-unit-and-accepted-envelope-not-materialized"
+      ],
+      "payload_status": "incomplete",
       "payloads": [
         {
           "bytes": 260,
@@ -71,6 +75,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -133,6 +139,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "jen-account-registry"
       ],
@@ -200,6 +208,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "jen-account-registry"
       ],
@@ -257,6 +267,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "jen-account-registry"
       ],
@@ -316,6 +328,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -350,6 +364,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -484,6 +500,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "jen-account-registry",
         "tv-details-v3"
@@ -570,6 +588,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -596,6 +616,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "news-playback-v3"
       ],
@@ -627,6 +649,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "jen-account-registry"
       ],
@@ -679,6 +703,8 @@
       ]
     },
     {
+      "apply_strategy": "install",
+      "assertions": [],
       "dependencies": [
         "release-guard-v1"
       ],
@@ -768,6 +794,7 @@
   "promotion_blockers": [
     "release-artifact-not-locally-verified",
     "composition-bundle-not-built",
+    "overlay-payload-incomplete:release-guard-v1",
     "overlay-payload-incomplete:jen-account-registry",
     "overlay-payload-incomplete:jen-aster-client",
     "overlay-payload-incomplete:jen-guest-catalogue",
