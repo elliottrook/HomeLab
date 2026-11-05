@@ -26,6 +26,8 @@ coverage without consulting unrelated working-tree state.
 
 - focused candidate-E review: **3/3 passed**;
 - complete `test_sa3_*.py` suite: **201/201 passed**;
+- complete Aster Agent `test_*.py` suite in a disposable environment with the
+  exact service requirements: **403/403 passed**;
 - no production access, model call, booking, lease, service change, restart,
   route, authority or promotion occurred.
 
