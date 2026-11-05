@@ -56,3 +56,47 @@ Stop on an unknown device identity, unverified checkpoint, broader network
 reachability, credential output, stale state used for power, playback-route
 drift or a command that affects equipment outside the selected room.
 
+## Approved start and recovery gate
+
+Jason approved SA-M7-ROOMS on 2026-11-05. Immediately before effects, Family
+and Bedroom both returned an empty `Player.GetActivePlayers` result, Home
+Assistant passed `ha core check`, and the protected 2026-11-05 backup was
+verified at both `.local` and `Backup_Synology` (the retained historical mount
+name now backed by TrueNAS). Proxmox had about 603 GiB free in `local-lvm` and
+created snapshot `astertv-m7-pre-20261105`; VM 103 thawed normally and the
+snapshot appears in `qm listsnapshot`.
+
+The supported Home Assistant browser config flow was opened next. Its first
+normal local login returned `Invalid username or password`, so that attempt
+made no change. The owner later completed the normal login in Safari; no
+registry file was edited and no authentication workaround was used.
+
+## First bounded integrations
+
+The Family Onkyo was admitted through one exact OPNsense rule from Home
+Assistant (`192.168.20.11`) to the verified receiver (`192.168.1.186`) on port
+`60128`. Home Assistant's `aioonkyo` interview uses UDP discovery against the
+specified host and ongoing receiver control uses TCP, so the final rule is
+`TCP/UDP`, not a general inter-VLAN permit. The rule UUID is
+`af4ef3e0-e9ad-45c7-b2a7-2fe59cb50cff`; its pre-change checkpoints and
+machine-readable proofs remain under `/conf/backup/` on OPNsense. A real
+interview from the Home Assistant container returned model `TX-RZ30`, MAC
+`0009B06385BC`, address `192.168.1.186` and port `60128` before the native
+integration was accepted. Home Assistant created the main, Zone 2 and Zone 3
+entities. Only the main entity is in M7 scope; it is displayed as **Family Room
+Receiver** and reported `off`, consistent with physical standby. No receiver
+command has yet been issued. Zone 2 and Zone 3 remain excluded because the
+selected TV source is not valid as their `MAIN SOURCE`.
+
+The owner then completed the LG television's native on-screen pairing for the
+verified Bedroom endpoint `192.168.30.141`. Home Assistant created
+`media_player.lg_webos_tv_oled55g4sub_dccqljr` and the disabled-by-integration
+screen switch for model `OLED55G4SUB.DCCQLJR`. The primary entity immediately
+recorded state `on`, matching the television being awake for pairing. The
+device is displayed as **Bedroom TV** while its stable technical entity ID was
+left unchanged. No power, volume, source or playback command was sent.
+
+These integrations establish identity and fresh observation only. Aster Remote
+equipment controls remain disabled until explicit command/feedback,
+duplicate-command, standby/wake and physical-remote recovery tests pass.
+

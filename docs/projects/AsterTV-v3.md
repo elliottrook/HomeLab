@@ -1372,9 +1372,9 @@ No Home Assistant action, new source, credential or network path was added.
 
 ### M7 — Home Assistant bridge and room-equipment control
 
-#### Proposed SA-M7-ROOMS — native equipment and Kodi bridge
+#### SA-M7-ROOMS — native equipment and Kodi bridge
 
-This bounded Stream A slice is prepared for owner approval. It may:
+Jason approved this bounded Stream A slice on 2026-11-05. It may:
 
 - snapshot Home Assistant VM 103, validate configuration before every Core
   restart and add only native `onkyo`, `androidtv_remote`, `webostv` and `kodi`
@@ -1412,6 +1412,18 @@ explicit on/off, current state checks, idempotency, conservative ramp/cap,
 manual override, immutable checkpoints and physical remotes. Stop on an unknown
 device, wider reachability, secret output, failed snapshot/config check,
 unexpected CEC effect or any Dolby/HDR/audio-route drift.
+
+The opening gate passed with both Kodi clients idle, `ha core check`
+successful, a protected 2026-11-05 Home Assistant backup present locally and
+on TrueNAS, and Proxmox snapshot `astertv-m7-pre-20261105` verified. The first
+supported Home Assistant config-flow attempt made no change because the normal
+local login was rejected; the owner subsequently completed normal login in
+Safari and no registry edit or authentication bypass was used. The exact
+HA-to-Onkyo `60128/TCP+UDP` path and native Onkyo integration now expose the
+idle main entity as `Family Room Receiver`; Zone 2/3 are excluded. The owner
+also completed native LG on-screen pairing and the verified
+`OLED55G4SUB.DCCQLJR` entity is live as `Bedroom TV`. No equipment command has
+yet been issued and Remote equipment controls remain disabled.
 
 - [ ] Inventory the exact Family television and Onkyo receiver plus the Bedroom
   LG television, soundbar/receiver, connection paths, network capabilities,
@@ -1908,7 +1920,7 @@ explicit user acceptance.
 | 2026-11-05 | Accepted Remote Home, touch, Back, Search and British-English voice on Jen | Real iPhone testing passed passkey connection, Home, directional touch, Back and direct Search. Search exposed a stale family-manifest dispatcher pin; the M4 installer and a checkpointed live repair now advance both authorities. Remote-only `en-GB-media` adds British-media context and a three-beam decode while default HTTP/Wyoming STT remain unchanged. | The first speech activation met the protected 23:00 Lab Hours window and was restored without changing the Remote. A clear 07:05–07:35 check preceded the clean activation. Twenty-four speech, seven Remote and twelve focused Search tests pass; Jason confirmed “Search for Dark” works in his natural English accent. Evidence: `docs/projects/evidence/AsterTV-v3-M8-Jen-iPhone-acceptance-2026-11-04.md`. |
 | 2026-11-05 | Reskinned the live Aster Remote after owner visual approval | Replaced only four static shell files through an exact-hash, checkpointed, automatic-rollback installer. The touch-first face now uses the approved Aster stone/cream centre, blended Search boundary, icon-only control rail and bottom room selector; all prior secondary controls remain in More. | Nineteen focused tests and JavaScript/Python/diff checks pass. Live HTML and static hashes match the candidate; CSP and other browser headers remain present, unauthenticated session remains 401 and Aster Agent was not restarted. Real iPhone visual acceptance is next. Evidence: `docs/projects/evidence/AsterTV-v3-M8-remote-reskin-2026-11-05.md`. |
 | 2026-11-05 | Completed the owner-requested Remote identity, waveform and lower equipment layout | Reused the exact plain Aster compass, applied the AsterTV wordmark, reduced connection to an accessible green/red dot, introduced the thin animated listening waveform, enlarged the navigation field and grouped volume separately from power. Equipment controls remain disabled and authority-free pending M7. | The first static attempt hit the existing asset allowlist and restored exactly. After explicit approval, a jointly checkpointed backend/static revision added only the compass route and briefly restarted Aster Agent. Twenty-four tests pass; Remote, Companion and compass are 200, session denial is 401 and all security headers remain. Evidence: `docs/projects/evidence/AsterTV-v3-M8-remote-reskin-2026-11-05.md`. |
-| 2026-11-05 | Completed the read-only M7 equipment preflight and added the Bedroom LG television | Home Assistant has no current Kodi, Onkyo, Android TV Remote or webOS TV integration. Family exposes the verified TCL/Onkyo chain; Bedroom exposes `LG TV SSCR2` and a live `LGwebOSTV` peer, while its soundbar model remains unknown. Both Kodi web APIs are disabled. | No device command, credential, rule or runtime setting changed. M7 must use separate room credentials, narrow source paths and native equipment integrations, retaining disabled Remote equipment controls until real feedback/recovery tests pass. Evidence: `docs/projects/evidence/AsterTV-v3-M7-equipment-preflight-2026-11-05.md`. |
+| 2026-11-05 | Completed the read-only M7 equipment preflight and added the Bedroom LG television | Home Assistant initially had no Kodi, Onkyo, Android TV Remote or webOS TV integration. Family exposed the verified TCL/Onkyo chain; Bedroom exposed `LG TV SSCR2` and a live `LGwebOSTV` peer, while its soundbar model remains unknown. Both Kodi web APIs were disabled. | The subsequently approved M7 slice added only an exact HA-to-Onkyo path plus native Onkyo and Bedroom LG integrations. Their primary entities are named `Family Room Receiver` and `Bedroom TV`; observation matches physical standby/on state, no equipment command has been issued and Remote controls remain disabled pending command/recovery tests. Evidence: `docs/projects/evidence/AsterTV-v3-M7-equipment-preflight-2026-11-05.md`. |
 | 2026-11-05 | Enrolled Family and Bedroom in the private Aster Remote | Preserved Jen and added separate mode-0600, independently revocable Family and Bedroom identities through the existing outbound-only TCP 9120 path. No equipment authority, inbound client port or infrastructure route was added. | Two harness-only gateway attempts restored Jen exactly; the corrected accepted checkpoint is `astertv-v3-m8-rooms-20261105-r3`. Both room add-ons are enabled, Kodi is idle, the gateway advertises all three authorized rooms and transient key handoffs are removed. Evidence: `docs/projects/evidence/AsterTV-v3-M8-room-enrollment-2026-11-05.md`. |
 | 2026-11-05 | Made Remote voice search editable and synchronized safe Kodi text | Voice recognition now populates a punctuation-normalized Search draft for correction or append before submission. Kodi's initial non-secret input value is mirrored in volatile owner/room state and updated as a whole field; password types expose neither title nor value. | Gateway and all three clients were independently checkpointed and restarted idle. All clients report the same service hash, established polls remain, no Remote traceback appeared and all transient staging is gone. Evidence: `docs/projects/evidence/AsterTV-v3-M8-input-sync-2026-11-05.md`. |
 | 2026-11-05 | Added Aster Remote Doctor and operator recovery coverage | The content-free probe checks route denial, exact room assignment, client/add-on health, mode-0600 custody and stable/live/manifest parity without reading key values or household content. The runbook records use, diagnosis, checkpoints and the revoke/reissue boundary for intentionally unbacked client keys. | Four fixture tests, shell syntax and a live three-room probe pass. Existing LXC 104 whole-guest backup protects the gateway; client code remains reconstructible from stable custody and Git. A deliberate client rollback/reinstall rehearsal remains open. Runbook: `docs/runbooks/Aster-Remote.md`. |
