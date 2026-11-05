@@ -35,6 +35,8 @@ class CandidateJQualityPipelineTests(unittest.TestCase):
         }
         reconciled = reconcile(BOOKING, canonical(terminal), packet, keys,
                                canonical(result))
+        reconciled.update(booking_sha256="1" * 64,
+                          owner_receipt_sha256="2" * 64)
         handoff = build_handoff(packet, result)
         responses = []
         for number in range(3):

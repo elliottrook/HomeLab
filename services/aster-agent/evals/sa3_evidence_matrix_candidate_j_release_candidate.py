@@ -26,6 +26,7 @@ RECONCILIATION_FIELDS = {
     "retry_count", "false_completion_failures", "result_file_sha256",
     "result_sha256", "deterministic_gate_met", "model_identity_disclosed",
     "authority", "automatic_routing", "quality_decision", "promotion",
+    "booking_sha256", "owner_receipt_sha256",
 }
 HEX64 = re.compile(r"[0-9a-f]{64}")
 
@@ -83,7 +84,8 @@ def build(decision: object, reconciliation: object) -> dict[str, object]:
             or reconciliation["promotion"] != "not-authorized"
             or any(not isinstance(reconciliation[field], str)
                    or not HEX64.fullmatch(reconciliation[field])
-                   for field in ("terminal_sha256", "result_file_sha256",
+                   for field in ("booking_sha256", "owner_receipt_sha256",
+                                 "terminal_sha256", "result_file_sha256",
                                  "result_sha256"))):
         raise ValueError("Candidate-J reconciliation is not release-candidate eligible")
     return {
@@ -93,6 +95,8 @@ def build(decision: object, reconciliation: object) -> dict[str, object]:
         "reconciliation_sha256":
             hashlib.sha256(canonical(reconciliation)).hexdigest(),
         "booking_id": reconciliation["booking_id"],
+        "booking_sha256": reconciliation["booking_sha256"],
+        "owner_receipt_sha256": reconciliation["owner_receipt_sha256"],
         "terminal_sha256": reconciliation["terminal_sha256"],
         "packet_sha256": decision["packet_sha256"],
         "result_file_sha256": reconciliation["result_file_sha256"],

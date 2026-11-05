@@ -34,6 +34,8 @@ def passing_inputs():
                 "production_restored": True}
     reconciliation = reconcile(BOOKING, canonical(terminal), packet, keys,
                                canonical(result))
+    reconciliation.update(booking_sha256="1" * 64,
+                          owner_receipt_sha256="2" * 64)
     return decision, reconciliation
 
 
@@ -62,6 +64,10 @@ class CandidateJReleaseCandidateTests(unittest.TestCase):
             build(decision, {})
         changed = copy.deepcopy(reconciliation)
         changed["result_sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "reconciliation"):
+            build(decision, changed)
+        changed = copy.deepcopy(reconciliation)
+        changed["owner_receipt_sha256"] = "not-a-digest"
         with self.assertRaisesRegex(ValueError, "reconciliation"):
             build(decision, changed)
 
