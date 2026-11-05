@@ -43,3 +43,16 @@ present.
 The next gate is applying that exact inactive installer and validating target
 custody without starting a unit or model. A live attempt remains downstream of installation proof, an
 authoritative conflict-free Lab Hours booking and fresh lease/lock admission.
+
+## First install attempt and concurrent release correction
+
+The first approved application was a pre-mutation NO-GO at
+`CUSTODY:lab_hours_workloads.py`. No checkpoint or target file was created.
+The live platform had legitimately advanced after the original baseline read
+to a 43-pin TTS/EPUB release. The installer correctly refused to overwrite it.
+
+Platform commit `25af3942f6808e4332797369d030348aedb4ae1c` rebases Candidate-J
+onto every exact live pin and preserves the EPUB word-alignment and TTS
+CPU-screen workloads. The corrected combined release has 46 pins and its
+joined suite passes 61/61. Applying it is a new deployment gate because the
+prior approval was spent on the safely failed, materially different bundle.

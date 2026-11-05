@@ -41,6 +41,13 @@
 > 61/61 and the inspected 14-file bundle is `e72a7a45…b956`. Applying that
 > exact inactive installer and proving target custody is the next deployment
 > gate. It creates no unit or booking; any booked run remains later.
+> **Install NO-GO/correction:** the first approved attempt failed before
+> mutation at `CUSTODY:lab_hours_workloads.py` because a concurrent 43-pin
+> TTS/EPUB platform release had landed after baseline capture. No target or
+> checkpoint was created. Platform commit `25af3942` preserves that entire
+> live release and layers Candidate-J into a 46-pin combined release; 61/61
+> tests pass. The materially changed corrected install requires a fresh
+> deployment approval.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).
