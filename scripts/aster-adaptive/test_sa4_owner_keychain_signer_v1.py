@@ -28,10 +28,12 @@ class SA4OwnerKeychainSignerTests(unittest.TestCase):
             "sa4_owner_keychain_signer_v1.swift").read_text()
         self.assertNotIn('case "export"', source)
         self.assertNotIn("SecKeyCopyExternalRepresentation(privateKey", source)
-        self.assertIn("kSecAttrAccessibleWhenUnlockedThisDeviceOnly", source)
+        self.assertIn("SecAccessCreate", source)
+        self.assertIn("[] as CFArray", source)
+        self.assertIn("kSecAttrAccess: keyAccess", source)
         self.assertIn("kSecAttrIsExtractable: false", source)
         self.assertIn("kSecAttrIsSensitive: true", source)
-        self.assertIn(".userPresence", source)
+        self.assertNotIn("kSecUseDataProtectionKeychain", source)
         self.assertIn("raw.count <= 4096", source)
 
 

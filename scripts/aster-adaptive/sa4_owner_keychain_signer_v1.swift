@@ -2,7 +2,8 @@ import Foundation
 import Security
 
 // Dedicated owner-approval signer. The private RSA key is permanent in the
-// login Keychain, device-local, and requires user presence for every use.
+// login Keychain, non-exportable, and requires explicit Keychain authorization
+// for every use because no application is in its trusted ACL.
 // This program can emit only the public JWK or a signature over one canonical
 // SA4 owner-approval proof statement; it has no private-key export operation.
 
@@ -115,17 +116,17 @@ func copyPrivateKey() throws -> SecKey {
 }
 
 func createPrivateKey() throws -> SecKey {
-    var accessError: Unmanaged<CFError>?
-    guard let access = SecAccessControlCreateWithFlags(
-        nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-        [.privateKeyUsage, .userPresence], &accessError) else {
-        throw accessError!.takeRetainedValue()
+    var access: SecAccess?
+    let accessStatus = SecAccessCreate(
+        "Aster SA4 owner approval v1" as CFString, [] as CFArray, &access)
+    guard accessStatus == errSecSuccess, let keyAccess = access else {
+        throw SignerError.invalid("owner key ACL creation failed: \(accessStatus)")
     }
     let privateAttributes: [CFString: Any] = [
         kSecAttrIsPermanent: true,
         kSecAttrApplicationTag: keyTag,
         kSecAttrLabel: "Aster SA4 owner approval v1",
-        kSecAttrAccessControl: access,
+        kSecAttrAccess: keyAccess,
         kSecAttrIsExtractable: false,
         kSecAttrIsSensitive: true,
     ]
