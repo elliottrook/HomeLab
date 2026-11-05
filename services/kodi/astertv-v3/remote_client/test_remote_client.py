@@ -51,6 +51,8 @@ class RemoteClientTests(unittest.TestCase):
         self.assertIn('sensitive = "password" in kind', SOURCE)
         self.assertIn('"input_title": "", "input_value": ""', SOURCE)
         self.assertIn('action in ("text.send", "text.replace")', SOURCE)
+        self.assertIn('"method": "JSONRPC.GetConfiguration"', SOURCE)
+        self.assertIn('connection.sendall((json.dumps(hello)', SOURCE)
 
     def test_search_drops_only_trailing_dictation_punctuation(self):
         self.assertIn('rstrip(".!?,;:")', SOURCE)

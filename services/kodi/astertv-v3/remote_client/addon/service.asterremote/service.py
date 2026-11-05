@@ -83,6 +83,9 @@ class InputMirror:
         while not monitor.abortRequested():
             try:
                 with socket.create_connection(("127.0.0.1", 9090), 3) as connection:
+                    hello = {"jsonrpc": "2.0", "id": "asterremote-input",
+                             "method": "JSONRPC.GetConfiguration"}
+                    connection.sendall((json.dumps(hello) + "\r\n").encode("utf-8"))
                     stream = connection.makefile("r", encoding="utf-8")
                     while not monitor.abortRequested():
                         line = stream.readline()
