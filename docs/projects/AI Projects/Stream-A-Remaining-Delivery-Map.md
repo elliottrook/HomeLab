@@ -456,6 +456,16 @@ claim. This makes the remaining human/external act precise without fabricating
 custody or exposing corpus content. Training remains closed pending both that
 proof and the distinct sealed-evaluation custodian.
 
+An [independent gate audit](evidence/M3-J2-independent-gate-audit-and-identity-hardening-2026-11-05.md)
+then confirmed three fail-closed gaps before training admission: the sealed
+evaluation must prove zero intersection with the released corpus rather than
+merely use a different set digest; custody must carry independently verifiable
+proof rather than a self-hash; and one admission must cross-bind corpus release,
+owner acceptance, both authenticated custody proofs and the frozen recipe.
+Canonical lower-case role IDs now prevent whitespace/case identity aliases,
+and the J2 suite passes 54/54. The three stronger admission contracts remain
+autonomous source work; only their real external evidence is a custodian gate.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,

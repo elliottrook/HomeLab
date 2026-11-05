@@ -67,6 +67,19 @@ class J2CustodyReceiptTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "not distinct"):
             custody.admit(receipt(CORPUS), receipt(value))
 
+    def test_role_identities_must_be_canonical(self):
+        for field, changed in (("custodian_id", " corpus-custodian"),
+                               ("custodian_id", "Corpus-Custodian"),
+                               ("reviewer_id", "label reviewer")):
+            value = copy.deepcopy(CORPUS); value[field] = changed
+            with self.subTest(field=field, changed=changed), \
+                    self.assertRaisesRegex(ValueError, "canonical"):
+                custody.corpus_receipt(receipt(value))
+        value = copy.deepcopy(EVALUATION)
+        value["custodian_id"] = "evaluation-custodian "
+        with self.assertRaisesRegex(ValueError, "canonical"):
+            custody.evaluation_receipt(receipt(value))
+
     def test_receipts_must_bind_preregistration(self):
         value = copy.deepcopy(CORPUS); value["manifest_sha256"] = "f" * 64
         with self.assertRaisesRegex(ValueError, "preregistration"):

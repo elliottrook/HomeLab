@@ -10,6 +10,7 @@ from nlu_threshold_policy import decode_unique_json
 
 MANIFEST_SHA256 = "2abcd02371b087ebc6db95b04dd271b518624cd063ffeb4612341bcb4c1b97ee"
 HEX64 = re.compile(r"[0-9a-f]{64}")
+IDENTITY = re.compile(r"[a-z0-9][a-z0-9._-]{2,127}")
 AUTHORITY = "not-granted"
 
 
@@ -37,6 +38,13 @@ def _decode(raw: bytes, schema: str) -> dict[str, object]:
     return value
 
 
+def _identity(value: object) -> str:
+    if (not isinstance(value, str) or not IDENTITY.fullmatch(value)
+            or value != value.strip() or value != value.casefold()):
+        raise ValueError("J2 custody identity is not canonical")
+    return value
+
+
 def corpus_receipt(raw: bytes) -> dict[str, object]:
     value = _decode(raw, "aster-nlu-j2-corpus-custody.v1")
     if set(value) != {"schema", "manifest_sha256", "custodian_id", "reviewer_id",
@@ -46,9 +54,9 @@ def corpus_receipt(raw: bytes) -> dict[str, object]:
                       "labels", "overlap_reference_count", "normalized_overlap",
                       "content_in_receipt", "authority", "receipt_sha256"}:
         raise ValueError("J2 corpus receipt fields changed")
-    identities = (value["custodian_id"], value["reviewer_id"])
-    if (any(not isinstance(item, str) or not item for item in identities)
-            or identities[0] == identities[1]):
+    identities = (_identity(value["custodian_id"]),
+                  _identity(value["reviewer_id"]))
+    if identities[0] == identities[1]:
         raise ValueError("J2 corpus custody roles are not distinct")
     for field in ("corpus_sha256", "normalized_text_set_sha256",
                   "label_review_sha256", "quality_review_sha256"):
@@ -69,8 +77,7 @@ def evaluation_receipt(raw: bytes) -> dict[str, object]:
                       "trainer_access", "content_in_receipt", "authority",
                       "receipt_sha256"}:
         raise ValueError("J2 evaluation receipt fields changed")
-    if not isinstance(value["custodian_id"], str) or not value["custodian_id"]:
-        raise ValueError("J2 evaluation custodian changed")
+    _identity(value["custodian_id"])
     for field in ("evaluation_sha256", "normalized_text_set_sha256"):
         if not isinstance(value[field], str) or not HEX64.fullmatch(value[field]):
             raise ValueError("J2 evaluation digest changed")
