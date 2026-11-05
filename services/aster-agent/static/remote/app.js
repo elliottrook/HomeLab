@@ -86,6 +86,7 @@ function renderSession(session) {
   selectedRoom = rooms.some(item => item.room_id === prior) ? prior : (rooms[0]?.room_id || '');
   select.value = selectedRoom;
   const active = rooms.find(item => item.room_id === selectedRoom);
+  $('#roomLabel').textContent = active?.label || 'No AsterTV assigned';
   const connection = $('#connection');
   connection.textContent = active?.connected ? 'Connected' : 'Disconnected';
   connection.className = 'status ' + (active?.connected ? 'connected' : 'disconnected');
@@ -102,6 +103,14 @@ document.addEventListener('click', event => {
   if (control && !control.disabled) send(control.dataset.action);
 });
 $('#room').addEventListener('change', event => { selectedRoom = event.target.value; refresh(); });
+const moreSheet = $('#moreSheet'), moreOpen = $('#moreOpen');
+function setMore(open) {
+  moreSheet.hidden = !open;
+  moreOpen.setAttribute('aria-expanded', String(open));
+  if (open) $('#moreClose').focus(); else moreOpen.focus();
+}
+moreOpen.addEventListener('click', () => setMore(true));
+$('#moreClose').addEventListener('click', () => setMore(false));
 $('#searchForm').addEventListener('submit', event => {
   event.preventDefault(); const value = $('#search').value.trim();
   if (value) { send('search.open', value); $('#search').value = ''; }
@@ -159,7 +168,7 @@ async function voiceSearch() {
 }
 $('#voice').addEventListener('click', () => voiceSearch().catch(error => { errorBox.textContent = error.message; }));
 $('#signIn').addEventListener('click', () => login().catch(error => { $('#loginError').textContent = error.message; }));
-$('#signOut').addEventListener('click', () => { clearSession(); showLogin(); });
+$('#signOut').addEventListener('click', () => { setMore(false); clearSession(); showLogin(); });
 
 (async () => {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/remote/sw.js', {scope:'/remote/'}).catch(() => {});

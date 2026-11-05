@@ -28,6 +28,26 @@ class RemoteStaticTests(unittest.TestCase):
         ):
             self.assertIn(value, HTML)
 
+    def test_approved_touch_first_shell_preserves_controls_without_captions(self):
+        for value in (
+            'class="search-strip"', 'class="control-panel"',
+            'class="room-target"', 'id="roomLabel"',
+            'id="moreOpen"', 'id="moreSheet"', 'id="moreClose"',
+            'aria-label="Back"', 'aria-label="Home"',
+            'aria-label="Play or pause"', 'aria-label="More controls"',
+        ):
+            self.assertIn(value, HTML)
+        for caption in (">Back</button>", ">Home</button>", ">Play / Pause</button>", ">More</button>"):
+            self.assertNotIn(caption, HTML)
+        self.assertIn("moreSheet.hidden = !open", JS)
+        self.assertIn("$('#roomLabel').textContent", JS)
+
+    def test_touch_surface_blends_beneath_search_and_uses_aster_palette(self):
+        self.assertIn("margin:6px 0 -13px", CSS)
+        self.assertIn("radial-gradient(ellipse at 50% 43%", CSS)
+        self.assertIn("rgba(243,236,223,.27)", CSS)
+        self.assertIn("const CACHE = 'aster-remote-shell-v2'", SW)
+
     def test_equipment_controls_are_explicitly_unavailable(self):
         self.assertIn("M7 equipment bridge", HTML)
         self.assertEqual(HTML.count(" disabled>"), 4)
