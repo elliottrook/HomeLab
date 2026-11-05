@@ -10,6 +10,12 @@
 - The broker has no admin credential or subscription executor; restart and
   outage tests retained one queue-only request while Audiobookshelf remained at
   seven podcast items.
+- Connected only Jen's Podcasts page to the queue with Aster search/results,
+  explicit confirmation, duplicate-safe receipts and owner-pending status.
+- Added a boot-persistent, checkpointed Jen overlay and proved ordered focus,
+  Back, broker outage, Kodi restart and full reboot without a subscription.
+- Hardened search so one malformed external feed candidate is omitted rather
+  than suppressing every valid result.
 
 ## 2026-11-04 — Repair Family media lifecycle and Intro Skipper compatibility
 

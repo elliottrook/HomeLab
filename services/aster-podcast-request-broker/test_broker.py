@@ -55,6 +55,14 @@ class BrokerTests(unittest.TestCase):
         self.assertNotIn("feed", repr(item).lower())
         self.assertNotIn("12345", repr(item))
 
+    def test_search_skips_one_malformed_external_candidate(self):
+        good = self.catalogue.search("synthetic", "ca")[0]
+        bad = dict(good, provider_id="999", feed_url="http://127.0.0.1/private")
+        self.catalogue.search = lambda _term, _country: [bad, good]
+        result = self.search()
+        self.assertEqual(result["count"], 1)
+        self.assertEqual(result["results"][0]["title"], "Synthetic Show")
+
     def test_request_is_explicit_and_idempotent(self):
         candidate = self.search()["results"][0]["candidate_ref"]
         body = {"candidate_ref": candidate, "idempotency_key": "x" * 32, "confirm": True}

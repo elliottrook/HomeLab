@@ -1072,9 +1072,9 @@ no execution adapter and checkpointed rollback.
 - [x] SA-M5P1: implement the broker core and synthetic contract/failure tests.
 - [x] SA-M5P2: checkpoint and deploy the inert queue broker plus restricted
   identities and exact firewall path; prove restart and denial behavior.
-- [ ] SA-M5P3: connect Jen's accepted request page and complete physical focus,
+- [x] SA-M5P3: connect Jen's accepted request page and complete physical focus,
   Back, duplicate/status and outage acceptance without a podcast side effect.
-- [ ] SA-M5P4: reconcile evidence and operational documentation, commit and
+- [x] SA-M5P4: reconcile evidence and operational documentation, commit and
   push the completed milestone before any subscription-execution proposal.
 
 SA-M5P1 is retained in `services/aster-podcast-request-broker`. Its broker has
@@ -1090,6 +1090,16 @@ deliberate broker outage, denied a wrong token, and left Audiobookshelf at the
 same seven podcast items. The broker remains execution-disabled and has no
 admin key. Evidence is in
 `docs/projects/evidence/AsterTV-v3-M5P2-podcast-broker-deployment-2026-11-04.md`.
+
+SA-M5P3/P4 connect only Jen's Podcasts page to a Gold Rim search/request
+dialog. A retained synthetic request was replayed through the real UI and
+returned the same pending record; queue cardinality remained one and
+Audiobookshelf remained unchanged. Search, ordered focus, Back, status,
+dependency outage, Kodi restart and full reboot passed. One malformed external
+catalogue result exposed a fail-closed whole-search error; the hardened broker
+now drops only that invalid candidate while preserving strict URL admission.
+Evidence is in
+`docs/projects/evidence/AsterTV-v3-M5P3-podcast-request-client-2026-11-04.md`.
 
 ## Milestones
 
@@ -1645,6 +1655,7 @@ explicit user acceptance.
 | 2026-11-04 | Added the approved Aster icon treatment to Jen News | An exact-hash transform adds the plain compass only to Daily Digest, Breaking News, Read briefing and Refresh. Search remains text-only like Media and the side rail remains stone-icon-only. The first unknown Refresh anchor failed closed, restarted Kodi with the unchanged base, and the corrected resumable installer retained the original checkpoint. | Rendered 1920×1080 inspection passed; actual focus traversed all four pills into the story list. A full digest advanced six seconds at speed 1 and stopped empty. Restart preserved the exact four-icon hash through guard→M4→M4Y→M5N→Kodi ordering with zero restarts and no Movie/YouTube regression. All 151 discoverable tests pass. Evidence: `docs/projects/evidence/AsterTV-v3-M5N-Jen-News-icons-2026-11-04.md`. |
 | 2026-11-04 | Audited the M5 eBook narration and scheduling path without effects | LXC 116 has 160 queued and seven ready generations; every accepted manifest, publisher, loader and reader uses exact sentence-sample timing with the pinned canonical Aster cleanup/voice. The retained faster-whisper trial failed closed on an unmeasured word interval. The enabled Proxmox scheduler checks for a clear Lab Hours window but has no registered workload booking, whole-host lease or shared operation lock. | No TTS/model run, booking, timer or reader state was changed. Existing reservations denied the scheduler with status 75 and the worker remained inactive. A bounded correction must first disable the old scheduler, register and pin a fixed workload, then use booking+lease+lock before benchmarking measured word alignment with sentence fallback. This is outside completed `SA-M5N-JEN` and awaits a new authorization envelope. Evidence: `docs/projects/evidence/AsterTV-v3-M5-ebook-readonly-audit-2026-11-04.md`. |
 | 2026-11-04 | Repaired Family Continue Watching, Up Next and Intro Skipper | Live diagnosis found 44 resume bookmarks, including five items also marked played; the client accepted that contradictory state, and its manual next helper neither requested nor filtered `playcount`. Jellyfin 12.1 had classified auto-updated Intro Skipper 12.0.6 `NotSupported`, so the client received zero media segments. The approved bounded repair patched and repinned five Family files, refreshed the accepted baseline, and transactionally installed checksum-pinned Intro Skipper 12.0.5 (`targetAbi` 12.1) with auto-update disabled. | Family checkpoint `/storage/.aster-checkpoints/astertv-media-lifecycle-AsterTV-Family-20261105-031033` and TrueNAS snapshot `Media/appdata/jellyfin@intro-skipper-12-1-20261105-031306` retain rollback. Kodi/Jellyfin are healthy; the 533-file guard is clean; Continue Watching returns 24 rows, zero played rows and six valid Up Next rows; Newsroom advances to S1E8; its tested S1E7 now exposes one intro and one credits segment. Six focused tests pass. |
+| 2026-11-04 | Completed the Jen-only owner-approved podcast request queue | Deployed a non-root, execution-disabled broker with separate read-only Audiobookshelf and Jen identities, then connected Books → Podcasts to a Gold Rim search/request/status add-on. One retained synthetic request was replayed through the real confirmation UI and deduplicated to the same record. | Ordered live focus, Back, status, broker outage, restart and full Jen reboot passed; queue cardinality stayed one and Audiobookshelf stayed at seven items. A malformed third-party feed discovered in acceptance is now omitted individually under test instead of suppressing all safe results. No approval/subscription executor exists. Evidence: `docs/projects/evidence/AsterTV-v3-M5P3-podcast-request-client-2026-11-04.md`. |
 
 ## Close-out
 

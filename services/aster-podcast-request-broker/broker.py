@@ -59,7 +59,13 @@ class PodcastRequestBroker:
         parsed: list[Candidate] = []
         seen: set[tuple[str, str]] = set()
         for raw in self.catalogue.search(term, country)[:MAX_RESULTS]:
-            candidate = Candidate.parse(raw)
+            try:
+                candidate = Candidate.parse(raw)
+            except ContractError:
+                # External catalogue records are untrusted individually. An
+                # unsafe feed or artwork URL must disappear, not make every
+                # otherwise valid result unavailable.
+                continue
             key = (candidate.provider_id, feed_sha256(candidate.feed_url))
             if key not in seen:
                 seen.add(key)

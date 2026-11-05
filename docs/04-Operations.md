@@ -1012,6 +1012,29 @@ rule `1b69df39-29d6-4d36-b382-fb3a255e22dd`, and restores/deletes only the Jen
 client file. Do not restore the whole appdata snapshot over unrelated newer
 service state without a separate recovery decision.
 
+Jen exposes the queue from **Books → Podcasts → Request a podcast**. The
+client add-on is `script.astertv.podcast.requests`; it searches, confirms an
+explicit request, and shows local receipts refreshed through the scoped status
+route. “Pending owner approval” is not a subscription. A dependency failure
+leaves the dialog and Kodi active and does not change Audiobookshelf.
+
+The host-bound overlay is reapplied by
+`astertv-v3-m5p-jen.service` after `astertv-v3-m5n-jen.service` and before
+Kodi. Its stable source is `/storage/.aster-v3/m5p`; the exact pre-install
+skin checkpoint is `/storage/.aster-checkpoints/astertv-v3-m5p-jen`. Reboot
+acceptance must show the service successful, the add-on enabled, the client
+file mode 0600, and the two patched skin hashes unchanged. Rollback uses
+`install_jen_podcast_requests.py --rollback`; it restores only the two skin
+files and removes only the new add-on/service/stable directory. It deliberately
+preserves the separately managed client credential unless broker access is
+also being revoked.
+
+The broker search parser treats each external catalogue result as untrusted.
+Unsafe feed or artwork URLs are omitted individually; they must not make all
+valid search results unavailable. The checkpoint before that hardening is
+`Media/appdata@aster-podcast-request-m5p3-20261105T040500Z`; the active image
+is `sha256:95e905988ca8e66c7356fcddf2fa08ddca63a17c3f2d3e3e2491b73cc35e3dee`.
+
 ## Newtarr persistence — 2026-09-26
 
 TrueNAS service `newtarr` belongs to Dockge Compose project `new_arr` at

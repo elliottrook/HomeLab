@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window type="dialog">
+  <defaultcontrol always="true">100</defaultcontrol>
+  <controls>
+    <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>dd282820</colordiffuse></control>
+    <control type="image"><left>38</left><top>28</top><width>1844</width><height>1024</height><texture border="42" colordiffuse="ee3b3a32">special://skin/media/ui-panel.png</texture></control>
+    <control type="image"><left>72</left><top>45</top><width>90</width><height>90</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>176</left><top>54</top><width>460</width><height>46</height><label>Podcast Requests</label><font>font34</font><textcolor>fff3eee5</textcolor></control>
+    <control type="label"><left>176</left><top>102</top><width>640</width><height>28</height><label>OWNER-APPROVAL QUEUE · NOTHING SUBSCRIBES AUTOMATICALLY</label><font>font16</font><textcolor>ffad8a4d</textcolor></control>
+
+    <control type="button" id="100"><left>1030</left><top>55</top><width>210</width><height>52</height><label>Search</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>fff3eee5</textcolor><focusedcolor>fff3eee5</focusedcolor><texturefocus border="20" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onleft>102</onleft><onright>101</onright><onup>100</onup><ondown>500</ondown></control>
+    <control type="image"><left>1028</left><top>53</top><width>214</width><height>56</height><texture border="20" colordiffuse="ffad8a4d">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(100)</visible></control>
+    <control type="button" id="101"><left>1256</left><top>55</top><width>260</width><height>52</height><label>Your requests</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>fff3eee5</textcolor><focusedcolor>fff3eee5</focusedcolor><texturefocus border="20" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onleft>100</onleft><onright>102</onright><onup>101</onup><ondown>500</ondown></control>
+    <control type="image"><left>1254</left><top>53</top><width>264</width><height>56</height><texture border="20" colordiffuse="ffad8a4d">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(101)</visible></control>
+    <control type="button" id="102"><left>1532</left><top>55</top><width>190</width><height>52</height><label>Back</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>fff3eee5</textcolor><focusedcolor>fff3eee5</focusedcolor><texturefocus border="20" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onleft>101</onleft><onright>100</onright><onup>102</onup><ondown>301</ondown></control>
+    <control type="image"><left>1530</left><top>53</top><width>194</width><height>56</height><texture border="20" colordiffuse="ffad8a4d">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(102)</visible></control>
+
+    <control type="label"><left>90</left><top>158</top><width>1040</width><height>42</height><label>$INFO[Window.Property(PodcastRequest.Mode)]</label><font>font30</font><textcolor>ffad8a4d</textcolor></control>
+    <control type="panel" id="500"><left>78</left><top>214</top><width>1080</width><height>714</height><orientation>vertical</orientation><scrolltime>180</scrolltime><preloaditems>2</preloaditems><onleft>301</onleft><onright>301</onright><onup>100</onup><ondown>100</ondown>
+      <itemlayout width="1080" height="178">
+        <control type="image"><left>8</left><top>8</top><width>1040</width><height>160</height><texture border="30" colordiffuse="ccf3eee5">special://skin/media/ui-panel.png</texture></control>
+        <control type="image"><left>8</left><top>8</top><width>160</width><height>160</height><texture background="true" diffuse="special://skin/media/ui-album-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+        <control type="label"><left>194</left><top>28</top><width>810</width><height>40</height><label>$INFO[ListItem.Label]</label><font>font26</font><textcolor>ff272720</textcolor></control>
+        <control type="label"><left>194</left><top>74</top><width>810</width><height>30</height><label>$INFO[ListItem.Label2]</label><font>font18</font><textcolor>ff57554b</textcolor></control>
+        <control type="label"><left>194</left><top>116</top><width>810</width><height>28</height><label>$INFO[ListItem.Property(Status)]</label><font>font18</font><textcolor>ff006b52</textcolor></control>
+      </itemlayout>
+      <focusedlayout width="1080" height="178">
+        <control type="image"><left>4</left><top>4</top><width>1048</width><height>168</height><texture border="32" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texture></control>
+        <control type="image"><left>2</left><top>2</top><width>1052</width><height>172</height><texture border="32" colordiffuse="ffad8a4d">special://skin/media/ui-compact-card-ring.png</texture></control>
+        <control type="image"><left>8</left><top>8</top><width>160</width><height>160</height><texture background="true" diffuse="special://skin/media/ui-album-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+        <control type="label"><left>194</left><top>28</top><width>810</width><height>40</height><label>$INFO[ListItem.Label]</label><font>font26</font><textcolor>fff3eee5</textcolor></control>
+        <control type="label"><left>194</left><top>74</top><width>810</width><height>30</height><label>$INFO[ListItem.Label2]</label><font>font18</font><textcolor>fff3eee5</textcolor></control>
+        <control type="label"><left>194</left><top>116</top><width>810</width><height>28</height><label>$INFO[ListItem.Property(Status)]</label><font>font18</font><textcolor>ffb8e3cb</textcolor></control>
+      </focusedlayout>
+    </control>
+
+    <control type="image"><left>1210</left><top>214</top><width>594</width><height>714</height><texture border="36" colordiffuse="ddf3eee5">special://skin/media/ui-panel.png</texture></control>
+    <control type="image"><left>1350</left><top>260</top><width>310</width><height>310</height><texture background="true" diffuse="special://skin/media/ui-album-mask.png">$INFO[Container(500).ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+    <control type="textbox"><left>1262</left><top>604</top><width>490</width><height>92</height><label>$INFO[Container(500).ListItem.Label]</label><font>font30</font><textcolor>ff272720</textcolor><align>center</align></control>
+    <control type="label"><left>1262</left><top>698</top><width>490</width><height>34</height><label>$INFO[Container(500).ListItem.Label2]</label><font>font18</font><textcolor>ff57554b</textcolor><align>center</align></control>
+    <control type="label"><left>1262</left><top>746</top><width>490</width><height>34</height><label>$INFO[Container(500).ListItem.Property(Status)]</label><font>font18</font><textcolor>ff006b52</textcolor><align>center</align></control>
+    <control type="button" id="301"><left>1310</left><top>818</top><width>390</width><height>62</height><label>Request podcast</label><font>font22</font><align>center</align><aligny>center</aligny><textcolor>ff272720</textcolor><focusedcolor>fff3eee5</focusedcolor><texturefocus border="22" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="22" colordiffuse="fff3eee5">special://skin/media/ui-panel.png</texturenofocus><onleft>500</onleft><onright>500</onright><onup>102</onup><ondown>100</ondown></control>
+    <control type="image"><left>1308</left><top>816</top><width>394</width><height>66</height><texture border="22" colordiffuse="ffad8a4d">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(301)</visible></control>
+    <control type="textbox"><left>96</left><top>955</top><width>1700</width><height>58</height><label>$INFO[Window.Property(PodcastRequest.Status)]</label><font>font20</font><textcolor>ffb8e3cb</textcolor><align>center</align></control>
+  </controls>
+</window>
