@@ -204,6 +204,8 @@ def expected_manifest() -> dict[str, object]:
                 "nlu_deterministic_guard_v1.py"),
             "reference_primitives_source_sha256": _source_sha256(
                 "nlu_j2_reference_primitives_v1.py"),
+            "reference_forward_source_sha256": _source_sha256(
+                "nlu_j2_reference_forward_v1.py"),
             "guard_projection": "preserve-coherent-label-unless-strictly-more-restrictive",
             "personal_sensitivity_floor": True,
             "coherent_joint_label_only": True,

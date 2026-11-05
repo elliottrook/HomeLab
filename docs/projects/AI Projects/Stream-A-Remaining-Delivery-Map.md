@@ -480,18 +480,21 @@ dependency-free J2 reference primitives implement the frozen UTF-8 byte
 truncation/right-padding and SplitMix64/high-53-bit conversion with known-vector
 tests. They now also pin the 11 tensor shapes/order, explicit Xavier fan values,
 zero biases and the 46,848-value initialization replay digest; the recipe binds
-that exact source. The source suite passes 69/69. No corpus/evaluation content,
-training step or retained model artifact is consumed or created.
+that exact source. A portable reference forward path fixes byte lookup,
+cross-correlation, pooling, hidden/output layers, stable ties and softmax, with
+a sparse end-to-end layout test. The source suite passes 80/80. No
+corpus/evaluation content, training step or retained model artifact is consumed
+or created.
 
 The future trained-artifact contract now binds the exact recipe, admission,
 corpus release, ontology and guard; validates all 46,848 quantized finite
 parameters, epoch/threshold/coverage and replay digest; and keeps deployment
-false. Synthetic shape/binding tests take J2 to 73/73. No trained artifact has
+false. Synthetic shape/binding tests remain green. No trained artifact has
 been created, and the synthetic zero tensor is not a candidate.
 
 The replay contract then requires two exact 192-row clean single-thread CPU
 reproductions, the frozen validation case set/ontology, valid guarded records,
-and artifact-matching record digest and accepted count. J2 reaches 76/76; the
+and artifact-matching record digest and accepted count. The suite remains green; the
 synthetic replay is contract evidence only and authorizes no deployment.
 
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart

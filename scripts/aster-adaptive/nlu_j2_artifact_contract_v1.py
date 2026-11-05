@@ -11,7 +11,7 @@ import nlu_j2_training_recipe_manifest_v1 as recipe
 from nlu_threshold_policy import decode_unique_json
 
 
-RECIPE_SHA256 = "a9a009756f5d681e95b76d1b4440faa390bbe592784c60464a43e8413280ac90"
+RECIPE_SHA256 = "71cb32f9b56f1fc725ae6c08a7f27c129e105cf458fb71c0fa743132a8e17f6c"
 HEX64 = re.compile(r"[0-9a-f]{64}")
 SHAPES = {name: shape for name, shape, *_ in primitives.PARAMETERS}
 

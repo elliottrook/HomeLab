@@ -129,6 +129,8 @@ class J2TrainingRecipeManifestTests(unittest.TestCase):
                          value["runtime_boundary"]["deterministic_guard_source_sha256"])
         self.assertEqual(expected["reference_primitives_source_sha256"],
                          value["runtime_boundary"]["reference_primitives_source_sha256"])
+        self.assertEqual(expected["reference_forward_source_sha256"],
+                         value["runtime_boundary"]["reference_forward_source_sha256"])
 
 
 if __name__ == "__main__":

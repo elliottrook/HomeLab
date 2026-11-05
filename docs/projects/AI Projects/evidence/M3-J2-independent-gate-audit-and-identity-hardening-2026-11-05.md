@@ -70,10 +70,13 @@ multibyte suffix, exact 512-byte bounds, standard SplitMix64 vectors, unsigned
 wrap and seed/type failures. The reference now also fixes all 11 parameter
 tensors, row-major scalar order, explicit Xavier fan-in/fan-out values, zero
 biases and a 46,848-value initialization replay digest
-`4d239c77…09d1`. The recipe manifest binds the exact primitive source and those
-semantics; its current file identity is `a9a00975…ac90`. The expanded J2 source
-suite passes 69/69. No training step, corpus row, evaluation content or retained
-model artifact is created.
+`4d239c77…09d1`. The portable reference forward path now implements exact byte
+lookup, odd-width same-zero cross-correlation, ReLU/global max pooling, hidden
+and output layers, stable label tie-breaking and max-shifted softmax. A sparse
+path test fixes the weight layouts end to end. The recipe manifest binds both
+reference sources and those semantics; its current file identity is
+`71cb32f9…7f6c`. The expanded J2 source suite passes 80/80. No training step,
+corpus row, evaluation content or retained model artifact is created.
 
 The future artifact boundary is now executable source rather than prose. It
 requires all 11 exact tensors and 46,848 quantized finite parameters, the exact
@@ -82,7 +85,7 @@ bindings, a selected epoch in 1–40, a 0.005-grid threshold, at least 116 of 19
 accepted validation rows, a replay digest and an exact artifact self-hash.
 Unknown optimizer state, changed tensor shape, excess precision, nonfinite
 values or binding drift fail closed. Validation still returns deployment false
-and requires replay. Four artifact-contract tests take the J2 suite to 73/73;
+and requires replay. Four artifact-contract tests form part of the J2 suite;
 their all-zero synthetic tensor fixture is schema evidence, not a model.
 
 The replay boundary now requires two separately identified clean single-thread
@@ -91,4 +94,4 @@ record must use the frozen case-ID set and ontology, finite ten-decimal
 confidence/margin values, a valid guarded interpretation and a boolean
 acceptance. The exact record digest and accepted count must match the artifact.
 Changed rows, case IDs, labels, counts or duplicate keys fail closed. Three
-synthetic replay tests take J2 to 76/76 and still return deployment false.
+synthetic replay tests still return deployment false.

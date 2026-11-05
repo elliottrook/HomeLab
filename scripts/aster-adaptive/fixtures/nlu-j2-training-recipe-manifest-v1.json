@@ -95,6 +95,7 @@
     "ontology_sha256": "aa603ab746a1250c8f2089b54e1a3e5b29fc3d01cb3c988bacc198a968bbea44",
     "ontology_source_sha256": "6e7ee332ce74a44a5bb19877f9f8f0c90f814687279b3c4993fbb93fbd58948a",
     "personal_sensitivity_floor": true,
+    "reference_forward_source_sha256": "8e972ae5b661e0c73815e7e1a49674cff421f9a8d960804b3cce395e46ca9a8e",
     "reference_primitives_source_sha256": "b42583072ae2e5a21e66284fea80cf3f41a0bf036a9aec1ef5c7d32b73c2df61",
     "route_effects": "forbidden",
     "tools": "forbidden"
