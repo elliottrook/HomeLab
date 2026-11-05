@@ -68,6 +68,15 @@ class AuthCatalogueTests(unittest.TestCase):
         self.assertIn("/api/search/podcast?term=science&country=ca", seen[0][0])
         self.assertTrue(all(value[1] == "Bearer " + "k" * 48 for value in seen))
 
+    def test_catalogue_allows_only_exact_internal_http_service_name(self):
+        key = self.private("abs.key", "k" * 48)
+        catalogue = AudiobookshelfCatalogue(
+            "http://unified-audiobookshelf-shadow", key,
+            opener=lambda *_args, **_kwargs: None)
+        self.assertEqual(catalogue.base_url, "http://unified-audiobookshelf-shadow")
+        with self.assertRaises(ValueError):
+            AudiobookshelfCatalogue("http://127.0.0.1:30067", key)
+
 
 if __name__ == "__main__":
     unittest.main()

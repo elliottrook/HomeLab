@@ -986,6 +986,32 @@ Neither app's TrueNAS-side container config, mounts, or the double-mount on
 Audiobookshelf were otherwise touched — only each app's own library-path
 setting was changed, per the task's scope.
 
+### AsterTV podcast request queue — 2026-11-04
+
+The v3 lab uses `astertv-podcast-request-broker` on TrueNAS at private TCP
+8790. Only AsterTV-Jen (`192.168.1.180`) has a firewall path. The container is
+non-root, read-only, capability-free and joins the existing unified-media
+network only to read Audiobookshelf discovery/library state with its own
+revocable, non-admin API key.
+
+The broker can search, identify duplicates, enqueue an explicit request and
+report queue status. It cannot approve or create a podcast, fetch an arbitrary
+feed, create a folder, download artwork/episodes or proxy Audiobookshelf. Its
+health response must report `execution_enabled: false`. State and secrets live
+under `/mnt/Media/appdata/aster-podcast-request-broker/deploy/` with mode-0600
+files; the Jen token is separately held mode 0600 in
+`/storage/.kodi/userdata/addon_data/script.astertv.podcast.requests/client.json`.
+
+Recovery checkpoints are the ZFS snapshot
+`Media/appdata@aster-podcast-request-pre-20261105T034101Z`, OPNsense backup
+`/conf/backup/config-astertv-jen-podcast-before-20261105-034234.xml`, and the
+preserved first failed deployment directory ending in `.failed-20261105T033919Z`.
+Rollback stops/removes only the new broker, revokes the named
+`AsterPodcastRequestBroker` key using the reviewed helper, removes only firewall
+rule `1b69df39-29d6-4d36-b382-fb3a255e22dd`, and restores/deletes only the Jen
+client file. Do not restore the whole appdata snapshot over unrelated newer
+service state without a separate recovery decision.
+
 ## Newtarr persistence — 2026-09-26
 
 TrueNAS service `newtarr` belongs to Dockge Compose project `new_arr` at

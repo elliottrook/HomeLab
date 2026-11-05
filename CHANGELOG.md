@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-04 — Add inert AsterTV podcast request queue
+
+- Added an owner-approved podcast request broker with opaque short-lived
+  candidates, canonical feed/provider duplicate checks and durable idempotent
+  queue state.
+- Deployed only to AsterTV-Jen behind an exact source firewall rule and separate
+  read-only Audiobookshelf/client identities.
+- The broker has no admin credential or subscription executor; restart and
+  outage tests retained one queue-only request while Audiobookshelf remained at
+  seven podcast items.
+
 ## 2026-11-04 — Repair Family media lifecycle and Intro Skipper compatibility
 
 - Corrected Family Continue Watching so stale bookmarks on already-played

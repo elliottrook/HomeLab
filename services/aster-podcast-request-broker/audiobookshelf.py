@@ -17,7 +17,11 @@ class CatalogueError(RuntimeError):
 
 class AudiobookshelfCatalogue:
     def __init__(self, base_url: str, key_path: Path, *, opener=urlopen):
-        self.base_url = canonical_https_url(base_url.rstrip("/") + "/", field="server-url").rstrip("/")
+        raw_base = base_url.rstrip("/")
+        if raw_base == "http://unified-audiobookshelf-shadow":
+            self.base_url = raw_base
+        else:
+            self.base_url = canonical_https_url(raw_base + "/", field="server-url").rstrip("/")
         info = key_path.lstat()
         if (not stat.S_ISREG(info.st_mode) or key_path.is_symlink() or info.st_nlink != 1
                 or info.st_mode & 0o077 or not 32 <= info.st_size <= 4096):

@@ -1070,7 +1070,7 @@ references, single-use idempotency, locked atomic persistence, bounded audit,
 no execution adapter and checkpointed rollback.
 
 - [x] SA-M5P1: implement the broker core and synthetic contract/failure tests.
-- [ ] SA-M5P2: checkpoint and deploy the inert queue broker plus restricted
+- [x] SA-M5P2: checkpoint and deploy the inert queue broker plus restricted
   identities and exact firewall path; prove restart and denial behavior.
 - [ ] SA-M5P3: connect Jen's accepted request page and complete physical focus,
   Back, duplicate/status and outage acceptance without a podcast side effect.
@@ -1083,6 +1083,13 @@ token custody, the live 2.36 search route, canonical feed identity, duplicate
 and idempotent queue behavior, stale/cross-profile denial, atomic persistence,
 bounded HTTP handling and absence of a general proxy. Evidence is in
 `docs/projects/evidence/AsterTV-v3-M5P1-podcast-broker-core-2026-11-04.md`.
+
+SA-M5P2 deployed the inert broker on TrueNAS and the single restricted Jen
+identity/path. It retains one queue-only test record, survived restart and a
+deliberate broker outage, denied a wrong token, and left Audiobookshelf at the
+same seven podcast items. The broker remains execution-disabled and has no
+admin key. Evidence is in
+`docs/projects/evidence/AsterTV-v3-M5P2-podcast-broker-deployment-2026-11-04.md`.
 
 ## Milestones
 

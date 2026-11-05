@@ -1,4 +1,4 @@
-FROM python:3.13.9-alpine3.22
+FROM python:3.13.9-alpine3.22@sha256:53739acebd52a300f19f52d93f2a6165f63300689bdf6f8af2bff0d63780e5e6
 RUN addgroup -S -g 65532 aster && adduser -S -D -H -u 65532 -G aster aster
 WORKDIR /app
 COPY contract.py persistence.py broker.py auth.py audiobookshelf.py server.py /app/
