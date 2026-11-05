@@ -14,8 +14,8 @@ class CandidateJQualityInactiveInstallTests(unittest.TestCase):
     def test_exact_host_and_guest_change_boundary(self):
         self.assertEqual(4, len(install.HOST_REPLACE))
         self.assertEqual(3, len(install.HOST_ADD))
-        self.assertEqual(0, len(install.GUEST_EXISTING))
-        self.assertEqual(5, len(install.GUEST_ADD))
+        self.assertEqual(2, len(install.GUEST_EXISTING))
+        self.assertEqual(3, len(install.GUEST_ADD))
         self.assertEqual(0o755,
                          install.HOST_REPLACE["lab_hours_reserved_runner.py"][2])
         self.assertEqual(0o755,

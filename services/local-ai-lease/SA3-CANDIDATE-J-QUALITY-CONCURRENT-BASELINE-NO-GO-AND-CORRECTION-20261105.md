@@ -23,3 +23,18 @@ The combined joined suite passes 61/61. No production service, model, booking,
 timer, lease or workload was changed by the failed attempt or source
 correction. Applying the corrected inactive installer remains a new deployment
 gate; the prior approval was spent on the failed baseline attempt.
+
+The second approved attempt was also a pre-mutation NO-GO, this time at guest
+preflight: `TARGET_PRESENT:sa3_evidence_matrix_candidate_j_contract.py`.
+Independent readback proved the contract and runner were the exact accepted
+public Candidate-J hashes already installed in LXC110. All three
+quality-specific guest targets and all three quality host targets remained
+absent. The host preflight checkpoint is retained as evidence; no guest
+checkpoint was created.
+
+The R2 installer now classifies the exact contract and runner as shared
+existing pinned dependencies and adds only the packet, key-free quality runtime
+and quality wrapper. It uses a distinct R2 checkpoint and fails closed if
+either shared hash changes. The 61/61 suite still passes. Applying R2 is a new
+deployment gate because the prior approval was spent on this safely failed
+attempt.

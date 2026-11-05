@@ -13,7 +13,7 @@ from sa3_evidence_envelope_inactive_install import (
 
 
 CHECKPOINT = Path(
-    "/var/lib/local-ai-lab/checkpoints/sa3-candidate-j-quality-r1-20261105")
+    "/var/lib/local-ai-lab/checkpoints/sa3-candidate-j-quality-r2-20261105")
 GUEST_CHECKPOINT = str(CHECKPOINT)
 UNIT_PREFIX = "aster-lab-hours-booking-sa3-evidence-matrix-candidate-j-quality-v1"
 HOST_REPLACE = {
@@ -38,14 +38,15 @@ HOST_ADD = {
     "aster_llama_sa3_candidate_j_quality_wrapper.py":
         ("4d90550af1f5e62cc65dffb49f0724feb028b9e9fa8fdf3c58217c5881a1ba82", 0o644),
 }
-GUEST_EXISTING: dict[str, str] = {}
-GUEST_ADD = {
-    "sa3-evidence-matrix-candidate-j-quality-v1.json":
-        "53cfd6a5a8b09ada122c64c60af3264b0ebda595bf1f2d5d53da2710e0141132",
+GUEST_EXISTING = {
     "sa3_evidence_matrix_candidate_j_contract.py":
         "b243d429218b134177f2b2cdf5ca4e3f28c8e0ed08a55b11e9d2ccb6bd17b2af",
     "sa3_evidence_matrix_candidate_j_runner.py":
         "ee3410dbed70dc9399a094e0260e0af94985daef961017de2dd9f70b4691d223",
+}
+GUEST_ADD = {
+    "sa3-evidence-matrix-candidate-j-quality-v1.json":
+        "53cfd6a5a8b09ada122c64c60af3264b0ebda595bf1f2d5d53da2710e0141132",
     "sa3_evidence_matrix_candidate_j_quality_runtime.py":
         "4ea9b457d605926d88ce3bce92de0e377d657a0737854df30fe23b182037fea4",
     "aster_llama_sa3_candidate_j_quality_wrapper.py":
