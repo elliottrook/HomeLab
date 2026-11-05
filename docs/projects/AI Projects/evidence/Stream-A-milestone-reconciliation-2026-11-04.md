@@ -52,9 +52,12 @@ and SA3 passes 211/211. Its separate six-case public fixture/scorer now covers
 two plans and four fail-closed abstentions. Its exact six-case/two-request
 no-retry batch, strict scorer and five-file source freeze are complete;
 candidate-j tests pass 17/17 and SA3 passes 218/218. Model calls remain
-unauthorized. Platform registration and a fixed booked public-development
-transaction are next; an independently created untouched quality packet
-remains later and depends on a 6/6 public pass.
+unauthorized. Platform registration, the fixed six/two transaction, reserved
+runner integration and deterministic inactive installation now pass at
+platform commit `1e953c1b`; no booking, model call or restart occurred. One
+exact conflict-free booked public-development transaction is next. An
+independently created untouched quality packet remains later and depends on a
+6/6 public pass.
 
 ## Active offline milestone — M3 semantic handover
 
@@ -95,9 +98,10 @@ model/backend, restart a system, expose credentials, open sealed evaluation
 content, grant tools/repair authority, enable automatic routing or broaden the
 project without the applicable separate gate.
 
-The immediate sequence is: coordinate candidate-j platform registration and a
-fixed transaction for one bounded booked public-development run, then require
-an independent custodian to create any untouched evaluation. Do not tune on
+The immediate sequence is: query the authoritative ledger and create one exact
+candidate-j booking/activation packet for the bounded public-development run,
+then require an independent custodian to create any untouched evaluation only
+after a 6/6 zero-error public pass. Do not tune on
 candidate-g/i case-level failures. M3 external custody can proceed in parallel
 when an independent signer and distinct sealed-evaluation custodian become
 available.
