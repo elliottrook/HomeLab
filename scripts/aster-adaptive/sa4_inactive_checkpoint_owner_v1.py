@@ -1,6 +1,6 @@
 """Inactive exclusive SA4 checkpoint owner.
 
-The committed production registry is empty and LOCAL_HOST_ID is unconfigured,
+The sole production target path is absent and LOCAL_HOST_ID is unconfigured,
 so this source cannot create a live checkpoint.  It can only copy an already
 measured, unchanged compiled target into its compiled checkpoint directory.
 It never claims a grant, changes the target, or performs a repair effect.

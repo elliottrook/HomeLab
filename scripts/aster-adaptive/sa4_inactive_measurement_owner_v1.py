@@ -1,7 +1,7 @@
 """Inactive read-only SA4 target measurement owner.
 
-The production target registry is empty and LOCAL_HOST_ID is unconfigured, so
-this source cannot measure a live target as committed.  It never creates a
+The sole production target path is absent and LOCAL_HOST_ID is unconfigured,
+so this source cannot measure a live target as committed.  It never creates a
 checkpoint, temporary replacement, receipt, grant claim, or repair effect.
 """
 from __future__ import annotations

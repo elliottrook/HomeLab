@@ -5,6 +5,7 @@ import hashlib
 import re
 
 import sa4_authenticated_authority_v1 as rsa
+import sa4_key_custody_slots_v1 as custody
 import sa4_target_registry_v1 as registry
 from nlu_threshold_policy import decode_unique_json
 
@@ -16,6 +17,9 @@ STATES = frozenset({"pass", "fail", "uncertain"})
 # Deliberately empty. A real observer key requires a separately reviewed source
 # change and must be distinct from the owner and AI-PAM keys.
 TRUSTED_OBSERVERS: dict[str, dict[str, object]] = {}
+OBSERVER_KEY_SLOT = next(
+    slot for slot in custody.SLOTS if slot.role == "independent-observer")
+custody.validate()
 
 
 def canonical(value: object) -> bytes:

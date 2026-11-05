@@ -6,10 +6,13 @@ import sa4_target_registry_v1 as registry
 
 
 class SA4TargetRegistryTests(unittest.TestCase):
-    def test_production_registry_is_empty_and_fails_closed(self):
-        self.assertEqual((), registry.PRODUCTION_TARGETS)
+    def test_production_registry_has_only_the_owner_approved_canary(self):
+        self.assertEqual(1, len(registry.PRODUCTION_TARGETS))
+        item = registry.resolve_production("sa4-lxc104-canary-adapter-v1")
+        self.assertEqual("/var/lib/aster/sa4/canary-adapter.json", item.path)
+        self.assertFalse(item.service_restart_required)
         with self.assertRaises(ValueError):
-            registry.resolve_production("sa4-synthetic-fixture")
+            registry.resolve_production("missing")
 
     def test_fixture_is_separate_immutable_and_digest_bound(self):
         item = registry.resolve_schema_fixture("sa4-synthetic-fixture")

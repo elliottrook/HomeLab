@@ -6,6 +6,7 @@ import hmac
 import json
 import re
 
+import sa4_key_custody_slots_v1 as custody
 import sa4_single_file_repair_contract_v1 as repair
 from nlu_threshold_policy import decode_unique_json
 
@@ -22,6 +23,9 @@ TRUSTED_KEYS: dict[str, dict[str, dict[str, object]]] = {
     "owner-approval": {},
     "ai-pam-grant": {},
 }
+AUTHORITY_KEY_SLOTS = tuple(
+    slot for slot in custody.SLOTS if slot.role in SCOPES)
+custody.validate()
 
 
 def canonical(value: object) -> bytes:

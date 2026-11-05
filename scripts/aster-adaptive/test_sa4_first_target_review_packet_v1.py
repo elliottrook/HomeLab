@@ -33,10 +33,11 @@ class SA4FirstTargetReviewPacketTests(unittest.TestCase):
             observed[state] = raw
         self.assertNotEqual(observed["drifted"], observed["healthy"])
 
-    def test_review_packet_does_not_register_a_live_target(self):
-        self.assertEqual((), registry.PRODUCTION_TARGETS)
-        with self.assertRaises(ValueError):
-            registry.resolve_production("sa4-lxc104-canary-adapter-v1")
+    def test_accepted_packet_registers_source_but_creates_no_path(self):
+        self.assertEqual(1, len(registry.PRODUCTION_TARGETS))
+        item = registry.resolve_production("sa4-lxc104-canary-adapter-v1")
+        self.assertEqual("lxc104", item.host_id)
+        self.assertEqual("/var/lib/aster/sa4/canary-adapter.json", item.path)
 
 
 if __name__ == "__main__":

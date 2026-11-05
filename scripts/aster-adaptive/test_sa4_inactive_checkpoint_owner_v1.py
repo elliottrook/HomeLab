@@ -62,7 +62,7 @@ class SA4InactiveCheckpointOwnerTests(unittest.TestCase):
                 checkpoint_epoch=101)
 
     def test_committed_source_cannot_create_live_checkpoint(self):
-        self.assertEqual((), registry.PRODUCTION_TARGETS)
+        self.assertEqual(1, len(registry.PRODUCTION_TARGETS))
         with self.assertRaises(ValueError):
             checkpoint_owner.create(
                 contract.canonical(plan()), b"{}\n", checkpoint_epoch=101)

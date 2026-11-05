@@ -1,9 +1,10 @@
-"""Compiled SA4 target registry with no production targets.
+"""Compiled SA4 target registry with one owner-approved inert canary.
 
 Runtime callers can name only a target ID.  They cannot supply a registry,
-path, host, postcheck, rollback implementation, or review identity.  The sole
-fixture is available only to source/schema tests; production resolution is
-deliberately empty until an owner-reviewed source change adds one exact target.
+path, host, postcheck, rollback implementation, or review identity.  The
+synthetic fixture remains available only to source/schema tests.  The sole
+production registration names an absent, inert target and grants no authority
+to create, install, measure or repair it.
 """
 from __future__ import annotations
 
@@ -65,9 +66,31 @@ SCHEMA_FIXTURES = (
     ),
 )
 
-# A real target must arrive as a reviewed source change.  It must not be
-# injected at runtime or copied from the synthetic fixture.
-PRODUCTION_TARGETS: tuple[Target, ...] = ()
+# Owner acceptance is retained as
+# SA4-first-target-owner-acceptance-2026-11-05.json. The path is absent until a
+# later exact inactive-install packet; source registration is not deployment.
+PRODUCTION_TARGETS: tuple[Target, ...] = (
+    Target(
+        target_id="sa4-lxc104-canary-adapter-v1",
+        host_id="lxc104",
+        path="/var/lib/aster/sa4/canary-adapter.json",
+        owner="root", group="root", mode="0644",
+        classification="low-criticality-read-only-adapter",
+        checkpoint_parent="/var/lib/aster/sa4/checkpoints",
+        temporary_path="/var/lib/aster/sa4/.canary-adapter.json.sa4-tmp",
+        maximum_bytes=4096,
+        postcheck_ids=("target-bytes", "target-metadata",
+                       "consumer-read-only-health"),
+        postcheck_program_sha256=(
+            "f8f544ca04b7587b76d827ea1e193c56bb814a231b498c6652009e098bdd00a1",
+            "e61bb89bd366e03fed0bafaa23b18db484f1b2a6133b2a708469b9b66d49a041",
+            "1214189f36c4bb75a90028cd31c15f4dd5ecf6977582ada67cd72a5ce65c72da"),
+        rollback_program_sha256=
+        "15f924f589980d786e7d0f8ad5ac5f03e32e95d907737a6c2d4ae9adad61ffdb",
+        owner_review_sha256=
+        "5a47af308226e66ce7c1d5b5c6450d3c846ee175152448a85be5e766b663fe3d",
+    ),
+)
 
 
 def canonical(value: object) -> bytes:

@@ -52,10 +52,13 @@ def validate_plan(raw: bytes) -> dict[str, object]:
         raise ValueError("SA4 repair plan shape changed")
     target, before, change = value["target"], value["precondition"], value["change"]
     try:
-        registered = target_registry.resolve_schema_fixture(
-            value.get("target_id"))
+        registered = target_registry.resolve_production(value.get("target_id"))
     except (TypeError, ValueError):
-        registered = None
+        try:
+            registered = target_registry.resolve_schema_fixture(
+                value.get("target_id"))
+        except (TypeError, ValueError):
+            registered = None
     registered_target = None if registered is None else {
         "host_id": registered.host_id, "path": registered.path,
         "type": "regular-file", "follow_symlinks": False,
