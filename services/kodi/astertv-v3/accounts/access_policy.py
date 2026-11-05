@@ -3,7 +3,7 @@
 CONTROL_REQUIREMENTS = {
     9001: ("public_catalogue_browse", "jellyfin"),
     9002: ("books_private", "audiobookshelf"),
-    9004: ("home_control", "home_assistant"),
+    9004: ("home_status", "home_assistant"),
     9007: ("listening_history", "jellyfin"),
     9009: ("requests_submit", "seerr"),
     135: ("public_catalogue_browse", "jellyfin"),
@@ -31,7 +31,8 @@ WINDOW_REQUIREMENTS = {
     11118: ("books_private", "audiobookshelf"),
     11119: ("books_private", "audiobookshelf"),
     11120: ("books_private", "audiobookshelf"),
-    11112: ("home_control", "home_assistant"),
+    11112: ("home_status", "home_assistant"),
+    11134: ("camera_view", "home_assistant"),
     11113: ("listening_history", "jellyfin"),
     11114: ("listening_history", "jellyfin"),
     11115: ("listening_history", "jellyfin"),

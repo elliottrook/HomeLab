@@ -73,8 +73,8 @@ def profile_allows(target):
     services = {item.get("service") for item in row.get("service_mappings") or ()
                 if item.get("enabled") is True}
     required = {
-        "cameras": ("cameras", "home_assistant"),
-        "home": ("home_control", "home_assistant"),
+        "cameras": ("camera_view", "home_assistant"),
+        "home": ("home_status", "home_assistant"),
         "requests": ("requests_submit", "seerr"),
         "books": ("books_private", "audiobookshelf"),
         "music": ("listening_history", "jellyfin"),
@@ -267,9 +267,7 @@ def open_global_search(query):
 
 def activate(target):
     if target == "cameras":
-        xbmc.executebuiltin("ActivateWindow(11112)")
-        time.sleep(0.5)
-        xbmc.executebuiltin("RunScript(script.asterruntime,aster-camera2,view,toggle)")
+        xbmc.executebuiltin("ActivateWindow(11134)")
         return
     focus = HOME_FOCUS.get(target)
     if focus:

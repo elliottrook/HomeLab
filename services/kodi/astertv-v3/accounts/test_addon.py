@@ -17,7 +17,7 @@ class AddonPackageTests(unittest.TestCase):
     def test_addon_identity_is_isolated_v3_lab_namespace(self):
         root = ET.parse(ADDON / "addon.xml").getroot()
         self.assertEqual(root.attrib["id"], "script.asterprofiles.v3lab")
-        self.assertEqual(root.attrib["version"], "0.4.0")
+        self.assertEqual(root.attrib["version"], "0.5.0")
         extensions = {node.attrib["point"]: node.attrib.get("library") for node in root.findall("extension")}
         self.assertEqual(extensions["xbmc.service"], "service.py")
         self.assertIn("Jen-only", " ".join(root.itertext()))

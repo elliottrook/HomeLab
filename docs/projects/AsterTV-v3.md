@@ -1341,12 +1341,17 @@ camera exposure beyond loopback, failed checkpoint or any target other than
 
 - [x] SA-M6-JEN1: audit the existing display feed, profile gate and on-demand
   camera path; record the bounded authorization and implementation contract.
-- [ ] SA-M6-JEN2: implement and locally test the separate Home/Cameras overlay,
+- [x] SA-M6-JEN2: implement and locally test the separate Home/Cameras overlay,
   least-privilege profile extension and denial/failure contracts.
 - [ ] SA-M6-JEN3: checkpoint/install on idle Jen and prove navigation,
   freshness, camera lifecycle, playback isolation, Guest denial and reboot.
 - [ ] SA-M6-JEN4: prove exact rollback, reinstall the accepted candidate,
   reconcile evidence and push the completed slice before any door/M7 work.
+
+Owner direction on 2026-11-04 places M8 Aster Remote immediately after this
+bounded M6 slice. M7 equipment automation remains later; the remote may use
+only the already reviewed semantic controls available at that point and must
+not pre-implement M7 Home Assistant or room-equipment authority.
 
 ### M7 — Home Assistant bridge and room-equipment control
 
@@ -1708,6 +1713,7 @@ explicit user acceptance.
 | 2026-11-04 | Repaired Family Continue Watching, Up Next and Intro Skipper | Live diagnosis found 44 resume bookmarks, including five items also marked played; the client accepted that contradictory state, and its manual next helper neither requested nor filtered `playcount`. Jellyfin 12.1 had classified auto-updated Intro Skipper 12.0.6 `NotSupported`, so the client received zero media segments. The approved bounded repair patched and repinned five Family files, refreshed the accepted baseline, and transactionally installed checksum-pinned Intro Skipper 12.0.5 (`targetAbi` 12.1) with auto-update disabled. | Family checkpoint `/storage/.aster-checkpoints/astertv-media-lifecycle-AsterTV-Family-20261105-031033` and TrueNAS snapshot `Media/appdata/jellyfin@intro-skipper-12-1-20261105-031306` retain rollback. Kodi/Jellyfin are healthy; the 533-file guard is clean; Continue Watching returns 24 rows, zero played rows and six valid Up Next rows; Newsroom advances to S1E8; its tested S1E7 now exposes one intro and one credits segment. Six focused tests pass. |
 | 2026-11-04 | Completed the Jen-only owner-approved podcast request queue | Deployed a non-root, execution-disabled broker with separate read-only Audiobookshelf and Jen identities, then connected Books → Podcasts to a Gold Rim search/request/status add-on. One retained synthetic request was replayed through the real confirmation UI and deduplicated to the same record. | Ordered live focus, Back, status, broker outage, restart and full Jen reboot passed; queue cardinality stayed one and Audiobookshelf stayed at seven items. A malformed third-party feed discovered in acceptance is now omitted individually under test instead of suppressing all safe results. No approval/subscription executor exists. Evidence: `docs/projects/evidence/AsterTV-v3-M5P3-podcast-request-client-2026-11-04.md`. |
 | 2026-11-04 | Opened the Jen-only M6 Home/camera Stream A | Read-only audit found a strongly validated 63-entity schema-4 display export and a bounded localhost-only, five-minute camera viewer, but the v2 page still combines Home, camera and timer while the v3 profile gate grants Jason neither a Home mapping nor Home/camera entitlement. No household values or credentials were captured. | `SA-M6-JEN` permits a separate Home/Cameras overlay and distinct read-only `home_status`/`camera_view` authority on Jen only. It excludes Home Assistant writes, source/network/credential changes, continuous/background capture, door events, Family/Bedroom and M7. Next safe action is local candidate and denial/failure tests. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-readonly-audit-2026-11-04.md`. |
+| 2026-11-04 | Built the Jen M6 Home/Cameras candidate | Exact-hash transform removes the live viewer from Home while retaining the schema-4 list, freshness notice, summary cards and local timer. New window `11134` owns the unchanged five-minute/two-second camera lifecycle. Account authority now distinguishes `home_status` and `camera_view`; Jason gains neither `home_control` nor legacy `cameras`, and Guest/direct-window routes remain denied. | Seven M6, 30 account, 15 Aster-client and 37 shared v3 tests pass, including malformed identity, independent entitlement, closed focus graph and installer/rollback boundary checks. Candidate is local only; next safe action is idle Jen checkpoint/install and physical navigation/failure validation. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-candidate-2026-11-04.md`. |
 
 ## Close-out
 

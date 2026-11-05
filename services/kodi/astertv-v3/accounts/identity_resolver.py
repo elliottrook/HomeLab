@@ -38,6 +38,19 @@ def discover(root=Path("/")):
     profile = storage / ".kodi/userdata/addon_data"
     subjects = {}
 
+    home_identity = storage / ".aster-home/display-identity.json"
+    if _private_file(home_identity):
+        identity = _json(home_identity)
+        if (isinstance(identity, dict)
+                and set(identity) == {"schema", "kind", "authority"}
+                and identity.get("schema") == 1
+                and identity.get("kind") == "astertv-home-display"
+                and identity.get("authority") == "ha-home-dashboard-v4"):
+            subjects["home_assistant"] = (
+                "local:home-assistant:display:sha256:"
+                + hashlib.sha256(home_identity.read_bytes()).hexdigest()
+            )
+
     guest_path = storage / ".aster-private/jellyfin-guest.json"
     if _private_file(guest_path):
         guest = _json(guest_path)

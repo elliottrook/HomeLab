@@ -26,11 +26,12 @@ class ClientTests(unittest.TestCase):
         self.assertLess(rendered.index("profile != 'jason'"), rendered.index("urllib.request.Request"))
 
     def test_private_pages_mirror_local_profile_authority(self):
-        for value in ('"cameras": ("cameras", "home_assistant")',
-                      '"home": ("home_control", "home_assistant")',
+        for value in ('"cameras": ("camera_view", "home_assistant")',
+                      '"home": ("home_status", "home_assistant")',
                       '"youtube": ("personal_youtube", "youtube")'):
             self.assertIn(value, SOURCE)
         self.assertIn("That page is not enabled for this AsterTV profile.", SOURCE)
+        self.assertIn('ActivateWindow(11134)', SOURCE)
 
     def test_no_general_remote_authority(self):
         denied = ("Player.Open", "Application.Quit", "System.Exec",
