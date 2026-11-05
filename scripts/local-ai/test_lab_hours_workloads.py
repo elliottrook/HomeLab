@@ -80,6 +80,26 @@ class WorkloadRegistryTests(unittest.TestCase):
         self.assertFalse(any("keys" in name or "review" in name
                              for name, _ in spec.runtime_pins))
 
+    def test_candidate_j_quality_registration_is_exact_and_key_free(self):
+        workload_id = "sa3-evidence-matrix-candidate-j-quality-v1"
+        self.assertIn(workload_id, REGISTERED_WORKLOADS)
+        spec = workload(workload_id)
+        self.assertEqual("aster-stream-a", spec.owner)
+        self.assertEqual(20, spec.request_count)
+        self.assertEqual(120, spec.per_request_timeout_seconds)
+        self.assertEqual(2700, spec.deadline_seconds)
+        self.assertEqual(3600, spec.minimum_booking_seconds)
+        self.assertEqual(900, spec.recovery_reserve_seconds)
+        self.assertEqual("sa3-evidence-matrix-candidate-j-quality", spec.runner_kind)
+        self.assertEqual(4, len(spec.runtime_pins))
+        self.assertEqual(
+            "53cfd6a5a8b09ada122c64c60af3264b0ebda595bf1f2d5d53da2710e0141132",
+            spec.packet_sha256)
+        self.assertEqual(524288, spec.result_max_bytes)
+        self.assertFalse(any(
+            "keys" in name or "review" in name or "scorer" in name
+            for name, _ in spec.runtime_pins))
+
     def test_evidence_envelope_inactive_validation_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(ValueError, "target file missing"):

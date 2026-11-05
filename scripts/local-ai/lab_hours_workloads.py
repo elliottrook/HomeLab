@@ -153,6 +153,24 @@ WORKLOADS = {
         packet_sha256="40f7cfeeb3884887c32f5674afdb840d764214730a23e71c1df660a08953572f",
         result_max_bytes=262144,
     ),
+    "sa3-evidence-matrix-candidate-j-quality-v1": WorkloadSpec(
+        workload_id="sa3-evidence-matrix-candidate-j-quality-v1",
+        owner="aster-stream-a",
+        request_count=20, per_request_timeout_seconds=120, deadline_seconds=2700,
+        minimum_booking_seconds=3600, recovery_reserve_seconds=900,
+        runner_kind="sa3-evidence-matrix-candidate-j-quality", runtime_pins=(
+            ("sa3-evidence-matrix-candidate-j-quality-v1.json",
+             "53cfd6a5a8b09ada122c64c60af3264b0ebda595bf1f2d5d53da2710e0141132"),
+            ("sa3_evidence_matrix_candidate_j_contract.py",
+             "b243d429218b134177f2b2cdf5ca4e3f28c8e0ed08a55b11e9d2ccb6bd17b2af"),
+            ("sa3_evidence_matrix_candidate_j_runner.py",
+             "ee3410dbed70dc9399a094e0260e0af94985daef961017de2dd9f70b4691d223"),
+            ("sa3_evidence_matrix_candidate_j_quality_runtime.py",
+             "4ea9b457d605926d88ce3bce92de0e377d657a0737854df30fe23b182037fea4"),
+        ),
+        packet_sha256="53cfd6a5a8b09ada122c64c60af3264b0ebda595bf1f2d5d53da2710e0141132",
+        result_max_bytes=524288,
+    ),
 }
 
 
@@ -233,6 +251,23 @@ def validate_registry() -> None:
     if any("keys" in name or "review" in name
            for name, _ in candidate_j.runtime_pins):
         raise ValueError("SA3 candidate-j excluded material entered runtime registration")
+    candidate_j_quality = workload("sa3-evidence-matrix-candidate-j-quality-v1")
+    if (candidate_j_quality.owner != "aster-stream-a"
+            or candidate_j_quality.request_count != 20
+            or candidate_j_quality.per_request_timeout_seconds != 120
+            or candidate_j_quality.deadline_seconds != 2700
+            or candidate_j_quality.minimum_booking_seconds != 3600
+            or candidate_j_quality.recovery_reserve_seconds != 900
+            or candidate_j_quality.runner_kind
+                != "sa3-evidence-matrix-candidate-j-quality"
+            or len(candidate_j_quality.runtime_pins) != 4
+            or candidate_j_quality.packet_sha256 !=
+                "53cfd6a5a8b09ada122c64c60af3264b0ebda595bf1f2d5d53da2710e0141132"
+            or candidate_j_quality.result_max_bytes != 524288):
+        raise ValueError("SA3 candidate-j quality registration drift")
+    if any("keys" in name or "review" in name or "scorer" in name
+           for name, _ in candidate_j_quality.runtime_pins):
+        raise ValueError("SA3 candidate-j quality excluded material entered registration")
 
 
 def _local_imports(path: Path) -> set[str]:
