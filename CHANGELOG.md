@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-11-04 — Repair Family media lifecycle and Intro Skipper compatibility
+
+- Corrected Family Continue Watching so stale bookmarks on already-played
+  items no longer displace genuine resumable or Up Next rows.
+- Corrected the manual next-episode picker to request `playcount` and exclude
+  watched episodes before choosing the next available episode.
+- Replaced the unsupported Intro Skipper 12.0.6 installation with checksum-
+  pinned 12.0.5 for Jellyfin 12.1, retained its analysis databases, disabled
+  incompatible auto-update, and captured both a ZFS snapshot and file rollback.
+- Verified Jellyfin and Kodi health, a clean 533-file Family release guard,
+  24 Continue Watching rows with zero watched entries, six valid Up Next rows,
+  and real intro/credits segment delivery to Family.
+
 ## 2026-10-31 — AsterTV v3 project created
 
 - Converted the v3 wish list into a formal Stream M HomeLab project with the
