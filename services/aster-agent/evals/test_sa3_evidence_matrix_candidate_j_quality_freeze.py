@@ -1,7 +1,8 @@
 import copy
 import unittest
+from pathlib import Path
 
-from sa3_evidence_matrix_candidate_j_quality_freeze import build, validate
+from sa3_evidence_matrix_candidate_j_quality_freeze import build, canonical, validate
 
 
 class CandidateJQualityFreezeTests(unittest.TestCase):
@@ -35,5 +36,16 @@ class CandidateJQualityFreezeTests(unittest.TestCase):
         self.assertNotIn("quality_decision", result)
         self.assertNotIn("predictions", result)
         self.assertNotIn("reviews", result)
+
+    def test_materialized_packet_and_keys_match_builder(self):
+        packet, keys = build(); root = Path(__file__).parent
+        self.assertEqual(
+            canonical(packet),
+            (root / "sa3-evidence-matrix-candidate-j-quality-v1.json").read_bytes(),
+        )
+        self.assertEqual(
+            canonical(keys),
+            (root / "sa3-evidence-matrix-candidate-j-quality-keys-v1.json").read_bytes(),
+        )
 
 if __name__ == "__main__": unittest.main()

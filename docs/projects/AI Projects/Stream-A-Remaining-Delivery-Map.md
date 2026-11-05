@@ -27,8 +27,15 @@
 > exactly three distinct reviewers are required, and the conservative gate is
 > fixed at 18/20, all 6 abstentions and zero false-completion failures. The
 > complete Candidate-J suite passes 39/39. Separate packet/key custody,
-> hash-pinned workload registration and one exact booked run are next;
-> materialization, registration and any booked run remain later gates.
+> hash-pinned workload registration and one exact booked run are next.
+> **Materialization/registration update:** the
+> [canonical packet and keys](evidence/D4-candidate-j-quality-materialization-and-registration-2026-11-05.md)
+> are now separate exact artifacts and platform commit `77abd40c` registers
+> only the packet plus three key-free runtime dependencies. The suite passes
+> 40/40 and platform registry tests pass 10/10. The runner kind remains
+> deliberately unadmitted, so nothing can execute. Fixed transaction,
+> wrapper/listener and reserved-runner integration source are next; inactive
+> installation and any booked run remain later gates.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).
