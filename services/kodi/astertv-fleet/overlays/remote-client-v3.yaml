@@ -9,13 +9,21 @@
   "targets": ["astertv-family", "astertv-bedroom", "astertv-jen"],
   "owns": ["kodi/service.asterremote", "kodi/native-input-sync"],
   "payload_sources": [
-    "services/kodi/astertv-v3/remote_client/addon/service.asterremote",
-    "services/kodi/astertv-v3/remote_client/apply_remote_client.py",
-    "services/kodi/astertv-v3/remote_client/apply_room_remote.py",
-    "services/kodi/astertv-v3/remote_client/install_room_remote.py",
-    "services/kodi/astertv-v3/remote_client/install_remote_input_sync.py"
+    "services/kodi/astertv-fleet/materialized/remote-client-v3/common",
+    "services/kodi/astertv-fleet/materialized/remote-client-v3/materialization-manifest.json",
+    "services/kodi/astertv-fleet/materialize_remote_client.py"
   ],
-  "payload_blockers": ["rendered-systemd-unit-not-materialized", "accepted-service-source-hash-needs-reconciliation", "client-key-room-id-and-gateway-policy-are-private-external-state"],
+  "payload_target_sources": {
+    "astertv-family": ["services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-family"],
+    "astertv-bedroom": ["services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-bedroom"],
+    "astertv-jen": ["services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen"]
+  },
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "kodi", "key": "addon.service.asterremote.enabled", "expected": true, "sensitive": false},
+    {"authority": "filesystem", "key": "asterremote-client-key.mode", "expected": "0600", "sensitive": false}
+  ],
   "secret_refs": ["remote-client-per-device"],
   "rollback_ref": "astertv-v3-m8 per-device and gateway checkpoints",
   "tests": ["services/kodi/astertv-v3/remote_client/test_remote_client.py"]

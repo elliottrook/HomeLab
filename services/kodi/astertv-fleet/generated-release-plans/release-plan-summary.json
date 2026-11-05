@@ -7,8 +7,6 @@
       "blockers": [
         "release-artifact-not-locally-verified",
         "composition-bundle-not-built",
-        "overlay-payload-incomplete:bedroom-stereo",
-        "overlay-payload-incomplete:remote-client-v3",
         "overlay-payload-incomplete:tv-details-v3"
       ],
       "bundle_built": false,
@@ -21,8 +19,6 @@
       "blockers": [
         "release-artifact-not-locally-verified",
         "composition-bundle-not-built",
-        "overlay-payload-incomplete:family-dolby-hdr",
-        "overlay-payload-incomplete:remote-client-v3",
         "overlay-payload-incomplete:family-equipment-bridge",
         "overlay-payload-incomplete:family-media-lifecycle",
         "overlay-payload-incomplete:news-playback-v3",
@@ -59,8 +55,7 @@
         "overlay-payload-incomplete:jen-movie-youtube",
         "overlay-payload-incomplete:news-playback-v3",
         "overlay-payload-incomplete:jen-news-icons",
-        "overlay-payload-incomplete:jen-podcast-requests",
-        "overlay-payload-incomplete:remote-client-v3"
+        "overlay-payload-incomplete:jen-podcast-requests"
       ],
       "bundle_built": false,
       "bundle_sha256": null,

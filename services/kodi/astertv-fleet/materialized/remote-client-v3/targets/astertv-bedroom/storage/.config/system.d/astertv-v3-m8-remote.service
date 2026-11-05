@@ -1,0 +1,8 @@
+[Unit]
+Description=Apply Aster Remote room client
+Before=kodi.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /storage/.aster-v3/m8-remote/apply_room_remote.py
+[Install]
+WantedBy=kodi.service

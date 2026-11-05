@@ -97,6 +97,34 @@ def deterministic_bundle(checkout: Path, artifact_path: Path, release: dict,
     return stream.getvalue()
 
 
+def installed_payloads(checkout: Path, desired: dict, overlays: dict[str, dict]) -> dict[str, list[dict]]:
+    """Resolve materialized destination bytes for live guard observation."""
+    result: dict[str, list[dict]] = {}
+    for overlay_id in desired["overlays"]:
+        overlay = overlays[overlay_id]
+        rows = []
+        manifests = [item for item in desired["payloads"][overlay_id]
+                     if item["path"].endswith("materialization-manifest.json")]
+        for manifest_row in manifests:
+            manifest = load(checkout / manifest_row["path"])
+            if (manifest.get("kind") != "astertv-materialized-overlay" or
+                    manifest.get("id") != overlay_id):
+                raise FLEET.FleetError(f"materialization-identity:{overlay_id}")
+            candidates = list(manifest.get("files", [])) + list(manifest.get("outputs", []))
+            for item in candidates:
+                scope = item.get("scope", "common")
+                if scope not in {"common", desired["device_id"]}:
+                    continue
+                required = ("destination", "sha256", "bytes", "mode")
+                if not all(key in item for key in required):
+                    raise FLEET.FleetError(f"materialization-row:{overlay_id}")
+                rows.append({key: item[key] for key in required})
+        if overlay.get("payload_status") == "complete" and not rows and overlay.get("apply_strategy", "install") != "preserve-and-verify":
+            raise FLEET.FleetError(f"complete-payload-without-materialization:{overlay_id}")
+        result[overlay_id] = sorted(rows, key=lambda row: row["destination"])
+    return result
+
+
 def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
     root = root.resolve()
     output = output.resolve()
@@ -121,6 +149,7 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
             "hashes": [{"alg": "SHA-256", "content": release["artifact"]["sha256"]}],
             "properties": [{"name": "astertv:authority", "value": release["artifact"]["authority"]}],
         }]
+        installed = installed_payloads(checkout, desired, overlays)
         overlay_rows = []
         for overlay_id in desired["overlays"]:
             overlay = overlays[overlay_id]
@@ -137,6 +166,7 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
                 "payload_blockers": overlay.get("payload_blockers", ["payload-contract-not-reviewed"]),
                 "apply_strategy": overlay.get("apply_strategy", "install"),
                 "assertions": overlay.get("assertions", []),
+                "installed_payloads": installed[overlay_id],
             })
             components.append({
                 "type": "application",
@@ -159,12 +189,15 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
             "schema_version": 1,
             "kind": "composition-guard-contract",
             "device_id": desired["device_id"],
+            "hostname": desired["hostname"],
             "composition_sha256": desired["composition_sha256"],
             "expected_resources": sorted(desired["ownership"]),
             "expected_payloads": [
-                dict(payload, overlay=overlay_id)
+                {"overlay": overlay_id, "path": payload["destination"],
+                 "sha256": payload["sha256"], "bytes": payload["bytes"],
+                 "mode": payload["mode"]}
                 for overlay_id in desired["overlays"]
-                for payload in desired["payloads"][overlay_id]
+                for payload in installed[overlay_id]
             ],
             "registered_extras": [],
             "mutable_exclusions": ["userdata/Database", "userdata/Thumbnails", "userdata/addon_data", "cache", "temp"],

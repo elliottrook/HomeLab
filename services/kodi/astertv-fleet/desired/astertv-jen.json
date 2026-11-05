@@ -1,6 +1,6 @@
 {
   "channel": "v3-lab",
-  "composition_sha256": "e25bf847ce8f5f366d6dcbb672b732804240820e2bb721bf4ea327ce86468bc5",
+  "composition_sha256": "a59a0ccbdaebb43cdc6e3def01b6e5edfe3302d0196315cd26fa31f6270533e9",
   "deployed": true,
   "device_id": "astertv-jen",
   "external_integrations": [
@@ -480,34 +480,49 @@
     ],
     "remote-client-v3": [
       {
+        "bytes": 6244,
+        "path": "services/kodi/astertv-fleet/materialize_remote_client.py",
+        "sha256": "391f98a0d1f9b20692130475ff8cbfa0ab383c2190d5452acc5df75cb668cb03"
+      },
+      {
         "bytes": 661,
-        "path": "services/kodi/astertv-v3/remote_client/addon/service.asterremote/addon.xml",
+        "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/common/storage/.kodi/addons/service.asterremote/addon.xml",
         "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
       },
       {
         "bytes": 9629,
-        "path": "services/kodi/astertv-v3/remote_client/addon/service.asterremote/service.py",
+        "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/common/storage/.kodi/addons/service.asterremote/service.py",
         "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
       },
       {
+        "bytes": 5072,
+        "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/materialization-manifest.json",
+        "sha256": "c3d60d4716fe936811dfa6ccebd8e5a29d47fe12e11eb536117e5f1819157b03"
+      },
+      {
         "bytes": 1565,
-        "path": "services/kodi/astertv-v3/remote_client/apply_remote_client.py",
+        "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen/storage/.aster-v3/m8/apply_remote_client.py",
         "sha256": "3617ec620aa8e1aeeb19dd8c0c16bb7b885d446c0d18fc1d002dd291660f24ec"
       },
       {
-        "bytes": 1639,
-        "path": "services/kodi/astertv-v3/remote_client/apply_room_remote.py",
-        "sha256": "35ab084ce1fd585adab34dae7c2b2340c1c9f52385f0ea3f307fa6142e4d6ac0"
+        "bytes": 98,
+        "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen/storage/.aster-v3/m8/manifest.json",
+        "sha256": "ed85c7cd0432958feb610da598ac7f46496310c20a12fb8779b3f10c1eff8902"
       },
       {
-        "bytes": 6554,
-        "path": "services/kodi/astertv-v3/remote_client/install_remote_input_sync.py",
-        "sha256": "29ba0cb99a3682edb3e88c2df1521488fa4b47d35707461744ca201106ed96ed"
+        "bytes": 661,
+        "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen/storage/.aster-v3/m8/service.asterremote/addon.xml",
+        "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
       },
       {
-        "bytes": 6726,
-        "path": "services/kodi/astertv-v3/remote_client/install_room_remote.py",
-        "sha256": "bffe7667f372250e22e2747d72f8eb75ff908f8fd15967e63942e2121a868020"
+        "bytes": 9629,
+        "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen/storage/.aster-v3/m8/service.asterremote/service.py",
+        "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+      },
+      {
+        "bytes": 231,
+        "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen/storage/.config/system.d/astertv-v3-m8-jen.service",
+        "sha256": "1861a63590a8c6213175de82cbac776a1f142e169ef199c28344ea5670ec329b"
       }
     ],
     "tv-details-v3": [
@@ -654,7 +669,7 @@
     "overlays/jen-podcast-requests.yaml": "51ff5e5290ae1da077d9760f5fc886d47ecd7ca5017074cbbdae18614915df92",
     "overlays/news-playback-v3.yaml": "85899313ea59ef6f76031497fb89162804bb8b3877c01fe5bfa83c5b2dd481c9",
     "overlays/release-guard-v1.yaml": "a3afc7db25e4c295b3f4bd944f32e4cf47fa0ccefae2cbf182edbed38214c038",
-    "overlays/remote-client-v3.yaml": "93e9ee37dc1a7658ebb9e4d71813406c5e95efbb708bcdaeacc586e8cfd5d427",
+    "overlays/remote-client-v3.yaml": "40267e62ec475ce2318ea20bf5f8771943a46b30b60ace77ac91ea96a8cc948a",
     "overlays/tv-details-v3.yaml": "f286da4c579d60db3c6db858cf30c00353e8db861cc1bbd624c402ef81c0c115",
     "peripherals/jen-low-spec-stereo.yaml": "d56ab40a683315e30e7a4696d105d4707bbde51bbe3abbbdca79f0876ab1f6f5",
     "releases/astertv-v2.0.7-2026-10-31.yaml": "204a004c9b099cedfbaa49ed5eed55185c0d33cd10d9d06942409fc7dd8add36"

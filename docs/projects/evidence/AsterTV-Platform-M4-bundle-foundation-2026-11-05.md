@@ -9,8 +9,9 @@ base release and ordered overlay source bytes. The guard contract includes
 expected payload hashes and required external dependencies.
 
 This is deliberately a **candidate build gate**, not a deployment approval.
-`family-kodi-restart`, `release-guard-v1` and `bedroom-wifi-stability` now have
-complete target-aware payload contracts. The other 15
+Six overlays now have complete contracts: Family restart, target-aware release
+guard, Bedroom Wi-Fi, Bedroom stereo assertions, Family Dolby/HDR assertions
+and the target-aware Remote client. The other 12
 overlay definitions name their exact current inputs and explicit blockers.
 Plans therefore build successfully but remain non-deployable.
 
@@ -28,7 +29,7 @@ Plans therefore build successfully but remain non-deployable.
 
 ## Verification
 
-- Fleet/release suite: 24/24 passing, including typed assertion drift and
+- Fleet/release suite: 27/27 passing, including typed assertion drift and
   target isolation.
 - Four deterministic bundles build from the locally verified immutable release.
 - Repeated builds are byte-identical.
@@ -39,6 +40,12 @@ Plans therefore build successfully but remain non-deployable.
   identities; no device bundle includes another device's unit.
 - Bedroom's Wi-Fi unit is hash-bound to its destination and paired with the
   required disabled-power-save assertion.
+- Guard contracts contain installed destinations, not repository paths, and
+  the hostname-bound collector fails closed on missing files.
+- The Remote client lineage conflict was resolved read-only: Family, Bedroom,
+  Jen and the repository all use `0eba8fc5...`; `1a4d52f3...` is the recorded
+  predecessor. Current add-on, stable copies, manifests and host-specific units
+  are materialized while keys/config/database state remain excluded.
 - Family, Bedroom and Jen remain blocked by their other incomplete overlay payload contracts.
 - Payload and dependency drift tests fail closed.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.

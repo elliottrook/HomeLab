@@ -1,0 +1,153 @@
+{
+  "files": [
+    {
+      "bytes": 1639,
+      "destination": "/storage/.aster-v3/m8-remote/apply_room_remote.py",
+      "mode": "0700",
+      "scope": "astertv-bedroom",
+      "sha256": "35ab084ce1fd585adab34dae7c2b2340c1c9f52385f0ea3f307fa6142e4d6ac0"
+    },
+    {
+      "bytes": 98,
+      "destination": "/storage/.aster-v3/m8-remote/manifest.json",
+      "mode": "0600",
+      "scope": "astertv-bedroom",
+      "sha256": "ed85c7cd0432958feb610da598ac7f46496310c20a12fb8779b3f10c1eff8902"
+    },
+    {
+      "bytes": 661,
+      "destination": "/storage/.aster-v3/m8-remote/service.asterremote/addon.xml",
+      "mode": "0644",
+      "scope": "astertv-bedroom",
+      "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
+    },
+    {
+      "bytes": 9629,
+      "destination": "/storage/.aster-v3/m8-remote/service.asterremote/service.py",
+      "mode": "0644",
+      "scope": "astertv-bedroom",
+      "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+    },
+    {
+      "bytes": 202,
+      "destination": "/storage/.config/system.d/astertv-v3-m8-remote.service",
+      "mode": "0644",
+      "scope": "astertv-bedroom",
+      "sha256": "38c902495a919d295b9916fa05cf346fc4aaf44e47f9d92e2ad2289202682fd1"
+    },
+    {
+      "bytes": 1639,
+      "destination": "/storage/.aster-v3/m8-remote/apply_room_remote.py",
+      "mode": "0700",
+      "scope": "astertv-family",
+      "sha256": "35ab084ce1fd585adab34dae7c2b2340c1c9f52385f0ea3f307fa6142e4d6ac0"
+    },
+    {
+      "bytes": 98,
+      "destination": "/storage/.aster-v3/m8-remote/manifest.json",
+      "mode": "0600",
+      "scope": "astertv-family",
+      "sha256": "ed85c7cd0432958feb610da598ac7f46496310c20a12fb8779b3f10c1eff8902"
+    },
+    {
+      "bytes": 661,
+      "destination": "/storage/.aster-v3/m8-remote/service.asterremote/addon.xml",
+      "mode": "0644",
+      "scope": "astertv-family",
+      "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
+    },
+    {
+      "bytes": 9629,
+      "destination": "/storage/.aster-v3/m8-remote/service.asterremote/service.py",
+      "mode": "0644",
+      "scope": "astertv-family",
+      "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+    },
+    {
+      "bytes": 202,
+      "destination": "/storage/.config/system.d/astertv-v3-m8-remote.service",
+      "mode": "0644",
+      "scope": "astertv-family",
+      "sha256": "38c902495a919d295b9916fa05cf346fc4aaf44e47f9d92e2ad2289202682fd1"
+    },
+    {
+      "bytes": 1565,
+      "destination": "/storage/.aster-v3/m8/apply_remote_client.py",
+      "mode": "0700",
+      "scope": "astertv-jen",
+      "sha256": "3617ec620aa8e1aeeb19dd8c0c16bb7b885d446c0d18fc1d002dd291660f24ec"
+    },
+    {
+      "bytes": 98,
+      "destination": "/storage/.aster-v3/m8/manifest.json",
+      "mode": "0600",
+      "scope": "astertv-jen",
+      "sha256": "ed85c7cd0432958feb610da598ac7f46496310c20a12fb8779b3f10c1eff8902"
+    },
+    {
+      "bytes": 661,
+      "destination": "/storage/.aster-v3/m8/service.asterremote/addon.xml",
+      "mode": "0644",
+      "scope": "astertv-jen",
+      "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
+    },
+    {
+      "bytes": 9629,
+      "destination": "/storage/.aster-v3/m8/service.asterremote/service.py",
+      "mode": "0644",
+      "scope": "astertv-jen",
+      "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+    },
+    {
+      "bytes": 231,
+      "destination": "/storage/.config/system.d/astertv-v3-m8-jen.service",
+      "mode": "0644",
+      "scope": "astertv-jen",
+      "sha256": "1861a63590a8c6213175de82cbac776a1f142e169ef199c28344ea5670ec329b"
+    },
+    {
+      "bytes": 661,
+      "destination": "/storage/.kodi/addons/service.asterremote/addon.xml",
+      "mode": "0644",
+      "scope": "common",
+      "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
+    },
+    {
+      "bytes": 9629,
+      "destination": "/storage/.kodi/addons/service.asterremote/service.py",
+      "mode": "0644",
+      "scope": "common",
+      "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+    }
+  ],
+  "id": "remote-client-v3",
+  "kind": "astertv-materialized-overlay",
+  "lineage": {
+    "accepted_predecessor_sha256": "1a4d52f37f73290c21456342543ab871311d14031656dedafa22793ee46cfbce",
+    "current_sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec",
+    "evidence": "repository commit 90f2b3a8 and read-only parity on Family, Bedroom and Jen"
+  },
+  "mutable_state": [
+    {
+      "bundled": false,
+      "path": "/storage/.aster-private/asterremote-client.key",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "path": "/storage/.aster-private/asterremote-client.json",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "path": "/storage/.kodi/userdata/Database/Addons33.db",
+      "sensitive": false
+    }
+  ],
+  "schema_version": 1,
+  "targets": [
+    "astertv-bedroom",
+    "astertv-family",
+    "astertv-jen"
+  ]
+}

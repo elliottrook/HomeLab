@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="service.asterremote" name="Aster Remote Client" version="0.1.0" provider-name="Aster">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+  </requires>
+  <extension point="xbmc.service" library="service.py" start="login" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Outbound capability-scoped Aster Remote client</summary>
+    <description lang="en_GB">Polls the private Aster gateway and executes only approved navigation, playback, search and active-keyboard actions.</description>
+    <platform>all</platform>
+    <license>Proprietary</license>
+  </extension>
+</addon>

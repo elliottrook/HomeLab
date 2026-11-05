@@ -9,7 +9,8 @@
   "targets": ["astertv-family"],
   "owns": ["kodi/settings/audio-hdmi0-passthrough", "systemd/pulseaudio-mask", "display/hdr-contract"],
   "payload_sources": ["services/kodi/astertv-fleet/payload-definitions/family-dolby-hdr.json"],
-  "payload_blockers": ["audio-pulseaudio-hdr-targets-not-materialized-from-pinned-base"],
+  "payload_status": "complete",
+  "payload_blockers": [],
   "apply_strategy": "preserve-and-verify",
   "assertions": [
     {"authority": "kodi", "key": "audio.route", "expected": "hdmi0-exclusive", "sensitive": false},

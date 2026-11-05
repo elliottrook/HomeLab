@@ -18,6 +18,7 @@ def module(name, path):
 PLANS = module("astertv_release_plans", ROOT / "build_release_plans.py")
 GUARD = module("astertv_composition_guard", ROOT / "composition_guard.py")
 TRANSACTION = module("astertv_transaction", ROOT / "transaction.py")
+COLLECTOR = module("astertv_observation_collector", ROOT / "collect_composition_observation.py")
 
 
 class ReleasePipelineTests(unittest.TestCase):
@@ -42,6 +43,20 @@ class ReleasePipelineTests(unittest.TestCase):
                 self.assertTrue((Path(destination) / "plans" / f"{device}.json").is_file())
                 self.assertTrue((Path(destination) / "sbom" / f"{device}.cdx.json").is_file())
                 self.assertTrue((Path(destination) / "guards" / f"{device}.json").is_file())
+
+    def test_guard_contracts_hash_installed_destinations_not_repository_sources(self):
+        with tempfile.TemporaryDirectory() as destination:
+            self.build(destination)
+            family = json.loads((Path(destination) / "guards/astertv-family.json").read_text())
+            bedroom = json.loads((Path(destination) / "guards/astertv-bedroom.json").read_text())
+        family_rows = {row["path"]: row for row in family["expected_payloads"]}
+        bedroom_rows = {row["path"]: row for row in bedroom["expected_payloads"]}
+        self.assertIn("/storage/.config/system.d/astertv-release-guard.service", family_rows)
+        self.assertIn("/storage/.config/system.d/astertv-wifi-stability.service", bedroom_rows)
+        self.assertIn("/storage/.kodi/addons/skin.asterhome/tools/restart_astertv.py", family_rows)
+        self.assertFalse(any(path.startswith("services/") for path in family_rows))
+        guard_path = "/storage/.config/system.d/astertv-release-guard.service"
+        self.assertNotEqual(family_rows[guard_path]["sha256"], bedroom_rows[guard_path]["sha256"])
 
     def test_guest_is_explicitly_non_deployable(self):
         with tempfile.TemporaryDirectory() as destination:
@@ -145,6 +160,31 @@ class ReleasePipelineTests(unittest.TestCase):
         result = GUARD.inspect(contract, observed)
         self.assertEqual(result["outcome"], "drift")
         self.assertEqual(result["assertion_mismatches"], ["audio:kodi:audio.passthrough"])
+
+    def test_collector_is_hostname_bound_and_missing_files_fail_guard(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "storage/payload"
+            target.parent.mkdir(parents=True)
+            target.write_text("accepted")
+            contract = {
+                "schema_version": 1, "kind": "composition-guard-contract",
+                "device_id": "box", "hostname": "AsterTV-Box",
+                "composition_sha256": "abc", "expected_resources": [],
+                "registered_extras": [], "required_dependencies": [],
+                "expected_payloads": [
+                    {"overlay": "guard", "path": "/storage/payload",
+                     "sha256": PLANS.file_sha256(target), "bytes": 8, "mode": "0644"},
+                    {"overlay": "guard", "path": "/storage/missing",
+                     "sha256": "a" * 64, "bytes": 1, "mode": "0644"},
+                ],
+            }
+            with self.assertRaisesRegex(ValueError, "device-hostname-mismatch"):
+                COLLECTOR.collect(contract, "wrong", root)
+            observed = COLLECTOR.collect(contract, "AsterTV-Box", root)
+            result = GUARD.inspect(contract, observed)
+            self.assertEqual(result["outcome"], "drift")
+            self.assertEqual(result["missing_payloads"], ["guard:/storage/missing"])
 
     def test_wrong_artifact_hash_fails_closed(self):
         with tempfile.TemporaryDirectory() as artifacts, tempfile.TemporaryDirectory() as destination:

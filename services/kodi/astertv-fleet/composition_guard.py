@@ -46,18 +46,29 @@ def inspect(contract: dict, observed: dict) -> dict:
         if not isinstance(item, dict) or not all(
                 isinstance(item.get(key), str) for key in ("overlay", "path", "sha256")):
             raise ValueError("observation-payloads")
-        observed_payloads[(item["overlay"], item["path"])] = item["sha256"]
+        observed_payloads[(item["overlay"], item["path"])] = item
     missing_payloads = sorted(
         f"{overlay}:{path}" for overlay, path in expected_payloads
         if (overlay, path) not in observed_payloads
     )
     payload_mismatches = sorted(
         f"{overlay}:{path}" for (overlay, path), digest in expected_payloads.items()
-        if observed_payloads.get((overlay, path), digest) != digest
+        if observed_payloads.get((overlay, path), {}).get("sha256", digest) != digest
     )
     unknown_payloads = sorted(
         f"{overlay}:{path}" for overlay, path in observed_payloads
         if (overlay, path) not in expected_payloads
+    )
+    payload_metadata_mismatches = sorted(
+        f"{overlay}:{path}"
+        for (overlay, path), expected in {
+            (item["overlay"], item["path"]): item
+            for item in contract.get("expected_payloads", [])
+        }.items()
+        if (overlay, path) in observed_payloads and any(
+            observed_payloads[(overlay, path)].get(key) != expected.get(key)
+            for key in ("bytes", "mode") if key in expected
+        )
     )
     expected_assertions = {
         (item["overlay"], item["authority"], item["key"]): item["expected"]
@@ -75,6 +86,7 @@ def inspect(contract: dict, observed: dict) -> dict:
     outcome = "clean"
     if (missing or unknown or unavailable or composition_mismatch or
             missing_payloads or payload_mismatches or unknown_payloads or
+            payload_metadata_mismatches or
             assertion_mismatches):
         outcome = "drift"
     elif registered_extra:
@@ -91,6 +103,7 @@ def inspect(contract: dict, observed: dict) -> dict:
         "missing_payloads": missing_payloads,
         "payload_mismatches": payload_mismatches,
         "unknown_payloads": unknown_payloads,
+        "payload_metadata_mismatches": payload_metadata_mismatches,
         "assertion_mismatches": assertion_mismatches,
     }
 

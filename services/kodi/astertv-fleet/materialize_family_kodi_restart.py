@@ -27,6 +27,7 @@ DESTINATIONS = {
     "helper": "skin.asterhome/tools/restart_astertv.py",
     "family": "script.asterruntime/family-manifest.json",
 }
+INSTALL_ROOT = "/storage/.kodi/addons/"
 
 
 def sha(data: bytes) -> str:
@@ -101,7 +102,7 @@ def transform(archive: Path) -> tuple[dict[str, bytes], dict]:
         "base_release": {"id": release["id"], "sha256": release["artifact"]["sha256"]},
         "renderer": {"path": TRANSFORMER.relative_to(CHECKOUT).as_posix(),
                      "sha256": sha(TRANSFORMER.read_bytes())},
-        "outputs": [{"destination": DESTINATIONS[name], "bytes": len(data),
+        "outputs": [{"destination": INSTALL_ROOT + DESTINATIONS[name], "bytes": len(data),
                      "sha256": sha(data), "mode": "0755" if name == "helper" else "0644"}
                     for name, data in sorted(outputs.items())],
     }

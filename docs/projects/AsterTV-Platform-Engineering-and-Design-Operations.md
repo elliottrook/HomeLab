@@ -625,8 +625,8 @@ owner visual acceptance. M4 has deterministic plan-only SBOM, compatibility,
 performance and composition-guard foundations; the immutable v2.0.7 archive is
 locally hash-verified and synthetic interrupted promotion/rollback is proven,
 M4 now builds deterministic hash-bound candidate appliance bundles, but only
-the Family restart, target-aware release guard and Bedroom Wi-Fi overlays have
-complete payload contracts. The remaining overlays fail
+six overlays have complete contracts, including target-aware release guard,
+Remote, Bedroom Wi-Fi/audio and Family restart/audio. The remaining overlays fail
 closed on their recorded render, provenance, external-state or ownership gaps,
 so M4 does not yet permit deployment. M5's Guest fixture fails closed on unresolved physical and
 NetBox facts. Both M6 skills are installed from a hash manifest and passed
@@ -652,7 +652,7 @@ interrupted rollback proof before any M7 appliance migration.
 | 2026-11-05 | Built and validated the additive M2 HomeLab Wiki candidate | Local `homelab-wiki` commit `1fdcf6a`; `docs/projects/evidence/AsterTV-Platform-M2-wiki-candidate-2026-11-05.md`; two pinned intake sources | 25 pages, 3/3 tests and real bounded source fetches pass; human acceptance/push/LXC publication/mirror remain pending; no live system changed |
 | 2026-11-05 | Built M3–M6 platform foundations | `docs/projects/evidence/AsterTV-Platform-M3-M6-foundations-2026-11-05.md`; design, release-plan, onboarding and skill packages | Hash-bound design assets and fixtures, plan-only SBOM/guards, least-privilege Guest planning and two independently tested skills; no appliance/wiki publication |
 | 2026-11-05 | Verified the immutable base and transaction recovery | v2.0.7 archive hash, 17/17 fleet/release tests, synthetic interruption and rollback fixture | All plans now prove the base artifact; deployment remains blocked until every overlay declares exact payload paths/hashes and guard/Doctor integration is complete |
-| 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 24/24 fleet/release tests | Four byte-stable candidate bundles build; Family restart, target-aware guard and Bedroom Wi-Fi are materialized; payload/dependency/assertion drift fails closed; promotion remains blocked on 15 incomplete payload contracts and later Doctor observation integration |
+| 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 27/27 fleet/release tests | Four byte-stable candidate bundles build; six contracts are complete; installed destinations, assertions and Remote lineage fail closed; promotion remains blocked on 12 incomplete payload contracts and Doctor observation integration |
 
 ## Close-out
 

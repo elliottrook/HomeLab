@@ -8,25 +8,25 @@
   "outputs": [
     {
       "bytes": 8334,
-      "destination": "skin.asterhome/tools/select_dispatch.py",
+      "destination": "/storage/.kodi/addons/skin.asterhome/tools/select_dispatch.py",
       "mode": "0644",
       "sha256": "d5f1bea969f2acf8d084949ff84c24353c60bc29e6ad42ea4c22160a445d43f1"
     },
     {
       "bytes": 4090,
-      "destination": "script.asterruntime/family-manifest.json",
+      "destination": "/storage/.kodi/addons/script.asterruntime/family-manifest.json",
       "mode": "0644",
       "sha256": "e910682be6fafa67c30112d6b36b12e357bfdce7a8c35842cc3ee9515a01d2dc"
     },
     {
       "bytes": 607,
-      "destination": "skin.asterhome/tools/restart_astertv.py",
+      "destination": "/storage/.kodi/addons/skin.asterhome/tools/restart_astertv.py",
       "mode": "0755",
       "sha256": "f48970d852e3856b5735934fcd497af0a4831df79a78774cc2115a06793f5c04"
     },
     {
       "bytes": 13169,
-      "destination": "skin.asterhome/1080i/Settings.xml",
+      "destination": "/storage/.kodi/addons/skin.asterhome/1080i/Settings.xml",
       "mode": "0644",
       "sha256": "6631572929ef6d1fbcc94387cc45a1b12458541374a59e5f8432d9bae697adc4"
     }

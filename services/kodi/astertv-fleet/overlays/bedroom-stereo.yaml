@@ -9,7 +9,8 @@
   "targets": ["astertv-bedroom"],
   "owns": ["kodi/settings/bedroom-stereo-output"],
   "payload_sources": ["services/kodi/astertv-fleet/payload-definitions/bedroom-stereo.json"],
-  "payload_blockers": ["kodi-audio-target-not-materialized-from-pinned-base"],
+  "payload_status": "complete",
+  "payload_blockers": [],
   "apply_strategy": "preserve-and-verify",
   "assertions": [
     {"authority": "kodi", "key": "audio.output-contract", "expected": "stereo", "sensitive": false},

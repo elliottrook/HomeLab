@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-jen-e25bf847ce8f.tar.gz",
+    "name": "astertv-jen-a59a0ccbdaeb.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "e25bf847ce8f5f366d6dcbb672b732804240820e2bb721bf4ea327ce86468bc5",
+  "composition_sha256": "a59a0ccbdaebb43cdc6e3def01b6e5edfe3302d0196315cd26fa31f6270533e9",
   "deployable": false,
   "device_id": "astertv-jen",
   "kind": "release-plan",
@@ -32,6 +32,38 @@
       "assertions": [],
       "dependencies": [],
       "id": "release-guard-v1",
+      "installed_payloads": [
+        {
+          "bytes": 7455,
+          "destination": "/storage/.aster-release/release_guard.py",
+          "mode": "0700",
+          "sha256": "fee7285924fc807d7a2b29a0e6cab6cdfbd7a071494b4d6bef48a4a9fcedb2a6"
+        },
+        {
+          "bytes": 269,
+          "destination": "/storage/.config/system.d/astertv-release-guard.service",
+          "mode": "0644",
+          "sha256": "d098e5f63bb4295564b55ac076e45f492772ee912efc0203f082c26c46713270"
+        },
+        {
+          "bytes": 676,
+          "destination": "/storage/.kodi/addons/service.aster.reliability/addon.xml",
+          "mode": "0644",
+          "sha256": "8589885ebdba85450911ac06203bb20b7f5726d692880a40f20b58b149fdb9f7"
+        },
+        {
+          "bytes": 658,
+          "destination": "/storage/.kodi/addons/service.aster.reliability/recovery_policy.py",
+          "mode": "0644",
+          "sha256": "3beb5b1bb1f2baa15d93e092deed191ed6113c7eb1ae65340e35bc9358681763"
+        },
+        {
+          "bytes": 3308,
+          "destination": "/storage/.kodi/addons/service.aster.reliability/service.py",
+          "mode": "0644",
+          "sha256": "e47f5e1d4e2f13cf3efc3bdf7d65f88c37532467a92a8c3d3ecd6ff7feaf720e"
+        }
+      ],
       "layer": "recovery",
       "owner": "fleet-engineering",
       "owns": [
@@ -89,6 +121,7 @@
         "release-guard-v1"
       ],
       "id": "jen-account-registry",
+      "installed_payloads": [],
       "layer": "kodi-identity",
       "owner": "fleet-engineering",
       "owns": [
@@ -153,6 +186,7 @@
         "jen-account-registry"
       ],
       "id": "jen-aster-client",
+      "installed_payloads": [],
       "layer": "kodi-service",
       "owner": "fleet-engineering",
       "owns": [
@@ -222,6 +256,7 @@
         "jen-account-registry"
       ],
       "id": "jen-guest-catalogue",
+      "installed_payloads": [],
       "layer": "kodi-catalogue",
       "owner": "fleet-engineering",
       "owns": [
@@ -281,6 +316,7 @@
         "jen-account-registry"
       ],
       "id": "jen-home-cameras",
+      "installed_payloads": [],
       "layer": "kodi-presentation",
       "owner": "fleet-engineering",
       "owns": [
@@ -342,6 +378,7 @@
         "release-guard-v1"
       ],
       "id": "jen-low-spec-runtime",
+      "installed_payloads": [],
       "layer": "device-performance",
       "owner": "fleet-engineering",
       "owns": [
@@ -378,6 +415,7 @@
         "release-guard-v1"
       ],
       "id": "tv-details-v3",
+      "installed_payloads": [],
       "layer": "kodi-presentation",
       "owner": "experience-design",
       "owns": [
@@ -515,6 +553,7 @@
         "tv-details-v3"
       ],
       "id": "jen-movie-youtube",
+      "installed_payloads": [],
       "layer": "kodi-presentation",
       "owner": "experience-design",
       "owns": [
@@ -602,6 +641,7 @@
         "release-guard-v1"
       ],
       "id": "news-playback-v3",
+      "installed_payloads": [],
       "layer": "kodi-runtime",
       "owner": "fleet-engineering",
       "owns": [
@@ -630,6 +670,7 @@
         "news-playback-v3"
       ],
       "id": "jen-news-icons",
+      "installed_payloads": [],
       "layer": "kodi-presentation",
       "owner": "experience-design",
       "owns": [
@@ -663,6 +704,7 @@
         "jen-account-registry"
       ],
       "id": "jen-podcast-requests",
+      "installed_payloads": [],
       "layer": "kodi-service",
       "owner": "fleet-engineering",
       "owns": [
@@ -712,53 +754,121 @@
     },
     {
       "apply_strategy": "install",
-      "assertions": [],
+      "assertions": [
+        {
+          "authority": "kodi",
+          "expected": true,
+          "key": "addon.service.asterremote.enabled",
+          "sensitive": false
+        },
+        {
+          "authority": "filesystem",
+          "expected": "0600",
+          "key": "asterremote-client-key.mode",
+          "sensitive": false
+        }
+      ],
       "dependencies": [
         "release-guard-v1"
       ],
       "id": "remote-client-v3",
+      "installed_payloads": [
+        {
+          "bytes": 1565,
+          "destination": "/storage/.aster-v3/m8/apply_remote_client.py",
+          "mode": "0700",
+          "sha256": "3617ec620aa8e1aeeb19dd8c0c16bb7b885d446c0d18fc1d002dd291660f24ec"
+        },
+        {
+          "bytes": 98,
+          "destination": "/storage/.aster-v3/m8/manifest.json",
+          "mode": "0600",
+          "sha256": "ed85c7cd0432958feb610da598ac7f46496310c20a12fb8779b3f10c1eff8902"
+        },
+        {
+          "bytes": 661,
+          "destination": "/storage/.aster-v3/m8/service.asterremote/addon.xml",
+          "mode": "0644",
+          "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
+        },
+        {
+          "bytes": 9629,
+          "destination": "/storage/.aster-v3/m8/service.asterremote/service.py",
+          "mode": "0644",
+          "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+        },
+        {
+          "bytes": 231,
+          "destination": "/storage/.config/system.d/astertv-v3-m8-jen.service",
+          "mode": "0644",
+          "sha256": "1861a63590a8c6213175de82cbac776a1f142e169ef199c28344ea5670ec329b"
+        },
+        {
+          "bytes": 661,
+          "destination": "/storage/.kodi/addons/service.asterremote/addon.xml",
+          "mode": "0644",
+          "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
+        },
+        {
+          "bytes": 9629,
+          "destination": "/storage/.kodi/addons/service.asterremote/service.py",
+          "mode": "0644",
+          "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+        }
+      ],
       "layer": "kodi-service",
       "owner": "fleet-engineering",
       "owns": [
         "kodi/service.asterremote",
         "kodi/native-input-sync"
       ],
-      "payload_blockers": [
-        "rendered-systemd-unit-not-materialized",
-        "accepted-service-source-hash-needs-reconciliation",
-        "client-key-room-id-and-gateway-policy-are-private-external-state"
-      ],
-      "payload_status": "incomplete",
+      "payload_blockers": [],
+      "payload_status": "complete",
       "payloads": [
         {
+          "bytes": 6244,
+          "path": "services/kodi/astertv-fleet/materialize_remote_client.py",
+          "sha256": "391f98a0d1f9b20692130475ff8cbfa0ab383c2190d5452acc5df75cb668cb03"
+        },
+        {
           "bytes": 661,
-          "path": "services/kodi/astertv-v3/remote_client/addon/service.asterremote/addon.xml",
+          "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/common/storage/.kodi/addons/service.asterremote/addon.xml",
           "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
         },
         {
           "bytes": 9629,
-          "path": "services/kodi/astertv-v3/remote_client/addon/service.asterremote/service.py",
+          "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/common/storage/.kodi/addons/service.asterremote/service.py",
           "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
         },
         {
+          "bytes": 5072,
+          "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/materialization-manifest.json",
+          "sha256": "c3d60d4716fe936811dfa6ccebd8e5a29d47fe12e11eb536117e5f1819157b03"
+        },
+        {
           "bytes": 1565,
-          "path": "services/kodi/astertv-v3/remote_client/apply_remote_client.py",
+          "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen/storage/.aster-v3/m8/apply_remote_client.py",
           "sha256": "3617ec620aa8e1aeeb19dd8c0c16bb7b885d446c0d18fc1d002dd291660f24ec"
         },
         {
-          "bytes": 1639,
-          "path": "services/kodi/astertv-v3/remote_client/apply_room_remote.py",
-          "sha256": "35ab084ce1fd585adab34dae7c2b2340c1c9f52385f0ea3f307fa6142e4d6ac0"
+          "bytes": 98,
+          "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen/storage/.aster-v3/m8/manifest.json",
+          "sha256": "ed85c7cd0432958feb610da598ac7f46496310c20a12fb8779b3f10c1eff8902"
         },
         {
-          "bytes": 6554,
-          "path": "services/kodi/astertv-v3/remote_client/install_remote_input_sync.py",
-          "sha256": "29ba0cb99a3682edb3e88c2df1521488fa4b47d35707461744ca201106ed96ed"
+          "bytes": 661,
+          "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen/storage/.aster-v3/m8/service.asterremote/addon.xml",
+          "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
         },
         {
-          "bytes": 6726,
-          "path": "services/kodi/astertv-v3/remote_client/install_room_remote.py",
-          "sha256": "bffe7667f372250e22e2747d72f8eb75ff908f8fd15967e63942e2121a868020"
+          "bytes": 9629,
+          "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen/storage/.aster-v3/m8/service.asterremote/service.py",
+          "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+        },
+        {
+          "bytes": 231,
+          "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-jen/storage/.config/system.d/astertv-v3-m8-jen.service",
+          "sha256": "1861a63590a8c6213175de82cbac776a1f142e169ef199c28344ea5670ec329b"
         }
       ],
       "rollback_ref": "astertv-v3-m8 per-device and gateway checkpoints",
@@ -811,8 +921,7 @@
     "overlay-payload-incomplete:jen-movie-youtube",
     "overlay-payload-incomplete:news-playback-v3",
     "overlay-payload-incomplete:jen-news-icons",
-    "overlay-payload-incomplete:jen-podcast-requests",
-    "overlay-payload-incomplete:remote-client-v3"
+    "overlay-payload-incomplete:jen-podcast-requests"
   ],
   "promotion_policy": {
     "artifact_policy": {

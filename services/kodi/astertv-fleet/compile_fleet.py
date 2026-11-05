@@ -211,6 +211,10 @@ def validate_registry(releases: dict[str, dict], hardware: dict[str, dict],
                 raise FleetError(f"invalid-assertion:{overlay['id']}")
             if assertion.get("sensitive", False) is not False:
                 raise FleetError(f"sensitive-assertion:{overlay['id']}:{assertion.get('key')}")
+        if (payload_status == "complete" and
+                overlay.get("apply_strategy", "install") == "preserve-and-verify" and
+                not assertions):
+            raise FleetError(f"preserve-overlay-without-assertions:{overlay['id']}")
         for release_id in overlay["compatible_releases"]:
             if release_id not in releases:
                 raise FleetError(f"unknown-overlay-release:{overlay['id']}:{release_id}")

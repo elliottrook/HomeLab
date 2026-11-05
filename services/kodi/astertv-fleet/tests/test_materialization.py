@@ -14,6 +14,9 @@ GUARD_SPEC.loader.exec_module(GUARD_MODULE)
 WIFI_SPEC = importlib.util.spec_from_file_location("bedroom_wifi_materializer", ROOT / "materialize_bedroom_wifi.py")
 WIFI_MODULE = importlib.util.module_from_spec(WIFI_SPEC)
 WIFI_SPEC.loader.exec_module(WIFI_MODULE)
+REMOTE_SPEC = importlib.util.spec_from_file_location("remote_client_materializer", ROOT / "materialize_remote_client.py")
+REMOTE_MODULE = importlib.util.module_from_spec(REMOTE_SPEC)
+REMOTE_SPEC.loader.exec_module(REMOTE_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -50,6 +53,16 @@ class MaterializationTests(unittest.TestCase):
         self.assertIn(b"power_save off", unit)
         self.assertEqual(manifest["files"][0]["destination"], "/" + WIFI_MODULE.DESTINATION)
         self.assertEqual(manifest["assertions"][0]["expected"], "disabled")
+
+    def test_remote_client_materializes_current_accepted_lineage_for_each_target(self):
+        files, manifest = REMOTE_MODULE.render()
+        self.assertEqual(manifest["lineage"]["current_sha256"],
+                         "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec")
+        self.assertEqual(set(manifest["targets"]), {"astertv-family", "astertv-bedroom", "astertv-jen"})
+        destinations = {(row["scope"], row["destination"]) for row in manifest["files"]}
+        self.assertIn(("astertv-jen", "/storage/.config/system.d/astertv-v3-m8-jen.service"), destinations)
+        self.assertIn(("astertv-family", "/storage/.config/system.d/astertv-v3-m8-remote.service"), destinations)
+        self.assertTrue(all(not row["path"].startswith("common/") for row in manifest["mutable_state"]))
 
 
 if __name__ == "__main__":

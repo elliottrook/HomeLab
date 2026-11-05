@@ -5,6 +5,7 @@
   "expected_assertions": [],
   "expected_payloads": [],
   "expected_resources": [],
+  "hostname": "AsterTV-GuestRoom",
   "kind": "composition-guard-contract",
   "mutable_exclusions": [
     "userdata/Database",

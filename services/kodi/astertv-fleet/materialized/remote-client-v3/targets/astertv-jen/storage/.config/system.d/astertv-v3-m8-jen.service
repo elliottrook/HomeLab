@@ -1,0 +1,9 @@
+[Unit]
+Description=Apply Aster Remote client on Jen
+After=astertv-v3-m6-jen.service
+Before=kodi.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /storage/.aster-v3/m8/apply_remote_client.py
+[Install]
+WantedBy=kodi.service
