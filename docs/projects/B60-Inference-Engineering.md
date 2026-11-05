@@ -12,6 +12,11 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [late November4 peer receipt](B60-Inference-Engineering/peer-receipt-late-before-qualification-20261105.md)
+records candidate-i quality rejection and candidate-j corrected fresh booking.
+Known AsterTV ownership keeps this preparation offline from the host. B60
+November5 remains armed; next read actual scheduled receipts without replay.
+
 Jason's operational continuation [completed migration and armed November5](B60-Inference-Engineering/qualification-armed-20261105.md).
 Actual timers are enabled/waiting for01:15 integrity and03:10 restore-only,
 with empty prior triggers and inactive services. All30 final source pins and
