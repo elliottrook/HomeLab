@@ -135,7 +135,7 @@
 > graduated. F2/F3/F4/F5 are not Lab Hours promotion stages; the
 > backup-evidence chain remains diagnostic.
 
-**Owner-facing checkpoint, 2026-10-30.** This page translates the detailed [programme](Aster-Adaptive-Computing.md) and [Codex delegation gates](Codex-Delegation.md) into the next decisions. The current programme remainder is summarized in the [October 29 milestone reconciliation](evidence/Stream-A-milestone-reconciliation-2026-10-29.md). It does not authorize a deployment, additional cloud question, new tool grant or Git push. Evidence links control factual claims; an unchecked gate remains open even if a nearby experiment passed.
+**Owner-facing checkpoint, 2026-11-04.** This page translates the detailed [programme](Aster-Adaptive-Computing.md) and [Codex delegation gates](Codex-Delegation.md) into the next decisions. The current programme remainder is summarized in the [November 4 milestone reconciliation](evidence/Stream-A-milestone-reconciliation-2026-11-04.md). It does not authorize an unregistered workload, model/backend change, new tool grant or automatic promotion. Evidence links control factual claims; an unchecked gate remains open even if a nearby experiment passed.
 
 ## Current execution snapshot — 2026-10-30
 
