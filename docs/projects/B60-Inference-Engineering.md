@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [actual November5 qualification](B60-Inference-Engineering/qualification-no-go-20261105.md)
+passed integrity/admission but the owner stopped before checkpoint with
+HOST_ADAPTER_COMMAND_FAILED. First-guest metadata now differs by two added
+files; the historical guest code was discarded. Production units are active
+and lease metadata ready. Preserve evidence; prepare reviewed fresh inventory
+and a distinct qualification under existing approval, without replay.
+
 The [November5 nightly preflight](B60-Inference-Engineering/nightly-preflight-20261105.md)
 independently confirms both future timers waiting/untriggered and the unchanged
 arming receipt. Current lease metadata is ready/markers absent. No duplicate
