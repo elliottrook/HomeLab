@@ -12,6 +12,11 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [November5 nightly preflight](B60-Inference-Engineering/nightly-preflight-20261105.md)
+independently confirms both future timers waiting/untriggered and the unchanged
+arming receipt. Current lease metadata is ready/markers absent. No duplicate
+run or nightly push; next reconcile actual scheduled results.
+
 The [late November4 peer receipt](B60-Inference-Engineering/peer-receipt-late-before-qualification-20261105.md)
 records candidate-i quality rejection and candidate-j corrected fresh booking.
 Known AsterTV ownership keeps this preparation offline from the host. B60
