@@ -1,5 +1,16 @@
 # Stream A — remaining delivery map
 
+> **B60 daytime exclusive recovery, 2026-11-05:** booking
+> `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
+> during restoration and the guardian could not classify the unit failure.
+> The [assisted recovery](evidence/B60-daytime-exclusive-recovery-2026-11-05.md)
+> completed before the deadline: the session is released, production is
+> restored, both locks are absent, News and core services are healthy, and the
+> ledger is correctly terminal `FAILED_RESTORED`. TTS files and bookings were
+> untouched. Before another transaction of this family, correct absent-owner
+> fencing and explicitly support recovery of active non-persistent monotonic
+> timers; this spent booking is not retried.
+
 > **Candidate-J quality R1 release candidate, 2026-11-05:** the exact booked
 > [transaction completed and independently passed](evidence/D4-candidate-j-quality-r1-complete-and-release-candidate-2026-11-05.md).
 > It claimed on time, completed in 232 seconds, retained 20 cases / 14 model
