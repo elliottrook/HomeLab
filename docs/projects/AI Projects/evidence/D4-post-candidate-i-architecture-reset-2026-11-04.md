@@ -24,15 +24,27 @@ effects or authority. The deterministic renderer labels every claim as a
 hypothesis, preserves literal non-completion and requires verification before
 cause assignment.
 
-The focused source suite passes 5/5. It covers deterministic bounded rendering,
+The first focused contract suite passes 5/5. It covers deterministic bounded rendering,
 model-field injection, secret and stale abstention, unsupported selection, and
 schema/cross-reference/unsafe-claim drift.
+
+The follow-on selection-only runner is now source-complete. It exposes only
+eligible registered hypotheses to the model, accepts one strict JSON object
+containing one or two IDs, rejects duplicate keys, unknown envelope fields and
+foreign IDs, and never calls transport for an abstention. The model cannot
+author final prose or control fields. Malformed transport becomes an
+error-bearing deterministic abstention with no retry. The combined focused
+suite passes 10/10 and the complete SA3 suite passes 211/211. Current source
+SHA-256 values are:
+
+- contract: `d3c04b28aeed23cb91808c223ec545594a1ff63754d2ada1c15ea87468a0d34d`;
+- runner: `ee3410dbed70dc9399a094e0260e0af94985daef961017de2dd9f70b4691d223`.
 
 ## Next untouched boundary
 
 This is not a candidate release or authority to run. Before any model request,
-candidate-j still needs a strict selection-only runner, a separate public
-development fixture, a source freeze, and an independently created untouched
+candidate-j still needs a separate public development fixture, a source
+freeze, and an independently created untouched
 quality packet that does not reuse candidate-g or candidate-i evaluation
 cases. The quality bar remains conservative; no threshold is lowered and no
 automatic route, repair authority, tool grant or model/backend change follows.

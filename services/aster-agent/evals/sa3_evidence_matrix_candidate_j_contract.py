@@ -88,6 +88,19 @@ def _clarify(case: dict, hypotheses: dict[str, dict], reason: str) -> dict:
     }
 
 
+def eligible_hypothesis_ids(case: object) -> list[str]:
+    """Return only preregistered hypotheses supported by current evidence."""
+    case, observations, hypotheses = _validate(case)
+    if SECRET_WORDS.search(case["prompt"]) is not None:
+        return []
+    current = {
+        source for source, row in observations.items()
+        if row["freshness"] == "current" and row["state"] != "unavailable"
+    }
+    return sorted(name for name, row in hypotheses.items()
+                  if set(row["supports"]) <= current)
+
+
 def project(case: object, selection: object) -> dict[str, object]:
     """Render a bounded answer; a model may select IDs but author no prose."""
     case, observations, hypotheses = _validate(case)
@@ -102,10 +115,7 @@ def project(case: object, selection: object) -> dict[str, object]:
         return _clarify(case, hypotheses,
                         "no current usable observation supports a diagnosis")
 
-    eligible = {
-        name: row for name, row in hypotheses.items()
-        if set(row["supports"]) <= set(current)
-    }
+    eligible = {name: hypotheses[name] for name in eligible_hypothesis_ids(case)}
     if (not isinstance(selection, dict) or set(selection) != {"hypothesis_ids"}
             or not isinstance(selection["hypothesis_ids"], list)
             or not 1 <= len(selection["hypothesis_ids"]) <= 2
