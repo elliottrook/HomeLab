@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "graphs": [
+    {
+      "page": "movie",
+      "entry": "play",
+      "back": "media-return",
+      "scroll": "horizontal-clamped",
+      "nodes": {
+        "play":{"left":"media-return","right":"resume","down":"cast"},
+        "resume":{"left":"play","right":"trailer","down":"cast"},
+        "trailer":{"left":"resume","right":"media-return","down":"related"},
+        "media-return":{"left":"trailer","right":"play","down":"cast"},
+        "cast":{"up":"play","right":"related","down":"related"},
+        "related":{"up":"trailer","left":"cast","down":"cast"}
+      }
+    },
+    {
+      "page": "tv",
+      "entry": "episode-list",
+      "back": "series-return",
+      "scroll": "season-window-eight-rows",
+      "nodes": {
+        "play":{"left":"series-return","right":"trailer","down":"cast"},
+        "trailer":{"left":"play","right":"season-list","down":"related"},
+        "series-return":{"right":"play","down":"cast"},
+        "cast":{"up":"play","right":"season-list","down":"related"},
+        "related":{"up":"cast","right":"season-list","down":"cast"},
+        "season-list":{"left":"cast","right":"episode-list","up":"season-list","down":"season-list"},
+        "episode-list":{"left":"season-list","right":"episode-list","up":"episode-list","down":"episode-list"}
+      }
+    },
+    {
+      "page": "youtube",
+      "entry": "search",
+      "back": "previous-youtube-view",
+      "scroll": "rail-clamped",
+      "nodes": {
+        "search":{"right":"subscriptions","down":"hero"},
+        "subscriptions":{"left":"search","right":"watch-later","down":"hero"},
+        "watch-later":{"left":"subscriptions","right":"recommendations","down":"hero"},
+        "recommendations":{"left":"watch-later","down":"hero"},
+        "hero":{"up":"search","down":"content-rail"},
+        "content-rail":{"up":"hero","left":"content-rail","right":"content-rail"}
+      }
+    },
+    {
+      "page": "aster-ai-command",
+      "entry": "dismiss",
+      "back": "underlying-page",
+      "scroll": "none",
+      "nodes": {"dismiss":{"left":"dismiss","right":"dismiss","up":"dismiss","down":"dismiss"}}
+    }
+  ]
+}

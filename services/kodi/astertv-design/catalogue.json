@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "asset_releases": [
+    {
+      "id": "aster-brand-v2-2026-10-14",
+      "authority": "private-forgejo-release",
+      "url": "https://git.elliottrook.com/jason/homelab/releases/tag/aster-brand-v2-2026-10-14",
+      "archive_sha256": null,
+      "status": "accepted"
+    },
+    {
+      "id": "aster-brand-v2-expansion-2026-10-14",
+      "authority": "private-forgejo-release",
+      "url": "https://git.elliottrook.com/jason/homelab/releases/tag/aster-brand-v2-expansion-2026-10-14",
+      "archive_sha256": "e030b6104fbdffb44faf035471f8c55320c3869065046a1ff5f9f0433069c48e",
+      "status": "accepted"
+    }
+  ],
+  "components": [
+    {"id":"identity","states":["light","dark","small","forbidden-context"],"variants":["logo","plain-compass","stone-compass"]},
+    {"id":"background","states":["image","no-image","text-safe","low-resolution"],"variants":["media","music","books","news","ai"]},
+    {"id":"top-rail","states":["rest","focus","current","disabled","first","last"],"variants":["search","category","clock"]},
+    {"id":"side-rail","states":["collapsed","focus","current","expanded","first","last"],"variants":["stone-only"]},
+    {"id":"artwork-tile","states":["rest","focus","current","watched","unwatched","missing-art","error","long-title"],"variants":["poster","square","cast","landscape"]},
+    {"id":"button","states":["rest","focus","pressed","disabled","busy","confirm","destructive","recovery"],"variants":["text","icon","icon-label"]},
+    {"id":"player-control","states":["rest","focus","pressed","unavailable"],"variants":["play","resume","trailer","pause","stop","queue","skip"]},
+    {"id":"dialog","states":["rest","focus","busy","offline","error"],"variants":["resume","skip","working","confirmation","ai-command","ai-search"]},
+    {"id":"content-rail","states":["rest","focus","long-scroll","empty","dependency-unavailable"],"variants":["cast","related","seasons","episodes","tracks","articles","search"]}
+  ],
+  "pages": [
+    {"id":"media","family":"Media","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/Home.xml"},
+    {"id":"music","family":"Music","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/IncludesMusic.xml"},
+    {"id":"books","family":"Books","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/custom_1110_books.xml"},
+    {"id":"settings","family":"Settings","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/Home.xml"},
+    {"id":"youtube","family":"YouTube","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1191_youtube_rework.xml"},
+    {"id":"movie","family":"Movie","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1194_movie_rework.xml"},
+    {"id":"person-library","family":"Search","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1195_person_library.xml"},
+    {"id":"tv","family":"TV","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1196_tv_rework.xml"},
+    {"id":"aster-ai-search","family":"Search","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1197_aster_ai.xml"},
+    {"id":"news","family":"News","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1198_news_rework.xml"},
+    {"id":"podcast-requests","family":"Requests","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1199_podcast_requests.xml"},
+    {"id":"home","family":"Home","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1200_home_rework.xml"},
+    {"id":"cameras","family":"Cameras","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1201_cameras_rework.xml"},
+    {"id":"aster-ai-keyword","family":"Search","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1202_aster_ai_keyword.xml"},
+    {"id":"aster-ai-command","family":"Search","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1203_aster_ai_command.xml"}
+  ],
+  "required_page_families": ["Media","TV","Movie","Music","Books","News","YouTube","Requests","Home","Cameras","Search","Settings"],
+  "privacy": {"synthetic_only": true, "forbidden": ["camera-frame","account-name","watch-history","credential","private-title-history"]}
+}

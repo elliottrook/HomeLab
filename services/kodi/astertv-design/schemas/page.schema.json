@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://astertv.local/schemas/design/page.schema.json",
+  "type": "object",
+  "required": ["id", "family", "status", "template"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]+$"},
+    "family": {"type": "string", "minLength": 1},
+    "status": {"enum": ["candidate", "accepted-v2", "accepted-v3-candidate", "accepted-v3", "retired"]},
+    "template": {"type": "string", "pattern": "\\.xml$"}
+  },
+  "additionalProperties": false
+}

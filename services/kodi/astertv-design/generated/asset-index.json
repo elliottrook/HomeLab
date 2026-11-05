@@ -1,0 +1,189 @@
+{
+  "runtime_assets": [
+    {
+      "bytes": 551,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/aster-ai-listening-png/01.png",
+      "sha256": "ba71ccee2fc56daf0231ba3e72f77b85a7faaa6f636d54fee95e2f209ee58c8d"
+    },
+    {
+      "bytes": 541,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/aster-ai-listening-png/02.png",
+      "sha256": "afa9ec155be3b713a14b03ff93931580d93d03b24a72b3892f5460af4b525dbb"
+    },
+    {
+      "bytes": 547,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/aster-ai-listening-png/03.png",
+      "sha256": "1821042ac1525ea16976e9234119431b80d8978ec9568e1bc79f7acebd907fc8"
+    },
+    {
+      "bytes": 544,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/aster-ai-listening-png/04.png",
+      "sha256": "5297451a6d6c3df2e41fdf4e2ac0de00e244a95bc71c0be234f311a2b5dc9809"
+    },
+    {
+      "bytes": 2354537,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/fixtures/youtube/aurora-station.png",
+      "sha256": "f46751e241e485e8364350cb1141496fb38b5da855bde0ea58e26c9c8d083214"
+    },
+    {
+      "bytes": 3137960,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/fixtures/youtube/autumn-rail.png",
+      "sha256": "50f3895c564b3ff9e01c549d6478f9f1347ef56cc5cb5d5cbb97cf68095f21d7"
+    },
+    {
+      "bytes": 2741876,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/fixtures/youtube/living-light.png",
+      "sha256": "73b75010546c1cf451644a7df2e236a082f9085a8dd2f526baf0de585f237b6b"
+    },
+    {
+      "bytes": 1903079,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/fixtures/youtube/velvet-hour.png",
+      "sha256": "d47ea44ac18910d1ebebb7fc686174d90e472855bc63f19a2b01d2dd64c7fe18"
+    },
+    {
+      "bytes": 1889,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/player-controls/trailer.png",
+      "sha256": "b2d7d331f02ddbced8c5eb875c43d3d9a0bdcf1c758cd9e4369ed38392730c71"
+    },
+    {
+      "bytes": 372,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/player-controls/trailer.svg",
+      "sha256": "771da97e1a263a4f8e11619508d482d921bf0aaa5348bfff7ece05b0653425d6"
+    },
+    {
+      "bytes": 4519,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/ui-button-current-gold-rim.png",
+      "sha256": "cbaf368d835e864e68ba816c9184350d59a9c0a861e1de9b6e8e03b6bb955925"
+    },
+    {
+      "bytes": 219,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/ui-button-current-gold-rim.svg",
+      "sha256": "bb98964895e16401518b3ea5c0a7c047d44054d18791cec08f16f712ec5eebd6"
+    },
+    {
+      "bytes": 4400,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/ui-button-focus-gold-rim.png",
+      "sha256": "c1de42c5d178eeb0c2136781f891c9543fea78a9a41c4a084a78d8fbc86f214f"
+    },
+    {
+      "bytes": 219,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/ui-button-focus-gold-rim.svg",
+      "sha256": "17a4385442bf114cdcc37a27772ae38e691cffe1769ba0defe96f0bf9728afbe"
+    },
+    {
+      "bytes": 3887,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/ui-dialog-pill-rest.png",
+      "sha256": "8cf9fb6de15bee534d5b064798ef126b9616786fa8c73079245302f981e00ffd"
+    },
+    {
+      "bytes": 446,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/ui-dialog-result-art-mask.png",
+      "sha256": "345b0610c7ca67f75e9281e1e012367e4bc0953f6720a57f45d684d7f7d773f2"
+    },
+    {
+      "bytes": 3478,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/ui-dialog-result-focus.png",
+      "sha256": "5ebebc9f95e9ee68a42916a9bb839cd0bc60f04bb84aa6f0776c3205658f5dfd"
+    },
+    {
+      "bytes": 3739,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/ui-dialog-result-rest.png",
+      "sha256": "bbe231ada5e4d87f062f61274541b83641b8c7a0e730d743a1194ba164d54f3e"
+    },
+    {
+      "bytes": 4220,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/ui-dialog-section.png",
+      "sha256": "dea9e0ac90a260eb4f55cc5d3927413cd2e44f9a90afce433114269c7d8982d7"
+    },
+    {
+      "bytes": 82,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/ui-transparent.svg",
+      "sha256": "a9893b3ad8c5e95b862eb7550a7b682178fabcaa4c4c2dac6d7ce26e4231caa9"
+    },
+    {
+      "bytes": 551,
+      "consumer": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media",
+      "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media/aster-ai-listening-png/01.png",
+      "sha256": "ba71ccee2fc56daf0231ba3e72f77b85a7faaa6f636d54fee95e2f209ee58c8d"
+    },
+    {
+      "bytes": 541,
+      "consumer": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media",
+      "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media/aster-ai-listening-png/02.png",
+      "sha256": "afa9ec155be3b713a14b03ff93931580d93d03b24a72b3892f5460af4b525dbb"
+    },
+    {
+      "bytes": 547,
+      "consumer": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media",
+      "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media/aster-ai-listening-png/03.png",
+      "sha256": "1821042ac1525ea16976e9234119431b80d8978ec9568e1bc79f7acebd907fc8"
+    },
+    {
+      "bytes": 544,
+      "consumer": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media",
+      "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media/aster-ai-listening-png/04.png",
+      "sha256": "5297451a6d6c3df2e41fdf4e2ac0de00e244a95bc71c0be234f311a2b5dc9809"
+    },
+    {
+      "bytes": 1889,
+      "consumer": "services/kodi/astertv-v3/deploy/tv-details/skin.asterhome/media",
+      "path": "services/kodi/astertv-v3/deploy/tv-details/skin.asterhome/media/player-controls/trailer.png",
+      "sha256": "b2d7d331f02ddbced8c5eb875c43d3d9a0bdcf1c758cd9e4369ed38392730c71"
+    },
+    {
+      "bytes": 4519,
+      "consumer": "services/kodi/astertv-v3/deploy/tv-details/skin.asterhome/media",
+      "path": "services/kodi/astertv-v3/deploy/tv-details/skin.asterhome/media/ui-button-current-gold-rim.png",
+      "sha256": "cbaf368d835e864e68ba816c9184350d59a9c0a861e1de9b6e8e03b6bb955925"
+    },
+    {
+      "bytes": 4400,
+      "consumer": "services/kodi/astertv-v3/deploy/tv-details/skin.asterhome/media",
+      "path": "services/kodi/astertv-v3/deploy/tv-details/skin.asterhome/media/ui-button-focus-gold-rim.png",
+      "sha256": "c1de42c5d178eeb0c2136781f891c9543fea78a9a41c4a084a78d8fbc86f214f"
+    },
+    {
+      "bytes": 23209,
+      "consumer": "services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/media",
+      "path": "services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/media/11-books.png",
+      "sha256": "b5cc8d0c2879a5bc6340ddd97e1336bd6d6aee5ff2c815c683909cf64b89c931"
+    }
+  ],
+  "schema_version": 1,
+  "source_releases": [
+    {
+      "archive_sha256": null,
+      "authority": "private-forgejo-release",
+      "id": "aster-brand-v2-2026-10-14",
+      "status": "accepted",
+      "url": "https://git.elliottrook.com/jason/homelab/releases/tag/aster-brand-v2-2026-10-14"
+    },
+    {
+      "archive_sha256": "e030b6104fbdffb44faf035471f8c55320c3869065046a1ff5f9f0433069c48e",
+      "authority": "private-forgejo-release",
+      "id": "aster-brand-v2-expansion-2026-10-14",
+      "status": "accepted",
+      "url": "https://git.elliottrook.com/jason/homelab/releases/tag/aster-brand-v2-expansion-2026-10-14"
+    }
+  ]
+}

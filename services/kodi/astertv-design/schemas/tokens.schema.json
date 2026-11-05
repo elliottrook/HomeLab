@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://astertv.local/schemas/design/tokens.schema.json",
+  "type": "object",
+  "required": ["schema_version", "status", "owner", "colors", "geometry", "motion", "icon_context", "background"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "status": {"enum": ["candidate", "accepted", "retired"]},
+    "owner": {"type": "string", "minLength": 1},
+    "colors": {"type": "object", "minProperties": 8, "additionalProperties": {"type": "string", "pattern": "^#[0-9A-F]{6}$"}},
+    "geometry": {"type": "object"},
+    "motion": {"type": "object"},
+    "icon_context": {"type": "object"},
+    "background": {"type": "object"}
+  },
+  "additionalProperties": false
+}

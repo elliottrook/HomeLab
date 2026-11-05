@@ -1,0 +1,221 @@
+{
+  "fixtures": [
+    {
+      "height": 1080,
+      "id": "component-identity",
+      "kind": "component",
+      "path": "generated/renders/components/identity.svg",
+      "source": "identity",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "component-background",
+      "kind": "component",
+      "path": "generated/renders/components/background.svg",
+      "source": "background",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "component-top-rail",
+      "kind": "component",
+      "path": "generated/renders/components/top-rail.svg",
+      "source": "top-rail",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "component-side-rail",
+      "kind": "component",
+      "path": "generated/renders/components/side-rail.svg",
+      "source": "side-rail",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "component-artwork-tile",
+      "kind": "component",
+      "path": "generated/renders/components/artwork-tile.svg",
+      "source": "artwork-tile",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "component-button",
+      "kind": "component",
+      "path": "generated/renders/components/button.svg",
+      "source": "button",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "component-player-control",
+      "kind": "component",
+      "path": "generated/renders/components/player-control.svg",
+      "source": "player-control",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "component-dialog",
+      "kind": "component",
+      "path": "generated/renders/components/dialog.svg",
+      "source": "dialog",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "component-content-rail",
+      "kind": "component",
+      "path": "generated/renders/components/content-rail.svg",
+      "source": "content-rail",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-media",
+      "kind": "page",
+      "path": "generated/renders/pages/media.svg",
+      "source": "media",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-music",
+      "kind": "page",
+      "path": "generated/renders/pages/music.svg",
+      "source": "music",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-books",
+      "kind": "page",
+      "path": "generated/renders/pages/books.svg",
+      "source": "books",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-settings",
+      "kind": "page",
+      "path": "generated/renders/pages/settings.svg",
+      "source": "settings",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-youtube",
+      "kind": "page",
+      "path": "generated/renders/pages/youtube.svg",
+      "source": "youtube",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-movie",
+      "kind": "page",
+      "path": "generated/renders/pages/movie.svg",
+      "source": "movie",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-person-library",
+      "kind": "page",
+      "path": "generated/renders/pages/person-library.svg",
+      "source": "person-library",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-tv",
+      "kind": "page",
+      "path": "generated/renders/pages/tv.svg",
+      "source": "tv",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-aster-ai-search",
+      "kind": "page",
+      "path": "generated/renders/pages/aster-ai-search.svg",
+      "source": "aster-ai-search",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-news",
+      "kind": "page",
+      "path": "generated/renders/pages/news.svg",
+      "source": "news",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-podcast-requests",
+      "kind": "page",
+      "path": "generated/renders/pages/podcast-requests.svg",
+      "source": "podcast-requests",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-home",
+      "kind": "page",
+      "path": "generated/renders/pages/home.svg",
+      "source": "home",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-cameras",
+      "kind": "page",
+      "path": "generated/renders/pages/cameras.svg",
+      "source": "cameras",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-aster-ai-keyword",
+      "kind": "page",
+      "path": "generated/renders/pages/aster-ai-keyword.svg",
+      "source": "aster-ai-keyword",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-aster-ai-command",
+      "kind": "page",
+      "path": "generated/renders/pages/aster-ai-command.svg",
+      "source": "aster-ai-command",
+      "synthetic": true,
+      "width": 1920
+    }
+  ],
+  "schema_version": 1
+}
