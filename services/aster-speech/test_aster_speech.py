@@ -127,6 +127,26 @@ class SpeechToTextTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(kwargs["language"], aster_speech.WHISPER_LANGUAGE)
         self.assertFalse(kwargs["condition_on_previous_text"])
         self.assertEqual(kwargs["hotwords"], aster_speech.WHISPER_HOTWORDS)
+        self.assertNotIn("initial_prompt", kwargs)
+
+    async def test_british_media_profile_is_bounded_to_requested_upload(self):
+        fake_model = MagicMock()
+        fake_model.transcribe.return_value = ([FakeSegment("Search for Dark")], None)
+        upload = UploadFile(io.BytesIO(b"fake-audio-bytes"), filename="clip.wav")
+        with patch("aster_speech._whisper_model", fake_model):
+            result = await speech_to_text(upload, profile=aster_speech.REMOTE_BRITISH_PROFILE)
+        self.assertEqual(result, {"text": "Search for Dark"})
+        kwargs = fake_model.transcribe.call_args.kwargs
+        self.assertEqual(kwargs["beam_size"], 3)
+        self.assertEqual(kwargs["language"], aster_speech.WHISPER_LANGUAGE)
+        self.assertEqual(kwargs["initial_prompt"], aster_speech.REMOTE_BRITISH_PROMPT)
+
+    async def test_unknown_speech_profile_fails_closed_before_reading_audio(self):
+        upload = UploadFile(io.BytesIO(b"fake-audio-bytes"), filename="clip.wav")
+        with self.assertRaises(HTTPException) as raised:
+            await speech_to_text(upload, profile="untrusted-profile")
+        self.assertEqual(raised.exception.status_code, 400)
+        self.assertEqual(await upload.read(), b"fake-audio-bytes")
 
     async def test_configured_hotwords_are_forwarded_without_logging_content(self):
         fake_model = MagicMock()

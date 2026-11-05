@@ -144,6 +144,7 @@ async function voiceSearch() {
       const blob = new Blob(chunks, {type: recorder.mimeType || 'audio/mp4'});
       if (!blob.size) throw new Error('No audio was recorded.');
       const form = new FormData(); form.append('audio', blob, blob.type.includes('mp4') ? 'voice.m4a' : 'voice.webm');
+      form.append('profile', 'en-GB-media');
       const response = await fetch('/voice/v1/stt', {method:'POST', headers:{Authorization:'Bearer ' + token()}, body:form});
       const result = await response.json();
       if (!response.ok || !result.text?.trim()) throw new Error(result.detail || 'No speech was recognized.');

@@ -43,6 +43,9 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn("$('#text').value = ''", JS)
         self.assertIn("$('#search').value = ''", JS)
 
+    def test_voice_uses_bounded_british_media_profile(self):
+        self.assertIn("form.append('profile', 'en-GB-media')", JS)
+
     def test_service_worker_caches_only_static_shell(self):
         self.assertIn("const SHELL =", SW)
         self.assertNotIn("/v1/", SW)

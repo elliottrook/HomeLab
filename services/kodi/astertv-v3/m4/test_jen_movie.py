@@ -64,6 +64,13 @@ class JenMovieCandidateTests(unittest.TestCase):
         self.assertIn("AsterMovie.Command,person", result)
         self.assertIn("AsterMovie.Command,related", result)
 
+    def test_family_authority_advances_with_dispatcher(self):
+        source = (ROOT / "install_jen_movie.py").read_text()
+        self.assertIn(
+            'family["skin"]["tools/select_dispatch.py"] = digest(dispatch)',
+            source,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

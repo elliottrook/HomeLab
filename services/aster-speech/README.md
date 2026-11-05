@@ -10,7 +10,10 @@ See [operator guide](../../docs/runbooks/Aster-Companion.md) for recovery and
 [project evidence](../../docs/projects/completed%20projects/Aster-Companion-App.md) for acceptance.
 
 - `/health`: service liveness, no credentials.
-- `/v1/stt`: multipart `audio`, at most 15 MiB, temporary file only.
+- `/v1/stt`: multipart `audio`, at most 15 MiB, temporary file only. An
+  allow-listed optional `profile=en-GB-media` applies British-media vocabulary
+  context and a modestly wider decode only to that request; the default and
+  Wyoming paths are unchanged.
 - `/v1/tts`: JSON `text`, at most 2,000 Python code points, WAV output.
 - Both speech routes require the existing dedicated key or a valid Companion
   JWT with matching signature, issuer, audience and expiry.

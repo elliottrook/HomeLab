@@ -243,6 +243,10 @@ def main() -> None:
     manifest_data = encoded(manifest)
     family = json.loads(originals[FAMILY])
     family["components"]["aster-global-search-ui22"]["manifest_sha256"] = digest(manifest_data)
+    # Search verifies every installed skin integration against this authority.
+    # M4 owns the dispatcher extension, so its live pin must advance with the
+    # patched dispatcher or Search correctly fails closed after M4 is applied.
+    family["skin"]["tools/select_dispatch.py"] = digest(dispatch)
     family_data = encoded(family)
 
     result = {"movie": digest(movie), "xml": digest(xml), "dispatch": digest(dispatch), "dispatch_overlay": digest(dispatch_overlay), "manifest": digest(manifest_data), "helper": digest(helper_data)}

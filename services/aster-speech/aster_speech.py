@@ -24,10 +24,10 @@ import tempfile
 import time
 import wave
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 import jwt
-from fastapi import Depends, FastAPI, Header, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, Form, Header, HTTPException, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict
 
@@ -55,6 +55,12 @@ _authentik_jwks_client = jwt.PyJWKClient(AUTHENTIK_JWKS_URL, cache_keys=True, li
 PIPER_LENGTH_SCALE = os.environ.get("ASTER_SPEECH_PIPER_LENGTH_SCALE", "1.15")
 MAX_AUDIO_BYTES = 15 * 1024 * 1024
 MAX_TEXT_CHARS = 2000
+REMOTE_BRITISH_PROFILE = "en-GB-media"
+REMOTE_BRITISH_PROMPT = (
+    "British English AsterTV media remote command. "
+    "Search, play, pause, programme, film, series, season, episode, Dark, "
+    "cameras, news digest, music, audiobook, podcast."
+)
 
 app = FastAPI(title="Aster Speech", version="1.0.0")
 
@@ -127,15 +133,18 @@ async def health() -> dict[str, str]:
     return {"status": "ok", "service": "aster-speech"}
 
 
-def _run_transcription(path: str) -> str:
+def _run_transcription(path: str, profile: str = "default") -> str:
     """Materialize Whisper's lazy result on a worker, keeping the event loop free."""
-    segments, _info = _whisper_model.transcribe(
-        path,
-        beam_size=1,
-        language=WHISPER_LANGUAGE,
-        condition_on_previous_text=False,
-        hotwords=WHISPER_HOTWORDS,
-    )
+    options: dict[str, Any] = {
+        "beam_size": 1,
+        "language": WHISPER_LANGUAGE,
+        "condition_on_previous_text": False,
+        "hotwords": WHISPER_HOTWORDS,
+    }
+    if profile == REMOTE_BRITISH_PROFILE:
+        options["beam_size"] = 3
+        options["initial_prompt"] = REMOTE_BRITISH_PROMPT
+    segments, _info = _whisper_model.transcribe(path, **options)
     return "".join(segment.text for segment in segments).strip()
 
 
@@ -146,7 +155,12 @@ def _validation_digest(text: str) -> str:
 
 
 @app.post("/v1/stt", dependencies=[Depends(require_api_key)])
-async def speech_to_text(audio: UploadFile) -> dict[str, str]:
+async def speech_to_text(
+    audio: UploadFile,
+    profile: Annotated[str, Form()] = "default",
+) -> dict[str, str]:
+    if profile not in {"default", REMOTE_BRITISH_PROFILE}:
+        raise HTTPException(status_code=400, detail="Unsupported speech profile")
     data = await audio.read(MAX_AUDIO_BYTES + 1)
     if len(data) > MAX_AUDIO_BYTES:
         raise HTTPException(status_code=413, detail="Audio exceeds the maximum permitted size")
@@ -158,7 +172,7 @@ async def speech_to_text(audio: UploadFile) -> dict[str, str]:
         tmp.write(data)
         tmp.flush()
         async with _transcribe_lock:
-            text = await asyncio.to_thread(_run_transcription, tmp.name)
+            text = await asyncio.to_thread(_run_transcription, tmp.name, profile)
     print(
         f"aster-speech: /v1/stt completed in {time.monotonic() - start:.2f}s, bytes={len(data)}",
         file=sys.stderr,
