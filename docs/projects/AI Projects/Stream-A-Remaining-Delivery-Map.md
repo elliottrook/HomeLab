@@ -213,6 +213,14 @@
 > new distinct Candidate-J transaction is justified; no untouched evaluation
 > or promotion follows from this run.
 
+> **EPUB fault narrowed:** the guest monitor is enabled/active and the worker
+> last exited successfully after reporting 159 queued and eight ready items.
+> The failed component is the host admission scheduler, whose timer remains
+> disabled/inactive with service exit 75. The EPUB owner must reconcile the
+> stop, preserve ladder evidence, verify installed booking-aware pins and
+> restore one bounded scheduler cycle. That separate-project remote change is
+> not performed under Candidate-J reconciliation.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are

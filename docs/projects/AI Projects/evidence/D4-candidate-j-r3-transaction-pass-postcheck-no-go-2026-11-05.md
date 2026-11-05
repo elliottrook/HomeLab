@@ -38,3 +38,20 @@ action belongs to the EPUB project: reconcile and restore the scheduler/worker
 with retained evidence. Stream A may then decide whether a new distinct public
 transaction is justified; no automatic retry, blind evaluation, route,
 authority or promotion follows.
+
+## Bounded EPUB handoff
+
+Read-only follow-up isolated the failed component. LXC116's
+`epub-narration-monitor.timer` is enabled and active/waiting. Its worker is
+correctly inactive with last result success and exit zero; the final
+content-free 02:59 status reported 159 queued and eight ready items before the
+bounded worker exited successfully. The host admission scheduler alone remains
+disabled/inactive with retained exit 75. As a result, queued EPUB work cannot
+be admitted for another bounded worker cycle.
+
+The EPUB owner should reconcile why the host timer was stopped, preserve the
+failed ladder evidence, verify the installed booking-aware scheduler pins,
+then clear the failed service state and re-enable the existing timer. One
+bounded scheduler cycle must prove the host timer, guest monitor and worker
+result healthy. This is a separate-project remote change and was not performed
+as part of Candidate-J reconciliation.
