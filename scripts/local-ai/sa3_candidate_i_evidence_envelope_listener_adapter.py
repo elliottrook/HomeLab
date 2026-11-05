@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -16,7 +17,7 @@ from sa3_candidate_i_evidence_envelope_transaction import (
 )
 from sa3_listener_adapter import (
     AdapterError, _cleanup_capture, _open_capture_file, _prepare_capture_root,
-    _stop_process, _verify_capture_directory, _verify_capture_file, scope_unit,
+    _stop_process, _verify_capture_directory, _verify_capture_file,
 )
 
 
@@ -26,6 +27,7 @@ CASES = 20
 PER_REQUEST_TIMEOUT_SECONDS = 120
 TRACEBACK_CLASS_RE = re.compile(r"([A-Za-z][A-Za-z0-9_.]{0,127})(?::.*)?")
 ERROR_CLASS_RE = re.compile(r"[A-Za-z][A-Za-z0-9_]{0,63}")
+LEASE_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{1,127}")
 
 
 def bounded_guest_failure(stderr: bytes, stdout: bytes = b"",
@@ -62,13 +64,21 @@ def bounded_guest_failure(stderr: bytes, stdout: bytes = b"",
     return "unclassified guest failure"
 
 
+def candidate_i_scope_unit(lease_id: str, generation: int) -> str:
+    if (not isinstance(lease_id, str) or LEASE_RE.fullmatch(lease_id) is None
+            or type(generation) is not int or generation < 1):
+        raise AdapterError("invalid candidate-i lease identity")
+    token = hashlib.sha256(f"{lease_id}:{generation}".encode()).hexdigest()[:16]
+    return f"aster-llama-sa3-i-{token}.scope"
+
+
 def listener_command(*, lease_id: str, generation: int) -> tuple[str, ...]:
     return ("pct", "exec", "110", "--", "/usr/bin/python3", "-B", LISTENER,
             "--profile", WORKLOAD_ID, "--port", str(PORT),
             "--requests", str(CASES),
             "--per-request-timeout", str(PER_REQUEST_TIMEOUT_SECONDS),
             "--deadline", str(DEADLINE_SECONDS),
-            "--scope-unit", scope_unit(lease_id, generation),
+            "--scope-unit", candidate_i_scope_unit(lease_id, generation),
             "--lease-id", lease_id, "--generation", str(generation))
 
 

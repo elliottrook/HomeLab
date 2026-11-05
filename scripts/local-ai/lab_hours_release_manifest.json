@@ -35,7 +35,7 @@
     "sa3_evidence_envelope_transaction.py": "b906f30dd25a7990f3a81f6b41eeb77ab67e9b0aa96fffcdf56bee111ee3fa26",
     "sa3_evidence_envelope_listener_adapter.py": "e8c8cbcc875fe3f48035425f776a59f5ab81a6564f3f6acba38eb1dd63597a1b",
     "sa3_candidate_i_evidence_envelope_transaction.py": "c1d40abe685860ba6202ea5b18425a1ba8fbcc5e5aa7e820ae555ec08c922131",
-    "sa3_candidate_i_evidence_envelope_listener_adapter.py": "e16a251225ca0cc757c74cd3b38641700aeabf9f32391836309ebfe42fd0a8c6"
+    "sa3_candidate_i_evidence_envelope_listener_adapter.py": "80e7491b3d9bd3c457bf362baae97ba3377ac260dde1169933ddbdbc97cc1ee6"
   },
   "release": "sa3-candidate-i-transaction-source-v11",
   "schema": "aster-lab-hours-release-manifest.v1"

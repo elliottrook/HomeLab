@@ -1,5 +1,6 @@
 import unittest
 
+import aster_llama_sa3_candidate_i_evidence_envelope_wrapper as wrapper
 import sa3_candidate_i_evidence_envelope_listener_adapter as adapter
 
 
@@ -44,6 +45,9 @@ class CandidateIListenerAdapterTests(unittest.TestCase):
         self.assertIn(adapter.WORKLOAD_ID, command)
         self.assertEqual("20", command[command.index("--requests") + 1])
         self.assertEqual("2700", command[command.index("--deadline") + 1])
+        supplied = command[command.index("--scope-unit") + 1]
+        self.assertEqual(wrapper._scope_unit("lease-1", 2), supplied)
+        self.assertTrue(supplied.startswith("aster-llama-sa3-i-"))
 
     def test_invalid_lease_identity_fails_before_process(self):
         with self.assertRaises(adapter.AdapterError):
