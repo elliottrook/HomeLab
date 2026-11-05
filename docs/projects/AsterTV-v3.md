@@ -1372,6 +1372,47 @@ No Home Assistant action, new source, credential or network path was added.
 
 ### M7 — Home Assistant bridge and room-equipment control
 
+#### Proposed SA-M7-ROOMS — native equipment and Kodi bridge
+
+This bounded Stream A slice is prepared for owner approval. It may:
+
+- snapshot Home Assistant VM 103, validate configuration before every Core
+  restart and add only native `onkyo`, `androidtv_remote`, `webostv` and `kodi`
+  entries for the exact Family/Bedroom devices that pass identity checks;
+- create separate mode-`0600`, independently revocable Kodi credentials for
+  Family and Bedroom, checkpoint their current settings, enable authenticated
+  HTTP only while idle and add exact Home Assistant-source firewall permits to
+  those two endpoints;
+- pair the Family TCL and Bedroom LG only through their on-screen native
+  approval flows, and register the Family Onkyo only after its model/address
+  match the preflight evidence;
+- extend the existing semantic Aster/Remote surface with explicit room-scoped
+  volume-up, volume-down, mute, power-on and power-off actions only after each
+  native entity proves fresh feedback, duplicate-command safety, standby/wake
+  and physical-remote recovery;
+- add bounded playback/page/content-class state without persistent viewing
+  history, then stage owner-selected room volume profiles with safe ramp,
+  nighttime ceiling and per-session manual-override latch; and
+- checkpoint, validate, prove rollback, add Doctor/operator evidence, create
+  local milestone commits and synchronize a completed milestone through
+  Forgejo only after the separately required immediate push confirmation.
+
+It does **not** authorize a Home Assistant/Core/OS update; arbitrary HA service,
+shell or Kodi JSON-RPC access; a general Servers-to-Trusted/IoT rule; public
+ingress; Bluetooth audio; playback-history export; a blind power toggle; a
+change to Kodi audio/video, Dolby/HDR, screensaver or page behavior; Guest/Jen
+equipment authority; or fixed final volume levels without owner acceptance.
+No speech or local-AI workload is produced, so this slice needs no Lab Hours
+booking.
+
+The pre-start risks are wrong-room commands, stale state, CEC fan-out, exposed
+Kodi credentials, a manual volume fight and playback-route regression. Controls
+are exact device/room mapping, separate credentials, source-only rules,
+explicit on/off, current state checks, idempotency, conservative ramp/cap,
+manual override, immutable checkpoints and physical remotes. Stop on an unknown
+device, wider reachability, secret output, failed snapshot/config check,
+unexpected CEC effect or any Dolby/HDR/audio-route drift.
+
 - [ ] Inventory the exact Family television and Onkyo receiver plus the Bedroom
   LG television, soundbar/receiver, connection paths, network capabilities,
   Bluetooth profiles and standby/wake behaviour; do not infer control support
