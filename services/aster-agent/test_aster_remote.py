@@ -52,7 +52,9 @@ class RemoteTests(unittest.TestCase):
         self.assertEqual(result["rooms"][0]["room_id"], "jen-lab")
         self.assertFalse(result["rooms"][0]["connected"])
         self.assertFalse(result["equipment_controls"])
-        self.assertNotIn("title", str(result).casefold())
+        self.assertEqual(result["rooms"][0]["input"], {
+            "active": False, "sensitive": False, "title": "", "value": "",
+        })
 
     def test_command_requires_exact_origin_owner_room_and_shape(self):
         payload = BrowserCommand(
@@ -125,6 +127,29 @@ class RemoteTests(unittest.TestCase):
             "volume.up", "volume.down", "mute", "power", "shell",
             "jsonrpc", "home.call_service",
         })
+
+    def test_keyboard_state_is_owner_scoped_and_password_content_is_rejected(self):
+        poll = ClientPoll(
+            client_id="AsterTV-Jen", room_id="jen-lab", current_page="keyboard",
+            playback="idle", input_active=True, input_title="Search", input_value="Dark",
+        )
+        self.gateway.rooms["jen-lab"].last_seen = self.clock.value
+        async def publish():
+            task = asyncio.create_task(self.gateway.client_poll(
+                poll, "Bearer " + "k" * 40, "AsterTV-Jen"))
+            await asyncio.sleep(0)
+            task.cancel()
+            try: await task
+            except asyncio.CancelledError: pass
+        self.call(publish())
+        state = self.call(self.gateway.session("Bearer owner"))["rooms"][0]["input"]
+        self.assertEqual(state["value"], "Dark")
+        with self.assertRaises(ValueError):
+            ClientPoll(
+                client_id="AsterTV-Jen", room_id="jen-lab", current_page="keyboard",
+                playback="idle", input_active=True, input_sensitive=True,
+                input_title="Password", input_value="secret",
+            )
 
     def test_shell_headers_confine_content_and_browser_capabilities(self):
         policy = REMOTE_HEADERS["Content-Security-Policy"]

@@ -88,11 +88,12 @@
           <button data-action="nav.right" aria-label="Right">▶</button>
           <button data-action="nav.down" aria-label="Down">▼</button>
         </div>
-        <form id="textForm" class="keyboard-form">
-          <label for="text">Type into Kodi’s open keyboard</label>
+        <p id="keyboardIdle" class="keyboard-idle">Open a text field on AsterTV to edit it here.</p>
+        <form id="textForm" class="keyboard-form" hidden>
+          <label id="textLabel" for="text">Kodi text field</label>
           <div class="input-row">
             <input id="text" maxlength="512" autocomplete="off" autocapitalize="sentences" placeholder="Symbols and paste work here">
-            <button type="submit" class="gold">Send</button>
+            <button type="submit" class="gold">Update</button>
           </div>
           <div class="text-actions">
             <button type="button" data-action="text.backspace">Backspace</button>

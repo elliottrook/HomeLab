@@ -9,6 +9,11 @@ const AUTH = {
 const $ = value => document.querySelector(value);
 const loginPanel = $('#login'), remotePanel = $('#remote'), errorBox = $('#error');
 let rooms = [], selectedRoom = '', statusTimer = null, recorder = null, mediaStream = null;
+let inputRevision = '', inputDirty = false;
+
+function searchText(value) {
+  return value.trim().replace(/[.!?,;:]+$/u, '').trim();
+}
 
 function b64url(buffer) {
   return btoa(String.fromCharCode(...new Uint8Array(buffer)))
@@ -90,6 +95,17 @@ function renderSession(session) {
   const connection = $('#connection');
   connection.className = 'status ' + (active?.connected ? 'connected' : 'disconnected');
   connection.setAttribute('aria-label', active?.connected ? 'Connected' : 'Disconnected');
+  const input = active?.input || {active:false, sensitive:false, title:'', value:''};
+  const field = $('#text'), revision = `${selectedRoom}:${input.active}:${input.sensitive}:${input.title}:${input.value}`;
+  $('#textForm').hidden = !input.active;
+  $('#keyboardIdle').hidden = input.active;
+  if (input.active) {
+    $('#textLabel').textContent = input.sensitive ? 'Private Kodi field' : (input.title || 'Kodi text field');
+    field.disabled = input.sensitive;
+    field.placeholder = input.sensitive ? 'Use the television keyboard for private text' : 'Edit the current text';
+    if (!inputDirty && revision !== inputRevision) field.value = input.sensitive ? '' : input.value;
+  }
+  inputRevision = revision;
 }
 async function refresh() {
   if (!token()) return;
@@ -101,7 +117,9 @@ document.addEventListener('click', event => {
   const control = event.target.closest('[data-action]');
   if (control && !control.disabled) send(control.dataset.action);
 });
-$('#room').addEventListener('change', event => { selectedRoom = event.target.value; refresh(); });
+$('#room').addEventListener('change', event => {
+  selectedRoom = event.target.value; inputDirty = false; inputRevision = ''; refresh();
+});
 const moreSheet = $('#moreSheet'), moreOpen = $('#moreOpen');
 function setMore(open) {
   moreSheet.hidden = !open;
@@ -111,13 +129,14 @@ function setMore(open) {
 moreOpen.addEventListener('click', () => setMore(true));
 $('#moreClose').addEventListener('click', () => setMore(false));
 $('#searchForm').addEventListener('submit', event => {
-  event.preventDefault(); const value = $('#search').value.trim();
-  if (value) { send('search.open', value); $('#search').value = ''; }
+  event.preventDefault(); const value = searchText($('#search').value);
+  if (value) { $('#search').value = value; send('search.open', value); }
 });
 $('#textForm').addEventListener('submit', event => {
   event.preventDefault(); const value = $('#text').value;
-  if (value) { send('text.send', value); $('#text').value = ''; }
+  send('text.replace', value); inputDirty = false;
 });
+$('#text').addEventListener('input', () => { inputDirty = true; });
 
 const touchpad = $('#touchpad');
 let gesture = null;
@@ -156,9 +175,10 @@ async function voiceSearch() {
       const response = await fetch('/voice/v1/stt', {method:'POST', headers:{Authorization:'Bearer ' + token()}, body:form});
       const result = await response.json();
       if (!response.ok || !result.text?.trim()) throw new Error(result.detail || 'No speech was recognized.');
-      const heard = result.text.trim(); $('#heard').textContent = `Heard: “${heard}”`;
-      await send('voice.search', heard);
-      setTimeout(() => { $('#heard').textContent = ''; }, 5000);
+      const heard = searchText(result.text); if (!heard) throw new Error('No searchable speech was recognized.');
+      $('#search').value = heard; $('#search').focus();
+      $('#heard').textContent = `Heard: “${heard}” · edit if needed, then search`;
+      setTimeout(() => { $('#heard').textContent = ''; }, 8000);
     } catch (error) { errorBox.textContent = error.message; }
     finally { recorder = null; mediaStream = null; }
   };

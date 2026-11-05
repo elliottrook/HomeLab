@@ -45,10 +45,10 @@ REMOTE_HEADERS = {
 Action = Literal[
     "nav.up", "nav.down", "nav.left", "nav.right", "nav.select",
     "nav.back", "nav.home", "nav.context", "playback.toggle",
-    "search.open", "text.send", "text.backspace", "text.clear",
+    "search.open", "text.send", "text.replace", "text.backspace", "text.clear",
     "text.cancel", "text.enter", "voice.search",
 ]
-TEXT_ACTIONS = frozenset({"search.open", "text.send", "voice.search"})
+TEXT_ACTIONS = frozenset({"search.open", "text.send", "text.replace", "voice.search"})
 NO_TEXT_ACTIONS = frozenset({
     "nav.up", "nav.down", "nav.left", "nav.right", "nav.select",
     "nav.back", "nav.home", "nav.context", "playback.toggle",
@@ -83,6 +83,18 @@ class ClientPoll(BaseModel):
         "youtube", "requests", "cameras", "search", "keyboard", "other",
     ]
     playback: Literal["idle", "playing", "paused"]
+    input_active: bool = False
+    input_sensitive: bool = False
+    input_title: str = Field(default="", max_length=128)
+    input_value: str = Field(default="", max_length=512)
+
+    @model_validator(mode="after")
+    def protect_sensitive_input(self):
+        if self.input_sensitive and (self.input_title or self.input_value):
+            raise ValueError("sensitive-input-content-forbidden")
+        if not self.input_active and (self.input_sensitive or self.input_title or self.input_value):
+            raise ValueError("inactive-input-content-forbidden")
+        return self
 
 
 class ClientAck(BaseModel):
@@ -120,6 +132,10 @@ class RoomRuntime:
     playback: str = "idle"
     last_outcome: str | None = None
     last_request_id: str | None = None
+    input_active: bool = False
+    input_sensitive: bool = False
+    input_title: str = ""
+    input_value: str = ""
 
 
 class AsterRemoteGateway:
@@ -233,6 +249,12 @@ class AsterRemoteGateway:
             "current_page": room.current_page,
             "playback": room.playback,
             "last_outcome": room.last_outcome,
+            "input": {
+                "active": room.input_active,
+                "sensitive": room.input_sensitive,
+                "title": room.input_title,
+                "value": room.input_value,
+            },
         }
 
     async def session(self, authorization: str | None = Header(default=None)):
@@ -286,6 +308,10 @@ class AsterRemoteGateway:
         room.last_seen = self.clock()
         room.current_page = payload.current_page
         room.playback = payload.playback
+        room.input_active = payload.input_active
+        room.input_sensitive = payload.input_sensitive
+        room.input_title = payload.input_title
+        room.input_value = payload.input_value
         deadline = time.monotonic() + 20
         while True:
             now = self.clock()

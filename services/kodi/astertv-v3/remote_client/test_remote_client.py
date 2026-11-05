@@ -45,6 +45,16 @@ class RemoteClientTests(unittest.TestCase):
         self.assertIn('rpc("Input.SendText"', SOURCE)
         self.assertNotIn("log(text", SOURCE)
 
+    def test_keyboard_mirror_uses_notifications_and_suppresses_passwords(self):
+        self.assertIn('method == "Input.OnInputFinished"', SOURCE)
+        self.assertIn('method != "Input.OnInputRequested"', SOURCE)
+        self.assertIn('sensitive = "password" in kind', SOURCE)
+        self.assertIn('"input_title": "", "input_value": ""', SOURCE)
+        self.assertIn('action in ("text.send", "text.replace")', SOURCE)
+
+    def test_search_drops_only_trailing_dictation_punctuation(self):
+        self.assertIn('rstrip(".!?,;:")', SOURCE)
+
     def test_search_reuses_accepted_global_search_contract(self):
         self.assertIn("aster-global-search-ui22,default", SOURCE)
         self.assertIn('home.setProperty("AsterSearch.VoiceQuery", text)', SOURCE)

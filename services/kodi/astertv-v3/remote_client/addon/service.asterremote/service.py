@@ -6,6 +6,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import socket
+import threading
 import urllib.error
 import urllib.request
 
@@ -28,6 +30,69 @@ NAVIGATION = {
     "nav.select": "Input.Select", "nav.back": "Input.Back",
     "nav.home": "Input.Home", "nav.context": "Input.ContextMenu",
 }
+
+
+class InputMirror:
+    """Mirror only non-secret Kodi input notifications in volatile memory."""
+
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.active = False
+        self.sensitive = False
+        self.title = ""
+        self.value = ""
+
+    def snapshot(self):
+        with self.lock:
+            if self.sensitive:
+                return {"input_active": self.active, "input_sensitive": True,
+                        "input_title": "", "input_value": ""}
+            return {"input_active": self.active, "input_sensitive": False,
+                    "input_title": self.title, "input_value": self.value}
+
+    def replace(self, value):
+        with self.lock:
+            if self.active and not self.sensitive:
+                self.value = value[:MAX_TEXT]
+
+    def backspace(self):
+        with self.lock:
+            if self.active and not self.sensitive:
+                self.value = self.value[:-1]
+
+    def finish(self):
+        with self.lock:
+            self.active = False; self.sensitive = False; self.title = ""; self.value = ""
+
+    def consume(self, message):
+        method = message.get("method")
+        if method == "Input.OnInputFinished":
+            self.finish(); return
+        if method != "Input.OnInputRequested":
+            return
+        data = message.get("params", {}).get("data", {})
+        kind = str(data.get("type", "")).casefold()
+        sensitive = "password" in kind
+        with self.lock:
+            self.active = True; self.sensitive = sensitive
+            self.title = "" if sensitive else str(data.get("title", ""))[:128]
+            self.value = "" if sensitive else str(data.get("value", ""))[:MAX_TEXT]
+
+    def listen(self):
+        monitor = xbmc.Monitor()
+        while not monitor.abortRequested():
+            try:
+                with socket.create_connection(("127.0.0.1", 9090), 3) as connection:
+                    stream = connection.makefile("r", encoding="utf-8")
+                    while not monitor.abortRequested():
+                        line = stream.readline()
+                        if not line: break
+                        self.consume(json.loads(line))
+            except (OSError, ValueError):
+                monitor.waitForAbort(1.0)
+
+
+INPUT = InputMirror()
 
 
 def identity():
@@ -74,7 +139,9 @@ def state():
         })
         playback = "playing" if properties.get("speed", 0) else "paused"
     window = xbmcgui.getCurrentWindowId()
-    return {"current_page": WINDOWS.get(window, "other"), "playback": playback}
+    result = {"current_page": WINDOWS.get(window, "other"), "playback": playback}
+    result.update(INPUT.snapshot())
+    return result
 
 
 def request(path, payload, timeout, client_id):
@@ -123,6 +190,9 @@ def keyboard_active():
 
 
 def open_search(text):
+    text = text.strip().rstrip(".!?,;:").strip()
+    if not text:
+        raise RemoteError("search-empty")
     xbmc.executebuiltin("RunScript(script.asterruntime,aster-global-search-ui22,default)")
     monitor = xbmc.Monitor()
     for _ in range(50):
@@ -154,29 +224,32 @@ def execute(command):
         if not isinstance(text, str) or not 0 < len(text) <= MAX_TEXT:
             return "denied"
         open_search(text); return "completed"
-    if action == "text.send":
+    if action in ("text.send", "text.replace"):
         if not keyboard_active():
             return "invalid-state"
         if not isinstance(text, str) or not 0 < len(text) <= MAX_TEXT:
             return "denied"
-        rpc("Input.SendText", {"text": text, "done": False}); return "completed"
+        rpc("Input.SendText", {"text": text, "done": False})
+        INPUT.replace(text); return "completed"
     if action in {"text.backspace", "text.clear", "text.cancel", "text.enter"}:
         if not keyboard_active():
             return "invalid-state"
         if action == "text.backspace":
-            rpc("Input.ExecuteAction", {"action": "backspace"})
+            rpc("Input.ExecuteAction", {"action": "backspace"}); INPUT.backspace()
         elif action == "text.clear":
             for _ in range(MAX_TEXT):
                 rpc("Input.ExecuteAction", {"action": "backspace"})
+            INPUT.replace("")
         elif action == "text.cancel":
-            rpc("Input.Back")
+            rpc("Input.Back"); INPUT.finish()
         else:
-            rpc("Input.SendText", {"text": "", "done": True})
+            rpc("Input.SendText", {"text": "", "done": True}); INPUT.finish()
         return "completed"
     return "denied"
 
 
 def main():
+    threading.Thread(target=INPUT.listen, name="asterremote-input", daemon=True).start()
     monitor = xbmc.Monitor()
     while not monitor.abortRequested():
         try:

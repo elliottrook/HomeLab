@@ -46,7 +46,7 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn("margin:6px 0 -13px", CSS)
         self.assertIn("radial-gradient(ellipse at 50% 43%", CSS)
         self.assertIn("rgba(243,236,223,.27)", CSS)
-        self.assertIn("const CACHE = 'aster-remote-shell-v3'", SW)
+        self.assertIn("const CACHE = 'aster-remote-shell-v4'", SW)
 
     def test_approved_identity_connection_and_voice_language(self):
         self.assertIn('/remote/aster-compass.png', HTML)
@@ -83,11 +83,23 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertNotIn("refresh_token", JS)
         self.assertNotIn("caches.open", JS)
         self.assertNotIn("console.log", JS)
-        self.assertIn("$('#text').value = ''", JS)
-        self.assertIn("$('#search').value = ''", JS)
+        self.assertIn("inputDirty = false", JS)
+        self.assertNotIn("$('#search').value = ''", JS)
 
     def test_voice_uses_bounded_british_media_profile(self):
         self.assertIn("form.append('profile', 'en-GB-media')", JS)
+        self.assertIn("$('#search').value = heard", JS)
+        self.assertNotIn("send('voice.search', heard)", JS)
+
+    def test_search_and_kodi_text_are_editable_not_blind_send(self):
+        self.assertIn("replace(/[.!?,;:]+$/u, '')", JS)
+        self.assertIn("active?.input", JS)
+        self.assertIn("field.value = input.sensitive ? '' : input.value", JS)
+        self.assertIn("send('text.replace', value)", JS)
+        self.assertIn('id="keyboardIdle"', HTML)
+        self.assertIn('id="textForm" class="keyboard-form" hidden', HTML)
+        self.assertIn('>Update</button>', HTML)
+        self.assertNotIn('>Send</button>', HTML)
 
     def test_service_worker_caches_only_static_shell(self):
         self.assertIn("const SHELL =", SW)
