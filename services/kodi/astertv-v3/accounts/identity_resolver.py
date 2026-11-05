@@ -109,6 +109,30 @@ def discover(root=Path("/")):
                 "local:astertv-broker:sha256:"
                 + hashlib.sha256(broker_key.encode()).hexdigest()
             )
+
+    youtube = profile / "plugin.video.youtube"
+    youtube_access = youtube / "access_manager.json"
+    youtube_keys = youtube / "api_keys.json"
+    youtube_settings = youtube / "settings.xml"
+    if all(_private_file(path) for path in
+           (youtube_access, youtube_keys, youtube_settings)):
+        access = _json(youtube_access)
+        keys = _json(youtube_keys)
+        manager = access.get("access_manager") if isinstance(access, dict) else None
+        users = manager.get("users") if isinstance(manager, dict) else None
+        current = manager.get("current_user") if isinstance(manager, dict) else None
+        user = users.get(str(current)) if isinstance(users, dict) else None
+        user_keys = keys.get("keys", {}).get("user") if isinstance(keys, dict) else None
+        if (isinstance(user, dict) and isinstance(user.get("id"), str)
+                and user["id"] and isinstance(user.get("access_token"), str)
+                and user["access_token"] and isinstance(user.get("refresh_token"), str)
+                and user["refresh_token"] and isinstance(user_keys, dict)
+                and all(isinstance(user_keys.get(field), str) and user_keys[field]
+                        for field in ("api_key", "client_id", "client_secret"))):
+            subjects["youtube"] = (
+                "local:youtube:sha256:"
+                + hashlib.sha256(user["id"].encode()).hexdigest()
+            )
     return subjects
 
 

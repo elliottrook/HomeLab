@@ -42,7 +42,7 @@ SECRET_NAMES = {
 ID = re.compile(r"^[a-z][a-z0-9-]{0,47}$")
 OPAQUE_SUBJECT = re.compile(
     r"^(?:synthetic:[a-z0-9-]+:[a-z0-9-]+"
-    r"|local:(?:jellyfin|jellyfin-guest|audiobookshelf):sha256:[0-9a-f]{64}"
+    r"|local:(?:jellyfin|jellyfin-guest|audiobookshelf|youtube):sha256:[0-9a-f]{64}"
     r"|local:seerr:client:astertv-jen"
     r"|local:astertv-broker:sha256:[0-9a-f]{64})$"
 )

@@ -99,6 +99,9 @@ class AddonPackageTests(unittest.TestCase):
         self.assertIn("11112", policy)
         self.assertIn("11132", policy)
         self.assertIn("plugin.video.youtube", policy)
+        self.assertIn('Addons.SetAddonEnabled', service)
+        self.assertIn('("personal_youtube", "youtube")', service)
+        self.assertIn('enforce_youtube(current)', service)
 
     def test_missing_state_recovers_from_local_authority_not_synthetic_fixture(self):
         source = (ADDON / "default.py").read_text()

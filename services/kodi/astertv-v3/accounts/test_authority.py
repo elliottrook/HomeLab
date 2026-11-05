@@ -51,6 +51,26 @@ class AuthorityTests(unittest.TestCase):
         path = private / "jellyfin-guest.json"
         path.write_text(json.dumps(value)); path.chmod(0o600)
 
+    def add_youtube(self, root):
+        youtube = root / "storage/.kodi/userdata/addon_data/plugin.video.youtube"
+        youtube.mkdir(parents=True)
+        rows = {
+            youtube / "access_manager.json": {
+                "access_manager": {"current_user": 0, "users": {"0": {
+                    "id": "household-youtube", "access_token": "fixture-youtube-access",
+                    "refresh_token": "fixture-youtube-refresh",
+                }}},
+            },
+            youtube / "api_keys.json": {"keys": {"user": {
+                "api_key": "fixture-youtube-key", "client_id": "fixture-youtube-client",
+                "client_secret": "fixture-youtube-secret",
+            }}},
+        }
+        for path, value in rows.items():
+            path.write_text(json.dumps(value)); path.chmod(0o600)
+        settings = youtube / "settings.xml"
+        settings.write_text("<settings />"); settings.chmod(0o600)
+
     def test_builds_recovery_admin_and_restricted_guest_without_credentials(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); self.populate(root)
@@ -87,6 +107,22 @@ class AuthorityTests(unittest.TestCase):
                              {"jellyfin_guest"})
             self.assertIn("guest_media_playback", guest["entitlements"])
             self.assertNotIn("guest-fixture-access", json.dumps(result))
+
+    def test_household_youtube_maps_only_to_recovery_admin(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); self.populate(root); self.add_guest(root); self.add_youtube(root)
+            config = {"schema": 1, "recovery_admin_display_name": "Fixture Admin",
+                      "profile_id": "fixture-admin"}
+            result = authority.build_registry(config, "2026-11-04T01:02:03Z", root)
+            admin, guest = result["profiles"]
+            self.assertIn("youtube", {x["service"] for x in admin["service_mappings"]})
+            self.assertIn("personal_youtube", admin["entitlements"])
+            self.assertNotIn("youtube", {x["service"] for x in guest["service_mappings"]})
+            self.assertNotIn("personal_youtube", guest["entitlements"])
+            encoded = json.dumps(result)
+            for forbidden in ("fixture-youtube-access", "fixture-youtube-refresh",
+                              "fixture-youtube-key", "fixture-youtube-secret"):
+                self.assertNotIn(forbidden, encoded)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # AsterTV v3
 
-> Status: Active — Jen-only M4 Movie integration complete locally; YouTube identity gate and Forgejo push remain open.
+> Status: Active — Jen-only M4 Movie and household YouTube integration retained; local commit and Forgejo push remain open.
 > The completed r8 Guest adapter remains retained on AsterTV-Jen.
 > The earlier page-design pilot is accepted and closed; no PA3
 > synthetic surface is promoted. TV-series presentation remains deployed
@@ -10,7 +10,7 @@
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: Stream A, limited to `SA-M4-JEN` below and
+> Current authorization stream: Stream A, limited to `SA-M4Y-JEN` below and
 > approved by Jason on 2026-11-04. Family, Bedroom, release promotion and every
 > later live milestone remain excluded.
 
@@ -870,10 +870,57 @@ any required change outside Jen.
   installed Movie/search/YouTube components and build a deterministic candidate.
 - [x] SA-M4-JEN2: checkpoint and install the Movie integration; prove details,
   cast/person search, related titles, trailer admission, playback and Back.
-- [ ] SA-M4-JEN3: checkpoint and install the YouTube page integration; prove
+- [x] SA-M4-JEN3: checkpoint and install the YouTube page integration; prove
   public route behaviour, focus/Back and Guest isolation without account state.
 - [ ] SA-M4-JEN4: rehearse rollback/reinstall, retain or remove the candidate,
   reconcile evidence, commit and push the completed bounded milestone.
+
+### SA-M4Y-JEN — Jen-only household YouTube identity and lifecycle repair
+
+Jason approved this bounded follow-on Stream A on 2026-11-04 and confirmed
+that every household AsterTV uses the same YouTube identity. This envelope
+authorizes AsterTV-Jen and repository changes required to:
+
+- checkpoint Jen's M4 overlay, profile authority, add-on database, Kodi unit
+  overrides and relevant YouTube state before effects;
+- transfer the minimum existing household YouTube state privately from the
+  read-only Bedroom source to Jen without printing credentials or placing them
+  in Git, enable the official pinned 7.4.4 add-on, and map it only to Jason;
+- remove unconditional YouTube directory work from ordinary Video/Media page
+  startup, populate personalized rails only after the real YouTube root opens,
+  and make its focus helper exit immediately on every other page;
+- add a bounded graceful Kodi stop path so add-on/library workers receive an
+  application quit before systemd's existing termination fallback; and
+- prove clean boot, restart, Jason recommendations/subscriptions/watch-later,
+  Guest denial including direct-route attempts, Movie trailer availability,
+  exact rollback inputs and preservation of the 528-file accepted-v2 guard.
+
+Family and Bedroom are read-only identity sources. They must not be restarted
+or changed. Guest receives no signed-in YouTube surface: the official add-on
+has no true isolated guest account inside one Kodi userdata directory, and an
+incognito-looking UI over shared tokens would not satisfy the M2 direct-bypass
+gate. A future Guest implementation therefore requires an isolated Kodi
+profile or a separate credential-free adapter. This envelope does not authorize
+Google account creation, token rotation, server/network changes, release
+promotion or changes to Family/Bedroom.
+
+Pre-start risks are credential disclosure, wrong-source state, Guest leakage,
+quota/history mutation, shutdown regression and guard ordering drift. Controls
+are source-local schema/hash summaries, a mode-0700 checkpoint, a direct
+source-to-target private transfer, exact add-on/version/host pins, route-policy
+tests, idle-player gates, graceful-stop timeout/fallback, reboot evidence and
+rollback without credential output. Stop on active playback, identity-schema
+mismatch, secret output, Guest private access, checkpoint failure, unexpected
+target/add-on version, accepted-guard drift or any need to mutate a source box.
+
+- [x] SA-M4Y-JEN1: build and test the conditional YouTube loader, Jason-only
+  identity resolver/policy and graceful lifecycle candidate locally.
+- [x] SA-M4Y-JEN2: checkpoint Jen, transfer the minimum private state, install
+  the candidate and prove Jason/Guest route behavior without account mutation.
+- [x] SA-M4Y-JEN3: run restart/reboot and repeated-stop evidence, then retain or
+  roll back according to the gates.
+- [x] SA-M4Y-JEN4: reconcile evidence, commit locally and request the required
+  immediate confirmation before pushing the closed milestone.
 
 ## Milestones
 
@@ -1001,19 +1048,21 @@ broaden the television client. Evidence is in
   playback, Resume, Back and Search return behaviour.
 - [x] Add cast/crew artwork, names and roles plus cast/crew search that retains
   current-movie context.
-- [ ] Restyle YouTube with consistent artwork, pills, focus and return paths.
-- [ ] Preserve recommendations, thumbnails, Subscriptions, Watch Later and
+- [x] Restyle YouTube with consistent artwork, pills, focus and return paths.
+- [x] Preserve recommendations, thumbnails, Subscriptions, Watch Later and
   search, then implement guest access only if M0/M2 isolation is proven.
 - [ ] Run physical G20 focus/Back/playback tests from every entry route.
 
-The Jen M4 Movie candidate is installed through a deterministic post-guard,
-pre-Kodi overlay. Real Movie-row, cast, actor-search, Back, related-title and
-already-watched playback/stop checks pass. The official YouTube add-on's exact
-unsigned trailer route played, but opening account rails left a Sign In flow;
-the identity stop condition was applied and the add-on/database/state were
-rolled back. Trailer is therefore hidden unless an independently authorized
-YouTube add-on is enabled. Full evidence is in
-`docs/projects/evidence/AsterTV-v3-M4-Jen-movie-youtube-2026-11-04.md`.
+The Jen M4 Movie candidate and M4Y YouTube/lifecycle overlay are installed
+through deterministic post-guard, pre-Kodi units. Real Movie-row, cast,
+actor-search, Back, related-title and already-watched playback/stop checks
+pass. Jason alone receives the privately transferred household YouTube
+identity; Guest physically disables the official add-on and direct private
+routes remain denied. Personalized routes are now strictly user-invoked and
+serialized on Jen rather than being loaded concurrently at Media startup.
+Restart and reboot preserve the integration without a Kodi crash. Full evidence
+is in `docs/projects/evidence/AsterTV-v3-M4-Jen-movie-youtube-2026-11-04.md`
+and `docs/projects/evidence/AsterTV-v3-M4Y-Jen-youtube-lifecycle-2026-11-04.md`.
 
 Gate: visual acceptance plus complete focus graph; no autoplay regression,
 primary-account leak or loss of existing YouTube functions.
@@ -1404,6 +1453,7 @@ explicit user acceptance.
 | 2026-11-04 | Completed Jen-only Guest catalogue and playback | Created the independently revocable `AsterTV-Guest` Jellyfin identity after an exact disposable create/delete rehearsal. Its policy exposes only Movies, Shows, Archive Movies and Archive TV, permits playback plus required remux/audio/video transcode, and denies administration, deletion, downloads, remote control, live TV, preferences and all private AsterTV surfaces. The Jen adapter keeps the credential mode `0600`, stores only its opaque subject reference in the account registry and relays allowlisted HLS over localhost without putting a token in Kodi URLs. | Exact client rollback removed the adapter/mapping, exposed and corrected a clean-reinstall add-on-enable gap, then retained the same r8 archive `c7452312…bc9d` under checkpoint `astertv-v3-m2-jen-guest-r10-retained-20261104`. A cold-start real-film test advanced at speed 1, stopped cleanly and left Guest watch state unchanged; Kodi remained idle and the 528-file v2 guard remained clean. Family, Bedroom, Jason's Jellyfin identity and all non-film/television services were unchanged. |
 | 2026-11-04 | Completed the Jen-only M3 broker/client Stream A | Installed a deterministic, dedicated AsterTV route on Aster LXC 104 and a separately identified Jen client. The broker exposes only allowlisted search, navigation, named playback, News and exact-alias intents; model output is not authority. Jen adds the accepted compact/search surfaces, real local artwork, full-search handoff, named TV playback and News playback. Jason gained only `aster_tv_commands`; Guest has no broker access. | Aster and Jen rollback/reinstall rehearsals passed. Fifty-two local gates and seven Aster-environment broker tests pass; live TV and News playback started and stopped cleanly with empty queues, Kodi is idle, the 528-file guard is clean and staging secrets were removed. G20 capture and Home aliases are explicit deferred sub-gates because the receiver is absent and no exact alias was approved. Evidence: `docs/projects/evidence/AsterTV-v3-M3-Jen-broker-client-2026-11-04.md`. |
 | 2026-11-04 | Completed the Jen-only M4 Movie integration and stopped YouTube at its identity gate | Added strict Jellyfin-trailer admission, G20 dispatch for script-populated cast/related rails, exact actor-library search and owned Back restoration without changing the accepted v2 baseline. A post-guard/pre-Kodi unit reapplies the candidate deterministically. | Real details-before-playback, Robert Donat search, Back, related *Psycho* and watched *Blue Crush 2* playback/stop passed. An exact unsigned YouTube trailer played with zero tokens, but account rails left a Sign In workflow; the add-on database/state were rolled back and YouTube remains disabled/state-absent. Reboot proved guard then overlay ordering. 111 regression gates pass. Evidence: `docs/projects/evidence/AsterTV-v3-M4-Jen-movie-youtube-2026-11-04.md`. |
+| 2026-11-04 | Retained Jen household YouTube and repaired its startup lifecycle | Owner confirmed all household AsterTVs use the same YouTube identity. The minimum three-file state was transferred privately from read-only Bedroom, represented in the registry only by an opaque hash and mapped only to Jason. Guest disables the official add-on and direct private routes remain denied. | Removed the three unconditional personalized startup providers and rejected a crashing concurrent/control-mutation prototype. The final root helper performs focus only; each signed-in feed is requested serially by its pill. Restart and full reboot completed with no Kodi crash, zero automatic restarts and correct guard→M4→M4Y→Kodi ordering. Native `Application.Quit` still times out on Jen, but the bounded TERM fallback is clean. Temporary credential staging was removed and all 110 discoverable v3 regression tests pass. Evidence: `docs/projects/evidence/AsterTV-v3-M4Y-Jen-youtube-lifecycle-2026-11-04.md`. |
 
 ## Close-out
 

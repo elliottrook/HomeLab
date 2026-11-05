@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Publish and enforce the persisted Jen profile authority."""
 
+import json
+
 import xbmc
 import xbmcgui
 
 from default import STATE, effective, load, publish, seed_if_missing
-from access_policy import private_surface
+from access_policy import allows, private_surface
 
 
 seed_if_missing()
@@ -13,6 +15,22 @@ persisted, status = load(STATE)
 current, identity_status = effective(persisted)
 publish(current, identity_status if status == "valid" else status)
 monitor = xbmc.Monitor()
+
+
+def enforce_youtube(registry):
+    """Keep the shared signed-in add-on absent from Guest's execution surface."""
+    enabled = allows(registry, ("personal_youtube", "youtube"))
+    request = {"jsonrpc": "2.0", "id": 1, "method": "Addons.SetAddonEnabled",
+               "params": {"addonid": "plugin.video.youtube", "enabled": enabled}}
+    try:
+        response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
+        if "error" in response:
+            xbmc.log("Aster Profiles could not enforce YouTube state", xbmc.LOGERROR)
+    except (TypeError, ValueError):
+        xbmc.log("Aster Profiles could not parse YouTube state", xbmc.LOGERROR)
+
+
+enforce_youtube(current)
 
 
 def state_signature():
@@ -30,6 +48,7 @@ while not monitor.abortRequested():
         persisted, status = load(STATE)
         current, identity_status = effective(persisted)
         publish(current, identity_status if status == "valid" else status)
+        enforce_youtube(current)
         signature = next_signature
     current_window = xbmcgui.getCurrentWindowId()
     folder = xbmc.getInfoLabel("Container.FolderPath")
