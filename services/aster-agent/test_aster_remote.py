@@ -8,7 +8,8 @@ from unittest.mock import AsyncMock, patch
 
 from fastapi import HTTPException
 from aster_remote import (AsterRemoteGateway, BrowserCommand, ClientAck,
-                          ClientIdentity, ClientPoll, REMOTE_HEADERS)
+                          ClientIdentity, ClientPoll, EquipmentIdentity,
+                          EquipmentPoll, REMOTE_HEADERS)
 
 
 class Clock:
@@ -116,10 +117,58 @@ class RemoteTests(unittest.TestCase):
 
     def test_actions_and_csp_remain_narrow(self):
         actions = set(BrowserCommand.model_json_schema()["properties"]["action"]["enum"])
+        self.assertEqual(actions & {row for row in actions if row.startswith("equipment.")}, {
+            "equipment.power_on", "equipment.power_off",
+            "equipment.volume_up", "equipment.volume_down",
+            "equipment.mute_on", "equipment.mute_off",
+        })
         self.assertFalse(actions & {"volume.up", "power", "shell", "jsonrpc", "home.call_service"})
         policy = REMOTE_HEADERS["Content-Security-Policy"]
         self.assertIn("connect-src 'self'", policy); self.assertNotIn("auth.elliottrook.com", policy)
         self.assertEqual(REMOTE_HEADERS["X-Frame-Options"], "DENY")
+
+    def test_equipment_actions_require_separate_live_room_capability(self):
+        denied = BrowserCommand(request_id="remote-equipdeny", room_id="jen-lab",
+                                action="equipment.power_on")
+        with self.assertRaises(HTTPException) as caught:
+            self.call(self.command(denied))
+        self.assertEqual(caught.exception.status_code, 403)
+
+        gateway = AsterRemoteGateway(
+            None, self.gateway.static_root,
+            clients={"AsterTV-Jen": ClientIdentity("jen-lab", "AsterTV Jen", "k" * 40)},
+            equipment_clients={"HA-Family": EquipmentIdentity(
+                "jen-lab", "Family equipment", "e" * 40,
+                frozenset({"equipment.power_on", "equipment.power_off"}))},
+            subject_rooms={},
+            network_rooms={ipaddress.ip_network("192.168.1.0/24"): {"jen-lab"}},
+            trusted_proxies={ipaddress.ip_address("127.0.0.1")}, clock=self.clock,
+        )
+        request = Request()
+        self.assertFalse(self.call(gateway.session(request))["rooms"][0]["equipment"]["connected"])
+        with self.assertRaises(HTTPException) as caught:
+            self.call(gateway.command(denied, request, gateway.origin))
+        self.assertEqual(caught.exception.status_code, 503)
+
+        poll = EquipmentPoll(client_id="HA-Family", room_id="jen-lab", power="on",
+                             volume_level=0.59, muted=False)
+        async def publish():
+            task = asyncio.create_task(gateway.equipment_poll(
+                poll, "Bearer " + "e" * 40, "HA-Family"))
+            await asyncio.sleep(0); task.cancel()
+            try: await task
+            except asyncio.CancelledError: pass
+        self.call(publish())
+        self.assertTrue(self.call(gateway.session(request))["rooms"][0]["equipment"]["connected"])
+        self.assertEqual(self.call(gateway.command(denied, request, gateway.origin))["status"], "accepted")
+        self.assertEqual(len(gateway.rooms["jen-lab"].queue), 0)
+        self.assertEqual(len(gateway.rooms["jen-lab"].equipment_queue), 1)
+
+        forbidden = BrowserCommand(request_id="remote-equipmute", room_id="jen-lab",
+                                   action="equipment.mute_on")
+        with self.assertRaises(HTTPException) as caught:
+            self.call(gateway.command(forbidden, request, gateway.origin))
+        self.assertEqual(caught.exception.status_code, 403)
 
 
 if __name__ == "__main__": unittest.main()

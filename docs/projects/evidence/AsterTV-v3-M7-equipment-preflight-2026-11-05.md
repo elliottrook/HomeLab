@@ -165,3 +165,32 @@ duplicate-command, CEC and physical-recovery acceptance. This does not confer
 volume, mute, source, playback or navigation authority; each remains separately
 gated.
 
+### Family receiver volume and mute validation
+
+The main Onkyo entity was `on`, unmuted and reported `volume_level: 0.59`
+before testing. Native mute produced immediate `is_volume_muted: true`
+feedback and native unmute restored `false`. The generic Home Assistant slider
+proved too coarse for a bounded step: clicking it moved the displayed value
+substantially. No such slider will be exposed by Aster. An exact
+`media_player.volume_set` restored `0.59`, after which the semantic actions
+intended for Aster were tested directly. `media_player.volume_down` changed
+the native value from `0.590` to `0.585`; one `media_player.volume_up` restored
+`0.590`. A read-only recorder query confirmed the final receiver state is
+`on`, `volume_level: 0.59`, `is_volume_muted: false`. Owner confirmation of the
+physical receiver display remains the final volume/mute acceptance gate.
+
+### Capability-scoped gateway candidate
+
+The local Aster Remote gateway candidate now recognizes only six explicit
+equipment actions: power on/off, volume up/down and mute on/off. Equipment uses
+a separate client identity, queue, connection heartbeat, capability allowlist
+and acknowledgement path from every Kodi client. A room without a configured,
+recently connected equipment identity rejects equipment actions; an identity
+cannot execute an action absent from its own allowlist. Browser request-ID
+deduplication remains in front of both queues. The session exposes only bounded
+power/volume/mute state and capability names, not Home Assistant credentials,
+arbitrary entity IDs or a general service-call surface. Ten focused tests pass
+in Aster Agent's pinned environment. This is a local candidate only: the live
+gateway and disabled Remote buttons are unchanged, and no Home Assistant bridge
+identity or service has been created.
+

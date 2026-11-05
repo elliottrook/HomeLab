@@ -49,7 +49,15 @@ Action = Literal[
     "nav.back", "nav.home", "nav.context", "playback.toggle",
     "search.open", "text.send", "text.replace", "text.backspace", "text.clear",
     "text.cancel", "text.enter", "voice.search",
+    "equipment.power_on", "equipment.power_off",
+    "equipment.volume_up", "equipment.volume_down",
+    "equipment.mute_on", "equipment.mute_off",
 ]
+EQUIPMENT_ACTIONS = frozenset({
+    "equipment.power_on", "equipment.power_off",
+    "equipment.volume_up", "equipment.volume_down",
+    "equipment.mute_on", "equipment.mute_off",
+})
 TEXT_ACTIONS = frozenset({"search.open", "text.send", "text.replace", "voice.search"})
 NO_TEXT_ACTIONS = frozenset({
     "nav.up", "nav.down", "nav.left", "nav.right", "nav.select",
@@ -110,11 +118,29 @@ class ClientAck(BaseModel):
     ]
 
 
+class EquipmentPoll(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    client_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9-]{0,31}$")
+    room_id: str = Field(pattern=r"^[a-z][a-z0-9-]{0,31}$")
+    power: Literal["on", "off", "unavailable"]
+    volume_level: float | None = Field(default=None, ge=0, le=1)
+    muted: bool | None = None
+
+
 @dataclass(frozen=True)
 class ClientIdentity:
     room_id: str
     label: str
     key: str
+
+
+@dataclass(frozen=True)
+class EquipmentIdentity:
+    room_id: str
+    label: str
+    key: str
+    actions: frozenset[str]
 
 
 @dataclass
@@ -138,6 +164,13 @@ class RoomRuntime:
     input_sensitive: bool = False
     input_title: str = ""
     input_value: str = ""
+    equipment_queue: deque[QueuedCommand] = field(default_factory=deque)
+    equipment_condition: asyncio.Condition = field(default_factory=asyncio.Condition)
+    equipment_last_seen: float = 0.0
+    equipment_power: str = "unavailable"
+    equipment_volume_level: float | None = None
+    equipment_muted: bool | None = None
+    equipment_last_outcome: str | None = None
 
 
 class AsterRemoteGateway:
@@ -147,6 +180,7 @@ class AsterRemoteGateway:
         static_root: Path,
         *,
         clients: dict[str, ClientIdentity],
+        equipment_clients: dict[str, EquipmentIdentity] | None = None,
         subject_rooms: dict[str, set[str]],
         network_rooms: dict[ipaddress.IPv4Network, set[str]] | None = None,
         trusted_proxies: set[ipaddress.IPv4Address] | None = None,
@@ -158,6 +192,7 @@ class AsterRemoteGateway:
         self.claims = claims
         self.static_root = Path(static_root)
         self.clients = dict(clients)
+        self.equipment_clients = dict(equipment_clients or {})
         self.subject_rooms = {key: frozenset(value) for key, value in subject_rooms.items()}
         self.network_rooms = {
             network: frozenset(rooms) for network, rooms in (network_rooms or {}).items()
@@ -191,6 +226,12 @@ class AsterRemoteGateway:
         )
         self.router.add_api_route(
             "/v1/remote/client/ack", self.client_ack, methods=["POST"]
+        )
+        self.router.add_api_route(
+            "/v1/remote/equipment/poll", self.equipment_poll, methods=["POST"]
+        )
+        self.router.add_api_route(
+            "/v1/remote/equipment/ack", self.equipment_ack, methods=["POST"]
         )
 
     async def index(self) -> FileResponse:
@@ -267,6 +308,8 @@ class AsterRemoteGateway:
 
     def _room_state(self, room_id: str, identity: ClientIdentity | None = None):
         room = self.rooms[room_id]
+        equipment = next((row for row in self.equipment_clients.values()
+                          if row.room_id == room_id), None)
         return {
             "room_id": room_id,
             "label": identity.label if identity else room_id,
@@ -280,6 +323,14 @@ class AsterRemoteGateway:
                 "title": room.input_title,
                 "value": room.input_value,
             },
+            "equipment": {
+                "connected": bool(equipment) and room.equipment_last_seen > self.clock() - CONNECTED_SECONDS,
+                "actions": sorted(equipment.actions) if equipment else [],
+                "power": room.equipment_power,
+                "volume_level": room.equipment_volume_level,
+                "muted": room.equipment_muted,
+                "last_outcome": room.equipment_last_outcome,
+            },
         }
 
     async def session(self, request: Request):
@@ -292,7 +343,9 @@ class AsterRemoteGateway:
                 for room_id in sorted(allowed)
                 if room_id in self.rooms
             ],
-            "equipment_controls": False,
+            "equipment_controls": any(
+                row.room_id in allowed for row in self.equipment_clients.values()
+            ),
         }
 
     async def command(
@@ -311,15 +364,27 @@ class AsterRemoteGateway:
         if payload.request_id in self.seen:
             return {"status": "accepted", "request_id": payload.request_id}
         room = self.rooms[payload.room_id]
-        if len(room.queue) >= MAX_QUEUE:
+        if payload.action in EQUIPMENT_ACTIONS:
+            equipment = next((row for row in self.equipment_clients.values()
+                              if row.room_id == payload.room_id), None)
+            if equipment is None or payload.action not in equipment.actions:
+                raise HTTPException(403, "AsterTV equipment action denied")
+            if room.equipment_last_seen <= now - CONNECTED_SECONDS:
+                raise HTTPException(503, "AsterTV equipment bridge unavailable")
+            queue = room.equipment_queue
+            condition = room.equipment_condition
+        else:
+            queue = room.queue
+            condition = room.condition
+        if len(queue) >= MAX_QUEUE:
             raise HTTPException(503, "AsterTV remote queue is busy")
         self.seen[payload.request_id] = now + COMMAND_LIFETIME_SECONDS
-        room.queue.append(QueuedCommand(
+        queue.append(QueuedCommand(
             payload.request_id, payload.action, payload.text,
             now + COMMAND_LIFETIME_SECONDS,
         ))
-        async with room.condition:
-            room.condition.notify_all()
+        async with condition:
+            condition.notify_all()
         return {"status": "accepted", "request_id": payload.request_id}
 
     async def voice(self, request: Request, origin: str | None = Header(default=None)):
@@ -403,6 +468,60 @@ class AsterRemoteGateway:
         room.last_request_id = payload.request_id
         return {"status": "recorded"}
 
+    def _equipment_client(self, client_id: str, room_id: str,
+                          authorization: str | None, header_client: str | None):
+        identity = self.equipment_clients.get(client_id)
+        supplied = authorization.removeprefix("Bearer ") if authorization else ""
+        if (identity is None or header_client != client_id
+                or identity.room_id != room_id
+                or not hmac.compare_digest(identity.key, supplied)):
+            raise HTTPException(401, "Invalid AsterTV equipment client")
+        return identity
+
+    async def equipment_poll(
+        self, payload: EquipmentPoll,
+        authorization: str | None = Header(default=None),
+        x_astertv_client: str | None = Header(default=None),
+    ):
+        self._equipment_client(payload.client_id, payload.room_id,
+                               authorization, x_astertv_client)
+        room = self.rooms[payload.room_id]
+        room.equipment_last_seen = self.clock()
+        room.equipment_power = payload.power
+        room.equipment_volume_level = payload.volume_level
+        room.equipment_muted = payload.muted
+        deadline = time.monotonic() + 20
+        while True:
+            now = self.clock()
+            while room.equipment_queue and room.equipment_queue[0].expires_at <= now:
+                room.equipment_queue.popleft()
+            if room.equipment_queue:
+                command = room.equipment_queue.popleft()
+                return {"request_id": command.request_id, "action": command.action,
+                        "expires_at": datetime.fromtimestamp(
+                            command.expires_at, timezone.utc).isoformat()}
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return Response(status_code=204)
+            async with room.equipment_condition:
+                try:
+                    await asyncio.wait_for(room.equipment_condition.wait(), min(remaining, 1.0))
+                except TimeoutError:
+                    pass
+            room.equipment_last_seen = self.clock()
+
+    async def equipment_ack(
+        self, payload: ClientAck,
+        authorization: str | None = Header(default=None),
+        x_astertv_client: str | None = Header(default=None),
+    ):
+        self._equipment_client(payload.client_id, payload.room_id,
+                               authorization, x_astertv_client)
+        room = self.rooms[payload.room_id]
+        room.equipment_last_seen = self.clock()
+        room.equipment_last_outcome = payload.outcome
+        return {"status": "recorded"}
+
 
 def _environment_clients() -> dict[str, ClientIdentity]:
     raw = json.loads(os.environ.get("ASTER_REMOTE_CLIENTS", "{}"))
@@ -418,6 +537,27 @@ def _environment_clients() -> dict[str, ClientIdentity]:
         ):
             raise ValueError("invalid-remote-client")
         result[client_id] = ClientIdentity(**row)
+    return result
+
+
+def _environment_equipment_clients() -> dict[str, EquipmentIdentity]:
+    raw = json.loads(os.environ.get("ASTER_REMOTE_EQUIPMENT_CLIENTS", "{}"))
+    if not isinstance(raw, dict):
+        raise ValueError("invalid-remote-equipment-clients")
+    result = {}
+    for client_id, row in raw.items():
+        if (not isinstance(row, dict)
+                or set(row) != {"room_id", "label", "key", "actions"}
+                or not all(isinstance(row.get(key), str) and row[key]
+                           for key in ("room_id", "label", "key"))
+                or len(row["key"]) < 32
+                or not isinstance(row["actions"], list)
+                or not row["actions"]
+                or not set(row["actions"]) <= EQUIPMENT_ACTIONS):
+            raise ValueError("invalid-remote-equipment-client")
+        result[client_id] = EquipmentIdentity(
+            row["room_id"], row["label"], row["key"], frozenset(row["actions"])
+        )
     return result
 
 
@@ -466,6 +606,7 @@ def from_environment(claims, static_root: Path) -> AsterRemoteGateway:
         claims,
         static_root,
         clients=_environment_clients(),
+        equipment_clients=_environment_equipment_clients(),
         subject_rooms=_environment_rooms(),
         network_rooms=_environment_network_rooms(),
         trusted_proxies=_environment_trusted_proxies(),

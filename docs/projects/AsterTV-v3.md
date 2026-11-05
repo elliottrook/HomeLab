@@ -1444,6 +1444,22 @@ Family power now passes the command/feedback, standby/wake, duplicate, CEC and
 physical-recovery gates. Volume, mute, source, playback and navigation remain
 separately disabled pending their own acceptance.
 
+The main Onkyo entity subsequently passed native mute/unmute feedback and one
+semantic volume step in each direction: `0.590 → 0.585 → 0.590`. The final
+recorded state is on, unmuted and exactly `0.59`. The generic Home Assistant
+slider was too coarse for this boundary and is excluded from Aster; only the
+receiver integration's `volume_down`, `volume_up` and explicit mute services
+are candidates. Physical-display confirmation still gates their acceptance.
+
+The first local M7 gateway candidate adds a separate equipment identity,
+heartbeat, queue, acknowledgement channel and per-room action allowlist. Its
+only possible actions are explicit power on/off, volume up/down and mute
+on/off; unconfigured, disconnected or capability-mismatched requests fail
+closed. It exposes no Home Assistant token, arbitrary entity, service name or
+Kodi JSON-RPC. Ten pinned-environment tests pass. Nothing is installed: live
+Remote equipment controls remain disabled until the outbound Home Assistant
+adapter and its recovery tests are complete.
+
 - [ ] Inventory the exact Family television and Onkyo receiver plus the Bedroom
   LG television, soundbar/receiver, connection paths, network capabilities,
   Bluetooth profiles and standby/wake behaviour; do not infer control support
