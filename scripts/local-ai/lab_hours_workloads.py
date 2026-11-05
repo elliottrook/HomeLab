@@ -142,7 +142,7 @@ WORKLOADS = {
             ("sa3-evidence-matrix-candidate-j-public-v1.json",
              "40f7cfeeb3884887c32f5674afdb840d764214730a23e71c1df660a08953572f"),
             ("sa3_evidence_matrix_candidate_j_contract.py",
-             "d3c04b28aeed23cb91808c223ec545594a1ff63754d2ada1c15ea87468a0d34d"),
+             "b243d429218b134177f2b2cdf5ca4e3f28c8e0ed08a55b11e9d2ccb6bd17b2af"),
             ("sa3_evidence_matrix_candidate_j_runner.py",
              "ee3410dbed70dc9399a094e0260e0af94985daef961017de2dd9f70b4691d223"),
             ("sa3_evidence_matrix_candidate_j_public.py",

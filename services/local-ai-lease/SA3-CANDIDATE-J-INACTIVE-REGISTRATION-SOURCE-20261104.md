@@ -5,13 +5,17 @@ admitting a runner, installing a file or creating a booking. The registration
 binds exactly five runtime files from Stream A commit `a13deb6d`: the six-case
 public fixture, registered-hypothesis contract, selection-only runner, strict
 public scorer and exact batch. Their source freeze is
-`7ab3bf93a326fad5748e5fe6f584d0b1a1bc890e78823059a19941832c0d3e74`.
+`34b3fc5c2af1f51f50dddeed75397b37913a676803338880a12753e055169eea`.
 
 The workload contains six cases but permits exactly two model requests; four
 fail-closed cases never reach transport. It has zero retries, a 1,800-second
 hard deadline, a 2,700-second minimum booking including a 900-second recovery
 reserve, and a 262,144-byte result ceiling. Review material, answer keys,
-candidate-g/i case-level judgments and arbitrary commands are excluded.
+candidate-g/i case-level judgments and arbitrary commands are excluded. A
+pre-install dependency review found and removed the contract's stale import of
+a candidate-i-era helper; the self-contained contract is now pinned at
+`b243d429…b2af` and the corrected five-file freeze is
+`34b3fc5c…9eea`.
 
 The runner kind `sa3-evidence-matrix-candidate-j-public` is deliberately not
 admitted by the reserved runner. This registration therefore cannot execute
