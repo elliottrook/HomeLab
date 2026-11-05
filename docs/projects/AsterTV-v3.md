@@ -12,15 +12,16 @@
 >
 > Proposed: 2026-10-31
 >
-> Current live-change authorization: the completed Stream A envelope
-> `SA-M5N-JEN` below. Jason's subsequent continuation authorizes the common
+> Current live-change authorization: the bounded Stream A envelope
+> `SA-M6-JEN` below. Jason's subsequent continuation authorizes the common
 > read-only/local-planning work used for the M5 eBook audit. Jason then
 > authorized `SA-M5B` on 2026-11-04, including the scheduler safety correction,
 > fixed workload registration and one booked alignment benchmark. Jason then
 > authorized `SA-M5P-JEN` on 2026-11-04 using the recommended owner-approved
 > podcast request queue. Family, Bedroom, reader/catalogue promotion, podcast
 > subscription execution, release promotion and every later live milestone
-> remain excluded.
+> remain excluded. The separately booked SA-M5B benchmark may run only through
+> its registered Lab Hours runner and remains isolated from SA-M6-JEN.
 
 ## Purpose and desired outcome
 
@@ -1020,7 +1021,7 @@ a previously booked unregistered resource-ladder service started the old
 worker at 20:00. It was fenced immediately; both service and worker are now
 inactive, and its reservation remains intact through recovery time.
 
-The authoritative ledger reported 22:15–22:45 Pacific clear. Booking
+The authoritative ledger reported 22:15–22:45 MST (`-07:00`) clear. Booking
 `astertv-v3-m5b-align-20261104-2215` now names registered workload
 `astertv-v3-ebook-word-alignment-v1` and owner `astertv-v3-m5`. The dispatcher
 must still fail closed unless fresh admission, whole-host lease, shared lock,
@@ -1296,6 +1297,56 @@ synthetic/reversible podcast request path with no duplicate side effect.
 
 Gate: approved accounts see only allowed entities/cameras; denials and failures
 are explicit; playback and network isolation remain intact.
+
+### SA-M6-JEN — read-only Home and camera separation
+
+Jason approved this bounded Jen-only Stream A slice on 2026-11-04. It may:
+
+- preserve the existing schema-4, mode-`0600` Home Assistant display export
+  and its ten-minute freshness limit while redesigning only AsterTV-Jen's Home
+  presentation around an explicit read-only entity allowlist;
+- split the existing localhost-only, on-demand Front of House viewer into a
+  separate Cameras page without changing its forced source command, client
+  key, five-minute lifetime, two-second refresh, no-disk-cache behavior or
+  2 MiB image bound;
+- add distinct `home_status` and `camera_view` profile entitlements and one
+  opaque, display-only Home Assistant service mapping for Jason, while Guest
+  continues to fail closed and no control/write entitlement is granted;
+- checkpoint and install a hash-pinned Jen overlay, restart only Kodi while it
+  is idle, and validate Home/Cameras focus, Back, stale/invalid/outage states,
+  camera expiry, active-playback non-interruption, Guest denial, reboot and
+  exact rollback; and
+- add content-free regression evidence, operational notes and milestone
+  commits, with Forgejo synchronization under the owner's standing
+  milestone-end push instruction.
+
+It does **not** authorize a Home Assistant service call, light or equipment
+control, a new camera/source/credential/network path, continuous or background
+camera capture, recording, door-event automation, Family/Bedroom mutation,
+M7 bridge work, release promotion or any change to the booked SA-M5B workload.
+No speech is produced by this slice. A separate door-event source and its
+quiet-hours/playback policy must be reviewed before the remaining M6 event work
+can begin.
+
+The pre-start risks are profile crossover, stale household state presented as
+current, a camera process surviving its page, Kodi navigation regression and
+competition with playback. Controls are exact schema/field validation,
+ten-minute expiry, separate least-privilege entitlements, Guest and direct-
+window denial tests, localhost/source-restricted image transport, bounded
+viewer expiry, idle install, immutable checkpoint and byte-exact rollback.
+Abort on credential output, unexpected Home Assistant write capability, an
+unknown source key/command, active playback at install, release-guard drift,
+camera exposure beyond loopback, failed checkpoint or any target other than
+`AsterTV-Jen`.
+
+- [x] SA-M6-JEN1: audit the existing display feed, profile gate and on-demand
+  camera path; record the bounded authorization and implementation contract.
+- [ ] SA-M6-JEN2: implement and locally test the separate Home/Cameras overlay,
+  least-privilege profile extension and denial/failure contracts.
+- [ ] SA-M6-JEN3: checkpoint/install on idle Jen and prove navigation,
+  freshness, camera lifecycle, playback isolation, Guest denial and reboot.
+- [ ] SA-M6-JEN4: prove exact rollback, reinstall the accepted candidate,
+  reconcile evidence and push the completed slice before any door/M7 work.
 
 ### M7 — Home Assistant bridge and room-equipment control
 
@@ -1656,6 +1707,7 @@ explicit user acceptance.
 | 2026-11-04 | Audited the M5 eBook narration and scheduling path without effects | LXC 116 has 160 queued and seven ready generations; every accepted manifest, publisher, loader and reader uses exact sentence-sample timing with the pinned canonical Aster cleanup/voice. The retained faster-whisper trial failed closed on an unmeasured word interval. The enabled Proxmox scheduler checks for a clear Lab Hours window but has no registered workload booking, whole-host lease or shared operation lock. | No TTS/model run, booking, timer or reader state was changed. Existing reservations denied the scheduler with status 75 and the worker remained inactive. A bounded correction must first disable the old scheduler, register and pin a fixed workload, then use booking+lease+lock before benchmarking measured word alignment with sentence fallback. This is outside completed `SA-M5N-JEN` and awaits a new authorization envelope. Evidence: `docs/projects/evidence/AsterTV-v3-M5-ebook-readonly-audit-2026-11-04.md`. |
 | 2026-11-04 | Repaired Family Continue Watching, Up Next and Intro Skipper | Live diagnosis found 44 resume bookmarks, including five items also marked played; the client accepted that contradictory state, and its manual next helper neither requested nor filtered `playcount`. Jellyfin 12.1 had classified auto-updated Intro Skipper 12.0.6 `NotSupported`, so the client received zero media segments. The approved bounded repair patched and repinned five Family files, refreshed the accepted baseline, and transactionally installed checksum-pinned Intro Skipper 12.0.5 (`targetAbi` 12.1) with auto-update disabled. | Family checkpoint `/storage/.aster-checkpoints/astertv-media-lifecycle-AsterTV-Family-20261105-031033` and TrueNAS snapshot `Media/appdata/jellyfin@intro-skipper-12-1-20261105-031306` retain rollback. Kodi/Jellyfin are healthy; the 533-file guard is clean; Continue Watching returns 24 rows, zero played rows and six valid Up Next rows; Newsroom advances to S1E8; its tested S1E7 now exposes one intro and one credits segment. Six focused tests pass. |
 | 2026-11-04 | Completed the Jen-only owner-approved podcast request queue | Deployed a non-root, execution-disabled broker with separate read-only Audiobookshelf and Jen identities, then connected Books → Podcasts to a Gold Rim search/request/status add-on. One retained synthetic request was replayed through the real confirmation UI and deduplicated to the same record. | Ordered live focus, Back, status, broker outage, restart and full Jen reboot passed; queue cardinality stayed one and Audiobookshelf stayed at seven items. A malformed third-party feed discovered in acceptance is now omitted individually under test instead of suppressing all safe results. No approval/subscription executor exists. Evidence: `docs/projects/evidence/AsterTV-v3-M5P3-podcast-request-client-2026-11-04.md`. |
+| 2026-11-04 | Opened the Jen-only M6 Home/camera Stream A | Read-only audit found a strongly validated 63-entity schema-4 display export and a bounded localhost-only, five-minute camera viewer, but the v2 page still combines Home, camera and timer while the v3 profile gate grants Jason neither a Home mapping nor Home/camera entitlement. No household values or credentials were captured. | `SA-M6-JEN` permits a separate Home/Cameras overlay and distinct read-only `home_status`/`camera_view` authority on Jen only. It excludes Home Assistant writes, source/network/credential changes, continuous/background capture, door events, Family/Bedroom and M7. Next safe action is local candidate and denial/failure tests. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-readonly-audit-2026-11-04.md`. |
 
 ## Close-out
 
