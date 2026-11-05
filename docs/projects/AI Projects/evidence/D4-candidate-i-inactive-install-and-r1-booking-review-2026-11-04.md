@@ -22,6 +22,11 @@ contains the 2,700-second transaction ceiling and 900-second restoration
 reserve. Static review is GO; claim-time booking, lease, lock, installed-pin,
 health and restoration gates remain fresh and fail closed.
 
+The ledger was rechecked clear immediately before effect and the authoritative
+reservation was saved successfully with state `scheduled`, start epoch
+`1793838600`, end epoch `1793842200` and restore buffer `900`. The
+dispatcher owns the one claim; no manual invocation is authorized.
+
 Accept success only for 20 cases, 14 model requests, six no-transport
 abstentions, zero retries/errors/effects, exact v2 identities, retained digest,
 exit zero, production restored and complete independent postchecks. Any

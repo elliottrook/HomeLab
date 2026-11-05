@@ -93,6 +93,11 @@
 > reservation may be saved under standing Stream A authority; all claim-time
 > gates remain fresh and fail closed. No retry or automatic promotion follows.
 
+> **Candidate-i R1 scheduled:** the exact authoritative reservation is saved
+> for 17:30–18:30 PST with the fixed 900-second restoration reserve. The
+> dispatcher owns the one claim. Continue offline review/reconciliation source
+> work until terminal evidence exists; do not manually invoke or retry it.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
