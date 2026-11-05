@@ -1,6 +1,6 @@
 # AsterTV Platform Engineering and Design Operations
 
-> Status: Active — Stream A; M0–M1 complete, M2 local candidate ready for acceptance
+> Status: Active — Stream A; M0–M2 complete locally, M3–M6 foundations built
 >
 > Owner: Jason
 >
@@ -513,9 +513,9 @@ deliberately pending; no live wiki or mirror changed in M2 preparation.
 
 ### M3 — Design authority and pattern library
 
-- [ ] Index Forgejo assets/runtime consumers by hash.
-- [ ] Create token/asset/component/page/focus/fixture schemas.
-- [ ] Generate every catalogue state and map accepted v2/v3 pages.
+- [x] Index Forgejo assets/runtime consumers by hash.
+- [x] Create token/asset/component/page/focus/fixture schemas.
+- [x] Generate every catalogue state and map accepted v2/v3 pages.
 - [ ] Obtain owner acceptance of the reference library.
 
 **Gate:** designers and implementers reach the same answer from the library.
@@ -523,7 +523,7 @@ deliberately pending; no live wiki or mirror changed in M2 preparation.
 ### M4 — Build, release, guard and Doctor
 
 - [ ] Compile global/profile/overlay bundles and device manifests.
-- [ ] Add matrix, SBOM, compatibility, deprecation and performance gates.
+- [x] Add matrix, SBOM, compatibility, deprecation and performance gates.
 - [ ] Upgrade guard/Doctor for desired state, registered extras and dependencies.
 - [ ] Prove interrupted build/deploy and isolated rollback.
 
@@ -531,15 +531,15 @@ deliberately pending; no live wiki or mirror changed in M2 preparation.
 
 ### M5 — Onboarding and operations automation
 
-- [ ] Build plan-only device/peripheral helpers using NetBox/live discovery.
-- [ ] Generate exact HA/network plans and operator checklists.
-- [ ] Add replacement, rotation, retirement and EOL workflows.
+- [x] Build plan-only device/peripheral helpers using NetBox/live discovery.
+- [x] Generate exact HA/network plans and operator checklists.
+- [x] Add replacement, rotation, retirement and EOL workflows.
 
 **Gate:** synthetic onboarding is complete, least-privilege and conflict-safe.
 
 ### M6 — Codex skills
 
-- [ ] Build, validate, install and independently forward-test both skills.
+- [x] Build, validate, install and independently forward-test both skills.
 
 **Gate:** correct routing and useful artifacts without unauthorized effects.
 
@@ -612,21 +612,27 @@ media mutation, playback interruption, unknown identity or broader firewall.
 
 ## Current resume state
 
-**Milestone:** M2 candidate acceptance and existing-wiki publication, then M3.
+**Milestone:** M2/M3 owner acceptance and publication gates; M4 completion next.
 
 **Verified:** M0 accepted pinned identities for Family, Bedroom and Jen, recorded
 Guest as not deployed, classified the existing wiki/reference/NetBox/release
 authorities and mapped every accepted current difference. M1 restored the
 release lifecycle authority and compiled all four devices reproducibly; eight
 tests include deliberate ownership, dependency, compatibility, candidate and
-secret-bearing failures. M2 is a local wiki candidate only; no published wiki,
-skill, Aster mirror or live device changed.
+secret-bearing failures. M2 is a local wiki candidate only. M3 supplies the
+hash-bound design authority and synthetic reference library but still needs
+owner visual acceptance. M4 has deterministic plan-only SBOM, compatibility,
+performance and composition-guard foundations; it does not yet build or deploy
+an appliance bundle. M5's Guest fixture fails closed on unresolved physical and
+NetBox facts. Both M6 skills are installed from a hash manifest and passed
+independent effect-free forward tests. No published wiki, Aster mirror or live
+AsterTV changed.
 
-**Next:** owner-review the 25-page existing-wiki candidate, then obtain the
-required immediate confirmation before each Forgejo push. Build/publish through
-the established LXC 113 path and derive the Aster mirror only after human
-content is accepted. M3 design-authority work can proceed locally without
-publishing this candidate.
+**Next:** owner-review the 25-page wiki and generated design reference, then
+obtain the required immediate confirmation before each Forgejo push. Build the
+wiki through the established LXC 113 path only after content acceptance. In
+parallel, finish M4's actual hash-bound bundle/guard/Doctor integration and
+interrupted rollback proof before any M7 appliance migration.
 
 ## Evidence log
 
@@ -639,6 +645,7 @@ publishing this candidate.
 | 2026-11-05 | Completed M0 authority/corpus/fleet inventory | `docs/projects/evidence/AsterTV-Platform-M0-authority-corpus-inventory-2026-11-05.md`; pinned read-only checks found Family, Bedroom and Jen on the recorded LibreELEC build with enabled guards | All active differences have a migration destination; Guest remains a non-deployed candidate; no live system changed |
 | 2026-11-05 | Completed M1 lifecycle and composition foundation | `docs/Environment-and-Release-Lifecycle.md`; `services/kodi/astertv-fleet/`; `docs/projects/evidence/AsterTV-Platform-M1-composition-foundation-2026-11-05.md` | Four devices compile deterministically; three remain deployed unchanged and Guest remains candidate; 8/8 gates pass including deliberate conflicts and secret rejection |
 | 2026-11-05 | Built and validated the additive M2 HomeLab Wiki candidate | Local `homelab-wiki` commit `1fdcf6a`; `docs/projects/evidence/AsterTV-Platform-M2-wiki-candidate-2026-11-05.md`; two pinned intake sources | 25 pages, 3/3 tests and real bounded source fetches pass; human acceptance/push/LXC publication/mirror remain pending; no live system changed |
+| 2026-11-05 | Built M3–M6 platform foundations | `docs/projects/evidence/AsterTV-Platform-M3-M6-foundations-2026-11-05.md`; design, release-plan, onboarding and skill packages | Hash-bound design assets and fixtures, plan-only SBOM/guards, least-privilege Guest planning and two independently tested skills; no appliance/wiki publication |
 
 ## Close-out
 

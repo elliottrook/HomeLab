@@ -42,6 +42,18 @@ class DesignSystemTests(unittest.TestCase):
         for record in records:
             self.assertRegex(record["sha256"], r"^[0-9a-f]{64}$")
 
+    def test_plain_compass_resolves_to_exact_approved_exports(self):
+        catalogue = BUILD.load("catalogue.json")
+        assets = {item["id"]: item for item in catalogue["semantic_assets"]}
+        plain = assets["plain-compass"]
+        self.assertEqual(plain["master"], "SVG/15-aster-compass.svg")
+        self.assertRegex(plain["master_sha256"], r"^[0-9a-f]{64}$")
+        self.assertGreaterEqual(len(plain["runtime_exports"]), 4)
+        self.assertNotIn("floating-side-rail", plain["allowed_contexts"])
+        self.assertIn("floating-side-rail", plain["forbidden_contexts"])
+        for export in plain["runtime_exports"]:
+            self.assertRegex(export["sha256"], r"^[0-9a-f]{64}$")
+
     def test_button_focus_does_not_change_geometry(self):
         tokens = BUILD.load("tokens.json")
         self.assertEqual(tokens["geometry"]["pill_radius"], 28)

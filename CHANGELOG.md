@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-11-05 — Build AsterTV design, release, onboarding and skill foundations
+
+- Added a deterministic AsterTV design authority with six schemas, accepted
+  tokens, semantic asset context, runtime hashes, 15 mapped pages and 24
+  privacy-safe 1920x1080 component/page fixtures.
+- Verified the approved plain compass read-only from its private Forgejo release
+  archive and pinned the archive, SVG master and four runtime export hashes.
+- Added plan-only per-device release plans, CycloneDX SBOMs, compatibility,
+  deprecation, hardware-specific performance budgets and desired-state guard
+  classification; every plan remains non-deployable until artifact verification.
+- Added a fail-closed Guest onboarding planner and replacement, rotation,
+  retirement and EOL workflows with no mutation implementation.
+- Built, officially validated, independently forward-tested and hash-installed
+  the AsterTV Fleet Engineer and Design Engineer Codex skills. The skills do not
+  grant deployment or remote-write authority.
+- Changed no AsterTV appliance, wiki publication, Aster mirror, Home Assistant,
+  NetBox, OPNsense or remote repository.
+
 ## 2026-11-05 — Build the AsterTV department in the existing HomeLab Wiki
 
 - Added a 25-page AsterTV engineering department candidate to the existing

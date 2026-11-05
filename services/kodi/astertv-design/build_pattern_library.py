@@ -156,6 +156,7 @@ def outputs() -> dict[Path, str]:
     asset_index = {
         "schema_version": 1,
         "source_releases": catalogue["asset_releases"],
+        "semantic_assets": catalogue["semantic_assets"],
         "runtime_assets": runtime_assets(),
     }
     page_index = {
