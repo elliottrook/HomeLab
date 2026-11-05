@@ -41,3 +41,14 @@ late, changed or uncertain gate is a terminal NO-GO without retry.
 Blind review and any promotion decision remain downstream of a complete
 transaction. This schedule grants no route, tool authority, restart,
 model/backend change or automatic promotion.
+
+## Offline terminal reconciliation
+
+The post-run reconciler is now source-complete before the booking fires. It
+accepts only the exact complete terminal schema, this fixed workload, 20
+processed cases, restored production and the already-frozen deterministic
+quality gate. It returns only bounded counts and digests, omits model identity
+and case content, and can advance a passing result only to the existing
+three-reviewer model-blind review. It explicitly records promotion as
+unauthorized. Candidate-J's complete focused suite passes 43/43, including
+terminal drift and quality-regression fail-closed tests.

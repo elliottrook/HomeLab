@@ -67,7 +67,10 @@
 > [`scheduled`](evidence/D4-candidate-j-quality-r1-schedule-2026-11-05.md).
 > All 46 installed pins, dispatcher/Doctor and core production static checks
 > pass. Runtime lease, lock, quiet-host and restoration gates remain fresh and
-> fail closed. A complete 20-row result is required before blind review.
+> fail closed. The strict offline terminal reconciler is now ready and the
+> complete Candidate-J suite passes 43/43; it exposes no model identity or case
+> content and permits only a complete 20-row result to advance to the existing
+> three-reviewer blind review. Promotion remains unauthorized.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).
