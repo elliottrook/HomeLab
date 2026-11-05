@@ -67,5 +67,10 @@ data gates. The first dependency-free reference primitives now implement the
 frozen UTF-8 byte truncation/right-padding contract and SplitMix64-v1 with the
 specified high-53-bit uniform conversion. Tests cover a deliberately truncated
 multibyte suffix, exact 512-byte bounds, standard SplitMix64 vectors, unsigned
-wrap and seed/type failures. The expanded J2 source suite passes 67/67. No
-weights, corpus rows, evaluation content or model artifact are created.
+wrap and seed/type failures. The reference now also fixes all 11 parameter
+tensors, row-major scalar order, explicit Xavier fan-in/fan-out values, zero
+biases and a 46,848-value initialization replay digest
+`4d239c77…09d1`. The recipe manifest binds the exact primitive source and those
+semantics; its current file identity is `a9a00975…ac90`. The expanded J2 source
+suite passes 69/69. No training step, corpus row, evaluation content or retained
+model artifact is created.

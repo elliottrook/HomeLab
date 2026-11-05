@@ -96,6 +96,17 @@ def expected_manifest() -> dict[str, object]:
             "weight_rule": "xavier-uniform-sqrt(6/(fan_in+fan_out))",
             "weight_interval": "[-limit,+limit)",
             "bias_rule": "zeros",
+            "tensor_scalar_order": "row-major-last-dimension-fastest",
+            "fan_in_out": {
+                "byte-embedding": [257, 32],
+                "conv-width-3-weight": [96, 144],
+                "conv-width-5-weight": [160, 240],
+                "conv-width-7-weight": [224, 336],
+                "hidden-weight": [144, 96],
+                "output-weight": [96, 16],
+            },
+            "initialization_replay_sha256":
+                "4d239c77ad73dc5cbbf060cb0bdf275a7095183217c1c076417d0fd46a2c09d1",
             "parameter_order": [
                 "byte-embedding",
                 "conv-width-3-weight", "conv-width-3-bias",
@@ -191,6 +202,8 @@ def expected_manifest() -> dict[str, object]:
             "ontology_sha256": sha256(ontology._catalogue_text().encode()),
             "deterministic_guard_source_sha256": _source_sha256(
                 "nlu_deterministic_guard_v1.py"),
+            "reference_primitives_source_sha256": _source_sha256(
+                "nlu_j2_reference_primitives_v1.py"),
             "guard_projection": "preserve-coherent-label-unless-strictly-more-restrictive",
             "personal_sensitivity_floor": True,
             "coherent_joint_label_only": True,

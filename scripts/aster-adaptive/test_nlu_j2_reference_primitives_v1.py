@@ -39,5 +39,23 @@ class J2ReferencePrimitiveTests(unittest.TestCase):
             with self.subTest(seed=seed), self.assertRaises(ValueError):
                 primitives.SplitMix64(seed)
 
+    def test_parameter_order_shapes_count_and_zero_biases(self):
+        values = list(primitives.initialized_parameters())
+        self.assertEqual([row[0] for row in primitives.PARAMETERS],
+                         [row[0] for row in values])
+        self.assertEqual(46848, sum(len(row[2]) for row in values))
+        for name, _, tensor in values:
+            if name.endswith("-bias"):
+                self.assertEqual({0.0}, set(tensor))
+
+    def test_initialization_replays_and_seed_changes_digest(self):
+        expected = primitives.initialization_sha256()
+        self.assertEqual(
+            "4d239c77ad73dc5cbbf060cb0bdf275a7095183217c1c076417d0fd46a2c09d1",
+            expected)
+        self.assertEqual(expected, primitives.initialization_sha256())
+        self.assertNotEqual(expected, primitives.initialization_sha256(20261105))
+        self.assertRegex(expected, r"^[0-9a-f]{64}$")
+
 
 if __name__ == "__main__": unittest.main()

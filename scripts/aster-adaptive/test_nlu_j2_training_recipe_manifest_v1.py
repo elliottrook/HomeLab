@@ -49,6 +49,12 @@ class J2TrainingRecipeManifestTests(unittest.TestCase):
                 padding_row="trainable"),
             lambda value: value["initialization"].update(seed=1),
             lambda value: value["initialization"].update(prng="platform-random"),
+            lambda value: value["initialization"]["fan_in_out"].update(
+                {"byte-embedding": [256, 32]}),
+            lambda value: value["initialization"].update(
+                tensor_scalar_order="column-major"),
+            lambda value: value["initialization"].update(
+                initialization_replay_sha256="0" * 64),
         )
         for mutation in mutations:
             value = self.value(); mutation(value)
@@ -121,6 +127,8 @@ class J2TrainingRecipeManifestTests(unittest.TestCase):
                          value["runtime_boundary"]["ontology_source_sha256"])
         self.assertEqual(expected["deterministic_guard_source_sha256"],
                          value["runtime_boundary"]["deterministic_guard_source_sha256"])
+        self.assertEqual(expected["reference_primitives_source_sha256"],
+                         value["runtime_boundary"]["reference_primitives_source_sha256"])
 
 
 if __name__ == "__main__":

@@ -478,8 +478,10 @@ remain external and cannot be fabricated in the shared worktree.
 Trainer source work has also started independently of those data gates. The
 dependency-free J2 reference primitives implement the frozen UTF-8 byte
 truncation/right-padding and SplitMix64/high-53-bit conversion with known-vector
-tests, taking the source suite to 67/67. No corpus/evaluation content, weights
-or model artifact are consumed or created.
+tests. They now also pin the 11 tensor shapes/order, explicit Xavier fan values,
+zero biases and the 46,848-value initialization replay digest; the recipe binds
+that exact source. The source suite passes 69/69. No corpus/evaluation content,
+training step or retained model artifact is consumed or created.
 
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)

@@ -52,10 +52,20 @@
   "candidate_id": "j2-byte-conv-joint-v1",
   "initialization": {
     "bias_rule": "zeros",
+    "fan_in_out": {
+      "byte-embedding": [257, 32],
+      "conv-width-3-weight": [96, 144],
+      "conv-width-5-weight": [160, 240],
+      "conv-width-7-weight": [224, 336],
+      "hidden-weight": [144, 96],
+      "output-weight": [96, 16]
+    },
+    "initialization_replay_sha256": "4d239c77ad73dc5cbbf060cb0bdf275a7095183217c1c076417d0fd46a2c09d1",
     "parameter_dtype": "ieee754-binary64",
     "parameter_order": ["byte-embedding", "conv-width-3-weight", "conv-width-3-bias", "conv-width-5-weight", "conv-width-5-bias", "conv-width-7-weight", "conv-width-7-bias", "hidden-weight", "hidden-bias", "output-weight", "output-bias"],
     "prng": "splitmix64-v1",
     "seed": 20261104,
+    "tensor_scalar_order": "row-major-last-dimension-fastest",
     "uniform_conversion": "high-53-bits-divided-by-2^53",
     "weight_interval": "[-limit,+limit)",
     "weight_rule": "xavier-uniform-sqrt(6/(fan_in+fan_out))"
@@ -85,6 +95,7 @@
     "ontology_sha256": "aa603ab746a1250c8f2089b54e1a3e5b29fc3d01cb3c988bacc198a968bbea44",
     "ontology_source_sha256": "6e7ee332ce74a44a5bb19877f9f8f0c90f814687279b3c4993fbb93fbd58948a",
     "personal_sensitivity_floor": true,
+    "reference_primitives_source_sha256": "b42583072ae2e5a21e66284fea80cf3f41a0bf036a9aec1ef5c7d32b73c2df61",
     "route_effects": "forbidden",
     "tools": "forbidden"
   },
