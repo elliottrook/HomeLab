@@ -92,3 +92,11 @@ tree with no working-copy files. All 49 Candidate-J contract, runtime,
 reconciliation, blind-review, decision and release-candidate tests passed in
 that clean archive. This rules out an untracked-file dependency in the
 post-run path before the booked transaction.
+
+The broader dependency-free `test_sa3_*.py` regression also passes 250/250.
+A raw full-suite discovery under the Mac system Python is not accepted as a
+release result: it ran 233 tests but could not import 11 service-dependent
+modules because that interpreter lacks `jwt`, `fastapi` and `cryptography`.
+No ad-hoc dependency installation was performed. The missing interpreter
+dependencies do not weaken the clean-archive Candidate-J or SA3 results and
+are not represented as a production or candidate failure.
