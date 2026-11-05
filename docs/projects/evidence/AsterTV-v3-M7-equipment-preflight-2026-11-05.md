@@ -154,6 +154,14 @@ Assistant entity; no blind toggle, volume, navigation or playback command was
 used. Both entities returned to `on` at 13:31:09 and the live media controls
 reappeared. The owner confirmed that standby powered both the TCL and Family
 Room Receiver off through CEC, and the explicit TV wake brought both back on.
-The remaining duplicate-command and physical-recovery checks still gate Aster
-Remote equipment authority.
+The owner then deliberately powered the chain off again at 13:34:11, proving
+that the physical control path remained available. A fresh explicit wake
+returned the TV entity to `on` at 13:35:22. Sending the same explicit **Turn
+on** command once more while already on produced no new state transition and
+did not invert the entity: it remained `on` with the original 13:35:22 event.
+The owner confirmed that both devices remained on after the duplicate command.
+Family power therefore passes explicit-command, fresh-feedback, standby/wake,
+duplicate-command, CEC and physical-recovery acceptance. This does not confer
+volume, mute, source, playback or navigation authority; each remains separately
+gated.
 

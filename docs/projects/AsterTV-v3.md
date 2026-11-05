@@ -1436,8 +1436,13 @@ both native entities to `off` without removing either discovery service. One
 explicit Home Assistant **Turn on** action—not a blind toggle—returned both to
 `on` and restored live media controls. The owner confirmed that CEC powered the
 Family Room Receiver off with TV standby and brought both devices back on with
-the explicit TV wake. Duplicate-command and physical-recovery checks still
-gate Aster Remote equipment authority.
+the explicit TV wake. The owner deliberately powered the chain off again,
+preserving the physical recovery path; a subsequent explicit wake succeeded.
+A duplicate explicit `on` while already on produced no new transition and did
+not invert the TV entity; the owner confirmed that both devices remained on.
+Family power now passes the command/feedback, standby/wake, duplicate, CEC and
+physical-recovery gates. Volume, mute, source, playback and navigation remain
+separately disabled pending their own acceptance.
 
 - [ ] Inventory the exact Family television and Onkyo receiver plus the Bedroom
   LG television, soundbar/receiver, connection paths, network capabilities,
