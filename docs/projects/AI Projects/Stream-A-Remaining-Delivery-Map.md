@@ -1,5 +1,24 @@
 # Stream A — remaining delivery map
 
+> **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
+> [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
+> supersedes the earlier EPUB postcheck interpretation. Before, during and
+> after R3, the authoritative Doctor accepted the current registered-workload
+> EPUB baseline with no codes; the disabled legacy scheduler was required, not
+> failed production. The frozen reconciler accepts the retained 6/6 result,
+> exactly two model requests, four deterministic abstentions, zero retries and
+> restored production. R3 remains spent and is not retried. Candidate-J may
+> advance only to a distinct untouched evaluation freeze; routing, authority
+> and promotion remain off.
+
+> **Candidate-J untouched quality source frozen:** the distinct
+> [20-case boundary](evidence/D4-candidate-j-untouched-quality-freeze-source-2026-11-05.md)
+> now fixes 14 future hypothesis-selection requests and six mandatory
+> no-transport abstentions. Packet identity is `bdc0d351…db36c`, key identity
+> is `cab2790d…d526`, and the combined suite passes 24/24. Nothing has executed.
+> Independent source review and a frozen model-blind decision path are next;
+> materialization, registration and any booked run remain later gates.
+
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).
 > It retained no scoreable result and independently restored production. The
@@ -212,6 +231,12 @@
 > restore and evidence its scheduler/worker before Stream A decides whether a
 > new distinct Candidate-J transaction is justified; no untouched evaluation
 > or promotion follows from this run.
+>
+> **Superseded postcheck interpretation:** the later policy reconciliation at
+> the top of this page proves that the installed registered-workload baseline
+> intentionally requires the legacy scheduler disabled/inactive. The original
+> NO-GO report is retained for audit but no longer blocks the public-gate
+> result. Do not restore the retired scheduler or repeat R3.
 
 > **EPUB fault narrowed:** the guest monitor is enabled/active and the worker
 > last exited successfully after reporting 159 queued and eight ready items.
@@ -220,6 +245,11 @@
 > stop, preserve ladder evidence, verify installed booking-aware pins and
 > restore one bounded scheduler cycle. That separate-project remote change is
 > not performed under Candidate-J reconciliation.
+>
+> **Superseded EPUB action:** do not perform the preceding scheduler restore.
+> A concurrent, pre-R3 platform installation retired that scheduler and made
+> booked registered workloads authoritative. A brief later activation was
+> rejected by the Doctor and fully rolled back; the current Doctor is healthy.
 
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
