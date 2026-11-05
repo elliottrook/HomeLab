@@ -32,6 +32,14 @@ the fixed transaction, bounded host listener, key-free guest wrapper and
 reserved-runner integration source. Release v16 pins the joined path and 57/57
 focused platform tests pass. Nothing is installed.
 
-Next is a deterministic reversible inactive installer and target proof. A live
-attempt remains downstream of installation proof, an
+Platform commit `cae82a0cfb0bcfc54fc05e71e47c5a753b489c5f` now adds the
+deterministic reversible inactive installer. Its joined suite passes 61/61.
+The independently built 14-file bundle is
+`e72a7a4558969e242eb9f4d3ba7ae921c9eea5c5bcbd86a87133f2b7b4adb956`;
+inspection confirms it contains the packet and only the three key-free guest
+Python dependencies plus the fixed wrapper. No keys or review/scorer code are
+present.
+
+The next gate is applying that exact inactive installer and validating target
+custody without starting a unit or model. A live attempt remains downstream of installation proof, an
 authoritative conflict-free Lab Hours booking and fresh lease/lock admission.

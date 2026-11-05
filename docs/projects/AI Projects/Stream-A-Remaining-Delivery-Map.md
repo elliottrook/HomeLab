@@ -37,8 +37,10 @@
 > commit `20490b65` now adds the fixed 20/14 transaction, bounded listener,
 > key-free guest wrapper and reserved-runner integration; release v16 passes
 > 57/57 focused tests. Nothing is installed. A deterministic reversible
-> inactive installer and target proof are next; any booked run remains a later
-> gate.
+> inactive installer at platform commit `cae82a0c`; its joined suite passes
+> 61/61 and the inspected 14-file bundle is `e72a7a45…b956`. Applying that
+> exact inactive installer and proving target custody is the next deployment
+> gate. It creates no unit or booking; any booked run remains later.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).
