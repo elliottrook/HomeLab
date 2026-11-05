@@ -53,3 +53,13 @@ candidate and proceed to one bounded SA4 supervised-repair-class design. This
 is deliberately an owner decision because the review passed at, not above,
 the 18/20 floor. No model/backend change, deployment, route, tool grant,
 authority, repair effect or automatic promotion is authorized by this result.
+
+## Owner decision
+
+Jason explicitly approved the release candidate in this Stream A chat on
+2026-11-05 after receiving the measured 18/20 blind-review result and the
+explicit exclusions above. Candidate-J is therefore accepted as the D4
+investigation release candidate. The approval advances the programme only to
+bounded SA4 supervised-repair-class design. It does not authorize deployment,
+model/backend changes, routing, tools, authority, a production target or a
+repair effect.
