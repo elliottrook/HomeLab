@@ -47,3 +47,16 @@ root-only rollback custody, installed cross-module proof and fresh production
 postchecks. Only after that may a distinct ledger-clear R2 booking be
 considered. R1 is spent; there is no retry, automatic promotion, route,
 authority or model/backend change.
+
+## Inactive installation result
+
+That gate now passes. The exact two-file archive installed the corrected
+adapter and 36-pin manifest at their hashes above, retained both exact
+predecessors in a root-only mode-0700 checkpoint and passed the installed
+manifest verifier. The host scope function, actual guest command argument and
+guest wrapper independently produced the identical candidate-i scope name.
+
+The lease remains ready, shared state and locks are absent, all three core
+containers and production services are healthy, temporary staging is removed,
+and no service was restarted. The next gate is a distinct R2 booking after an
+authoritative full-window ledger check; it is not a retry of R1.

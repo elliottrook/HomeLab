@@ -112,7 +112,10 @@
 > mismatch`. No result or blind packet exists. The host adapter used
 > candidate-g's scope prefix while the guest wrapper required candidate-i's
 > distinct prefix. Corrected two-file source and rollback installer pass 48/48.
-> R1 is spent; inactive installation and installed proof are next, not a retry.
+> R1 is spent. The [inactive installation now passes](evidence/D4-candidate-i-r1-scope-no-go-and-source-correction-2026-11-04.md):
+> exact adapter/manifest hashes, root-only rollback, all 36 pins, identical
+> host-command/guest-wrapper scope identity and healthy production are proven
+> with zero restarts. A distinct ledger-clear R2 is next, not a retry.
 
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
