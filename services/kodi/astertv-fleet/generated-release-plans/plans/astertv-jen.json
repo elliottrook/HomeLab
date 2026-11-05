@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-jen-3664525bb7ea.tar.gz",
+    "name": "astertv-jen-3659aa967faa.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "3664525bb7ea1357058049eb925fed0406a2c1505d0f134c1ac43e27f1b0e993",
+  "composition_sha256": "3659aa967faad40cb85d9199385a23748a3af2d2fd923da5876d953c0e242199",
   "deployable": false,
   "device_id": "astertv-jen",
   "kind": "release-plan",
@@ -274,67 +274,138 @@
     },
     {
       "apply_strategy": "install",
-      "assertions": [],
+      "assertions": [
+        {
+          "authority": "kodi",
+          "expected": true,
+          "key": "addon.script.astertv.voice.enabled",
+          "sensitive": false
+        },
+        {
+          "authority": "filesystem",
+          "expected": "0600",
+          "key": "astertv-broker.key.mode",
+          "sensitive": false
+        },
+        {
+          "authority": "aster-broker",
+          "expected": "active",
+          "key": "jen-client.registration",
+          "sensitive": false
+        }
+      ],
       "dependencies": [
         "jen-account-registry"
       ],
       "id": "jen-aster-client",
-      "installed_payloads": [],
+      "installed_payloads": [
+        {
+          "bytes": 606,
+          "destination": "/storage/.kodi/addons/script.astertv.voice/addon.xml",
+          "mode": "0644",
+          "sha256": "25adca62e689814c2931e4baae5f036d8b536fc8d19adead585095e530694262"
+        },
+        {
+          "bytes": 13350,
+          "destination": "/storage/.kodi/addons/script.astertv.voice/default.py",
+          "mode": "0644",
+          "sha256": "7f4d9123e3882da8932fd3a2aac317a7e0f34ad8ea0510a20d6dc4a1150e582e"
+        },
+        {
+          "bytes": 551,
+          "destination": "/storage/.kodi/addons/script.astertv.voice/resources/media/aster-ai-listening-png/01.png",
+          "mode": "0644",
+          "sha256": "ba71ccee2fc56daf0231ba3e72f77b85a7faaa6f636d54fee95e2f209ee58c8d"
+        },
+        {
+          "bytes": 541,
+          "destination": "/storage/.kodi/addons/script.astertv.voice/resources/media/aster-ai-listening-png/02.png",
+          "mode": "0644",
+          "sha256": "afa9ec155be3b713a14b03ff93931580d93d03b24a72b3892f5460af4b525dbb"
+        },
+        {
+          "bytes": 547,
+          "destination": "/storage/.kodi/addons/script.astertv.voice/resources/media/aster-ai-listening-png/03.png",
+          "mode": "0644",
+          "sha256": "1821042ac1525ea16976e9234119431b80d8978ec9568e1bc79f7acebd907fc8"
+        },
+        {
+          "bytes": 544,
+          "destination": "/storage/.kodi/addons/script.astertv.voice/resources/media/aster-ai-listening-png/04.png",
+          "mode": "0644",
+          "sha256": "5297451a6d6c3df2e41fdf4e2ac0de00e244a95bc71c0be234f311a2b5dc9809"
+        },
+        {
+          "bytes": 1741,
+          "destination": "/storage/.kodi/addons/script.astertv.voice/resources/skins/default/1080i/direct.xml",
+          "mode": "0644",
+          "sha256": "f2cd62feabf883531b6e8be4761425f942172576ee719791ddd83c634495f8a5"
+        },
+        {
+          "bytes": 5579,
+          "destination": "/storage/.kodi/addons/script.astertv.voice/resources/skins/default/1080i/search.xml",
+          "mode": "0644",
+          "sha256": "45b694f785852129a600bf93ae72a094b21d352ed5455aa85ac94b95a3bdb42f"
+        }
+      ],
       "layer": "kodi-service",
       "owner": "fleet-engineering",
       "owns": [
         "kodi/service.astertv-broker-client",
         "kodi/aster-ai-dialogs"
       ],
-      "payload_blockers": [
-        "transient-account-module-rewrites-not-owned-or-materialized"
-      ],
-      "payload_status": "incomplete",
+      "payload_blockers": [],
+      "payload_status": "complete",
       "payloads": [
         {
+          "bytes": 3263,
+          "path": "services/kodi/astertv-fleet/materialize_jen_aster_client.py",
+          "sha256": "be8f018f3ec43b448a2d192242c82343a6c300bb06ad9060d38fc752d74acefa"
+        },
+        {
+          "bytes": 2727,
+          "path": "services/kodi/astertv-fleet/materialized/jen-aster-client/materialization-manifest.json",
+          "sha256": "b2966a78d7ac26b9864f3bbe17fbee46bc32f4bc57f335e0e4850851b661f30e"
+        },
+        {
           "bytes": 606,
-          "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/addon.xml",
+          "path": "services/kodi/astertv-fleet/materialized/jen-aster-client/script.astertv.voice/addon.xml",
           "sha256": "25adca62e689814c2931e4baae5f036d8b536fc8d19adead585095e530694262"
         },
         {
           "bytes": 13350,
-          "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/default.py",
+          "path": "services/kodi/astertv-fleet/materialized/jen-aster-client/script.astertv.voice/default.py",
           "sha256": "7f4d9123e3882da8932fd3a2aac317a7e0f34ad8ea0510a20d6dc4a1150e582e"
         },
         {
           "bytes": 551,
-          "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media/aster-ai-listening-png/01.png",
+          "path": "services/kodi/astertv-fleet/materialized/jen-aster-client/script.astertv.voice/resources/media/aster-ai-listening-png/01.png",
           "sha256": "ba71ccee2fc56daf0231ba3e72f77b85a7faaa6f636d54fee95e2f209ee58c8d"
         },
         {
           "bytes": 541,
-          "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media/aster-ai-listening-png/02.png",
+          "path": "services/kodi/astertv-fleet/materialized/jen-aster-client/script.astertv.voice/resources/media/aster-ai-listening-png/02.png",
           "sha256": "afa9ec155be3b713a14b03ff93931580d93d03b24a72b3892f5460af4b525dbb"
         },
         {
           "bytes": 547,
-          "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media/aster-ai-listening-png/03.png",
+          "path": "services/kodi/astertv-fleet/materialized/jen-aster-client/script.astertv.voice/resources/media/aster-ai-listening-png/03.png",
           "sha256": "1821042ac1525ea16976e9234119431b80d8978ec9568e1bc79f7acebd907fc8"
         },
         {
           "bytes": 544,
-          "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media/aster-ai-listening-png/04.png",
+          "path": "services/kodi/astertv-fleet/materialized/jen-aster-client/script.astertv.voice/resources/media/aster-ai-listening-png/04.png",
           "sha256": "5297451a6d6c3df2e41fdf4e2ac0de00e244a95bc71c0be234f311a2b5dc9809"
         },
         {
           "bytes": 1741,
-          "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/skins/default/1080i/direct.xml",
+          "path": "services/kodi/astertv-fleet/materialized/jen-aster-client/script.astertv.voice/resources/skins/default/1080i/direct.xml",
           "sha256": "f2cd62feabf883531b6e8be4761425f942172576ee719791ddd83c634495f8a5"
         },
         {
           "bytes": 5579,
-          "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/skins/default/1080i/search.xml",
+          "path": "services/kodi/astertv-fleet/materialized/jen-aster-client/script.astertv.voice/resources/skins/default/1080i/search.xml",
           "sha256": "45b694f785852129a600bf93ae72a094b21d352ed5455aa85ac94b95a3bdb42f"
-        },
-        {
-          "bytes": 7933,
-          "path": "services/kodi/astertv-v3/aster_client/install_client.py",
-          "sha256": "ffcba471cdb3f853fce601984aac6dd79715f550f6a166d7e99a5acc6aef72b5"
         }
       ],
       "rollback_ref": "astertv-v3-m3-jen-client-retained-r3-20261104",
@@ -1087,7 +1158,6 @@
   "promotion_blockers": [
     "release-artifact-not-locally-verified",
     "composition-bundle-not-built",
-    "overlay-payload-incomplete:jen-aster-client",
     "overlay-payload-incomplete:jen-guest-catalogue",
     "overlay-payload-incomplete:jen-home-cameras",
     "overlay-payload-incomplete:jen-low-spec-runtime",

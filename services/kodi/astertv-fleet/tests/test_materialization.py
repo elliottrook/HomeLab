@@ -32,6 +32,9 @@ EQUIPMENT_SPEC.loader.exec_module(EQUIPMENT_MODULE)
 ACCOUNT_SPEC = importlib.util.spec_from_file_location("jen_account_materializer", ROOT / "materialize_jen_account_registry.py")
 ACCOUNT_MODULE = importlib.util.module_from_spec(ACCOUNT_SPEC)
 ACCOUNT_SPEC.loader.exec_module(ACCOUNT_MODULE)
+CLIENT_SPEC = importlib.util.spec_from_file_location("jen_client_materializer", ROOT / "materialize_jen_aster_client.py")
+CLIENT_MODULE = importlib.util.module_from_spec(CLIENT_SPEC)
+CLIENT_SPEC.loader.exec_module(CLIENT_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -132,6 +135,15 @@ class MaterializationTests(unittest.TestCase):
         self.assertIn("addons/script.asterprofiles.v3lab/registry.py", files)
         self.assertFalse(any(path.endswith("profiles.json") or path.endswith("authority.json")
                              for path in files))
+        self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
+
+    def test_jen_aster_client_owns_only_addon_and_excludes_identity_and_key_state(self):
+        files, manifest = CLIENT_MODULE.render()
+        self.assertEqual(len(files), 8)
+        self.assertIn("addon.xml", files)
+        self.assertIn("resources/skins/default/1080i/search.xml", files)
+        self.assertEqual(manifest["dependencies"], ["jen-account-registry"])
+        self.assertFalse(any("asterprofiles" in path for path in files))
         self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
 
 

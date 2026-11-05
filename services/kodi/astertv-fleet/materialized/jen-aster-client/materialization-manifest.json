@@ -1,0 +1,80 @@
+{
+  "dependencies": [
+    "jen-account-registry"
+  ],
+  "files": [
+    {
+      "bytes": 606,
+      "destination": "/storage/.kodi/addons/script.astertv.voice/addon.xml",
+      "mode": "0644",
+      "sha256": "25adca62e689814c2931e4baae5f036d8b536fc8d19adead585095e530694262"
+    },
+    {
+      "bytes": 13350,
+      "destination": "/storage/.kodi/addons/script.astertv.voice/default.py",
+      "mode": "0644",
+      "sha256": "7f4d9123e3882da8932fd3a2aac317a7e0f34ad8ea0510a20d6dc4a1150e582e"
+    },
+    {
+      "bytes": 551,
+      "destination": "/storage/.kodi/addons/script.astertv.voice/resources/media/aster-ai-listening-png/01.png",
+      "mode": "0644",
+      "sha256": "ba71ccee2fc56daf0231ba3e72f77b85a7faaa6f636d54fee95e2f209ee58c8d"
+    },
+    {
+      "bytes": 541,
+      "destination": "/storage/.kodi/addons/script.astertv.voice/resources/media/aster-ai-listening-png/02.png",
+      "mode": "0644",
+      "sha256": "afa9ec155be3b713a14b03ff93931580d93d03b24a72b3892f5460af4b525dbb"
+    },
+    {
+      "bytes": 547,
+      "destination": "/storage/.kodi/addons/script.astertv.voice/resources/media/aster-ai-listening-png/03.png",
+      "mode": "0644",
+      "sha256": "1821042ac1525ea16976e9234119431b80d8978ec9568e1bc79f7acebd907fc8"
+    },
+    {
+      "bytes": 544,
+      "destination": "/storage/.kodi/addons/script.astertv.voice/resources/media/aster-ai-listening-png/04.png",
+      "mode": "0644",
+      "sha256": "5297451a6d6c3df2e41fdf4e2ac0de00e244a95bc71c0be234f311a2b5dc9809"
+    },
+    {
+      "bytes": 1741,
+      "destination": "/storage/.kodi/addons/script.astertv.voice/resources/skins/default/1080i/direct.xml",
+      "mode": "0644",
+      "sha256": "f2cd62feabf883531b6e8be4761425f942172576ee719791ddd83c634495f8a5"
+    },
+    {
+      "bytes": 5579,
+      "destination": "/storage/.kodi/addons/script.astertv.voice/resources/skins/default/1080i/search.xml",
+      "mode": "0644",
+      "sha256": "45b694f785852129a600bf93ae72a094b21d352ed5455aa85ac94b95a3bdb42f"
+    }
+  ],
+  "id": "jen-aster-client",
+  "kind": "astertv-materialized-overlay",
+  "mutable_state": [
+    {
+      "bundled": false,
+      "path": "/storage/.aster-private/astertv-broker.key",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "owner": "jen-account-registry",
+      "path": "/storage/.kodi/userdata/addon_data/script.asterprofiles.v3lab/profiles.json",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "owner": "jen-account-registry",
+      "path": "/storage/.kodi/userdata/addon_data/script.asterprofiles.v3lab/authority.json",
+      "sensitive": true
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "path": "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice"
+  }
+}

@@ -9,11 +9,11 @@ base release and ordered overlay source bytes. The guard contract includes
 expected payload hashes and required external dependencies.
 
 This is deliberately a **candidate build gate**, not a deployment approval.
-Eleven overlays now have complete contracts: Family restart, target-aware release
+Twelve overlays now have complete contracts: Family restart, target-aware release
 guard, Bedroom Wi-Fi, Bedroom stereo assertions, Family Dolby/HDR assertions
 the target-aware Remote client, the reconciled TV-details tree, and target-aware
 News playback, Family media lifecycle, the Family equipment bridge, and Jen's
-immutable account-registry code. The other seven
+immutable account-registry code, and Jen's immutable Aster client. The other six
 overlay definitions name their exact current inputs and explicit blockers.
 Plans build successfully; Bedroom is now the first composition eligible for a
 future promotion transaction. No promotion was performed.
@@ -34,7 +34,7 @@ future promotion transaction. No promotion was performed.
 
 ## Verification
 
-- Fleet/release suite: 32/32 passing, including typed assertion drift and
+- Fleet/release suite: 33/33 passing, including typed assertion drift and
   target isolation.
 - Four deterministic bundles build from the locally verified immutable release.
 - Repeated builds are byte-identical.
@@ -68,15 +68,18 @@ future promotion transaction. No promotion was performed.
 - Jen's account registry materializes nine immutable add-on/keymap files while
   explicitly excluding mutable profile, authority and credential-bearing state.
   The remaining Jen overlays must depend on that owner instead of rewriting it.
+- Jen's Aster client now owns only its eight immutable voice/dialog add-on files.
+  It depends on the account registry and excludes broker keys and mutable
+  identity state, eliminating the old installer's cross-overlay rewrite path.
 - Bedroom and Family have no incomplete overlay contracts and are the two
-  deployable bundle-build plans. Jen remains blocked by seven overlays, and Guest remains a
+  deployable bundle-build plans. Jen remains blocked by six overlays, and Guest remains a
   non-deployed candidate.
 - Payload and dependency drift tests fail closed.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 
 ## Next
 
-Resolve the remaining Jen client/feature ownership, then materialize its seven
+Resolve the remaining Jen feature ownership, then materialize its six
 remaining overlays. Continue defining typed assertions/external artifacts and
 mutable-state exclusions one overlay at a time. Bedroom/Family eligibility does
 not authorize deployment; both must still pass Doctor observation and later
