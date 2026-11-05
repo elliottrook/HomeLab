@@ -118,6 +118,9 @@ class HomeOverlayTests(unittest.TestCase):
         self.assertLess(source.index('preflight(); checkpoint()'),
                         source.index('run("systemctl", "stop", "kodi")'))
         self.assertNotIn("homeassistant", source.casefold())
+        self.assertIn('return False', source)
+        self.assertIn('checkpoint-drift:', source)
+        self.assertNotIn('shutil.rmtree(CHECKPOINT)', source)
 
     def test_apply_overlay_has_no_home_write_or_network_client(self):
         source = (ROOT / "apply_jen_home_cameras.py").read_text()

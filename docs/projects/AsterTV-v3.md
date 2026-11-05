@@ -22,6 +22,10 @@
 > subscription execution, release promotion and every later live milestone
 > remain excluded. The separately booked SA-M5B benchmark may run only through
 > its registered Lab Hours runner and remains isolated from SA-M6-JEN.
+> The M6 candidate is retained on Jen after an exact rollback/reinstall and
+> reboot. Its existing Home Assistant publisher code includes Jen on disk, but
+> the running Home Assistant process still holds the older two-target module;
+> a bounded Home Assistant restart is the current authorization boundary.
 
 ## Purpose and desired outcome
 

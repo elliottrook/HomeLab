@@ -1,7 +1,7 @@
 # AsterTV v3 M6 Jen candidate — 2026-11-04
 
 Target: `AsterTV-Jen` only  
-State: locally complete; not yet installed
+State: installed and reboot-stable; Home publisher runtime reload pending
 
 ## Candidate
 
@@ -40,3 +40,40 @@ the active Jason profile, direct-window Guest denial, stale/invalid feed,
 camera unavailable/expiry, Back/focus, active-playback non-interruption,
 restart and reboot. Then prove rollback and reinstall the identical accepted
 candidate before closing the slice.
+
+## Live acceptance to date
+
+- Jen was idle and every predecessor hash matched before installation.
+- Checkpoint `/storage/.aster-checkpoints/astertv-v3-m6-jen` covers every
+  touched source plus current and previous profile state.
+- Jason has only `home_status` and `camera_view`; the Home Assistant mapping is
+  an opaque display identity. Guest has no Home mapping or entitlement.
+- Home → Cameras, Cameras → Back and direct window navigation passed. Guest
+  direct-window attempts were redirected to News; Jason was restored.
+- One 79,392-byte JPEG passed through the existing source-restricted viewer.
+  Leaving Cameras stopped its systemd service. The first intentionally early
+  frame request returned the explicit unavailable path rather than stale art.
+- Opening Cameras from Home did not stop or replace a playing local digest
+  fixture. The fixture was stopped explicitly after the test.
+- A complete rollback restored all predecessor hashes, removed the new window
+  and identity, and removed both Jason permissions. This exposed an installer
+  resumability defect: the valid checkpoint blocked clean reinstall. The
+  installer now verifies and reuses that checkpoint without deleting it; all
+  seven M6 tests pass and the identical candidate was reinstalled.
+- Full reboot completed at 21:34 MST. The M6 service ran successfully before
+  Kodi, Kodi returned active and no failed unit was reported.
+
+## Current authorization boundary
+
+Home correctly displays its stale state. The source-local Home Assistant health
+record shows a new 63-reading publication, but its running module delivered
+only to the two older targets. The on-disk publisher is already the reviewed
+three-target version and contains Jen exactly once. It was patched previously
+without restarting Home Assistant, so the long-running process retained the
+old module after subsequent publications.
+
+Completing the fresh-data gate needs one bounded Home Assistant restart to load
+the already-installed publisher, followed by a content-free three-target health
+check and fresh Jen snapshot test. No configuration, credential, entity or
+automation change is proposed. That Home Assistant restart is outside the
+current Jen-only mutation list and therefore requires explicit authorization.

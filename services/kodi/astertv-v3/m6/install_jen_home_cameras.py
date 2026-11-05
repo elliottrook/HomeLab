@@ -76,7 +76,15 @@ def preflight():
 
 def checkpoint():
     if CHECKPOINT.exists():
-        raise RuntimeError("checkpoint-exists")
+        report = json.loads((CHECKPOINT / "checkpoint.json").read_text())
+        if report.get("host") != HOST or set(row.get("name") for row in report.get("targets", [])) != set(TARGETS):
+            raise RuntimeError("checkpoint-mismatch")
+        for row in report["targets"]:
+            if row.get("present") is True:
+                source = CHECKPOINT / row["name"]
+                if not source.is_file() or sha(source) != row.get("sha256"):
+                    raise RuntimeError("checkpoint-drift:" + row["name"])
+        return False
     CHECKPOINT.mkdir(parents=True, mode=0o700)
     rows = []
     for name, target in TARGETS.items():
@@ -92,6 +100,7 @@ def checkpoint():
     path = CHECKPOINT / "checkpoint.json"
     path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     os.chmod(path, 0o600)
+    return True
 
 
 def install(source):
