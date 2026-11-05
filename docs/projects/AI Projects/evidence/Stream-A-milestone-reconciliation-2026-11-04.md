@@ -42,7 +42,12 @@ candidate-i at 8/20 against the 18/20 floor, with 0/6 mandatory abstentions
 passing and zero false-completion failures. Candidate-g and candidate-i are
 both spent. D4 remains open and now requires a materially new preregistered
 successor with an untouched evaluation boundary; case-level tuning or retry is
-closed.
+closed. The source-only candidate-j reset now changes the formulation to
+registered-hypothesis selection with deterministic evidence, freshness, prose,
+checks, effects and authority. Its focused contract passes 5/5 and the SA3
+suite passes 206/206. It is not runnable: a strict selection-only runner,
+separate public development fixture, source freeze and independently created
+untouched quality packet remain required.
 
 ## Active offline milestone — M3 semantic handover
 
@@ -83,8 +88,9 @@ model/backend, restart a system, expose credentials, open sealed evaluation
 content, grant tools/repair authority, enable automatic routing or broaden the
 project without the applicable separate gate.
 
-The immediate sequence is: preserve candidate-i's NO-GO and reassess D4 at the
-architecture boundary before preregistering any materially new successor; do
-not tune on exposed case-level failures. M3 external custody can proceed in
-parallel when an independent signer and distinct sealed-evaluation custodian
-become available.
+The immediate sequence is: implement and test candidate-j's selection-only
+runner and separate public development fixture, then freeze the source before
+an independent custodian creates any untouched evaluation. Do not tune on
+candidate-g/i case-level failures. M3 external custody can proceed in parallel
+when an independent signer and distinct sealed-evaluation custodian become
+available.
