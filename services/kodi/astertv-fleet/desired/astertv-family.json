@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "410cd36ce2635e041ab390e63b06db4ec135cde0ce144edf062c4586c609ef49",
+  "composition_sha256": "0cdec27de6777c30a6e31ad61e0ebc8f49ed5c48f15415b4e6986b20e223b2bc",
   "deployed": true,
   "device_id": "astertv-family",
   "external_integrations": [
@@ -226,9 +226,29 @@
     ],
     "news-playback-v3": [
       {
-        "bytes": 10741,
-        "path": "services/kodi/astertv-v3/deploy/news-playback/repair.py",
-        "sha256": "9850d6a5d28ef6ffc6e73b074c6d7287fc1bbe6876aa7ffdfe1c3284a79ee270"
+        "bytes": 6361,
+        "path": "services/kodi/astertv-fleet/materialize_news_playback.py",
+        "sha256": "da13e831941d8d39586f9753dc1d125b45ccc8867bb6a17a03967ac8267f0c54"
+      },
+      {
+        "bytes": 3295,
+        "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/materialization-manifest.json",
+        "sha256": "b003846fdd106ba248bc7099529352867318a6dab9baf340b1ddf1e8b647f0a7"
+      },
+      {
+        "bytes": 2954,
+        "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-family/storage/.kodi/addons/script.asterruntime/aster-digest-player8/manifest.json",
+        "sha256": "b76c51bf34e536f16085b9d2a8114a2345326bd7e416603587c0b63d4324b534"
+      },
+      {
+        "bytes": 8847,
+        "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-family/storage/.kodi/addons/script.asterruntime/aster-digest-player8/resources/lib/digest_kodi_port.py",
+        "sha256": "98d9ce0678e29f878da16bfbde66229ae27504363955cda4cfe30e05c065b940"
+      },
+      {
+        "bytes": 3355,
+        "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-family/storage/.kodi/addons/skin.asterhome/tools/aster_v2_digest.py",
+        "sha256": "fadb0466ec1c52df555c1f8ded1597bf85cf05b86610cf071440e3f360647b2d"
       }
     ],
     "release-guard-v1": [
@@ -404,7 +424,7 @@
     "overlays/family-equipment-bridge.yaml": "1d4adc9bd0abbdab87b15f44568ab1dbcab6be5828dcba4cb8bbf1197a0a78ea",
     "overlays/family-kodi-restart.yaml": "9901c11256920a09b1cd351f1b71c1ce65cfd164b09fe18f004455c4b696b521",
     "overlays/family-media-lifecycle.yaml": "9d88eecceafccbf0e60d49a15c2b5d5749eeaa8214ee840c8d36e189feba194b",
-    "overlays/news-playback-v3.yaml": "85899313ea59ef6f76031497fb89162804bb8b3877c01fe5bfa83c5b2dd481c9",
+    "overlays/news-playback-v3.yaml": "6d10196250e67c58dcde41122aa4da689c97392298abe32e075613e122a3af2f",
     "overlays/release-guard-v1.yaml": "a3afc7db25e4c295b3f4bd944f32e4cf47fa0ccefae2cbf182edbed38214c038",
     "overlays/remote-client-v3.yaml": "40267e62ec475ce2318ea20bf5f8771943a46b30b60ace77ac91ea96a8cc948a",
     "overlays/tv-details-v3.yaml": "717c1f44e8ee12804cd58f2513e275292c28bbd3eb50dfb2d22cd9ec17a6b03e",

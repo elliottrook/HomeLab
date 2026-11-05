@@ -1,0 +1,89 @@
+{
+  "component": "aster-digest-player8",
+  "files": [
+    {
+      "bytes": 14848,
+      "path": "default.py",
+      "sha256": "288a2e1f4521e5597156116d622f944af94434d7850183d7b7de58dffe73d5a7"
+    },
+    {
+      "bytes": 5072,
+      "path": "resources/lib/digest_data.py",
+      "sha256": "d46ffb8b7bb9d9752239739f08e11d6062b748c4cbdc6d2dc7053f0e66375858"
+    },
+    {
+      "bytes": 7631,
+      "path": "resources/lib/digest_kodi_port.py",
+      "sha256": "780f6c014d97fac80aa7fb37b5a8c4309ecb84d4261d0f8888e0f8ab235ebc0d"
+    },
+    {
+      "bytes": 1427,
+      "path": "resources/lib/digest_news_contract.py",
+      "sha256": "408fe2b6855829d316a337257a9e06d284d19e78b247642fa2f50ac8d8dfdd74"
+    },
+    {
+      "bytes": 5248,
+      "path": "resources/lib/digest_playback_state.py",
+      "sha256": "9842b5517a2eecbd637614eae58ad7e46b6bac093f03fc44ed78b61b1f29c559"
+    },
+    {
+      "bytes": 4536,
+      "path": "resources/lib/digest_player_adapter.py",
+      "sha256": "87b0fc8e1a44ad12077023aec95df829858e423a979cc3917ef99019c816902a"
+    },
+    {
+      "bytes": 1530,
+      "path": "resources/lib/digest_player_model.py",
+      "sha256": "0781c3e9218ed35f0cfadd98b6227a4a3fa8c10ea933c5324c9c2490bacbe81a"
+    },
+    {
+      "bytes": 3326,
+      "path": "resources/lib/digest_preview_model.py",
+      "sha256": "38cd908c72f469a8e34efaae03595f34b7ade73aa6420ec8666dc8b4d46f2c51"
+    },
+    {
+      "bytes": 6137,
+      "path": "resources/lib/digest_preview_source.py",
+      "sha256": "f9fc18138f66ca92377eab2399e189896f792456133aff2d49f363c6eb319751"
+    },
+    {
+      "bytes": 4758,
+      "path": "resources/lib/digest_timeline.py",
+      "sha256": "2f85a3d32174bb6e94b398fc1b8bfa81f84eaa32d57e690fce713b8c409d8b3d"
+    },
+    {
+      "bytes": 8586,
+      "path": "resources/skins/Default/1080i/DigestPlayer.xml",
+      "sha256": "2aebed46792f457e88175551358014a9dbc358662dded7d3975b2444c087c24d"
+    },
+    {
+      "bytes": 1757,
+      "path": "resources/skins/Default/media/next.png",
+      "sha256": "8d309a40e545c477e1b6011840a5bf16f8e9923e844f4cc7ca0675d7fafce4db"
+    },
+    {
+      "bytes": 1095,
+      "path": "resources/skins/Default/media/pause.png",
+      "sha256": "bb0ed9c213d5cb199e202c5c0e57b2cc9376db1be415f5f75678458dd5e0afbe"
+    },
+    {
+      "bytes": 1281,
+      "path": "resources/skins/Default/media/play.png",
+      "sha256": "ad05015e12412c1cbcdb1b21728c61a3cf866a6684f865d322ab8ab6f1007c7d"
+    },
+    {
+      "bytes": 649,
+      "path": "resources/skins/Default/media/previous.png",
+      "sha256": "8671e94aa381c2516dcee58d8ab45a983ec0d15e801400a1f7ca0dccb9b4dee8"
+    },
+    {
+      "bytes": 987,
+      "path": "resources/skins/Default/media/stop.png",
+      "sha256": "d081250967b6a2e1c43312a2b5a11a269bcbd28a9da2959a51afd87396379494"
+    }
+  ],
+  "kind": "hp-digest-player.v1",
+  "normal_news": false,
+  "schema": 1,
+  "source_manifest_sha256": "9cb0ec4b207f1eb930b5a97494615914a0529fed2dcf271eacc709181f500887"
+}

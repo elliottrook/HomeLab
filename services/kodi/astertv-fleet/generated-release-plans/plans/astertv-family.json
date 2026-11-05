@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-family-410cd36ce263.tar.gz",
+    "name": "astertv-family-0cdec27de677.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "410cd36ce2635e041ab390e63b06db4ec135cde0ce144edf062c4586c609ef49",
+  "composition_sha256": "0cdec27de6777c30a6e31ad61e0ebc8f49ed5c48f15415b4e6986b20e223b2bc",
   "deployable": false,
   "device_id": "astertv-family",
   "kind": "release-plan",
@@ -492,26 +492,70 @@
     },
     {
       "apply_strategy": "install",
-      "assertions": [],
+      "assertions": [
+        {
+          "authority": "kodi",
+          "expected": "matches-installed-manifest",
+          "key": "family-manifest.component.aster-digest-player8",
+          "sensitive": false
+        }
+      ],
       "dependencies": [
         "release-guard-v1"
       ],
       "id": "news-playback-v3",
-      "installed_payloads": [],
+      "installed_payloads": [
+        {
+          "bytes": 2954,
+          "destination": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/manifest.json",
+          "mode": "0644",
+          "sha256": "b76c51bf34e536f16085b9d2a8114a2345326bd7e416603587c0b63d4324b534"
+        },
+        {
+          "bytes": 8847,
+          "destination": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/resources/lib/digest_kodi_port.py",
+          "mode": "0644",
+          "sha256": "98d9ce0678e29f878da16bfbde66229ae27504363955cda4cfe30e05c065b940"
+        },
+        {
+          "bytes": 3355,
+          "destination": "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_digest.py",
+          "mode": "0644",
+          "sha256": "fadb0466ec1c52df555c1f8ded1597bf85cf05b86610cf071440e3f360647b2d"
+        }
+      ],
       "layer": "kodi-runtime",
       "owner": "fleet-engineering",
       "owns": [
         "kodi/script.asterruntime/news-playback-lifecycle"
       ],
-      "payload_blockers": [
-        "per-host-rendered-player-wrapper-and-manifests-not-materialized"
-      ],
-      "payload_status": "incomplete",
+      "payload_blockers": [],
+      "payload_status": "complete",
       "payloads": [
         {
-          "bytes": 10741,
-          "path": "services/kodi/astertv-v3/deploy/news-playback/repair.py",
-          "sha256": "9850d6a5d28ef6ffc6e73b074c6d7287fc1bbe6876aa7ffdfe1c3284a79ee270"
+          "bytes": 6361,
+          "path": "services/kodi/astertv-fleet/materialize_news_playback.py",
+          "sha256": "da13e831941d8d39586f9753dc1d125b45ccc8867bb6a17a03967ac8267f0c54"
+        },
+        {
+          "bytes": 3295,
+          "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/materialization-manifest.json",
+          "sha256": "b003846fdd106ba248bc7099529352867318a6dab9baf340b1ddf1e8b647f0a7"
+        },
+        {
+          "bytes": 2954,
+          "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-family/storage/.kodi/addons/script.asterruntime/aster-digest-player8/manifest.json",
+          "sha256": "b76c51bf34e536f16085b9d2a8114a2345326bd7e416603587c0b63d4324b534"
+        },
+        {
+          "bytes": 8847,
+          "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-family/storage/.kodi/addons/script.asterruntime/aster-digest-player8/resources/lib/digest_kodi_port.py",
+          "sha256": "98d9ce0678e29f878da16bfbde66229ae27504363955cda4cfe30e05c065b940"
+        },
+        {
+          "bytes": 3355,
+          "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-family/storage/.kodi/addons/skin.asterhome/tools/aster_v2_digest.py",
+          "sha256": "fadb0466ec1c52df555c1f8ded1597bf85cf05b86610cf071440e3f360647b2d"
         }
       ],
       "rollback_ref": "astertv-news-playback target checkpoint",
@@ -724,8 +768,7 @@
     "release-artifact-not-locally-verified",
     "composition-bundle-not-built",
     "overlay-payload-incomplete:family-equipment-bridge",
-    "overlay-payload-incomplete:family-media-lifecycle",
-    "overlay-payload-incomplete:news-playback-v3"
+    "overlay-payload-incomplete:family-media-lifecycle"
   ],
   "promotion_policy": {
     "artifact_policy": {

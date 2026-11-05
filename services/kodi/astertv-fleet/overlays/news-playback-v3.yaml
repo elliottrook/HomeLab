@@ -8,8 +8,19 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-family", "astertv-jen"],
   "owns": ["kodi/script.asterruntime/news-playback-lifecycle"],
-  "payload_sources": ["services/kodi/astertv-v3/deploy/news-playback/repair.py"],
-  "payload_blockers": ["per-host-rendered-player-wrapper-and-manifests-not-materialized"],
+  "payload_sources": [
+    "services/kodi/astertv-fleet/materialized/news-playback-v3/materialization-manifest.json",
+    "services/kodi/astertv-fleet/materialize_news_playback.py"
+  ],
+  "payload_target_sources": {
+    "astertv-family": ["services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-family"],
+    "astertv-jen": ["services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-jen"]
+  },
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "kodi", "key": "family-manifest.component.aster-digest-player8", "expected": "matches-installed-manifest", "sensitive": false}
+  ],
   "secret_refs": [],
   "rollback_ref": "astertv-news-playback target checkpoint",
   "tests": ["services/kodi/astertv-v3/deploy/news-playback/test_repair.py"]

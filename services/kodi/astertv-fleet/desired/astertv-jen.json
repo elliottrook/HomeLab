@@ -1,6 +1,6 @@
 {
   "channel": "v3-lab",
-  "composition_sha256": "e3c2b56cea37af74e152b4c67d48b50a64943849357c4e93bb52add2e2e6c934",
+  "composition_sha256": "c5ada189be7dc498c93be078d361ca4f882cdca47fb9bffe13d0526566d37972",
   "deployed": true,
   "device_id": "astertv-jen",
   "external_integrations": [
@@ -436,9 +436,29 @@
     ],
     "news-playback-v3": [
       {
-        "bytes": 10741,
-        "path": "services/kodi/astertv-v3/deploy/news-playback/repair.py",
-        "sha256": "9850d6a5d28ef6ffc6e73b074c6d7287fc1bbe6876aa7ffdfe1c3284a79ee270"
+        "bytes": 6361,
+        "path": "services/kodi/astertv-fleet/materialize_news_playback.py",
+        "sha256": "da13e831941d8d39586f9753dc1d125b45ccc8867bb6a17a03967ac8267f0c54"
+      },
+      {
+        "bytes": 3295,
+        "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/materialization-manifest.json",
+        "sha256": "b003846fdd106ba248bc7099529352867318a6dab9baf340b1ddf1e8b647f0a7"
+      },
+      {
+        "bytes": 2954,
+        "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-jen/storage/.kodi/addons/script.asterruntime/aster-digest-player8/manifest.json",
+        "sha256": "665dac7b6941e61d3b82c64393c4c344c32c0fa925fb2549139259b35b52009d"
+      },
+      {
+        "bytes": 8847,
+        "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-jen/storage/.kodi/addons/script.asterruntime/aster-digest-player8/resources/lib/digest_kodi_port.py",
+        "sha256": "98d9ce0678e29f878da16bfbde66229ae27504363955cda4cfe30e05c065b940"
+      },
+      {
+        "bytes": 3202,
+        "path": "services/kodi/astertv-fleet/materialized/news-playback-v3/targets/astertv-jen/storage/.kodi/addons/skin.asterhome/tools/aster_v2_digest.py",
+        "sha256": "5672e7c376d9559ba6acc78978865f9b7821027629cdc804a5b76488a73bc919"
       }
     ],
     "release-guard-v1": [
@@ -622,7 +642,7 @@
     "overlays/jen-movie-youtube.yaml": "0be47b5f818edb8ce30ee096e5dec85b2eb50306dcf4cff8b867c99686210c70",
     "overlays/jen-news-icons.yaml": "cd59413bd123fb9cd88983dd67cdd73e23a55d5d55d5e573fedc792599590ce5",
     "overlays/jen-podcast-requests.yaml": "51ff5e5290ae1da077d9760f5fc886d47ecd7ca5017074cbbdae18614915df92",
-    "overlays/news-playback-v3.yaml": "85899313ea59ef6f76031497fb89162804bb8b3877c01fe5bfa83c5b2dd481c9",
+    "overlays/news-playback-v3.yaml": "6d10196250e67c58dcde41122aa4da689c97392298abe32e075613e122a3af2f",
     "overlays/release-guard-v1.yaml": "a3afc7db25e4c295b3f4bd944f32e4cf47fa0ccefae2cbf182edbed38214c038",
     "overlays/remote-client-v3.yaml": "40267e62ec475ce2318ea20bf5f8771943a46b30b60ace77ac91ea96a8cc948a",
     "overlays/tv-details-v3.yaml": "717c1f44e8ee12804cd58f2513e275292c28bbd3eb50dfb2d22cd9ec17a6b03e",

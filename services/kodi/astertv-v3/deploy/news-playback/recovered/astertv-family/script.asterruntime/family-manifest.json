@@ -1,0 +1,70 @@
+{
+  "components": {
+    "aster-camera2": {
+      "files": 1,
+      "manifest_sha256": "ca4abe6c6d870f396a7660cbe9980e86c212675e27724544746897bab0455d08"
+    },
+    "aster-digest-player8": {
+      "files": 16,
+      "manifest_sha256": "9e3644b7d012bc7610f7366608456ce06ffe1d8b6eee315574bb762d5a186e9c"
+    },
+    "aster-digest-reader6": {
+      "files": 4,
+      "manifest_sha256": "e8995bc3dce3e50649d59d5f2a2ad166e5239d999a39c894c313da92a26792d1"
+    },
+    "aster-global-search-ui22": {
+      "files": 14,
+      "manifest_sha256": "04c6f0936512ac764e8d63b4987469d0c6369ecba496d410014fd1938be7af5c"
+    },
+    "aster-home-status1": {
+      "files": 3,
+      "manifest_sha256": "1a5f9b01a7832ed6b7beec106e637c4c60c980b731022408b2f2fec3cfb17bad"
+    },
+    "aster-network-preview6": {
+      "files": 7,
+      "manifest_sha256": "7839fbff9f1a6a3d649eec688e43e0a05acdd028957d29e7bc8fc84151864da8"
+    },
+    "aster-series-preview24": {
+      "files": 9,
+      "manifest_sha256": "aa589c8939b627aa19f9ec9b7abf9a0852eb3b33595b8c884e2b56f8ddb2dba0"
+    },
+    "aster-video-scrub5": {
+      "files": 4,
+      "manifest_sha256": "a7f836981ed51addb60dd77b94e2775f901b72260e93d642c7bab5feffdcb702"
+    }
+  },
+  "kind": "aster-family-runtime.v1",
+  "music_manifest_sha256": "81e59737e9038364f05b3dff7e9986c468127f8ad70e260022ebc38baa2c4956",
+  "schema": 1,
+  "shared": {
+    "runtime_guard_sha256": "7335de4bdaf42dd6c03fd0e35cf8b15d390b9d50b39dfa081ea9895e7a5fb5fc"
+  },
+  "skin": {
+    "1080i/DialogBusy.xml": "82316ee0d8c0ec818573d3ea4837578cadcbc76e76fd5c00259ce10082739296",
+    "1080i/DialogContextMenu.xml": "c631923c09ab1e84302db1a62d577c49883b88c288cab8fe9800a8b42cb4182e",
+    "1080i/Home.xml": "814bb438377ee711e7467c5ef864cdbf1e5c88c2ec4b4e5296eec35c319a3efd",
+    "1080i/Includes.xml": "93a2387da5c29d21f92a70d626810cc62053590d4f4c7789539ffb80c59413b4",
+    "1080i/IncludesBooks.xml": "0ba7ab639f0819fb057389c69652fd134e8330f08584bfe575c0a3874d58be4d",
+    "1080i/IncludesHub.xml": "74c6d8ee10721bf37750257fee76072f94f16bad4796eafc0de81f0c67baf127",
+    "1080i/IncludesMusic.xml": "052ff612d6f776e281401d140b148c2425dec4732ecc6e7f68de139ceeb148cc",
+    "1080i/MyVideoNav.xml": "6798822d0218b96cde69e385545ad36a425c01c455fdfcb69a5d8ab7208fcf8a",
+    "1080i/Settings.xml": "6631572929ef6d1fbcc94387cc45a1b12458541374a59e5f8432d9bae697adc4",
+    "1080i/VideoOSD.xml": "19df16c15b7bee68384b2666067772371490e1a1bb8f44f1f3d2b4e685a5955c",
+    "1080i/custom_1111_digest.xml": "960645920dc25fd709c0310b178057afaae16fa5260404110b03fda98669cd77",
+    "1080i/custom_1112_home.xml": "ec3cae3a5bc7f2c687b2cd3d997947d3f2f76e195fb4b61243b1941db677266f",
+    "1080i/custom_1127_search.xml": "e6ed71aeef52e42b87139bef41f0a6b8c600879ed2bbe96d09f274c24f916e77",
+    "1080i/custom_1128_searchdetails.xml": "6768ad95c2c506043021a053cb9538248cf4431c561d29a0933debfa516731e3",
+    "1080i/custom_1129_artistalbums.xml": "1e3111efe511d1f0a55a2eeafd1ba6d09bddeaaf2c304c02148a6b0020c90de4",
+    "1080i/custom_1130_movie.xml": "42af932055ce5a5edd8dbab2c424225d06a8c4070693f1280e8c54301b6ade8e",
+    "1080i/custom_1132_requests.xml": "afb1715107fb1725260f9cb4a86d3216b6cb94335fa6e0878a8c940ec7aad14c",
+    "1080i/custom_1133_acquisition.xml": "41c03b5ba1b90ea1c6e3025233988e4166fe2788f9c1d2bada4711edc3c54a19",
+    "tools/aster_v2_digest.py": "a06cfc95840d218d637671a025b147336cdf17318d0c1ac991d5eaf404e6ed25",
+    "tools/aster_v2_series.py": "79522aa5a816067b174ae932fbb7740a0aeccb84fde6443ee0b209cfaacb0b18",
+    "tools/header_search.py": "48054902c3ec234127993a096b1671e271ed55847524f520a277c262aaf7f8ec",
+    "tools/restart_astertv.py": "f48970d852e3856b5735934fcd497af0a4831df79a78774cc2115a06793f5c04",
+    "tools/select_dispatch.py": "d5f1bea969f2acf8d084949ff84c24353c60bc29e6ad42ea4c22160a445d43f1",
+    "tools/youtube_back.py": "70a32c660138d6549c30044e071dc00d50f1b597dd210af5d1f07df684ce0e1d",
+    "tools/youtube_root_focus.py": "505d06530c78fe3a29778cf8650c3ce9fe51256a7e62f4ab2ef7b3624722591e",
+    "tools/youtube_route_focus.py": "972763b0b5ba54ee876705167895a7ed5025313874c915734c40d415b5274d47"
+  }
+}

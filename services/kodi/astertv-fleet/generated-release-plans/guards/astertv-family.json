@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "410cd36ce2635e041ab390e63b06db4ec135cde0ce144edf062c4586c609ef49",
+  "composition_sha256": "0cdec27de6777c30a6e31ad61e0ebc8f49ed5c48f15415b4e6986b20e223b2bc",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [
@@ -43,6 +43,13 @@
       "expected": "0600",
       "key": "asterremote-client-key.mode",
       "overlay": "remote-client-v3",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": "matches-installed-manifest",
+      "key": "family-manifest.component.aster-digest-player8",
+      "overlay": "news-playback-v3",
       "sensitive": false
     },
     {
@@ -172,6 +179,27 @@
       "overlay": "family-kodi-restart",
       "path": "/storage/.kodi/addons/skin.asterhome/tools/select_dispatch.py",
       "sha256": "d5f1bea969f2acf8d084949ff84c24353c60bc29e6ad42ea4c22160a445d43f1"
+    },
+    {
+      "bytes": 2954,
+      "mode": "0644",
+      "overlay": "news-playback-v3",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/manifest.json",
+      "sha256": "b76c51bf34e536f16085b9d2a8114a2345326bd7e416603587c0b63d4324b534"
+    },
+    {
+      "bytes": 8847,
+      "mode": "0644",
+      "overlay": "news-playback-v3",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/resources/lib/digest_kodi_port.py",
+      "sha256": "98d9ce0678e29f878da16bfbde66229ae27504363955cda4cfe30e05c065b940"
+    },
+    {
+      "bytes": 3355,
+      "mode": "0644",
+      "overlay": "news-playback-v3",
+      "path": "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_digest.py",
+      "sha256": "fadb0466ec1c52df555c1f8ded1597bf85cf05b86610cf071440e3f360647b2d"
     },
     {
       "bytes": 343,

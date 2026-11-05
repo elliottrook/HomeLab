@@ -19,8 +19,7 @@
         "release-artifact-not-locally-verified",
         "composition-bundle-not-built",
         "overlay-payload-incomplete:family-equipment-bridge",
-        "overlay-payload-incomplete:family-media-lifecycle",
-        "overlay-payload-incomplete:news-playback-v3"
+        "overlay-payload-incomplete:family-media-lifecycle"
       ],
       "bundle_built": false,
       "bundle_sha256": null,
@@ -50,7 +49,6 @@
         "overlay-payload-incomplete:jen-home-cameras",
         "overlay-payload-incomplete:jen-low-spec-runtime",
         "overlay-payload-incomplete:jen-movie-youtube",
-        "overlay-payload-incomplete:news-playback-v3",
         "overlay-payload-incomplete:jen-news-icons",
         "overlay-payload-incomplete:jen-podcast-requests"
       ],

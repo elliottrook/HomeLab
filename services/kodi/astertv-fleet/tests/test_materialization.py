@@ -20,6 +20,9 @@ REMOTE_SPEC.loader.exec_module(REMOTE_MODULE)
 TV_SPEC = importlib.util.spec_from_file_location("tv_details_materializer", ROOT / "materialize_tv_details.py")
 TV_MODULE = importlib.util.module_from_spec(TV_SPEC)
 TV_SPEC.loader.exec_module(TV_MODULE)
+NEWS_SPEC = importlib.util.spec_from_file_location("news_playback_materializer", ROOT / "materialize_news_playback.py")
+NEWS_MODULE = importlib.util.module_from_spec(NEWS_SPEC)
+NEWS_SPEC.loader.exec_module(NEWS_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -81,6 +84,18 @@ class MaterializationTests(unittest.TestCase):
             {row["sha256"] for row in manifest["files"]},
             {TV_MODULE.EXPECTED[path] for path in files},
         )
+
+    def test_news_playback_replays_each_hosts_exact_predecessor(self):
+        files, manifest = NEWS_MODULE.render()
+        self.assertEqual(len(files), 6)
+        self.assertEqual(manifest["targets"], ["astertv-family", "astertv-jen"])
+        self.assertEqual({row["scope"] for row in manifest["files"]},
+                         {"astertv-family", "astertv-jen"})
+        for device_id, expected in NEWS_MODULE.EXPECTED_FINAL.items():
+            rows = {row["destination"].removeprefix("/storage/.kodi/addons/"): row["sha256"]
+                    for row in manifest["files"] if row["scope"] == device_id}
+            self.assertEqual(rows, expected)
+        self.assertFalse(any(path.endswith("family-manifest.json") for path in files))
 
 
 if __name__ == "__main__":

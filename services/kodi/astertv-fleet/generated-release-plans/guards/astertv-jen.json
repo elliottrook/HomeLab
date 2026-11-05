@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "e3c2b56cea37af74e152b4c67d48b50a64943849357c4e93bb52add2e2e6c934",
+  "composition_sha256": "c5ada189be7dc498c93be078d361ca4f882cdca47fb9bffe13d0526566d37972",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-jen",
   "expected_assertions": [
@@ -15,6 +15,13 @@
       "expected": "aa589c8939b627aa19f9ec9b7abf9a0852eb3b33595b8c884e2b56f8ddb2dba0",
       "key": "family-manifest.component.aster-series-preview24",
       "overlay": "tv-details-v3",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": "matches-installed-manifest",
+      "key": "family-manifest.component.aster-digest-player8",
+      "overlay": "news-playback-v3",
       "sensitive": false
     },
     {
@@ -151,6 +158,27 @@
       "overlay": "tv-details-v3",
       "path": "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_series.py",
       "sha256": "79522aa5a816067b174ae932fbb7740a0aeccb84fde6443ee0b209cfaacb0b18"
+    },
+    {
+      "bytes": 2954,
+      "mode": "0644",
+      "overlay": "news-playback-v3",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/manifest.json",
+      "sha256": "665dac7b6941e61d3b82c64393c4c344c32c0fa925fb2549139259b35b52009d"
+    },
+    {
+      "bytes": 8847,
+      "mode": "0644",
+      "overlay": "news-playback-v3",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/resources/lib/digest_kodi_port.py",
+      "sha256": "98d9ce0678e29f878da16bfbde66229ae27504363955cda4cfe30e05c065b940"
+    },
+    {
+      "bytes": 3202,
+      "mode": "0644",
+      "overlay": "news-playback-v3",
+      "path": "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_digest.py",
+      "sha256": "5672e7c376d9559ba6acc78978865f9b7821027629cdc804a5b76488a73bc919"
     },
     {
       "bytes": 1565,

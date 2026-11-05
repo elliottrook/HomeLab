@@ -55,7 +55,9 @@ Current bundle-build status (2026-11-05): Bedroom is the first composition with
 all selected overlays materialized. TV details is emitted as one 12-file tree
 whose recovered outputs are bound to the complete exact-hash transformer chain;
 Kodi addon enablement and the shared family-manifest component pin remain typed
-assertions. Family has three incomplete overlays, Jen has nine, and Guest is an
+assertions. News playback is rendered per target from exact accepted
+predecessors, with Family advanced to the current bounded-queue revision.
+Family has two incomplete overlays, Jen has eight, and Guest is an
 intentional non-deployed candidate. This status is eligibility evidence, not a
 deployment instruction.
 

@@ -1,0 +1,89 @@
+{
+  "files": [
+    {
+      "bytes": 2954,
+      "destination": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/manifest.json",
+      "mode": "0644",
+      "scope": "astertv-family",
+      "sha256": "b76c51bf34e536f16085b9d2a8114a2345326bd7e416603587c0b63d4324b534"
+    },
+    {
+      "bytes": 8847,
+      "destination": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/resources/lib/digest_kodi_port.py",
+      "mode": "0644",
+      "scope": "astertv-family",
+      "sha256": "98d9ce0678e29f878da16bfbde66229ae27504363955cda4cfe30e05c065b940"
+    },
+    {
+      "bytes": 3355,
+      "destination": "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_digest.py",
+      "mode": "0644",
+      "scope": "astertv-family",
+      "sha256": "fadb0466ec1c52df555c1f8ded1597bf85cf05b86610cf071440e3f360647b2d"
+    },
+    {
+      "bytes": 2954,
+      "destination": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/manifest.json",
+      "mode": "0644",
+      "scope": "astertv-jen",
+      "sha256": "665dac7b6941e61d3b82c64393c4c344c32c0fa925fb2549139259b35b52009d"
+    },
+    {
+      "bytes": 8847,
+      "destination": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/resources/lib/digest_kodi_port.py",
+      "mode": "0644",
+      "scope": "astertv-jen",
+      "sha256": "98d9ce0678e29f878da16bfbde66229ae27504363955cda4cfe30e05c065b940"
+    },
+    {
+      "bytes": 3202,
+      "destination": "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_digest.py",
+      "mode": "0644",
+      "scope": "astertv-jen",
+      "sha256": "5672e7c376d9559ba6acc78978865f9b7821027629cdc804a5b76488a73bc919"
+    }
+  ],
+  "id": "news-playback-v3",
+  "kind": "astertv-materialized-overlay",
+  "lineage": [
+    {
+      "device_id": "astertv-family",
+      "host": "AsterTV-Family",
+      "predecessors": {
+        "family": "9804e0debba103dc084b79280e9088d1c00b0dfbdccb696c53a997f8457a9689",
+        "manifest": "9e3644b7d012bc7610f7366608456ce06ffe1d8b6eee315574bb762d5a186e9c",
+        "port": "780f6c014d97fac80aa7fb37b5a8c4309ecb84d4261d0f8888e0f8ab235ebc0d",
+        "wrapper": "a06cfc95840d218d637671a025b147336cdf17318d0c1ac991d5eaf404e6ed25"
+      }
+    },
+    {
+      "device_id": "astertv-jen",
+      "host": "AsterTV-Jen",
+      "predecessors": {
+        "family": "888cc7060b7c56108aa240b0987bd55200d98f60e75af63d8620d499d50887ec",
+        "manifest": "f8c82cc197c0ce7d584c82804e619a07b98b0f5aeda6a14f82f18d617d4f5907",
+        "port": "0c8e23e69259103906c4ea70f165181aa02c7713bf0ae4963c2989219d892134",
+        "wrapper": "96fbbcd439168eb7785a2587e360a31792dbb4390c6951c846d4465af59bc06b"
+      }
+    }
+  ],
+  "mutable_state": [
+    {
+      "destination": "/storage/.kodi/addons/script.asterruntime/family-manifest.json",
+      "reason": "shared composition manifest; preserve and verify component relationship"
+    },
+    {
+      "destination": "/storage/.aster-release/news-playback-repair.json",
+      "reason": "host-specific acceptance record generated after installation"
+    }
+  ],
+  "renderer": {
+    "path": "services/kodi/astertv-v3/deploy/news-playback/repair.py",
+    "sha256": "9850d6a5d28ef6ffc6e73b074c6d7287fc1bbe6876aa7ffdfe1c3284a79ee270"
+  },
+  "schema_version": 1,
+  "targets": [
+    "astertv-family",
+    "astertv-jen"
+  ]
+}
