@@ -152,6 +152,8 @@ resolved, proving that the local standby path survives the Internet block. A
 single explicit **Turn on** action was then issued through the native Home
 Assistant entity; no blind toggle, volume, navigation or playback command was
 used. Both entities returned to `on` at 13:31:09 and the live media controls
-reappeared. Physical screen wake and any CEC effect remain owner-confirmation
-gates before this path can authorize an Aster Remote equipment control.
+reappeared. The owner confirmed that standby powered both the TCL and Family
+Room Receiver off through CEC, and the explicit TV wake brought both back on.
+The remaining duplicate-command and physical-recovery checks still gate Aster
+Remote equipment authority.
 
