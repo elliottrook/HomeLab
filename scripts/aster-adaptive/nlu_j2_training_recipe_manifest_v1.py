@@ -140,11 +140,15 @@ def expected_manifest() -> dict[str, object]:
             "shuffle": False,
             "drop_last": False,
             "gradient_clipping": "none",
+            "backward_pass": "explicit-architecture-specific-binary64",
+            "relu_derivative_at_zero": 0.0,
+            "global_max_tie_gradient": "lowest-sequence-position-only",
+            "batch_update_boundary": "one-adamw-step-after-complete-batch-mean",
             "early_stopping": False,
             "checkpoint": "after-each-complete-epoch",
             "validation_gradient_access": False,
             "numeric_dtype": "ieee754-binary64",
-            "reduction_order": "row-then-parameter-lexicographic",
+            "reduction_order": "row-then-frozen-parameter-order-then-scalar-index",
             "cpu_threads": 1,
             "accelerator": "forbidden",
             "network": "forbidden",
@@ -177,7 +181,8 @@ def expected_manifest() -> dict[str, object]:
             "required_bindings": [
                 "training-recipe-manifest-sha256", "preregistration-sha256",
                 "corpus-release-sha256", "ontology-sha256",
-                "deterministic-guard-sha256",
+                "deterministic-guard-sha256", "validation-truth-sha256",
+                "validation-selection-sha256",
             ],
             "weight_quantization": {
                 "decimal_places": 10,
@@ -195,6 +200,8 @@ def expected_manifest() -> dict[str, object]:
                 ],
                 "require_exact_record_equality_after_reload": True,
                 "require_two_clean_cpu_reproductions": True,
+                "recompute_from_validation_truth": True,
+                "recompute_selection_receipt": True,
             },
         },
         "runtime_boundary": {
@@ -210,6 +217,8 @@ def expected_manifest() -> dict[str, object]:
                 "nlu_j2_validation_selection_v1.py"),
             "training_math_source_sha256": _source_sha256(
                 "nlu_j2_training_math_v1.py"),
+            "reference_training_source_sha256": _source_sha256(
+                "nlu_j2_reference_training_v1.py"),
             "guard_projection": "preserve-coherent-label-unless-strictly-more-restrictive",
             "personal_sensitivity_floor": True,
             "coherent_joint_label_only": True,

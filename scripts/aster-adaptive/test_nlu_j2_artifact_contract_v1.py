@@ -22,6 +22,8 @@ def value():
         "deterministic_guard_sha256": boundary["deterministic_guard_source_sha256"],
         "selected_epoch": 12, "threshold": 0.35,
         "validation_rows": 192, "accepted_validation_rows": 160,
+        "validation_truth_sha256": "d" * 64,
+        "validation_selection_sha256": "e" * 64,
         "validation_replay_sha256": "c" * 64,
         "tensors": {name: [0.0] * artifact._count(shape)
                     for name, shape in artifact.SHAPES.items()},

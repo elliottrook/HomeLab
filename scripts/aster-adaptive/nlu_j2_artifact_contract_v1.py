@@ -41,6 +41,7 @@ def validate(raw: bytes, expected_corpus_release_sha256: str,
               "training_admission_sha256", "ontology_sha256",
               "deterministic_guard_sha256", "selected_epoch", "threshold",
               "validation_rows", "accepted_validation_rows",
+              "validation_truth_sha256", "validation_selection_sha256",
               "validation_replay_sha256", "tensors", "artifact_sha256",
               "authority", "automatic_routing", "deployment"}
     boundary = recipe.expected_manifest()["runtime_boundary"]
@@ -68,6 +69,10 @@ def validate(raw: bytes, expected_corpus_release_sha256: str,
             or value["validation_rows"] != 192
             or type(value["accepted_validation_rows"]) is not int
             or not 116 <= value["accepted_validation_rows"] <= 192
+            or not isinstance(value["validation_truth_sha256"], str)
+            or not HEX64.fullmatch(value["validation_truth_sha256"])
+            or not isinstance(value["validation_selection_sha256"], str)
+            or not HEX64.fullmatch(value["validation_selection_sha256"])
             or not isinstance(value["validation_replay_sha256"], str)
             or not HEX64.fullmatch(value["validation_replay_sha256"])
             or not isinstance(value["tensors"], dict)
@@ -93,6 +98,8 @@ def validate(raw: bytes, expected_corpus_release_sha256: str,
             "threshold": value["threshold"],
             "validation_rows": 192,
             "accepted_validation_rows": value["accepted_validation_rows"],
+            "validation_truth_sha256": value["validation_truth_sha256"],
+            "validation_selection_sha256": value["validation_selection_sha256"],
             "parameter_count": sum(_count(shape) for shape in SHAPES.values()),
             "replay_required": True, "deployment": False,
             "authority": "none", "automatic_routing": "off"}

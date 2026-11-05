@@ -68,6 +68,12 @@ class J2TrainingRecipeManifestTests(unittest.TestCase):
                 epsilon_placement="inside-sqrt"),
             lambda value: value["training"].update(shuffle=True),
             lambda value: value["training"].update(row_order="random"),
+            lambda value: value["training"].update(
+                relu_derivative_at_zero=1.0),
+            lambda value: value["training"].update(
+                global_max_tie_gradient="all-tied-positions"),
+            lambda value: value["training"].update(
+                batch_update_boundary="one-step-per-row"),
             lambda value: value["training"].update(network="allowed"),
             lambda value: value["training"].update(evaluation_inputs="allowed"),
         )
@@ -98,6 +104,8 @@ class J2TrainingRecipeManifestTests(unittest.TestCase):
             lambda value: value["artifact"]["replay"].update(rows=191),
             lambda value: value["artifact"]["replay"].update(
                 require_two_clean_cpu_reproductions=False),
+            lambda value: value["artifact"]["replay"].update(
+                recompute_from_validation_truth=False),
         )
         for mutation in mutations:
             value = self.value(); mutation(value)
@@ -135,6 +143,8 @@ class J2TrainingRecipeManifestTests(unittest.TestCase):
                          value["runtime_boundary"]["validation_selection_source_sha256"])
         self.assertEqual(expected["training_math_source_sha256"],
                          value["runtime_boundary"]["training_math_source_sha256"])
+        self.assertEqual(expected["reference_training_source_sha256"],
+                         value["runtime_boundary"]["reference_training_source_sha256"])
 
 
 if __name__ == "__main__":

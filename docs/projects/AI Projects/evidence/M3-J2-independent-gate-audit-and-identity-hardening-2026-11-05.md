@@ -119,3 +119,28 @@ found that full deterministic training remains underspecified without
 backpropagation, pooling-tie, ReLU-zero, batch update and gradient-reduction
 rules. Artifact/replay code is therefore retained as a schema prototype, not a
 release candidate. These P0 gaps must be closed before any training approval.
+
+Both implementation gaps are now closed at the source-only boundary. The
+portable trainer fixes architecture-specific backward equations, a zero
+derivative at ReLU zero, lowest-position routing for global-max ties, exact
+row/tensor/scalar reduction order, 24 unshuffled 32-row batches and one AdamW
+update after each complete batch mean. Centered finite-difference tests cover
+embedding, convolution, hidden and output gradients. A local dense-row timing
+sample estimates roughly 77 minutes for 40 epochs before validation and
+checkpoint overhead; that estimate is planning evidence, not a release result.
+
+Replay no longer trusts two matching files. It consumes the exact 192-row
+validation truth and a selection receipt bound to those bytes and checkpoint
+tensors, recomputes predictions with the portable forward path, reapplies the
+deterministic guard to predicted and truth labels, derives raw/guard exactness
+and threshold acceptance, and independently reruns epoch and threshold
+selection. Identically wrong replay files now fail. Artifacts bind the truth
+and selection-receipt digests. The recipe pins the new training source and
+these semantics; its current file identity is `419a42c1…c9aa0e9`. The complete
+J2 suite passes 98/98.
+
+This closes the audited trainer/replay specification P0s, not the external
+data gate. No real validation truth, selection receipt, trained weights or
+replay exists, and the compiled trust registry remains empty pending
+separately controlled keys and owner trust review. Training, evaluation
+access, deployment, routing, tools and authority remain unauthorized.
