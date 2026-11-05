@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "tv-details-v3",
+  "owner": "experience-design",
+  "layer": "kodi-presentation",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["release-guard-v1"],
+  "targets": ["astertv-family", "astertv-bedroom", "astertv-jen"],
+  "owns": ["kodi/skin.asterhome/tv-details-window", "kodi/skin.asterhome/episode-art-cache", "kodi/plugin.video.astersearch/tv-person-search"],
+  "secret_refs": [],
+  "rollback_ref": "tv-details target checkpoint and accepted guard",
+  "tests": ["services/kodi/astertv-v3/test_tv_details_package.py"]
+}

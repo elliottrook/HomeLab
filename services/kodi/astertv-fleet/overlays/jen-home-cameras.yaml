@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "jen-home-cameras",
+  "owner": "fleet-engineering",
+  "layer": "kodi-presentation",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["jen-account-registry"],
+  "targets": ["astertv-jen"],
+  "owns": ["kodi/skin.asterhome/home-window-v3", "kodi/skin.asterhome/cameras-window-v3", "systemd/jen-camera-on-demand"],
+  "secret_refs": ["jen-home-feed-client", "jen-camera-viewer-client"],
+  "rollback_ref": "astertv-v3-m6-jen and astertv-v3-m6-camera-on-demand-r1",
+  "tests": ["services/kodi/astertv-v3/m6/test_home_overlay.py"]
+}

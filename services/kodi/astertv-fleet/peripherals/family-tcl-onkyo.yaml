@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "peripheral-profile",
+  "id": "family-tcl-onkyo",
+  "label": "Family TCL QM8L and Onkyo TX-RZ30 chain",
+  "facts": {
+    "display": "TCL QM8L",
+    "receiver": "Onkyo TX-RZ30",
+    "port": "HDMI 0",
+    "output_contract": "Dolby passthrough and HDR",
+    "controls": ["power", "volume-up", "volume-down", "mute"],
+    "control_authority": "Home Assistant capability bridge"
+  }
+}

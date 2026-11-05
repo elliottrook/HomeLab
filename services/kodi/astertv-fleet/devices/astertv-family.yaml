@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "kind": "device",
+  "id": "astertv-family",
+  "hostname": "AsterTV-Family",
+  "room": "family-room",
+  "lifecycle": "production",
+  "deployed": true,
+  "channel": "production",
+  "release": "astertv-v2.0.7-2026-10-31",
+  "hardware_profile": "intel-n95-family",
+  "peripheral_profile": "family-tcl-onkyo",
+  "overlays": [
+    "release-guard-v1",
+    "tv-details-v3",
+    "news-playback-v3",
+    "remote-client-v3",
+    "family-dolby-hdr",
+    "family-media-lifecycle",
+    "family-kodi-restart",
+    "family-equipment-bridge"
+  ],
+  "external_integrations": [
+    "jellyfin", "youtube", "seerr-arr", "audiobookshelf", "calibre-narration",
+    "news-digest", "home-assistant", "aster-remote", "opnsense-netbox"
+  ],
+  "secret_refs": [
+    "remote-family-client", "jellyfin-family-client", "youtube-family-session",
+    "seerr-family-client", "audiobookshelf-family-client"
+  ],
+  "local_deviation": "Family Dolby/HDR and equipment control only"
+}

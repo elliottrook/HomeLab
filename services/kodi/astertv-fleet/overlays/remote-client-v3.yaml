@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "remote-client-v3",
+  "owner": "fleet-engineering",
+  "layer": "kodi-service",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["release-guard-v1"],
+  "targets": ["astertv-family", "astertv-bedroom", "astertv-jen"],
+  "owns": ["kodi/service.asterremote", "kodi/native-input-sync"],
+  "secret_refs": ["remote-client-per-device"],
+  "rollback_ref": "astertv-v3-m8 per-device and gateway checkpoints",
+  "tests": ["services/kodi/astertv-v3/remote_client/test_remote_client.py"]
+}

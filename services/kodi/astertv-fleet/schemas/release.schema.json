@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "astertv-release-v1",
+  "type": "object",
+  "required": ["schema_version", "kind", "id", "artifact", "compatibility"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "release"},
+    "id": {"type": "string"},
+    "artifact": {"type": "object", "required": ["name", "sha256"]},
+    "compatibility": {"type": "object"}
+  }
+}

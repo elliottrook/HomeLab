@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-11-05 — Establish deterministic AsterTV fleet composition
+
+- Restored the missing HomeLab environment/release lifecycle authority covering
+  candidates, immutable releases, per-target composition, promotion, rollback
+  and retirement.
+- Added schema-versioned fleet, release, hardware, peripheral, overlay and
+  device contracts plus a dependency-free deterministic compiler.
+- Represented Family, Bedroom and Jen without changing accepted behavior and
+  reserved Guest as a deliberately non-deployed candidate.
+- Generated per-device desired manifests and a human-readable release matrix;
+  retained Jen's 1080p/stereo boundary as a device profile rather than a v3
+  platform limit.
+- Added fail-closed tests for deterministic output, ownership conflict,
+  incompatible release, missing dependency, secret-bearing input and impossible
+  candidate deployment. No appliance, wiki deployment or remote was changed.
+
 ## 2026-11-05 — Inventory the AsterTV platform authority and fleet
 
 - Activated the owner-approved Stream A platform-operations project and

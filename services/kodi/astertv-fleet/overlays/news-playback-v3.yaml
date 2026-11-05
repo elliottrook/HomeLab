@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "news-playback-v3",
+  "owner": "fleet-engineering",
+  "layer": "kodi-runtime",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["release-guard-v1"],
+  "targets": ["astertv-family", "astertv-jen"],
+  "owns": ["kodi/script.asterruntime/news-playback-lifecycle"],
+  "secret_refs": [],
+  "rollback_ref": "astertv-news-playback target checkpoint",
+  "tests": ["services/kodi/astertv-v3/deploy/news-playback/test_repair.py"]
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "kind": "hardware-profile",
+  "id": "unassigned-guest",
+  "label": "Guest hardware not selected",
+  "facts": {
+    "qualification": "pending physical appliance and measured capability",
+    "deployed": false
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "kind": "release",
+  "id": "astertv-v2.0.7-2026-10-31",
+  "label": "AsterTV v2.0.7 final accepted release",
+  "source_commit": "47005298bbaf058de8427342e54deb3e1878c0f5",
+  "material_assets": [
+    "aster-brand-v2-2026-10-14",
+    "aster-brand-v2-expansion-2026-10-14"
+  ],
+  "artifact": {
+    "name": "astertv-v2.0.7-release-2026-10-31.tar.gz",
+    "sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7",
+    "files": 577,
+    "authority": "private-forgejo-release"
+  },
+  "compatibility": {
+    "libreelec": "nightly-20261021-440640e",
+    "kodi": "22.0-rc1-01d4146",
+    "python": "3.x-libreelec",
+    "targets": ["astertv-family", "astertv-bedroom", "astertv-jen", "astertv-guest"]
+  },
+  "rollback": "v2.0.7-target-checkpoint-or-immutable-archive"
+}

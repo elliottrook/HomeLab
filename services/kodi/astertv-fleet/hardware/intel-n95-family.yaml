@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "kind": "hardware-profile",
+  "id": "intel-n95-family",
+  "label": "Intel N95 Family appliance",
+  "facts": {
+    "cpu": "Intel N95, four physical cores",
+    "gpu": "Alder Lake-N UHD 8086:46d2",
+    "network": ["Intel I226-V Ethernet", "RTL8822CE Wi-Fi"],
+    "qualification": "Family Dolby/HDR production path"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "bedroom-wifi-stability",
+  "owner": "fleet-engineering",
+  "layer": "libreelec-system",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["release-guard-v1"],
+  "targets": ["astertv-bedroom"],
+  "owns": ["systemd/astertv-wifi-stability.service", "network/wifi-power-save-policy"],
+  "secret_refs": [],
+  "rollback_ref": "astertv-bedroom Wi-Fi and guard checkpoints",
+  "tests": ["services/kodi/astertv-v3/deploy/bedroom-wifi/test_wifi_service.py"]
+}

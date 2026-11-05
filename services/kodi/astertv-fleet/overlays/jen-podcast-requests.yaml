@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "jen-podcast-requests",
+  "owner": "fleet-engineering",
+  "layer": "kodi-service",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["jen-account-registry"],
+  "targets": ["astertv-jen"],
+  "owns": ["kodi/podcast-request-client"],
+  "secret_refs": ["jen-podcast-request-client"],
+  "rollback_ref": "astertv-v3-m5p-jen",
+  "tests": ["services/kodi/astertv-v3/podcast_requests/test_client.py"]
+}

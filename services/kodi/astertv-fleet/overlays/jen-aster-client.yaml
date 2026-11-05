@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "jen-aster-client",
+  "owner": "fleet-engineering",
+  "layer": "kodi-service",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["jen-account-registry"],
+  "targets": ["astertv-jen"],
+  "owns": ["kodi/service.astertv-broker-client", "kodi/aster-ai-dialogs"],
+  "secret_refs": ["astertv-jen-broker-client"],
+  "rollback_ref": "astertv-v3-m3-jen-client-retained-r3-20261104",
+  "tests": ["services/kodi/astertv-v3/aster_client/test_client.py"]
+}

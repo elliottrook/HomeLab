@@ -1,6 +1,6 @@
 # AsterTV Platform Engineering and Design Operations
 
-> Status: Active — Stream A; M0 complete, M1 in progress
+> Status: Active — Stream A; M0–M1 complete, M2 next
 >
 > Owner: Jason
 >
@@ -94,9 +94,9 @@ and authority used for each decision.
 - The general navy/cyan HomeLab UI guide is for internal web applications, not
   the television surface. AsterTV needs a dedicated standard for its accepted
   brown/cream, charcoal, jade and champagne-gold language.
-- The portfolio links to a missing `docs/Environment-and-Release-Lifecycle.md`.
-  This project must restore the lifecycle authority rather than rely on a
-  broken prerequisite.
+- The portfolio previously linked to a missing
+  `docs/Environment-and-Release-Lifecycle.md`. M1 restored and adopted that
+  lifecycle authority rather than relying on a broken prerequisite.
 
 ## Problem statement
 
@@ -487,11 +487,11 @@ hashes. No step depends on conversational memory.
 
 First implementation milestone immediately after approval.
 
-- [ ] Restore/adopt the missing release-lifecycle authority.
-- [ ] Define fleet/release/hardware/peripheral/overlay/device schemas.
-- [ ] Build deterministic compiler and ownership/compatibility checks.
-- [ ] Represent Family, Bedroom and Jen unchanged; reserve Guest as candidate.
-- [ ] Generate composition diff and release matrix.
+- [x] Restore/adopt the missing release-lifecycle authority.
+- [x] Define fleet/release/hardware/peripheral/overlay/device schemas.
+- [x] Build deterministic compiler and ownership/compatibility checks.
+- [x] Represent Family, Bedroom and Jen unchanged; reserve Guest as candidate.
+- [x] Generate composition diff and release matrix.
 
 **Gate:** all active devices compile reproducibly and deliberate conflicts fail,
 with no live appliance changed.
@@ -607,15 +607,18 @@ media mutation, playback interruption, unknown identity or broader firewall.
 
 ## Current resume state
 
-**Milestone:** M1 fleet lifecycle and composition foundation.
+**Milestone:** M2 existing wiki expansion and curricula.
 
 **Verified:** M0 accepted pinned identities for Family, Bedroom and Jen, recorded
 Guest as not deployed, classified the existing wiki/reference/NetBox/release
-authorities and mapped every accepted current difference to a release, profile,
-overlay or integration destination. No wiki repo, skill or live device changed.
+authorities and mapped every accepted current difference. M1 restored the
+release lifecycle authority and compiled all four devices reproducibly; eight
+tests include deliberate ownership, dependency, compatibility, candidate and
+secret-bearing failures. No wiki repo, skill or live device changed.
 
-**Next:** complete M1 schemas, compiler, unchanged fleet compositions,
-determinism/conflict gates and the human-readable release matrix.
+**Next:** extend the existing `homelab-wiki` and LXC 113 intake/collector path
+with AsterTV Start Here, fleet/device/operations pages and pinned curricula.
+Build and validate the candidate locally before any wiki publication.
 
 ## Evidence log
 
@@ -626,6 +629,7 @@ determinism/conflict gates and the human-readable release matrix.
 | 2026-11-05 | Logic review | Added ownership/expiry, compatibility, SBOM, security response, budgets, accessibility, incidents, EOL, training, SLO and link validation | Scope ready for owner review |
 | 2026-11-05 | Owner approved the recorded Stream A envelope | Explicit approval in the project thread; repository rules still require immediate approval before each push | Opened M0/M1 with local/read-only work only |
 | 2026-11-05 | Completed M0 authority/corpus/fleet inventory | `docs/projects/evidence/AsterTV-Platform-M0-authority-corpus-inventory-2026-11-05.md`; pinned read-only checks found Family, Bedroom and Jen on the recorded LibreELEC build with enabled guards | All active differences have a migration destination; Guest remains a non-deployed candidate; no live system changed |
+| 2026-11-05 | Completed M1 lifecycle and composition foundation | `docs/Environment-and-Release-Lifecycle.md`; `services/kodi/astertv-fleet/`; `docs/projects/evidence/AsterTV-Platform-M1-composition-foundation-2026-11-05.md` | Four devices compile deterministically; three remain deployed unchanged and Guest remains candidate; 8/8 gates pass including deliberate conflicts and secret rejection |
 
 ## Close-out
 

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "astertv-device-v1",
+  "type": "object",
+  "required": ["schema_version", "kind", "id", "hostname", "room", "lifecycle", "deployed", "channel", "release", "hardware_profile", "peripheral_profile", "overlays", "external_integrations", "secret_refs"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "device"},
+    "id": {"type": "string"},
+    "hostname": {"type": "string"},
+    "room": {"type": "string"},
+    "lifecycle": {"enum": ["candidate", "lab", "accepted", "production", "degraded", "retiring", "retired"]},
+    "deployed": {"type": "boolean"},
+    "overlays": {"type": "array", "uniqueItems": true}
+  }
+}

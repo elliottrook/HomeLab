@@ -1,0 +1,141 @@
+{
+  "channel": "production",
+  "composition_sha256": "2c6cc9551e0024021f5a12168e5931bdf691d0b780c058d5c6e96e86085b6818",
+  "deployed": true,
+  "device_id": "astertv-family",
+  "external_integrations": [
+    "aster-remote",
+    "audiobookshelf",
+    "calibre-narration",
+    "home-assistant",
+    "jellyfin",
+    "news-digest",
+    "opnsense-netbox",
+    "seerr-arr",
+    "youtube"
+  ],
+  "hardware_profile": "intel-n95-family",
+  "hostname": "AsterTV-Family",
+  "kind": "desired-composition",
+  "lifecycle": "production",
+  "overlays": [
+    "release-guard-v1",
+    "family-dolby-hdr",
+    "remote-client-v3",
+    "family-equipment-bridge",
+    "family-kodi-restart",
+    "family-media-lifecycle",
+    "news-playback-v3",
+    "tv-details-v3"
+  ],
+  "ownership": {
+    "device-audio:display/hdr-contract": {
+      "layer": "device-audio",
+      "owner": "family-dolby-hdr",
+      "resource": "display/hdr-contract"
+    },
+    "device-audio:kodi/settings/audio-hdmi0-passthrough": {
+      "layer": "device-audio",
+      "owner": "family-dolby-hdr",
+      "resource": "kodi/settings/audio-hdmi0-passthrough"
+    },
+    "device-audio:systemd/pulseaudio-mask": {
+      "layer": "device-audio",
+      "owner": "family-dolby-hdr",
+      "resource": "systemd/pulseaudio-mask"
+    },
+    "external-integration:aster-agent/family-equipment-actions": {
+      "layer": "external-integration",
+      "owner": "family-equipment-bridge",
+      "resource": "aster-agent/family-equipment-actions"
+    },
+    "external-integration:home-assistant/aster-room-bridge-family": {
+      "layer": "external-integration",
+      "owner": "family-equipment-bridge",
+      "resource": "home-assistant/aster-room-bridge-family"
+    },
+    "kodi-presentation:kodi/plugin.video.astersearch/tv-person-search": {
+      "layer": "kodi-presentation",
+      "owner": "tv-details-v3",
+      "resource": "kodi/plugin.video.astersearch/tv-person-search"
+    },
+    "kodi-presentation:kodi/skin.asterhome/episode-art-cache": {
+      "layer": "kodi-presentation",
+      "owner": "tv-details-v3",
+      "resource": "kodi/skin.asterhome/episode-art-cache"
+    },
+    "kodi-presentation:kodi/skin.asterhome/tv-details-window": {
+      "layer": "kodi-presentation",
+      "owner": "tv-details-v3",
+      "resource": "kodi/skin.asterhome/tv-details-window"
+    },
+    "kodi-recovery-ui:kodi/skin.asterhome/settings-restart-action": {
+      "layer": "kodi-recovery-ui",
+      "owner": "family-kodi-restart",
+      "resource": "kodi/skin.asterhome/settings-restart-action"
+    },
+    "kodi-runtime:jellyfin/intro-skipper-compatibility": {
+      "layer": "kodi-runtime",
+      "owner": "family-media-lifecycle",
+      "resource": "jellyfin/intro-skipper-compatibility"
+    },
+    "kodi-runtime:kodi/script.asterruntime/continue-watching-filter": {
+      "layer": "kodi-runtime",
+      "owner": "family-media-lifecycle",
+      "resource": "kodi/script.asterruntime/continue-watching-filter"
+    },
+    "kodi-runtime:kodi/script.asterruntime/news-playback-lifecycle": {
+      "layer": "kodi-runtime",
+      "owner": "news-playback-v3",
+      "resource": "kodi/script.asterruntime/news-playback-lifecycle"
+    },
+    "kodi-service:kodi/native-input-sync": {
+      "layer": "kodi-service",
+      "owner": "remote-client-v3",
+      "resource": "kodi/native-input-sync"
+    },
+    "kodi-service:kodi/service.asterremote": {
+      "layer": "kodi-service",
+      "owner": "remote-client-v3",
+      "resource": "kodi/service.asterremote"
+    },
+    "recovery:state/accepted-manifest-envelope": {
+      "layer": "recovery",
+      "owner": "release-guard-v1",
+      "resource": "state/accepted-manifest-envelope"
+    },
+    "recovery:systemd/astertv-release-guard.service": {
+      "layer": "recovery",
+      "owner": "release-guard-v1",
+      "resource": "systemd/astertv-release-guard.service"
+    }
+  },
+  "peripheral_profile": "family-tcl-onkyo",
+  "release": "astertv-v2.0.7-2026-10-31",
+  "room": "family-room",
+  "schema_version": 1,
+  "secret_refs": [
+    "audiobookshelf-family-client",
+    "family-equipment-client",
+    "home-assistant-room-bridge",
+    "jellyfin-family-client",
+    "remote-client-per-device",
+    "remote-family-client",
+    "seerr-family-client",
+    "youtube-family-session"
+  ],
+  "source_hashes": {
+    "devices/astertv-family.yaml": "93d22da168511fec85e4a51b01ffe695dce8fa0f7d65b29cc5e6712c2a2ca5b7",
+    "hardware/intel-n95-family.yaml": "53ae62f6c3363356c390454e07219f18b50f12e4c87946eeaa0db04864f9f0ec",
+    "overlays/family-dolby-hdr.yaml": "5c43358292497c32a7be4bbf8505a7fac8ddddbf0b1cfd1d565e5bb187db62d7",
+    "overlays/family-equipment-bridge.yaml": "064c5f23efa5917e566613b68c3358b0e58c7a4dc430be9bb9cff1bccb994423",
+    "overlays/family-kodi-restart.yaml": "5103c9d8306d700ad0c96fb01b73cd0a78dc64f61a2c9ec7ced463082553d9e8",
+    "overlays/family-media-lifecycle.yaml": "5f30346277effd00e1582508778744a33c18478cbaaa70e183a87cb2c59b2609",
+    "overlays/news-playback-v3.yaml": "44f70b81216725a6ab3964922ffeacc8efc39e3bea819a683778e86c98f8891a",
+    "overlays/release-guard-v1.yaml": "ac506af51f6e9792d9d2e8a0e4451da6a8f82dc7dd430ceddbf4bdc7b549296e",
+    "overlays/remote-client-v3.yaml": "4403a0cec8154091afe453f54763f290d3b87381b9b6e5c6b79a9050f444505e",
+    "overlays/tv-details-v3.yaml": "e3ff1bab26bb086648e7834611c1e674e472eda78a7454af30049a9ca7281e70",
+    "peripherals/family-tcl-onkyo.yaml": "659600d4af2c3f39f0d7b33e5d7d941409163aaa587b7fd624db60ce44f514e5",
+    "releases/astertv-v2.0.7-2026-10-31.yaml": "204a004c9b099cedfbaa49ed5eed55185c0d33cd10d9d06942409fc7dd8add36"
+  }
+}

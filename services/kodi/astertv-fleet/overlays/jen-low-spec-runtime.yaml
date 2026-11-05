@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "jen-low-spec-runtime",
+  "owner": "fleet-engineering",
+  "layer": "device-performance",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["release-guard-v1"],
+  "targets": ["astertv-jen"],
+  "owns": ["kodi/settings/jen-1080p-stereo", "jellyfin/client-policy-jen"],
+  "secret_refs": ["jellyfin-jen-client"],
+  "rollback_ref": "astertv-reliability-AsterTV-Jen accepted state",
+  "tests": ["services/kodi/astertv-v3/low-spec/test_jellyfin_client_policy.py"]
+}

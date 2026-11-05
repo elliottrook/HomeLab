@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "kind": "device",
+  "id": "astertv-guest",
+  "hostname": "AsterTV-GuestRoom",
+  "room": "guest-room",
+  "lifecycle": "candidate",
+  "deployed": false,
+  "channel": "unassigned",
+  "release": "astertv-v2.0.7-2026-10-31",
+  "hardware_profile": "unassigned-guest",
+  "peripheral_profile": "unassigned-guest",
+  "overlays": [],
+  "external_integrations": [],
+  "secret_refs": [],
+  "local_deviation": "Reserved name only; no hardware, address, identity or network path exists"
+}

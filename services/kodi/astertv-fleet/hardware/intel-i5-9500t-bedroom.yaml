@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "kind": "hardware-profile",
+  "id": "intel-i5-9500t-bedroom",
+  "label": "Intel i5-9500T Bedroom appliance",
+  "facts": {
+    "cpu": "Intel i5-9500T, six physical cores",
+    "gpu": "Coffee Lake UHD 630 8086:3e92",
+    "network": ["Intel Wireless-AC 9560", "Realtek gigabit Ethernet"],
+    "qualification": "Bedroom stereo and Wi-Fi production path"
+  }
+}

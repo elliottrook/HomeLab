@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "release-guard-v1",
+  "owner": "fleet-engineering",
+  "layer": "recovery",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": [],
+  "targets": ["astertv-family", "astertv-bedroom", "astertv-jen"],
+  "owns": ["systemd/astertv-release-guard.service", "state/accepted-manifest-envelope"],
+  "secret_refs": [],
+  "rollback_ref": "host-bound accepted payload and predecessor checkpoint",
+  "tests": ["services/kodi/astertv-v3/reliability/test_reliability.py"]
+}

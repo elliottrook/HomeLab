@@ -1,0 +1,191 @@
+{
+  "channel": "v3-lab",
+  "composition_sha256": "f5cf3a93f59f1f9f70c69232b6af23e02ae3ce092b3745ba2962dbcb49e82c0f",
+  "deployed": true,
+  "device_id": "astertv-jen",
+  "external_integrations": [
+    "aster-broker",
+    "aster-remote",
+    "audiobookshelf",
+    "calibre-narration",
+    "frigate",
+    "home-assistant",
+    "jellyfin",
+    "news-digest",
+    "opnsense-netbox",
+    "podcast-request-broker",
+    "seerr-arr",
+    "youtube"
+  ],
+  "hardware_profile": "lenovo-m93p-jen",
+  "hostname": "AsterTV-Jen",
+  "kind": "desired-composition",
+  "lifecycle": "lab",
+  "overlays": [
+    "release-guard-v1",
+    "jen-account-registry",
+    "jen-aster-client",
+    "jen-guest-catalogue",
+    "jen-home-cameras",
+    "jen-low-spec-runtime",
+    "tv-details-v3",
+    "jen-movie-youtube",
+    "news-playback-v3",
+    "jen-news-icons",
+    "jen-podcast-requests",
+    "remote-client-v3"
+  ],
+  "ownership": {
+    "device-performance:jellyfin/client-policy-jen": {
+      "layer": "device-performance",
+      "owner": "jen-low-spec-runtime",
+      "resource": "jellyfin/client-policy-jen"
+    },
+    "device-performance:kodi/settings/jen-1080p-stereo": {
+      "layer": "device-performance",
+      "owner": "jen-low-spec-runtime",
+      "resource": "kodi/settings/jen-1080p-stereo"
+    },
+    "kodi-catalogue:kodi/jellyfin-guest-catalogue-adapter": {
+      "layer": "kodi-catalogue",
+      "owner": "jen-guest-catalogue",
+      "resource": "kodi/jellyfin-guest-catalogue-adapter"
+    },
+    "kodi-identity:kodi/astertv-profile-registry": {
+      "layer": "kodi-identity",
+      "owner": "jen-account-registry",
+      "resource": "kodi/astertv-profile-registry"
+    },
+    "kodi-identity:kodi/profile-capability-policy": {
+      "layer": "kodi-identity",
+      "owner": "jen-account-registry",
+      "resource": "kodi/profile-capability-policy"
+    },
+    "kodi-presentation:kodi/plugin.video.astersearch/tv-person-search": {
+      "layer": "kodi-presentation",
+      "owner": "tv-details-v3",
+      "resource": "kodi/plugin.video.astersearch/tv-person-search"
+    },
+    "kodi-presentation:kodi/skin.asterhome/cameras-window-v3": {
+      "layer": "kodi-presentation",
+      "owner": "jen-home-cameras",
+      "resource": "kodi/skin.asterhome/cameras-window-v3"
+    },
+    "kodi-presentation:kodi/skin.asterhome/episode-art-cache": {
+      "layer": "kodi-presentation",
+      "owner": "tv-details-v3",
+      "resource": "kodi/skin.asterhome/episode-art-cache"
+    },
+    "kodi-presentation:kodi/skin.asterhome/home-window-v3": {
+      "layer": "kodi-presentation",
+      "owner": "jen-home-cameras",
+      "resource": "kodi/skin.asterhome/home-window-v3"
+    },
+    "kodi-presentation:kodi/skin.asterhome/movie-details-v3": {
+      "layer": "kodi-presentation",
+      "owner": "jen-movie-youtube",
+      "resource": "kodi/skin.asterhome/movie-details-v3"
+    },
+    "kodi-presentation:kodi/skin.asterhome/news-plain-compass-icons": {
+      "layer": "kodi-presentation",
+      "owner": "jen-news-icons",
+      "resource": "kodi/skin.asterhome/news-plain-compass-icons"
+    },
+    "kodi-presentation:kodi/skin.asterhome/tv-details-window": {
+      "layer": "kodi-presentation",
+      "owner": "tv-details-v3",
+      "resource": "kodi/skin.asterhome/tv-details-window"
+    },
+    "kodi-presentation:kodi/skin.asterhome/youtube-v3": {
+      "layer": "kodi-presentation",
+      "owner": "jen-movie-youtube",
+      "resource": "kodi/skin.asterhome/youtube-v3"
+    },
+    "kodi-presentation:kodi/youtube-lifecycle-loader": {
+      "layer": "kodi-presentation",
+      "owner": "jen-movie-youtube",
+      "resource": "kodi/youtube-lifecycle-loader"
+    },
+    "kodi-presentation:systemd/jen-camera-on-demand": {
+      "layer": "kodi-presentation",
+      "owner": "jen-home-cameras",
+      "resource": "systemd/jen-camera-on-demand"
+    },
+    "kodi-runtime:kodi/script.asterruntime/news-playback-lifecycle": {
+      "layer": "kodi-runtime",
+      "owner": "news-playback-v3",
+      "resource": "kodi/script.asterruntime/news-playback-lifecycle"
+    },
+    "kodi-service:kodi/aster-ai-dialogs": {
+      "layer": "kodi-service",
+      "owner": "jen-aster-client",
+      "resource": "kodi/aster-ai-dialogs"
+    },
+    "kodi-service:kodi/native-input-sync": {
+      "layer": "kodi-service",
+      "owner": "remote-client-v3",
+      "resource": "kodi/native-input-sync"
+    },
+    "kodi-service:kodi/podcast-request-client": {
+      "layer": "kodi-service",
+      "owner": "jen-podcast-requests",
+      "resource": "kodi/podcast-request-client"
+    },
+    "kodi-service:kodi/service.asterremote": {
+      "layer": "kodi-service",
+      "owner": "remote-client-v3",
+      "resource": "kodi/service.asterremote"
+    },
+    "kodi-service:kodi/service.astertv-broker-client": {
+      "layer": "kodi-service",
+      "owner": "jen-aster-client",
+      "resource": "kodi/service.astertv-broker-client"
+    },
+    "recovery:state/accepted-manifest-envelope": {
+      "layer": "recovery",
+      "owner": "release-guard-v1",
+      "resource": "state/accepted-manifest-envelope"
+    },
+    "recovery:systemd/astertv-release-guard.service": {
+      "layer": "recovery",
+      "owner": "release-guard-v1",
+      "resource": "systemd/astertv-release-guard.service"
+    }
+  },
+  "peripheral_profile": "jen-low-spec-stereo",
+  "release": "astertv-v2.0.7-2026-10-31",
+  "room": "jen-lab",
+  "schema_version": 1,
+  "secret_refs": [
+    "astertv-jen-broker-client",
+    "audiobookshelf-jen-client",
+    "jellyfin-jen-client",
+    "jellyfin-jen-guest-client",
+    "jen-camera-viewer-client",
+    "jen-home-feed-client",
+    "jen-podcast-request-client",
+    "jen-profile-authority",
+    "remote-client-per-device",
+    "remote-jen-client",
+    "seerr-jen-client",
+    "youtube-household-session"
+  ],
+  "source_hashes": {
+    "devices/astertv-jen.yaml": "9fca66440ca0c0c61a151e6a7e8e273f676f3f36e696526a9ce4ff26004a7aca",
+    "hardware/lenovo-m93p-jen.yaml": "62596413e3f508c77048cfccc3203cca847607ab84383d9cffb4d8768f0db101",
+    "overlays/jen-account-registry.yaml": "6646013ed025017b312c7fde52688884487871505fcca7d0e90547dfc2f6c378",
+    "overlays/jen-aster-client.yaml": "58fbf0cf9c287ccf78fcb8b13b5142ff58ec72a5e35f92320cd2ab817380c233",
+    "overlays/jen-guest-catalogue.yaml": "2d5cbb6c7e4ac2d9ee87c2f764f14ebba5ad73376551b5b511c14b7bb65d3c03",
+    "overlays/jen-home-cameras.yaml": "044cef3d860888002c08736a9a50207f6c2d3f903aee00d730eba5f528334884",
+    "overlays/jen-low-spec-runtime.yaml": "3d520fe421b859c5bfc8511491e4c6f110e0ba7799d260593d9c2df28b54d47f",
+    "overlays/jen-movie-youtube.yaml": "cc43d2c73ddbcc442bd257f8b45f0f651cc702052a2ecb71d609e7d534edf138",
+    "overlays/jen-news-icons.yaml": "e691f2367c078f198f3cdc591d9e63908f796e44c3070fbea4c2f7e88b28df3d",
+    "overlays/jen-podcast-requests.yaml": "12d23dbdc74a2d2ca43e2f9bf471f3a6fc9c1dfb0a4bfc1c3dbd726b756bc6fb",
+    "overlays/news-playback-v3.yaml": "44f70b81216725a6ab3964922ffeacc8efc39e3bea819a683778e86c98f8891a",
+    "overlays/release-guard-v1.yaml": "ac506af51f6e9792d9d2e8a0e4451da6a8f82dc7dd430ceddbf4bdc7b549296e",
+    "overlays/remote-client-v3.yaml": "4403a0cec8154091afe453f54763f290d3b87381b9b6e5c6b79a9050f444505e",
+    "overlays/tv-details-v3.yaml": "e3ff1bab26bb086648e7834611c1e674e472eda78a7454af30049a9ca7281e70",
+    "peripherals/jen-low-spec-stereo.yaml": "d56ab40a683315e30e7a4696d105d4707bbde51bbe3abbbdca79f0876ab1f6f5",
+    "releases/astertv-v2.0.7-2026-10-31.yaml": "204a004c9b099cedfbaa49ed5eed55185c0d33cd10d9d06942409fc7dd8add36"
+  }
+}

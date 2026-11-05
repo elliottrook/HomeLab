@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "kind": "peripheral-profile",
+  "id": "jen-low-spec-stereo",
+  "label": "Jen low-spec stereo display chain",
+  "facts": {
+    "display_observed": "LG HDR 4K",
+    "output_contract": "1080p stereo qualification",
+    "controls": []
+  }
+}

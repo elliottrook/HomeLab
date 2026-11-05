@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "jen-news-icons",
+  "owner": "experience-design",
+  "layer": "kodi-presentation",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["news-playback-v3"],
+  "targets": ["astertv-jen"],
+  "owns": ["kodi/skin.asterhome/news-plain-compass-icons"],
+  "secret_refs": [],
+  "rollback_ref": "astertv-v3-m5n-jen",
+  "tests": ["services/kodi/astertv-v3/m5/test_jen_news_icons.py"]
+}

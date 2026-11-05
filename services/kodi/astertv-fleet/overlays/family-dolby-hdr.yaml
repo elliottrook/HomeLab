@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "family-dolby-hdr",
+  "owner": "fleet-engineering",
+  "layer": "device-audio",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["release-guard-v1"],
+  "targets": ["astertv-family"],
+  "owns": ["kodi/settings/audio-hdmi0-passthrough", "systemd/pulseaudio-mask", "display/hdr-contract"],
+  "secret_refs": [],
+  "rollback_ref": "astertv-v2.0.7-release-20261031-family",
+  "tests": ["services/kodi/astertv-v2/validate_release.py"]
+}

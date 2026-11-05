@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "synthetic-conflict",
+  "owner": "synthetic-test",
+  "layer": "kodi-presentation",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["release-guard-v1"],
+  "targets": ["astertv-family"],
+  "owns": ["kodi/skin.asterhome/tv-details-window"],
+  "secret_refs": [],
+  "rollback_ref": "synthetic fixture only",
+  "tests": ["synthetic/ownership-conflict"]
+}

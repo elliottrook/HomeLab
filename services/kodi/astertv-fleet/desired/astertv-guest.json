@@ -1,0 +1,24 @@
+{
+  "channel": "unassigned",
+  "composition_sha256": "48ff5bc1fe344bf48d8de0e68a8ba4e10a1fdbb17c01a0d0ce788b2eac276031",
+  "deployed": false,
+  "device_id": "astertv-guest",
+  "external_integrations": [],
+  "hardware_profile": "unassigned-guest",
+  "hostname": "AsterTV-GuestRoom",
+  "kind": "desired-composition",
+  "lifecycle": "candidate",
+  "overlays": [],
+  "ownership": {},
+  "peripheral_profile": "unassigned-guest",
+  "release": "astertv-v2.0.7-2026-10-31",
+  "room": "guest-room",
+  "schema_version": 1,
+  "secret_refs": [],
+  "source_hashes": {
+    "devices/astertv-guest.yaml": "db54d16684dbeb2b4cf6d70ed2deff2dad943f669f784a86a9ed946149690ad2",
+    "hardware/unassigned-guest.yaml": "392d3fe8bd843dcc41a90a02306c06a3b969ed501db15ed0ea3d39f64cc91a01",
+    "peripherals/unassigned-guest.yaml": "70d5fd61ce100587e8daed45470eb96a0d483b4e4f74469b36ad7240fc9c5ca6",
+    "releases/astertv-v2.0.7-2026-10-31.yaml": "204a004c9b099cedfbaa49ed5eed55185c0d33cd10d9d06942409fc7dd8add36"
+  }
+}

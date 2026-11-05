@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "astertv-hardware-profile-v1",
+  "type": "object",
+  "required": ["schema_version", "kind", "id", "label", "facts"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "hardware-profile"},
+    "id": {"type": "string"},
+    "label": {"type": "string"},
+    "facts": {"type": "object"}
+  }
+}

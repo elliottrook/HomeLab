@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "kind": "peripheral-profile",
+  "id": "bedroom-lg-stereo",
+  "label": "Bedroom LG stereo chain",
+  "facts": {
+    "display": "LG TV SSCR2",
+    "soundbar": "model not yet recorded",
+    "port": "HDMI 0",
+    "output_contract": "stereo",
+    "controls": ["LG webOS television control"]
+  }
+}

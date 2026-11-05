@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "kind": "fleet",
+  "id": "astertv-household",
+  "devices": ["astertv-family", "astertv-bedroom", "astertv-jen", "astertv-guest"],
+  "authority": {
+    "desired_composition": "git:services/kodi/astertv-fleet",
+    "device_network_facts": "netbox",
+    "current_state": "sanitized-live-query",
+    "release_bytes": "private-forgejo-release",
+    "human_knowledge": "private-homelab-wiki",
+    "operational_reference": "homelab-reference",
+    "derived_knowledge": "aster-knowledge-mirror"
+  }
+}

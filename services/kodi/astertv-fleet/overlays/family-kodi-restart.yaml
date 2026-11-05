@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "family-kodi-restart",
+  "owner": "fleet-engineering",
+  "layer": "kodi-recovery-ui",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["release-guard-v1"],
+  "targets": ["astertv-family"],
+  "owns": ["kodi/skin.asterhome/settings-restart-action"],
+  "secret_refs": [],
+  "rollback_ref": "family settings restart checkpoint",
+  "tests": ["services/kodi/astertv-v2/reconciliation/apply_family_restart_button.py"]
+}

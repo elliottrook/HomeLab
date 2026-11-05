@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "jen-movie-youtube",
+  "owner": "experience-design",
+  "layer": "kodi-presentation",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["jen-account-registry", "tv-details-v3"],
+  "targets": ["astertv-jen"],
+  "owns": ["kodi/skin.asterhome/movie-details-v3", "kodi/skin.asterhome/youtube-v3", "kodi/youtube-lifecycle-loader"],
+  "secret_refs": ["youtube-household-session"],
+  "rollback_ref": "astertv-v3-m4-jen-movie and astertv-v3-m4y-jen",
+  "tests": ["services/kodi/astertv-v3/m4/test_jen_movie.py", "services/kodi/astertv-v3/m4/test_jen_youtube_lifecycle.py"]
+}

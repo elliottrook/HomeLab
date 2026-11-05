@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "kind": "device",
+  "id": "astertv-jen",
+  "hostname": "AsterTV-Jen",
+  "room": "jen-lab",
+  "lifecycle": "lab",
+  "deployed": true,
+  "channel": "v3-lab",
+  "release": "astertv-v2.0.7-2026-10-31",
+  "hardware_profile": "lenovo-m93p-jen",
+  "peripheral_profile": "jen-low-spec-stereo",
+  "overlays": [
+    "release-guard-v1",
+    "tv-details-v3",
+    "news-playback-v3",
+    "remote-client-v3",
+    "jen-low-spec-runtime",
+    "jen-account-registry",
+    "jen-guest-catalogue",
+    "jen-aster-client",
+    "jen-movie-youtube",
+    "jen-news-icons",
+    "jen-podcast-requests",
+    "jen-home-cameras"
+  ],
+  "external_integrations": [
+    "jellyfin", "youtube", "seerr-arr", "audiobookshelf", "calibre-narration",
+    "news-digest", "home-assistant", "frigate", "aster-broker", "aster-remote",
+    "podcast-request-broker", "opnsense-netbox"
+  ],
+  "secret_refs": [
+    "remote-jen-client", "jellyfin-jen-client", "jellyfin-jen-guest-client",
+    "youtube-household-session", "seerr-jen-client", "audiobookshelf-jen-client",
+    "astertv-jen-broker-client", "jen-home-feed-client", "jen-camera-viewer-client",
+    "jen-podcast-request-client"
+  ],
+  "local_deviation": "Jen-only 1080p/stereo constraints and accepted v3 lab overlays"
+}

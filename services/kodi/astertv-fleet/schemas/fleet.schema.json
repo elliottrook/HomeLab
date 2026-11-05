@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "astertv-fleet-v1",
+  "type": "object",
+  "required": ["schema_version", "kind", "id", "devices", "authority"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "fleet"},
+    "id": {"type": "string"},
+    "devices": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "authority": {"type": "object"}
+  }
+}
