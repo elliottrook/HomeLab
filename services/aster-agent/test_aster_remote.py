@@ -34,6 +34,7 @@ class RemoteTests(unittest.TestCase):
             clients={"AsterTV-Jen": ClientIdentity("jen-lab", "AsterTV Jen", "k" * 40)},
             subject_rooms={},
             network_rooms={ipaddress.ip_network("192.168.1.0/24"): {"jen-lab"},
+                           ipaddress.ip_network("192.168.20.20/32"): {"jen-lab"},
                            ipaddress.ip_network("192.168.40.0/24"): {"guest"}},
             trusted_proxies={ipaddress.ip_address("127.0.0.1")},
             voice_key="v" * 40, clock=self.clock,
@@ -58,6 +59,10 @@ class RemoteTests(unittest.TestCase):
                         Request(forwarded="192.168.40.20")):
             with self.assertRaises(HTTPException) as caught: self.call(self.gateway.session(request))
             self.assertEqual(caught.exception.status_code, 403)
+
+    def test_administrator_tailscale_router_is_explicitly_mapped(self):
+        result = self.call(self.gateway.session(Request(forwarded="192.168.20.20")))
+        self.assertEqual([row["room_id"] for row in result["rooms"]], ["jen-lab"])
 
     def test_command_requires_exact_origin_network_room_and_shape(self):
         payload = BrowserCommand(request_id="remote-12345678", room_id="jen-lab", action="nav.up")

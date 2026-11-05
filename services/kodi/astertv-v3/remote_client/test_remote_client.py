@@ -51,8 +51,12 @@ class RemoteClientTests(unittest.TestCase):
         self.assertIn('sensitive = "password" in kind', SOURCE)
         self.assertIn('"input_title": "", "input_value": ""', SOURCE)
         self.assertIn('action in ("text.send", "text.replace")', SOURCE)
-        self.assertIn('"method": "JSONRPC.GetConfiguration"', SOURCE)
-        self.assertIn('connection.sendall((json.dumps(hello)', SOURCE)
+        self.assertIn("class InputMonitor(xbmc.Monitor)", SOURCE)
+        self.assertIn("def onNotification(self, _sender, method, data)", SOURCE)
+        self.assertIn("def poll_commands(monitor)", SOURCE)
+        self.assertIn('name="asterremote-poll"', SOURCE)
+        self.assertIn("while not monitor.waitForAbort(0.1)", SOURCE)
+        self.assertNotIn('"method": "JSONRPC.GetConfiguration"', SOURCE)
 
     def test_search_drops_only_trailing_dictation_punctuation(self):
         self.assertIn('rstrip(".!?,;:")', SOURCE)

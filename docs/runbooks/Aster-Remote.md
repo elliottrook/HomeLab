@@ -13,6 +13,11 @@ speech, Home Assistant or equipment credential. Each television retains an
 independently revocable client key. Voice uses a separate STT-only server key
 which the speech service does not accept for synthesis.
 
+Trusted LAN `192.168.1.0/24` and the administrator-only Tailscale subnet-router
+source `192.168.20.20/32` receive the household room set. The latter is needed
+because iOS may keep the private subnet route active while the phone is also on
+home Wi-Fi; Nginx then sees the router rather than the handset's Wi-Fi address.
+
 Current rooms:
 
 | Label | Room ID | Client ID | Address |
@@ -37,6 +42,11 @@ Voice recognition places cleaned text into Search. It does not submit
 automatically: correct or append with the iPhone keyboard, then press Search.
 More shows an editable Kodi field only while Kodi has requested non-sensitive
 input. Password fields deliberately remain television-only.
+
+If an older installed iPhone app shows the retired authentication flow, reopen
+it once while online. Service-worker v6 takes control immediately, deletes the
+old shell and removes the obsolete OAuth callback query. Do not restore the
+old login JavaScript.
 
 ## Health and diagnosis
 

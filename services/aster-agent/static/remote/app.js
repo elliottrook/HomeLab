@@ -3,6 +3,7 @@ const $ = value => document.querySelector(value);
 const errorBox = $('#error');
 let rooms = [], selectedRoom = '', statusTimer = null, recorder = null, mediaStream = null;
 let inputRevision = '', inputDirty = false;
+if (location.search || location.hash) history.replaceState({}, '', '/remote/');
 
 function searchText(value) {
   return value.trim().replace(/[.!?,;:]+$/u, '').trim();
@@ -133,6 +134,12 @@ async function voiceSearch() {
 $('#voice').addEventListener('click', () => voiceSearch().catch(error => { errorBox.textContent = error.message; }));
 
 (async () => {
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/remote/sw.js', {scope:'/remote/'}).catch(() => {});
+  if ('serviceWorker' in navigator) {
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!reloading) { reloading = true; location.replace('/remote/'); }
+    });
+    navigator.serviceWorker.register('/remote/sw.js', {scope:'/remote/'}).catch(() => {});
+  }
   await refresh(); statusTimer = setInterval(refresh, 4000);
 })();

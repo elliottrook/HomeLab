@@ -46,7 +46,9 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn("margin:6px 0 -13px", CSS)
         self.assertIn("radial-gradient(ellipse at 50% 43%", CSS)
         self.assertIn("rgba(243,236,223,.27)", CSS)
-        self.assertIn("const CACHE = 'aster-remote-shell-v5'", SW)
+        self.assertIn("const CACHE = 'aster-remote-shell-v6'", SW)
+        self.assertIn("self.skipWaiting()", SW)
+        self.assertIn("self.clients.claim()", SW)
 
     def test_approved_identity_connection_and_voice_language(self):
         self.assertIn('/remote/aster-compass.png', HTML)
@@ -82,6 +84,8 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertNotIn("localStorage", JS)
         self.assertNotIn("refresh_token", JS)
         self.assertNotIn("auth.elliottrook.com", JS)
+        self.assertIn("history.replaceState({}, '', '/remote/')", JS)
+        self.assertIn("'controllerchange'", JS)
         self.assertNotIn('id="login"', HTML)
         self.assertNotIn('id="signOut"', HTML)
         self.assertNotIn("caches.open", JS)

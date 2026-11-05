@@ -60,6 +60,7 @@ print(json.dumps({"agent":subprocess.run(["systemctl","is-active","aster-agent"]
  "remote":status("/remote/"),"denial":status("/v1/remote/session"),
  "clients":sorted((key,row["room_id"]) for key,row in clients.items()),
  "trusted_rooms":sorted(networks.get("192.168.1.0/24",[])),
+ "tailscale_rooms":sorted(networks.get("192.168.20.20/32",[])),
  "guest_rooms":sorted(networks.get("192.168.40.0/24",[])),
  "proxy":values.get("ASTER_REMOTE_TRUSTED_PROXIES"),
  "voice_configured":bool(values.get("ASTER_REMOTE_SPEECH_API_KEY")),
@@ -80,6 +81,7 @@ def validate_gateway(row):
         row.get("agent") == "active" and row.get("remote") == 200
         and row.get("denial") == 403 and row.get("clients") == [list(item) for item in expected]
         and row.get("trusted_rooms") == sorted(room for _host, _ip, room in CLIENTS)
+        and row.get("tailscale_rooms") == sorted(room for _host, _ip, room in CLIENTS)
         and row.get("guest_rooms") == ["guest"]
         and row.get("proxy") == "192.168.50.23"
         and row.get("voice_configured") is True and row.get("keys_present") is True

@@ -1430,6 +1430,11 @@ LAN `192.168.1.0/24` maps to the enrolled household rooms. Direct gateway
 access, unknown proxies, chained/ambiguous forwarded addresses and unmapped
 networks fail closed.
 
+The administrator-only Tailscale subnet router is separately mapped as the
+single host `192.168.20.20/32`. This preserves immediate iPhone use when iOS
+hairpins private traffic through Tailscale while on home Wi-Fi, without
+authorizing the Servers VLAN or changing the Guest mapping.
+
 Guest VLAN `192.168.40.0/24` is predeclared for room ID `guest` only. No Guest
 client exists and no firewall route is opened, so that mapping currently
 returns no rooms. When the fourth box arrives, a separately revocable
@@ -1864,6 +1869,7 @@ explicit user acceptance.
 | 2026-11-05 | Added Aster Remote Doctor and operator recovery coverage | The content-free probe checks route denial, exact room assignment, client/add-on health, mode-0600 custody and stable/live/manifest parity without reading key values or household content. The runbook records use, diagnosis, checkpoints and the revoke/reissue boundary for intentionally unbacked client keys. | Four fixture tests, shell syntax and a live three-room probe pass. Existing LXC 104 whole-guest backup protects the gateway; client code remains reconstructible from stable custody and Git. A deliberate client rollback/reinstall rehearsal remains open. Runbook: `docs/runbooks/Aster-Remote.md`. |
 | 2026-11-05 | Proved Aster Remote rollback and reinstall on Bedroom | With Kodi idle, restored the exact pre-input-sync client, restarted and verified the enabled add-on, then reinstalled the accepted client and rebuilt stable custody. The rehearsal's failure path restores the accepted version, not the predecessor. | Bedroom finished active with matching live/stable hash `1a4d52f3…fbce`; the full content-free three-room Doctor probe passed and staging was removed. SA-M8-JEN4 resilience evidence is complete; real iPhone input acceptance remains in SA-M8-JEN3. |
 | 2026-11-05 | Replaced Remote browser login with network-scoped immediate access | Trusted Nginx plus explicit subnet-to-room maps now authorize the credential-free iPhone/Android PWA; per-TV keys, Origin/schema/rate gates and outbound polling remain. A separate STT-only server key replaces browser speech credentials. Future Guest VLAN is predeclared for only nonexistent room `guest`, with no firewall route opened. | Eight gateway, 25 speech and 20 static/installer tests pass in pinned environments. Trusted HTTPS returns only Bedroom/Family/Jen; direct and forged-Guest requests return 403. Both services are active under checkpoints `remote-network-auth-20261105`; Android uses Chrome Add to Home screen. Evidence: `docs/projects/evidence/AsterTV-v3-M8-network-remote-2026-11-05.md`. |
+| 2026-11-05 | Completed no-login migration and live Kodi keyboard synchronization | iOS retained the retired OAuth shell until a v6 service worker forced immediate takeover, cache deletion and callback-URL cleanup. Bedroom's JSON-RPC notification socket missed keyboard events; the replacement keeps Kodi's native Monitor on the main add-on thread and moves only the outbound long poll to a one-item worker queue. | The iPhone path through administrator Tailscale `/32` returns 200 while other Servers and Guest sources remain 403. Live Bedroom reports the safe field title and value (`input_active=true`) after reopen; password content remains suppressed. Kodi stayed active without a restart under checkpoints `remote-pwa-noauth-migration-20261105` and `astertv-v3-m8-native-input-mainthread-20261105`. |
 
 ## Close-out
 

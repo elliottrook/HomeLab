@@ -6,6 +6,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import queue
 import socket
 import threading
 import urllib.error
@@ -78,24 +79,25 @@ class InputMirror:
             self.title = "" if sensitive else str(data.get("title", ""))[:128]
             self.value = "" if sensitive else str(data.get("value", ""))[:MAX_TEXT]
 
-    def listen(self):
-        monitor = xbmc.Monitor()
-        while not monitor.abortRequested():
-            try:
-                with socket.create_connection(("127.0.0.1", 9090), 3) as connection:
-                    hello = {"jsonrpc": "2.0", "id": "asterremote-input",
-                             "method": "JSONRPC.GetConfiguration"}
-                    connection.sendall((json.dumps(hello) + "\r\n").encode("utf-8"))
-                    stream = connection.makefile("r", encoding="utf-8")
-                    while not monitor.abortRequested():
-                        line = stream.readline()
-                        if not line: break
-                        self.consume(json.loads(line))
-            except (OSError, ValueError):
-                monitor.waitForAbort(1.0)
-
-
 INPUT = InputMirror()
+COMMANDS = queue.Queue(maxsize=1)
+
+
+class InputMonitor(xbmc.Monitor):
+    """Receive input lifecycle directly from Kodi's add-on event bus."""
+
+    def __init__(self, mirror):
+        super().__init__()
+        self.mirror = mirror
+
+    def onNotification(self, _sender, method, data):
+        if method not in {"Input.OnInputRequested", "Input.OnInputFinished"}:
+            return
+        try:
+            value = json.loads(data) if isinstance(data, str) else data
+        except (TypeError, ValueError):
+            return
+        self.mirror.consume({"method": method, "params": {"data": value or {}}})
 
 
 def identity():
@@ -251,23 +253,31 @@ def execute(command):
     return "denied"
 
 
-def main():
-    threading.Thread(target=INPUT.listen, name="asterremote-input", daemon=True).start()
-    monitor = xbmc.Monitor()
+def poll_commands(monitor):
     while not monitor.abortRequested():
         try:
             command = poll()
             if command:
-                try:
-                    outcome = execute(command)
-                except Exception:
-                    outcome = "unavailable"
-                try:
-                    ack(command, outcome)
-                except RemoteError:
-                    pass
+                try: COMMANDS.put(command, timeout=1)
+                except queue.Full: ack(command, "unavailable")
         except RemoteError:
             monitor.waitForAbort(1.0)
+
+
+def main():
+    monitor = InputMonitor(INPUT)
+    threading.Thread(target=poll_commands, args=(monitor,),
+                     name="asterremote-poll", daemon=True).start()
+    while not monitor.waitForAbort(0.1):
+        try: command = COMMANDS.get_nowait()
+        except queue.Empty: continue
+        try:
+            try: outcome = execute(command)
+            except Exception: outcome = "unavailable"
+            try: ack(command, outcome)
+            except RemoteError: pass
+        finally:
+            COMMANDS.task_done()
 
 
 if __name__ == "__main__":
