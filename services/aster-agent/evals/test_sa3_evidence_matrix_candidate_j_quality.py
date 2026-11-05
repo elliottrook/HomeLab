@@ -6,15 +6,16 @@ from sa3_evidence_matrix_candidate_j_quality import run_quality, score_result
 from sa3_evidence_matrix_candidate_j_quality_freeze import build
 
 
-def transport(payload):
-    eligible = json.loads(payload["messages"][1]["content"])["eligible_hypothesis_ids"]
-    return {"choices": [{"message": {"role": "assistant", "content": json.dumps({"hypothesis_ids": eligible[:1]})}, "finish_reason": "stop"}]}
-
-
 class CandidateJQualityTests(unittest.TestCase):
     def setUp(self):
         self.packet, self.keys = build(); tick = [0.0]
+        keyed = {row["id"]: row for row in self.keys["case_answer_keys"]}
+        prompt_ids = {case["prompt"]: case["id"] for case in self.packet["cases"]}
         def monotonic(): tick[0] += 0.01; return tick[0]
+        def transport(payload):
+            request = json.loads(payload["messages"][1]["content"])
+            selected = keyed[prompt_ids[request["prompt"]]]["expected_hypothesis_ids"]
+            return {"choices": [{"message": {"role": "assistant", "content": json.dumps({"hypothesis_ids": selected})}, "finish_reason": "stop"}]}
         self.result = run_quality(self.packet, self.keys, transport,
                                   model="hidden-model", monotonic=monotonic)
 

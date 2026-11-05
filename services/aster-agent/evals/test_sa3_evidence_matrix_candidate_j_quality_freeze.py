@@ -10,7 +10,15 @@ class CandidateJQualityFreezeTests(unittest.TestCase):
         self.assertEqual(20, result["cases"])
         self.assertEqual(14, result["model_requests"])
         self.assertEqual(6, result["mandatory_abstentions"])
+        self.assertEqual(13, result["competing_hypothesis_cases"])
         self.assertFalse(result["model_calls_authorized"])
+
+    def test_competing_hypothesis_regression_fails_closed(self):
+        packet, keys = build(); changed = copy.deepcopy(packet)
+        for case in changed["cases"]:
+            if case["id"] == "j-quality-service-log":
+                case["hypotheses"] = case["hypotheses"][:1]
+        with self.assertRaises(ValueError): validate(changed, keys)
 
     def test_control_drift_fails_closed(self):
         packet, keys = build(); changed = copy.deepcopy(packet)

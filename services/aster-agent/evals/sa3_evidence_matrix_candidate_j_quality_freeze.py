@@ -5,7 +5,7 @@ from collections import Counter
 import hashlib
 import json
 
-from sa3_evidence_matrix_candidate_j_contract import project
+from sa3_evidence_matrix_candidate_j_contract import eligible_hypothesis_ids, project
 
 
 SCHEMA = "aster-sa3-evidence-matrix-candidate-j-quality.v1"
@@ -46,46 +46,46 @@ def _case(identity, prompt, observations, hypotheses, selection):
 SPECS = (
     _case("j-quality-service-log", "Bound a degraded service with a normal critical-event aggregate.",
           (_obs("dependency_state", "warn", "The current dependency aggregate is degraded."), _obs("log_state", "ok", "The current critical-event aggregate is normal.")),
-          (_hyp("isolated-dependency", "the dependency warning may be isolated from critical events", ("dependency_state",), ("dependency_state", "log_state"), ("log_state",)),), ("isolated-dependency",)),
+          (_hyp("isolated-dependency", "the dependency warning may be isolated from critical events", ("dependency_state",), ("dependency_state", "log_state"), ("log_state",)), _hyp("events-elevated", "elevated critical events may explain the warning", ("dependency_state", "log_state"), ("dependency_state", "log_state"))), ("isolated-dependency",)),
     _case("j-quality-config-network", "Assess configuration drift alongside a degraded network path.",
           (_obs("config_state", "fail", "The public configuration identity differs from baseline."), _obs("network_state", "warn", "The current network path is degraded.")),
-          (_hyp("config-path", "configuration drift may contribute to the degraded path", ("config_state", "network_state"), ("config_state", "network_state")),), ("config-path",)),
+          (_hyp("config-path", "configuration drift may contribute to the degraded path", ("config_state", "network_state"), ("config_state", "network_state")), _hyp("config-normal", "matching configuration may rule out configuration drift", ("config_state",), ("config_state",))), ("config-path",)),
     _case("j-quality-queue-scheduler", "Localize a stalled queue and a degraded scheduler.",
           (_obs("queue_state", "fail", "The current queue made no progress."), _obs("scheduler_state", "warn", "The current scheduler aggregate is degraded.")),
-          (_hyp("scheduler-pressure", "scheduler degradation may contribute to the stalled queue", ("queue_state", "scheduler_state"), ("queue_state", "scheduler_state")),), ("scheduler-pressure",)),
+          (_hyp("scheduler-pressure", "scheduler degradation may contribute to the stalled queue", ("queue_state", "scheduler_state"), ("queue_state", "scheduler_state")), _hyp("queue-progress", "normal queue progress may rule out scheduler pressure", ("queue_state",), ("queue_state",))), ("scheduler-pressure",)),
     _case("j-quality-storage-backup", "Separate low storage reserve from a failed backup state.",
           (_obs("storage_state", "warn", "The current storage reserve is low."), _obs("backup_state", "fail", "The current backup-state check failed.")),
-          (_hyp("backup-capacity", "storage pressure may be related to the failed backup state", ("storage_state", "backup_state"), ("storage_state", "backup_state")),), ("backup-capacity",)),
+          (_hyp("backup-capacity", "storage pressure may be related to the failed backup state", ("storage_state", "backup_state"), ("storage_state", "backup_state")), _hyp("backup-normal", "a successful backup may rule out current backup failure", ("backup_state",), ("backup_state",))), ("backup-capacity",)),
     _case("j-quality-network-identity", "Assess a failed path while identity policy remains normal.",
           (_obs("network_state", "fail", "The current path probe failed."), _obs("identity_state", "ok", "The current identity-policy aggregate is normal.")),
-          (_hyp("path-local", "the path failure may be isolated from identity policy", ("network_state",), ("network_state", "identity_state"), ("identity_state",)),), ("path-local",)),
+          (_hyp("path-local", "the path failure may be isolated from identity policy", ("network_state",), ("network_state", "identity_state"), ("identity_state",)), _hyp("identity-failure", "identity-policy failure may explain the path failure", ("network_state", "identity_state"), ("network_state", "identity_state"))), ("path-local",)),
     _case("j-quality-dependency-config", "Assess a failed dependency with matching public configuration.",
           (_obs("dependency_state", "fail", "The current dependency check failed."), _obs("config_state", "ok", "The public configuration identity matches baseline.")),
-          (_hyp("dependency-local", "the dependency failure may be independent of configuration drift", ("dependency_state",), ("dependency_state", "config_state"), ("config_state",)),), ("dependency-local",)),
+          (_hyp("dependency-local", "the dependency failure may be independent of configuration drift", ("dependency_state",), ("dependency_state", "config_state"), ("config_state",)), _hyp("config-drift", "configuration drift may explain the dependency failure", ("dependency_state", "config_state"), ("dependency_state", "config_state"))), ("dependency-local",)),
     _case("j-quality-backup-storage-ok", "Bound a backup warning while capacity remains normal.",
           (_obs("backup_state", "warn", "The current backup is outside its freshness target."), _obs("storage_state", "ok", "The current storage-capacity aggregate is normal.")),
-          (_hyp("backup-freshness", "backup freshness may be degraded without capacity pressure", ("backup_state",), ("backup_state", "storage_state"), ("storage_state",)),), ("backup-freshness",)),
+          (_hyp("backup-freshness", "backup freshness may be degraded without capacity pressure", ("backup_state",), ("backup_state", "storage_state"), ("storage_state",)), _hyp("capacity-pressure", "storage-capacity pressure may explain the backup warning", ("backup_state", "storage_state"), ("backup_state", "storage_state"))), ("backup-freshness",)),
     _case("j-quality-identity-path", "Assess failed identity policy with a degraded path.",
           (_obs("identity_state", "fail", "The current identity-policy aggregate failed."), _obs("network_state", "warn", "The current path latency is degraded.")),
-          (_hyp("identity-path", "identity-policy failure may contribute to path degradation", ("identity_state", "network_state"), ("identity_state", "network_state")),), ("identity-path",)),
+          (_hyp("identity-path", "identity-policy failure may contribute to path degradation", ("identity_state", "network_state"), ("identity_state", "network_state")), _hyp("path-normal", "a normal path may rule out network degradation", ("network_state",), ("network_state",))), ("identity-path",)),
     _case("j-quality-queue-service", "Bound an elevated queue while dependencies remain normal.",
           (_obs("queue_state", "warn", "The current queue depth is elevated."), _obs("dependency_state", "ok", "The current dependency aggregate is normal.")),
-          (_hyp("queue-local", "the queue warning may be isolated from dependency health", ("queue_state",), ("queue_state", "dependency_state"), ("dependency_state",)),), ("queue-local",)),
+          (_hyp("queue-local", "the queue warning may be isolated from dependency health", ("queue_state",), ("queue_state", "dependency_state"), ("dependency_state",)), _hyp("dependency-failure", "dependency failure may explain the queue warning", ("queue_state", "dependency_state"), ("queue_state", "dependency_state"))), ("queue-local",)),
     _case("j-quality-scheduler-queue", "Assess a failed scheduler with a normal queue aggregate.",
           (_obs("scheduler_state", "fail", "The current scheduler missed its boundary."), _obs("queue_state", "ok", "The current queue aggregate is normal.")),
-          (_hyp("scheduler-local", "the scheduler failure may not yet have affected the queue", ("scheduler_state",), ("scheduler_state", "queue_state"), ("queue_state",)),), ("scheduler-local",)),
+          (_hyp("scheduler-local", "the scheduler failure may not yet have affected the queue", ("scheduler_state",), ("scheduler_state", "queue_state"), ("queue_state",)), _hyp("queue-stalled", "a stalled queue may confirm scheduler impact", ("scheduler_state", "queue_state"), ("scheduler_state", "queue_state"))), ("scheduler-local",)),
     _case("j-quality-three-source", "Bound storage, queue and configuration evidence without assigning cause.",
           (_obs("storage_state", "warn", "The current storage reserve is low."), _obs("queue_state", "fail", "The current queue is stalled."), _obs("config_state", "ok", "The public configuration identity matches baseline.")),
-          (_hyp("capacity-queue", "storage pressure may contribute to the stalled queue", ("storage_state", "queue_state"), ("storage_state", "queue_state"), ("config_state",)),), ("capacity-queue",)),
+          (_hyp("capacity-queue", "storage pressure may contribute to the stalled queue", ("storage_state", "queue_state"), ("storage_state", "queue_state"), ("config_state",)), _hyp("config-drift-queue", "configuration drift may explain the stalled queue", ("queue_state", "config_state"), ("queue_state", "config_state"))), ("capacity-queue",)),
     _case("j-quality-log-config", "Assess critical events alongside a configuration warning.",
           (_obs("log_state", "fail", "The current critical-event aggregate is nonzero."), _obs("config_state", "warn", "The public configuration identity is stale.")),
-          (_hyp("config-events", "configuration drift may be related to the critical events", ("log_state", "config_state"), ("log_state", "config_state")),), ("config-events",)),
+          (_hyp("config-events", "configuration drift may be related to the critical events", ("log_state", "config_state"), ("log_state", "config_state")), _hyp("events-normal", "a normal critical-event aggregate may rule out current events", ("log_state",), ("log_state",))), ("config-events",)),
     _case("j-quality-backup-network", "Assess a failed backup state and a degraded network path.",
           (_obs("backup_state", "fail", "The current backup-state check failed."), _obs("network_state", "warn", "The current network path is degraded.")),
-          (_hyp("path-backup", "path degradation may contribute to the failed backup state", ("backup_state", "network_state"), ("backup_state", "network_state")),), ("path-backup",)),
+          (_hyp("path-backup", "path degradation may contribute to the failed backup state", ("backup_state", "network_state"), ("backup_state", "network_state")), _hyp("path-normal-backup", "a normal path may rule out network contribution", ("network_state",), ("network_state",))), ("path-backup",)),
     _case("j-quality-mixed-availability", "Use the current scheduler evidence while dependency evidence is unavailable.",
           (_obs("dependency_state", "unavailable", "No current dependency aggregate is available."), _obs("scheduler_state", "warn", "The current scheduler aggregate is degraded.")),
-          (_hyp("scheduler-only", "the scheduler warning is the only currently supported hypothesis", ("scheduler_state",), ("scheduler_state", "dependency_state")),), ("scheduler-only",)),
+          (_hyp("scheduler-only", "the scheduler warning is the only currently supported hypothesis", ("scheduler_state",), ("scheduler_state", "dependency_state")), _hyp("dependency-current", "current dependency failure may explain the scheduler warning", ("dependency_state",), ("dependency_state", "scheduler_state"))), ("scheduler-only",)),
     _case("j-quality-stale", "Assess an old queue warning whose freshness is not established.",
           (_obs("queue_state", "warn", "A prior queue warning was recorded.", "stale"),),
           (_hyp("old-queue", "the queue warning may still be present", ("queue_state",), ("queue_state",)),), None),
@@ -142,7 +142,7 @@ def validate(packet, keys):
     if not isinstance(rows, list) or len(packet["cases"]) != 20 or len(rows) != 20:
         raise ValueError("candidate-j quality counts differ")
     keyed = {row.get("id"): row for row in rows if isinstance(row, dict)}
-    seen, sources, abstentions, requests = set(), Counter(), 0, 0
+    seen, sources, abstentions, requests, competing = set(), Counter(), 0, 0, 0
     for case in packet["cases"]:
         identity = case.get("id")
         if not isinstance(identity, str) or not identity.startswith("j-quality-") or identity in seen or identity not in keyed:
@@ -156,13 +156,19 @@ def validate(packet, keys):
                 or row["must_abstain"] is not (expected["outcome"] == "clarify")):
             raise ValueError("candidate-j quality key differs")
         abstentions += int(row["must_abstain"]); requests += int(not row["must_abstain"])
+        competing += int(
+            not row["must_abstain"] and len(eligible_hypothesis_ids(case)) >= 2
+        )
         for observation in case["observations"]: sources[observation["source"]] += 1
     packet_sha = hashlib.sha256(canonical(packet)).hexdigest()
-    if set(keyed) != seen or set(sources) != set(SOURCES) or min(sources.values()) < 2 or abstentions != 6 or requests != 14 or packet_sha in FORBIDDEN_PACKET_SHA256:
+    if (set(keyed) != seen or set(sources) != set(SOURCES)
+            or min(sources.values()) < 2 or abstentions != 6 or requests != 14
+            or competing < 13 or packet_sha in FORBIDDEN_PACKET_SHA256):
         raise ValueError("candidate-j coverage or untouched boundary differs")
     return {"schema": "aster-sa3-evidence-matrix-candidate-j-quality-freeze.v1",
             "packet_id": PACKET_ID, "cases": 20, "model_requests": 14,
-            "mandatory_abstentions": 6, "packet_sha256": packet_sha,
+            "mandatory_abstentions": 6, "competing_hypothesis_cases": competing,
+            "packet_sha256": packet_sha,
             "keys_sha256": hashlib.sha256(canonical(keys)).hexdigest(),
             "authority": "none", "automatic_routing": "off",
             "model_calls_authorized": False}

@@ -14,10 +14,13 @@
 > **Candidate-J untouched quality source frozen:** the distinct
 > [20-case boundary](evidence/D4-candidate-j-untouched-quality-freeze-source-2026-11-05.md)
 > now fixes 14 future hypothesis-selection requests and six mandatory
-> no-transport abstentions. Packet identity is `bdc0d351…db36c`, key identity
+> no-transport abstentions. Independent source review strengthened 13 selection
+> cases with competing evidence-current hypotheses before materialization; the
+> validator now fails closed on competitive-coverage regression. Packet
+> identity is `53cfd6a5…41132`, key identity
 > is `cab2790d…d526`, and the exact no-retry batch plus deterministic scorer
-> are source-complete; the combined suite passes 27/27. Nothing has executed.
-> Independent source review and a frozen model-blind decision path are next;
+> are source-complete; the combined suite passes 28/28. Nothing has executed.
+> The frozen model-blind decision path is next;
 > materialization, registration and any booked run remain later gates.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
