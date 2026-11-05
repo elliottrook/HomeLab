@@ -35,6 +35,7 @@ DIRECTORIES = (
 )
 
 _PROGRAMS = (
+    ("nlu_threshold_policy.py", "984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d"),
     ("sa4_authenticated_authority_v1.py", "cbc976176841890ba53e2458e55f09c33c802605cfa43ea8c2c3bdd8766be6ee"),
     ("sa4_canary_consumer_health_check_v1.py", "1214189f36c4bb75a90028cd31c15f4dd5ecf6977582ada67cd72a5ce65c72da"),
     ("sa4_canary_rollback_check_v1.py", "15f924f589980d786e7d0f8ad5ac5f03e32e95d907737a6c2d4ae9adad61ffdb"),
@@ -86,8 +87,8 @@ def validate_packet() -> None:
         (CHECKPOINTS, "root", "root", "0700"),
     ):
         raise ValueError("SA4 directory set changed")
-    if len(PAYLOADS) != 17 or len({p.destination for p in PAYLOADS}) != 17:
-        raise ValueError("SA4 payload set must contain 17 unique paths")
+    if len(PAYLOADS) != 18 or len({p.destination for p in PAYLOADS}) != 18:
+        raise ValueError("SA4 payload set must contain 18 unique paths")
     for payload in PAYLOADS:
         if (not _absolute_clean(payload.destination)
                 or not HEX64.fullmatch(payload.sha256)

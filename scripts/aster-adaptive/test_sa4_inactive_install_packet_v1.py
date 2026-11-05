@@ -1,6 +1,10 @@
 import copy
 import hashlib
 from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
 import unittest
 
 import sa4_inactive_install_packet_v1 as packet
@@ -30,6 +34,22 @@ class SA4InactiveInstallPacketTests(unittest.TestCase):
                          value["rollback"]["on_uncertainty"])
         self.assertIn("no-service-unit-timer-or-booking", value["exclusions"])
         self.assertIn("no-overwrite-of-existing-path", value["exclusions"])
+
+    def test_installed_program_set_has_closed_imports_in_isolation(self):
+        programs = [item for item in packet.PAYLOADS
+                    if item.destination.startswith(packet.LIBEXEC + "/")]
+        with tempfile.TemporaryDirectory() as raw:
+            isolated = Path(raw)
+            for item in programs:
+                shutil.copyfile(self.root / item.source,
+                                isolated / Path(item.destination).name)
+            modules = sorted(Path(item.destination).stem for item in programs)
+            statement = ("import sys; sys.path.insert(0, %r); " % raw
+                         + "; ".join("import " + name for name in modules))
+            result = subprocess.run(
+                [sys.executable, "-I", "-B", "-c", statement],
+                cwd=raw, check=False, capture_output=True, text=True)
+            self.assertEqual(0, result.returncode, result.stderr)
 
     def test_any_missing_or_extra_absence_observation_fails_closed(self):
         missing = set(self.absent); missing.remove(packet.TARGET)
