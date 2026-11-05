@@ -14,8 +14,10 @@ class CandidateJExclusionCorrectionInstallTests(unittest.TestCase):
         root = Path(__file__).parent
         self.assertEqual(install.NEW_WRAPPER,
                          hashlib.sha256((root / install.WRAPPER).read_bytes()).hexdigest())
-        self.assertEqual(install.NEW_MANIFEST,
-                         hashlib.sha256((root / install.MANIFEST).read_bytes()).hexdigest())
+        self.assertEqual(
+            "1f048141e77cffd3684c6ab50199f83bac7cb170356441756e8fb0b9ab74c845",
+            install.NEW_MANIFEST)
+        self.assertEqual(2, len(install.EPUB_PINS))
         self.assertEqual(2, len({install.WRAPPER, install.MANIFEST}))
 
     def test_cli_is_noop_without_apply(self):

@@ -17,9 +17,12 @@ five-file pin set already enforces candidate isolation.
 The correction removes only those two predecessor packet names from the
 existence ban. Blind-review and decision files remain forbidden. Candidate-j's
 pin set still excludes every candidate-g/i packet, key and review file. The
-corrected wrapper is `a883c144…5f2a`; the repinned 39-file release manifest is
-`9eddfdd2…d665`. Eighteen focused candidate-j tests and current-release
-integrity pass.
+corrected wrapper is `a883c144…5f2a`. Live preflight then discovered the EPUB
+owner had legitimately extended the installed release from 39 to 41 pins. The
+correction therefore derives `1f048141…c845` from the exact installed
+`66164c8c…8b24` manifest, changes only candidate-j's wrapper digest and requires
+both EPUB adapter/transaction pins unchanged. Eighteen focused candidate-j
+tests and current-release source integrity pass.
 
 The dedicated correction installer replaces only the host wrapper, guest
 wrapper and host release manifest after exact old-hash, custody, ready-lease,

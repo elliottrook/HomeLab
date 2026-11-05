@@ -20,8 +20,14 @@ WRAPPER = "aster_llama_sa3_candidate_j_evidence_matrix_wrapper.py"
 MANIFEST = "lab_hours_release_manifest.json"
 OLD_WRAPPER = "ec6e2297665f169eb50c67be42aba592066fd0be1c9e14784ebd530e4921d2f8"
 NEW_WRAPPER = "a883c144ead962dc5862c54005a90157db173e88667122a89a23496796f05f2a"
-OLD_MANIFEST = "3c12af56e18612c314fdcc4cc336064264d1593a74bc94e9980357ab5366d9e8"
-NEW_MANIFEST = "9eddfdd24ab10fb0b678479dabeae0ac6676997361d80f354bb7a7586e82d665"
+OLD_MANIFEST = "66164c8c59ed4b260494928daf2a0e434ad87ac83ba83ad2d2189e2e2de78b24"
+NEW_MANIFEST = "1f048141e77cffd3684c6ab50199f83bac7cb170356441756e8fb0b9ab74c845"
+EPUB_PINS = {
+    "epub_word_alignment_adapter.py":
+        "59d47d79cd924f992d999a2c2f0928c51ab22747227c11bde6c9bd890586af8c",
+    "epub_word_alignment_transaction.py":
+        "fb4cbcb5dd22963ae9557971e2b74eaba634a39ae233c3c75d00262125730a50",
+}
 
 REMOTE = r'''import base64,hashlib,json,os,stat,sys
 from pathlib import Path
@@ -110,7 +116,22 @@ def install(stage: Path) -> dict[str, object]:
     for name, (old, new) in targets.items():
         if digest(regular(HOST_ROOT / name, 0o644)) != old:
             raise InstallError("BASELINE_DRIFT:" + name)
-        replacement[name] = source(stage, "scripts/local-ai/" + name, new)
+        if name == WRAPPER:
+            replacement[name] = source(stage, "scripts/local-ai/" + name, new)
+    installed_manifest = json.loads(
+        regular(HOST_ROOT / MANIFEST, 0o644).decode("utf-8"))
+    pins = installed_manifest.get("pins") if isinstance(installed_manifest, dict) else None
+    if (not isinstance(pins, dict) or len(pins) != 41
+            or installed_manifest.get("schema") != "aster-lab-hours-release-manifest.v1"
+            or pins.get(WRAPPER) != OLD_WRAPPER
+            or any(pins.get(name) != expected
+                   for name, expected in EPUB_PINS.items())):
+        raise InstallError("INSTALLED_MANIFEST_SHAPE_INVALID")
+    installed_manifest["pins"][WRAPPER] = NEW_WRAPPER
+    replacement[MANIFEST] = (
+        json.dumps(installed_manifest, sort_keys=True, indent=2) + "\n").encode()
+    if digest(replacement[MANIFEST]) != NEW_MANIFEST:
+        raise InstallError("DERIVED_MANIFEST_HASH_INVALID")
     guest_data = source(stage, "scripts/local-ai/" + WRAPPER, NEW_WRAPPER)
     CHECKPOINT.mkdir(parents=True, mode=0o700)
     os.chmod(CHECKPOINT, 0o700)
@@ -135,7 +156,7 @@ def install(stage: Path) -> dict[str, object]:
         check = subprocess.run(("/usr/bin/python3", "-B", "-c",
             "import lab_hours_reserved_runner as r;"
             "import aster_llama_sa3_candidate_j_evidence_matrix_wrapper as w;"
-            "assert len(r.load_manifest())==39;"
+            "assert len(r.load_manifest())==41;"
             "assert 'sa3-evidence-envelope-quality-v1.json' not in w.EXCLUDED;"
             "assert 'sa3-evidence-envelope-candidate-i-quality-v1.json' not in w.EXCLUDED"),
             env=env, capture_output=True, text=True, timeout=30, check=False)
