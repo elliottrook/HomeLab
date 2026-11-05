@@ -132,3 +132,26 @@ observation and the privacy rule remained live throughout. The clean-install
 script and regression test also use `5C`, while the one-time correction and
 its test retain the incident/recovery evidence.
 
+The first post-privacy cache-expiry test then found a second fail-closed edge:
+the host-to-`any` Internet block also matched the television's unsolicited
+multicast discovery replies. Home Assistant's established session stayed live,
+but a fresh Android TV Remote resolution timed out. Two rules were therefore
+added ahead of the block for this host only: `224.0.0.251:5353/UDP` (mDNS) and
+`239.255.255.250:1900/UDP` (SSDP). No unicast destination or Internet service
+was opened. After filter reload, a fresh Android TV Remote browse again
+resolved `192.168.30.162:6466`, AirPlay resolved the TCL at
+`192.168.30.162:7000`, Home Assistant remained `on`, and the following
+host-specific Internet block remained loaded before the general IoT pass. The
+discovery change has its own immutable checkpoint/proof and apply/rollback
+tests.
+
+The owner then placed the television into normal standby rather than full
+shutdown. Home Assistant recorded both Family Room TV entities changing to
+`off` at 13:29:50 while fresh Android TV Remote and AirPlay discovery still
+resolved, proving that the local standby path survives the Internet block. A
+single explicit **Turn on** action was then issued through the native Home
+Assistant entity; no blind toggle, volume, navigation or playback command was
+used. Both entities returned to `on` at 13:31:09 and the live media controls
+reappeared. Physical screen wake and any CEC effect remain owner-confirmation
+gates before this path can authorize an Aster Remote equipment control.
+
