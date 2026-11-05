@@ -60,6 +60,14 @@
 > restart/model call occurred, lease/locks are clean, production is healthy and
 > Doctor reports no codes. The next action is one authoritative ledger-booked
 > untouched quality transaction; blind review follows only a complete result.
+> **Quality R1 scheduled:** the authoritative ledger rejected 08:30 because
+> TTS owns 08:30–10:00 plus recovery through 10:15. The subsequently checked
+> 10:16–11:16 window was clear and exact booking
+> `aster-stream-a-sa3-candidate-j-quality-20261105-1016-r1` is now
+> [`scheduled`](evidence/D4-candidate-j-quality-r1-schedule-2026-11-05.md).
+> All 46 installed pins, dispatcher/Doctor and core production static checks
+> pass. Runtime lease, lock, quiet-host and restoration gates remain fresh and
+> fail closed. A complete 20-row result is required before blind review.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).
