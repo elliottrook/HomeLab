@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-05 — Propose AsterTV platform engineering and design operations
+
+- Drafted a department-level project for AsterTV fleet composition, lifecycle,
+  onboarding, releases, recovery and knowledge.
+- Adopted the existing Forgejo/MkDocs HomeLab Wiki and LXC 113 intake,
+  provenance, quarantine and mirror architecture rather than another wiki.
+- Defined a dedicated AsterTV design authority, exhaustive component/action
+  mockup catalogue, focus-graph contract and two proposed Codex skills.
+- Made fleet lifecycle/composition the first implementation milestone; no live
+  system, wiki repository or AsterTV was changed.
+
 ## 2026-11-04 — Add inert AsterTV podcast request queue
 
 - Added an owner-approved podcast request broker with opaque short-lived
