@@ -52,3 +52,9 @@ and case content, and can advance a passing result only to the existing
 three-reviewer model-blind review. It explicitly records promotion as
 unauthorized. Candidate-J's complete focused suite passes 43/43, including
 terminal drift and quality-regression fail-closed tests.
+
+The model-blind review handoff is also automated before execution. It accepts
+only the complete frozen result shape, emits the bound 20-case review packet
+and empty review template, requires three distinct reviewers, and excludes the
+result's model/backend identity. Incomplete output fails closed. With this
+handoff included, the complete Candidate-J suite passes 45/45.
