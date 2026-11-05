@@ -38,6 +38,9 @@ the updated 36-pin release manifest is
 
 The focused correction, transaction, wrapper, current-manifest, full-runtime
 and reserved-runner suite passes 48/48. A two-file reversible inactive installer
-and deterministic bundle builder are source-ready. No installation, retry,
+and deterministic bundle builder are source-ready at platform commit
+`5e2190f6`. Two clean builds are byte-identical at SHA-256
+`8508bd336b18d05dc1f84efc3322f20a55e4460645ccc6ae0b1dcc6d8a63ab40`.
+No installation, retry,
 new booking, service restart, model/backend change, route or promotion is
 authorized by this source milestone.
