@@ -1,36 +1,12 @@
-"""Run and score Candidate-J's frozen untouched quality packet."""
+"""Offline score Candidate-J's frozen untouched quality result."""
 from __future__ import annotations
 
 from sa3_evidence_matrix_candidate_j_quality_freeze import (
     canonical, validate,
 )
-from sa3_evidence_matrix_candidate_j_runner import run_case
-
-
-PREDICTION_FIELDS = frozenset({
-    "id", "outcome", "checks", "summary", "effects", "authority",
-    "prose_source", "model", "model_requested", "finish_reason",
-    "latency_seconds", "error_class",
-})
-
-
-def run_quality(packet, keys, transport, *, model, monotonic):
-    freeze = validate(packet, keys)
-    predictions, errors, requests = [], [], 0
-    for case in packet["cases"]:
-        result = run_case(case, transport, model=model, monotonic=monotonic)
-        predictions.append(result); requests += int(result["model_requested"])
-        if result["error_class"] is not None:
-            errors.append({"id": case["id"], "class": result["error_class"]})
-    return {
-        "schema": "aster-sa3-evidence-matrix-quality-result.v1",
-        "candidate_alias": "candidate-j", "model": model,
-        "packet_id": freeze["packet_id"],
-        "packet_sha256": freeze["packet_sha256"],
-        "case_count": 20, "model_request_count": requests,
-        "retry_count": 0, "predictions": predictions, "errors": errors,
-        "authority": "none", "automatic_routing": "off",
-    }
+from sa3_evidence_matrix_candidate_j_quality_runtime import (
+    PREDICTION_FIELDS, run_quality,
+)
 
 
 def score_result(packet, keys, result):

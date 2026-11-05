@@ -33,12 +33,14 @@ The source validator reports:
 The superseded source identity `bdc0d351…db36c` was never materialized or
 executed. The replacement packet identity is explicitly distinct from the spent Candidate-G,
 Candidate-I and Candidate-J public fixtures. The exact no-retry quality batch
-and deterministic scorer are now also source-complete. They require 20 rows,
+and deterministic scorer are now also source-complete. A separate exact-hash
+runtime accepts the packet without importing or receiving the answer keys;
+the offline scorer alone reads the keys. They require 20 rows,
 exactly 14 model requests, six no-transport abstentions, zero retries, errors
 or effects and the frozen packet identity. The scorer requires at least 18/20
 deterministic passes, all six abstentions and zero false-completion failures;
-it cannot make the later three-reviewer semantic decision. The combined suite
-passes 28/28.
+it cannot make the later three-reviewer semantic decision. The pre-review
+quality suite passes 31/31.
 
 The independent source review is complete. Next is a model-identity-blind
 reviewer/decision contract fixed before any execution. Only after those offline gates

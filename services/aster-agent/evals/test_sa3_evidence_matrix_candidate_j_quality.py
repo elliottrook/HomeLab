@@ -2,8 +2,9 @@ import copy
 import json
 import unittest
 
-from sa3_evidence_matrix_candidate_j_quality import run_quality, score_result
+from sa3_evidence_matrix_candidate_j_quality import score_result
 from sa3_evidence_matrix_candidate_j_quality_freeze import build
+from sa3_evidence_matrix_candidate_j_quality_runtime import run_quality
 
 
 class CandidateJQualityTests(unittest.TestCase):
@@ -16,7 +17,7 @@ class CandidateJQualityTests(unittest.TestCase):
             request = json.loads(payload["messages"][1]["content"])
             selected = keyed[prompt_ids[request["prompt"]]]["expected_hypothesis_ids"]
             return {"choices": [{"message": {"role": "assistant", "content": json.dumps({"hypothesis_ids": selected})}, "finish_reason": "stop"}]}
-        self.result = run_quality(self.packet, self.keys, transport,
+        self.result = run_quality(self.packet, transport,
                                   model="hidden-model", monotonic=monotonic)
 
     def test_exact_frozen_transaction_shape_scores(self):

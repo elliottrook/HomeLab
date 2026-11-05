@@ -28,15 +28,20 @@ routing `off` and promotion `not-authorized`.
 ## Frozen source
 
 - blind packet and response validator:
-  `8c22abce9539407a0e7bc8427faaf48c0199f836a47146614fbcc40bc1e23cc7`;
+  `e083ba37bbe48b8826ee5f23e253d5a955eaa4ad0967cf28faea51e3f7a532a3`;
 - three-reviewer decision:
   `990e435a58fa6a642be970ad382fc48a3133dd6914ae2feab88db25510e6ce32`;
+- key-free exact-packet runtime:
+  `4ea9b457d605926d88ce3bce92de0e377d657a0737854df30fe23b182037fea4`;
+- offline deterministic scorer:
+  `89f92f83c6ab570b9915b267e34dc57b8ac32d78b2457e2bfe0cec3b74955b8c`;
 - quality packet:
   `53cfd6a5a8b09ada122c64c60af3264b0ebda595bf1f2d5d53da2710e0141132`;
 - answer keys:
   `cab2790dbb6e84b0bbe269c876dee8c4b116abfb4fa6fc2a119782e4b7fcd526`.
 
-The complete Candidate-J source suite passes 36/36, including packet and
+The complete Candidate-J source suite passes 39/39, including key-free runtime
+custody, packet and
 result drift, request-count drift, per-row identity exposure, transport on an
 abstention, runtime errors, incomplete or identity-exposed reviews, duplicate
 reviewers, conservative threshold, mandatory-abstention and false-completion
@@ -44,7 +49,9 @@ failures.
 
 ## Boundary
 
-This milestone does not materialize the untouched packet or keys, register a
+The runtime module has no answer-key dependency; the key-bearing freeze and
+offline scorer are excluded from future guest registration. This milestone
+does not materialize the untouched packet or keys, register a
 workload, query or reserve Lab Hours, invoke a model, pre-score a case, appoint
 the eventual reviewers, authorize a retry, disclose model identity or promote
 a route. Separate custody, hash-pinned workload registration and one exact

@@ -3,8 +3,8 @@ import json
 import unittest
 
 import sa3_evidence_matrix_candidate_j_quality_blind_review as blind
-from sa3_evidence_matrix_candidate_j_quality import run_quality
 from sa3_evidence_matrix_candidate_j_quality_freeze import build
+from sa3_evidence_matrix_candidate_j_quality_runtime import run_quality
 
 
 def complete_result(packet, keys):
@@ -18,7 +18,7 @@ def complete_result(packet, keys):
         request = json.loads(payload["messages"][1]["content"])
         selected = keyed[prompt_ids[request["prompt"]]]["expected_hypothesis_ids"]
         return {"choices": [{"message": {"role": "assistant", "content": json.dumps({"hypothesis_ids": selected})}, "finish_reason": "stop"}]}
-    return run_quality(packet, keys, transport, model="hidden-model", monotonic=monotonic)
+    return run_quality(packet, transport, model="hidden-model", monotonic=monotonic)
 
 
 def complete(review_packet, reviewer="independent-model-blind-reviewer"):

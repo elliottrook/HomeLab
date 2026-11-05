@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import math
 
-from sa3_evidence_matrix_candidate_j_quality import PREDICTION_FIELDS
+from sa3_evidence_matrix_candidate_j_quality_runtime import PREDICTION_FIELDS
 from sa3_evidence_matrix_candidate_j_quality_freeze import (
     PACKET_ID, canonical,
 )
