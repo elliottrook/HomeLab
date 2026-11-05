@@ -1,7 +1,8 @@
 # AsterTV v3 M8 Jen Remote candidate — 2026-11-04
 
 Target: repository candidate, then Aster LXC 104 and `AsterTV-Jen` only  
-State: credential-free candidate complete; not deployed
+State: credential-free candidate complete; subsequently installed under
+SA-M8-JEN2 (see `AsterTV-v3-M8-Jen-install-2026-11-04.md`)
 
 ## Architecture
 

@@ -18,6 +18,12 @@ entries:
         - matching_mode: strict
           url: aster-companion://callback
           redirect_uri_type: authorization
+        - matching_mode: strict
+          url: https://aster.elliottrook.com/companion
+          redirect_uri_type: authorization
+        - matching_mode: strict
+          url: https://aster.elliottrook.com/remote/
+          redirect_uri_type: authorization
       grant_types:
         - authorization_code
         - refresh_token

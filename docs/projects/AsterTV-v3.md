@@ -1466,14 +1466,14 @@ Kodi restart, checkpoint failure or any target other than LXC 104 and
 - [x] SA-M8-JEN1: implement and locally test the credential-free gateway,
   installable shell and Jen client protocol, including denial and failure
   contracts.
-- [ ] SA-M8-JEN2: checkpoint the existing Authentik/Aster/Jen boundaries and
+- [x] SA-M8-JEN2: checkpoint the existing Authentik/Aster/Jen boundaries and
   install only the additive redirect, Aster router and idle Jen client.
 - [ ] SA-M8-JEN3: pass real iPhone passkey, Home Screen, touch/hold/swipe,
   search, text/symbol/paste/dictation, sleep/reconnect and denial tests.
 - [ ] SA-M8-JEN4: prove rollback/reinstall, add Doctor/backup/operator evidence
   and close the Jen pilot before any Family/Bedroom or M7 work.
 
-The SA-M8-JEN1 candidate is additive and not deployed. It provides a
+The SA-M8-JEN1 candidate provides a
 same-origin, passkey-PKCE PWA shell; an in-memory, expiring, at-most-once
 semantic queue; exact owner/room/origin/client gates; bounded rate and queue
 limits; content-free connection state; and an outbound-only Jen Kodi service.
@@ -1482,6 +1482,19 @@ and active-keyboard Send/Backspace/Clear/Cancel/Enter. Volume, mute and power
 remain disabled in the UI. Five protocol tests pass in Aster's pinned runtime;
 15 static/client/wrapper tests and both JavaScript syntax checks pass locally.
 Evidence: `docs/projects/evidence/AsterTV-v3-M8-Jen-remote-candidate-2026-11-04.md`.
+
+SA-M8-JEN2 retained the exact live checkpoints and installed the candidate on
+only the three approved boundaries. Authentik has three strict redirects and
+preserves its public-client/passkey flows; Aster retains the previous wrapper,
+module-absence and post-install module checkpoints; Jen retains its exact
+Addons33 database and absent-target state. The HTTPS shell returns the confined
+browser-policy headers, Companion remains HTTP 200, unauthenticated sessions
+remain 401 and Jen holds an established outbound poll while Kodi is idle. The
+first Authentik save and Jen directory-create attempts failed before acceptance
+and proved their transaction/exact-restore paths; the corrected retries passed.
+All transient client-key copies were removed. Real iPhone/passkey and input
+acceptance remains SA-M8-JEN3, not inferred from the live transport.
+Evidence: `docs/projects/evidence/AsterTV-v3-M8-Jen-install-2026-11-04.md`.
 
 - [ ] Capture the useful Apple TV Remote interaction set as a design reference:
   swipe or directional navigation, tap/OK, hold for context, Back/Home,
@@ -1798,6 +1811,7 @@ explicit user acceptance.
 | 2026-11-04 | Built the Jen M6 Home/Cameras candidate | Exact-hash transform removes the live viewer from Home while retaining the schema-4 list, freshness notice, summary cards and local timer. New window `11134` owns the unchanged five-minute/two-second camera lifecycle. Account authority now distinguishes `home_status` and `camera_view`; Jason gains neither `home_control` nor legacy `cameras`, and Guest/direct-window routes remain denied. | Seven M6, 30 account, 15 Aster-client and 37 shared v3 tests pass, including malformed identity, independent entitlement, closed focus graph and installer/rollback boundary checks. Candidate is local only; next safe action is idle Jen checkpoint/install and physical navigation/failure validation. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-candidate-2026-11-04.md`. |
 | 2026-11-04 | Completed the Jen M6 read-only Home/Cameras slice | Retained the separate Home and Cameras windows, distinct `home_status`/`camera_view` authority and unchanged restricted viewer path after exact rollback/reinstall. The approved Home Assistant restart loaded the reviewed three-target publisher; its first populated cycle delivered 63 schema-4 entities to Jen. A reboot audit found the inherited camera unit enabled without an open page, so an exact-hash correction now disables/stops it before Kodi. | Home → Cameras → Back, Guest direct-window denial, unavailable state, one bounded still, active-digest isolation and two reboots pass. Camera lifecycle rollback/reinstall restored and then removed the legacy enabled/active state exactly; after reboot it remains disabled/inactive, starts only from Live view and stops on Back. Final totals: 8 M6, 30 account, 15 Aster-client and 37 shared tests. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-candidate-2026-11-04.md`. |
 | 2026-11-04 | Built the credential-free M8 Jen Remote candidate | Added an installable `/remote/` shell, short-lived passkey/PKCE session, strict owner/room/origin/client gateway, expiring at-most-once semantic queue and outbound-only Jen service. The client exposes navigation, context, Home, Play/Pause, accepted Search and active-keyboard input only; M7 equipment controls remain visibly disabled. | Five protocol tests pass in Aster's pinned environment; 15 local static/client/wrapper tests and both JavaScript syntax checks pass. No live route, redirect, credential, service or client changed. Next gate is exact live checkpoint and additive Authentik/Aster/Jen installation under `SA-M8-JEN`. Evidence: `docs/projects/evidence/AsterTV-v3-M8-Jen-remote-candidate-2026-11-04.md`. |
+| 2026-11-04 | Installed the private M8 Jen Remote boundary | Added only the strict `/remote/` OIDC redirect, additive Aster router/static shell and outbound Jen client after exact checkpoints. A custom-field save attempt transactionally rolled back in Authentik; an existing-directory error restored Jen's add-on database and absent targets byte-for-byte. Corrected retries passed, and a separately checkpointed follow-up added CSP, browser capability and anti-framing headers. | `/remote/` and legacy `/companion` return HTTP 200; unauthenticated session is 401; Authentik token CORS is exact-origin; Jen's mode-0600 identity maintains an established TCP 9120 poll while Kodi is idle. No inbound client port, proxy, DNS, certificate, firewall or equipment authority changed. All transient key copies are gone. SA-M8-JEN2 is complete; real iPhone/passkey, Home Screen, input/reconnect and denial acceptance is next. Evidence: `docs/projects/evidence/AsterTV-v3-M8-Jen-install-2026-11-04.md`. |
 
 ## Close-out
 

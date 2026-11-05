@@ -28,6 +28,19 @@ REMOTE_ORIGIN = "https://aster.elliottrook.com"
 COMMAND_LIFETIME_SECONDS = 15
 CONNECTED_SECONDS = 35
 MAX_QUEUE = 32
+REMOTE_HEADERS = {
+    "Content-Security-Policy": (
+        "default-src 'self'; base-uri 'none'; object-src 'none'; "
+        "frame-ancestors 'none'; form-action 'none'; img-src 'self'; "
+        "script-src 'self'; style-src 'self'; worker-src 'self'; "
+        "manifest-src 'self'; media-src 'self' blob:; "
+        "connect-src 'self' https://auth.elliottrook.com"
+    ),
+    "Permissions-Policy": "camera=(), geolocation=(), microphone=(self)",
+    "Referrer-Policy": "no-referrer",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+}
 
 Action = Literal[
     "nav.up", "nav.down", "nav.left", "nav.right", "nav.select",
@@ -153,7 +166,7 @@ class AsterRemoteGateway:
     async def index(self) -> FileResponse:
         return FileResponse(
             self.static_root / "index.html",
-            headers={"Cache-Control": "no-cache"},
+            headers={"Cache-Control": "no-cache", **REMOTE_HEADERS},
         )
 
     async def asset(self, request: Request) -> FileResponse:
@@ -166,7 +179,7 @@ class AsterRemoteGateway:
         }
         if name not in allowed:
             raise HTTPException(404, "Remote asset not found")
-        headers = {"Cache-Control": "no-cache"}
+        headers = {"Cache-Control": "no-cache", **REMOTE_HEADERS}
         if name == "sw.js":
             headers["Service-Worker-Allowed"] = "/remote/"
         return FileResponse(self.static_root / name, media_type=allowed[name], headers=headers)

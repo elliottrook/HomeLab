@@ -7,6 +7,7 @@ from fastapi import HTTPException
 
 from aster_remote import (
     AsterRemoteGateway, BrowserCommand, ClientAck, ClientIdentity, ClientPoll,
+    REMOTE_HEADERS,
 )
 
 
@@ -124,6 +125,14 @@ class RemoteTests(unittest.TestCase):
             "volume.up", "volume.down", "mute", "power", "shell",
             "jsonrpc", "home.call_service",
         })
+
+    def test_shell_headers_confine_content_and_browser_capabilities(self):
+        policy = REMOTE_HEADERS["Content-Security-Policy"]
+        for value in ("default-src 'self'", "frame-ancestors 'none'",
+                      "object-src 'none'", "https://auth.elliottrook.com"):
+            self.assertIn(value, policy)
+        self.assertEqual(REMOTE_HEADERS["Referrer-Policy"], "no-referrer")
+        self.assertEqual(REMOTE_HEADERS["X-Frame-Options"], "DENY")
 
 
 if __name__ == "__main__":
