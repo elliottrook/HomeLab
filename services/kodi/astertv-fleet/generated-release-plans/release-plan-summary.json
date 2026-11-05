@@ -41,7 +41,6 @@
       "blockers": [
         "release-artifact-not-locally-verified",
         "composition-bundle-not-built",
-        "overlay-payload-incomplete:jen-home-cameras",
         "overlay-payload-incomplete:jen-low-spec-runtime",
         "overlay-payload-incomplete:jen-movie-youtube"
       ],

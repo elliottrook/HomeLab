@@ -9,15 +9,18 @@
   "targets": ["astertv-jen"],
   "owns": ["kodi/skin.asterhome/home-window-v3", "kodi/skin.asterhome/cameras-window-v3", "systemd/jen-camera-on-demand"],
   "payload_sources": [
-    "services/kodi/astertv-v3/m6/fixtures/custom_1112_home.predecessor.xml",
-    "services/kodi/astertv-v3/m6/addon/skin/custom_1134_cameras.xml",
-    "services/kodi/astertv-v3/m6/addon/aster-camera2/view.py",
-    "services/kodi/astertv-v3/m6/home_overlay.py",
-    "services/kodi/astertv-v3/m6/apply_jen_home_cameras.py",
-    "services/kodi/astertv-v3/m6/install_jen_home_cameras.py",
-    "services/kodi/astertv-v3/m6/install_jen_camera_on_demand.py"
+    "services/kodi/astertv-fleet/materialized/jen-home-cameras",
+    "services/kodi/astertv-fleet/materialize_jen_home_cameras.py"
   ],
-  "payload_blockers": ["rendered-home-xml-and-systemd-unit-not-materialized", "duplicated-account-and-voice-ownership"],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "systemd", "key": "astertv-v3-m6-jen.service", "expected": "enabled", "sensitive": false},
+    {"authority": "systemd", "key": "aster-camera.service", "expected": "disabled-inactive", "sensitive": false},
+    {"authority": "profile-registry", "key": "jason.home-assistant.read-only", "expected": ["home_status", "camera_view"], "sensitive": false},
+    {"authority": "filesystem", "key": "home-feed-client.mode", "expected": "0600", "sensitive": false},
+    {"authority": "filesystem", "key": "camera-viewer-client.mode", "expected": "0600", "sensitive": false}
+  ],
   "secret_refs": ["jen-home-feed-client", "jen-camera-viewer-client"],
   "rollback_ref": "astertv-v3-m6-jen and astertv-v3-m6-camera-on-demand-r1",
   "tests": ["services/kodi/astertv-v3/m6/test_home_overlay.py"]

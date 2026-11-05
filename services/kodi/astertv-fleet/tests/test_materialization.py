@@ -44,6 +44,9 @@ PODCAST_SPEC.loader.exec_module(PODCAST_MODULE)
 GUEST_SPEC = importlib.util.spec_from_file_location("jen_guest_materializer", ROOT / "materialize_jen_guest_catalogue.py")
 GUEST_MODULE = importlib.util.module_from_spec(GUEST_SPEC)
 GUEST_SPEC.loader.exec_module(GUEST_MODULE)
+HOME_SPEC = importlib.util.spec_from_file_location("jen_home_materializer", ROOT / "materialize_jen_home_cameras.py")
+HOME_MODULE = importlib.util.module_from_spec(HOME_SPEC)
+HOME_SPEC.loader.exec_module(HOME_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -181,6 +184,17 @@ class MaterializationTests(unittest.TestCase):
                              for path in files))
         self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
         self.assertEqual(manifest["external_state"][0]["sha256"], GUEST_MODULE.POLICY_SHA256)
+
+    def test_jen_home_cameras_owns_presentation_not_identity_or_voice(self):
+        files, manifest = HOME_MODULE.render()
+        self.assertEqual(len(files), 11)
+        self.assertEqual(HOME_MODULE.sha(
+            files["skin.asterhome/1080i/custom_1112_home.xml"][0]), HOME_MODULE.FINAL_HOME_SHA256)
+        self.assertFalse(any("asterprofiles" in path or "astertv.voice" in path for path in files))
+        self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
+        runtime = files["stable/apply_jen_home_cameras.py"][0].decode()
+        self.assertNotIn("PROFILE_STATE", runtime)
+        self.assertIn('disable", "--now", "aster-camera.service', runtime)
 
 
 if __name__ == "__main__":

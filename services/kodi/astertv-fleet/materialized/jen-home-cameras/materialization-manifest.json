@@ -1,0 +1,101 @@
+{
+  "files": [
+    {
+      "bytes": 91,
+      "destination": "/storage/.aster-home/display-identity.json",
+      "mode": "0600",
+      "sha256": "f492f52a8adf9615e5c5492b55795d11cceed077fa57f057fc6cd6f8b8f39a4f"
+    },
+    {
+      "bytes": 4409,
+      "destination": "/storage/.kodi/addons/script.asterruntime/aster-camera2/view.py",
+      "mode": "0644",
+      "sha256": "8abca882fb8b075e41d3687633dd01e2292994d43e1fbd3ff0c84f81c01a78b6"
+    },
+    {
+      "bytes": 22527,
+      "destination": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1112_home.xml",
+      "mode": "0644",
+      "sha256": "dbce098a14ccd1e2e85552c8f3e43e396d4dc9fb64b64429225dadc7ab1b5c97"
+    },
+    {
+      "bytes": 6235,
+      "destination": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1134_cameras.xml",
+      "mode": "0644",
+      "sha256": "fc8e4c7b9f611319847784c229d08adaa5a66faf43c83035f349af977b93866d"
+    },
+    {
+      "bytes": 23039,
+      "destination": "/storage/.aster-v3/m6/Home.base.xml",
+      "mode": "0600",
+      "sha256": "5a2583b275485a5449ff29e3580621ab04409339e948db6e2ad39d55676871eb"
+    },
+    {
+      "bytes": 2251,
+      "destination": "/storage/.aster-v3/m6/apply_jen_home_cameras.py",
+      "mode": "0600",
+      "sha256": "a229ef0c815996eb987ea621fed060a0e44501aeb84e377fce24d3fe38e161df"
+    },
+    {
+      "bytes": 4409,
+      "destination": "/storage/.aster-v3/m6/camera-view.py",
+      "mode": "0600",
+      "sha256": "8abca882fb8b075e41d3687633dd01e2292994d43e1fbd3ff0c84f81c01a78b6"
+    },
+    {
+      "bytes": 6235,
+      "destination": "/storage/.aster-v3/m6/custom_1134_cameras.xml",
+      "mode": "0600",
+      "sha256": "fc8e4c7b9f611319847784c229d08adaa5a66faf43c83035f349af977b93866d"
+    },
+    {
+      "bytes": 91,
+      "destination": "/storage/.aster-v3/m6/display-identity.json",
+      "mode": "0600",
+      "sha256": "f492f52a8adf9615e5c5492b55795d11cceed077fa57f057fc6cd6f8b8f39a4f"
+    },
+    {
+      "bytes": 4396,
+      "destination": "/storage/.aster-v3/m6/home_overlay.py",
+      "mode": "0600",
+      "sha256": "bc0ecb160ef271ac3886c1f846e17f6b92bb7db3a533886794cd8e96dd9df496"
+    },
+    {
+      "bytes": 246,
+      "destination": "/storage/.config/system.d/astertv-v3-m6-jen.service",
+      "mode": "0644",
+      "sha256": "d6bae47b761d37a65251c4319db073228c50a181bdce27d23f692af67d7cb2d1"
+    }
+  ],
+  "id": "jen-home-cameras",
+  "kind": "astertv-materialized-overlay",
+  "mutable_state": [
+    {
+      "bundled": false,
+      "owner": "jen-account-registry",
+      "path": "/storage/.kodi/userdata/addon_data/script.asterprofiles.v3lab/profiles.json",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "path": "/storage/.aster-private/home-feed.key",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "path": "/storage/.aster-private/camera-viewer.key",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "path": "/storage/.aster-camera",
+      "sensitive": true
+    }
+  ],
+  "provenance": {
+    "base_sha256": "ec3cae3a5bc7f2c687b2cd3d997947d3f2f76e195fb4b61243b1941db677266f",
+    "checkpoint": "astertv-v3-m6-jen",
+    "renderer_sha256": "bc0ecb160ef271ac3886c1f846e17f6b92bb7db3a533886794cd8e96dd9df496"
+  },
+  "schema_version": 1
+}
