@@ -9,14 +9,17 @@
   "targets": ["astertv-family", "astertv-bedroom", "astertv-jen"],
   "owns": ["systemd/astertv-release-guard.service", "state/accepted-manifest-envelope"],
   "payload_sources": [
-    "services/kodi/astertv-v3/reliability/release_guard.py",
-    "services/kodi/astertv-v3/reliability/astertv-release-guard.service",
-    "services/kodi/astertv-v3/reliability/service.aster.reliability/addon.xml",
-    "services/kodi/astertv-v3/reliability/service.aster.reliability/recovery_policy.py",
-    "services/kodi/astertv-v3/reliability/service.aster.reliability/service.py"
+    "services/kodi/astertv-fleet/materialized/release-guard-v1/common",
+    "services/kodi/astertv-fleet/materialized/release-guard-v1/materialization-manifest.json",
+    "services/kodi/astertv-fleet/materialize_release_guard.py"
   ],
-  "payload_status": "incomplete",
-  "payload_blockers": ["host-bound-systemd-unit-and-accepted-envelope-not-materialized"],
+  "payload_target_sources": {
+    "astertv-family": ["services/kodi/astertv-fleet/materialized/release-guard-v1/targets/astertv-family"],
+    "astertv-bedroom": ["services/kodi/astertv-fleet/materialized/release-guard-v1/targets/astertv-bedroom"],
+    "astertv-jen": ["services/kodi/astertv-fleet/materialized/release-guard-v1/targets/astertv-jen"]
+  },
+  "payload_status": "complete",
+  "payload_blockers": [],
   "secret_refs": [],
   "rollback_ref": "host-bound accepted payload and predecessor checkpoint",
   "tests": ["services/kodi/astertv-v3/reliability/test_reliability.py"]

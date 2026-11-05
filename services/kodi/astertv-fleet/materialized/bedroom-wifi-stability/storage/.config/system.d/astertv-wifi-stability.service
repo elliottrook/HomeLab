@@ -1,0 +1,16 @@
+[Unit]
+Description=AsterTV Bedroom Wi-Fi latency stability
+Wants=network-online.target
+After=connman.service network-online.target
+Before=kodi.service
+ConditionHost=AsterTV-Bedroom
+ConditionPathExists=/sys/class/net/wlan0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/iw dev wlan0 set power_save off
+ExecStop=/usr/sbin/iw dev wlan0 set power_save on
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

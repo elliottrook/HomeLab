@@ -9,10 +9,11 @@
   "targets": ["astertv-bedroom"],
   "owns": ["systemd/astertv-wifi-stability.service", "network/wifi-power-save-policy"],
   "payload_sources": [
-    "services/kodi/astertv-v3/deploy/bedroom-wifi/astertv-wifi-stability.service",
-    "services/kodi/astertv-v3/deploy/bedroom-wifi/astertv-release-guard-bedroom.service"
+    "services/kodi/astertv-fleet/materialized/bedroom-wifi-stability",
+    "services/kodi/astertv-fleet/materialize_bedroom_wifi.py"
   ],
-  "payload_blockers": ["wifi-power-save-runtime-assertion-not-materialized"],
+  "payload_status": "complete",
+  "payload_blockers": [],
   "apply_strategy": "install",
   "assertions": [
     {"authority": "libreelec", "key": "wifi.power-save", "expected": "disabled", "sensitive": false}

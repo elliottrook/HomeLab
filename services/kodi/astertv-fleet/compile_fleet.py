@@ -111,8 +111,11 @@ def repository_root(root: Path) -> Path:
     raise FleetError(f"repository-root-not-found:{root}")
 
 
-def payload_inventory(overlay: dict, checkout: Path) -> list[dict]:
-    sources = overlay.get("payload_sources")
+def payload_inventory(overlay: dict, checkout: Path, target: str) -> list[dict]:
+    sources = list(overlay.get("payload_sources") or [])
+    target_sources = overlay.get("payload_target_sources", {})
+    if target_sources:
+        sources.extend(target_sources.get(target, []))
     if not isinstance(sources, list) or not sources:
         raise FleetError(f"overlay-without-payload:{overlay['id']}")
     if any(not isinstance(value, str) or not value for value in sources):
@@ -178,6 +181,12 @@ def validate_registry(releases: dict[str, dict], hardware: dict[str, dict],
             raise FleetError(f"overlay-without-rollback:{overlay['id']}")
         if not isinstance(overlay.get("payload_sources"), list) or not overlay["payload_sources"]:
             raise FleetError(f"overlay-without-payload:{overlay['id']}")
+        target_sources = overlay.get("payload_target_sources", {})
+        if not isinstance(target_sources, dict) or any(
+                target not in overlay["targets"] or not isinstance(values, list) or
+                not values or any(not isinstance(value, str) or not value for value in values)
+                for target, values in target_sources.items()):
+            raise FleetError(f"invalid-payload-target-sources:{overlay['id']}")
         payload_status = overlay.get("payload_status", "incomplete")
         payload_blockers = overlay.get("payload_blockers", [])
         if payload_status not in {"incomplete", "complete"}:
@@ -326,7 +335,7 @@ def build_device(device: dict, releases: dict[str, dict],
         for identifier in ordered for resource in overlays[identifier]["owns"]
     }
     payloads = {
-        identifier: payload_inventory(overlays[identifier], checkout)
+        identifier: payload_inventory(overlays[identifier], checkout, device["id"])
         for identifier in ordered
     }
     result = {

@@ -1,0 +1,26 @@
+{
+  "assertions": [
+    {
+      "authority": "libreelec",
+      "expected": "disabled",
+      "key": "wifi.power-save",
+      "sensitive": false
+    }
+  ],
+  "files": [
+    {
+      "bytes": 406,
+      "destination": "/storage/.config/system.d/astertv-wifi-stability.service",
+      "mode": "0644",
+      "sha256": "6a829d42832076bb8ec2756c5cd577939af8ab0a900462376c5dbb98ab1f6b90",
+      "source": "services/kodi/astertv-v3/deploy/bedroom-wifi/astertv-wifi-stability.service"
+    }
+  ],
+  "id": "bedroom-wifi-stability",
+  "kind": "astertv-materialized-overlay",
+  "rollback": "disable unit, remove file, daemon-reload, restore power_save on",
+  "schema_version": 1,
+  "targets": [
+    "astertv-bedroom"
+  ]
+}

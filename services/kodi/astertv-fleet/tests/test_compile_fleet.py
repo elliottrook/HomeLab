@@ -120,6 +120,16 @@ class FleetCompilerTests(unittest.TestCase):
             self.assertIn("Jen's 1080p/stereo limit belongs only", matrix)
             self.assertIn("Guest is a compiled candidate", matrix)
 
+    def test_target_specific_payloads_do_not_cross_devices(self):
+        with tempfile.TemporaryDirectory() as output:
+            compositions = {row["device_id"]: row for row in self.compile_to(Path(output))}
+        family_paths = {row["path"] for row in compositions["astertv-family"]["payloads"]["release-guard-v1"]}
+        bedroom_paths = {row["path"] for row in compositions["astertv-bedroom"]["payloads"]["release-guard-v1"]}
+        self.assertTrue(any("targets/astertv-family/" in path for path in family_paths))
+        self.assertFalse(any("targets/astertv-bedroom/" in path for path in family_paths))
+        self.assertTrue(any("targets/astertv-bedroom/" in path for path in bedroom_paths))
+        self.assertFalse(any("targets/astertv-family/" in path for path in bedroom_paths))
+
 
 if __name__ == "__main__":
     unittest.main()

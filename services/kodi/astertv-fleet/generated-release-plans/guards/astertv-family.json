@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "a76e05f14490cc4c2b02a5ab40d6cc98d2544df9051ac30c2b1b026ee283d2ee",
+  "composition_sha256": "aa0972ebe23ddbc42f213a87b483ab0d6fdb26799de8f2c8dd9d00ced507a30b",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [
@@ -34,34 +34,46 @@
   ],
   "expected_payloads": [
     {
-      "bytes": 260,
+      "bytes": 4443,
       "overlay": "release-guard-v1",
-      "path": "services/kodi/astertv-v3/reliability/astertv-release-guard.service",
-      "sha256": "d87c34252aa67444cff430e884c26783be339333b114941358adcbb84a4356cd"
+      "path": "services/kodi/astertv-fleet/materialize_release_guard.py",
+      "sha256": "4a9bd330315c7177716f083525c529503272f593d2529f05de75f685a9a03a61"
     },
     {
       "bytes": 7455,
       "overlay": "release-guard-v1",
-      "path": "services/kodi/astertv-v3/reliability/release_guard.py",
+      "path": "services/kodi/astertv-fleet/materialized/release-guard-v1/common/storage/.aster-release/release_guard.py",
       "sha256": "fee7285924fc807d7a2b29a0e6cab6cdfbd7a071494b4d6bef48a4a9fcedb2a6"
     },
     {
       "bytes": 676,
       "overlay": "release-guard-v1",
-      "path": "services/kodi/astertv-v3/reliability/service.aster.reliability/addon.xml",
+      "path": "services/kodi/astertv-fleet/materialized/release-guard-v1/common/storage/.kodi/addons/service.aster.reliability/addon.xml",
       "sha256": "8589885ebdba85450911ac06203bb20b7f5726d692880a40f20b58b149fdb9f7"
     },
     {
       "bytes": 658,
       "overlay": "release-guard-v1",
-      "path": "services/kodi/astertv-v3/reliability/service.aster.reliability/recovery_policy.py",
+      "path": "services/kodi/astertv-fleet/materialized/release-guard-v1/common/storage/.kodi/addons/service.aster.reliability/recovery_policy.py",
       "sha256": "3beb5b1bb1f2baa15d93e092deed191ed6113c7eb1ae65340e35bc9358681763"
     },
     {
       "bytes": 3308,
       "overlay": "release-guard-v1",
-      "path": "services/kodi/astertv-v3/reliability/service.aster.reliability/service.py",
+      "path": "services/kodi/astertv-fleet/materialized/release-guard-v1/common/storage/.kodi/addons/service.aster.reliability/service.py",
       "sha256": "e47f5e1d4e2f13cf3efc3bdf7d65f88c37532467a92a8c3d3ecd6ff7feaf720e"
+    },
+    {
+      "bytes": 2938,
+      "overlay": "release-guard-v1",
+      "path": "services/kodi/astertv-fleet/materialized/release-guard-v1/materialization-manifest.json",
+      "sha256": "b4959055f5b031d18a90d5579b477460d9514b798dacb56e39022de9871775b2"
+    },
+    {
+      "bytes": 272,
+      "overlay": "release-guard-v1",
+      "path": "services/kodi/astertv-fleet/materialized/release-guard-v1/targets/astertv-family/storage/.config/system.d/astertv-release-guard.service",
+      "sha256": "c625ba2631cc1addfa74f7ad10acfc62307ef009730697816ad7daa83ce3316c"
     },
     {
       "bytes": 229,

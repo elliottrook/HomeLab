@@ -8,6 +8,12 @@ ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("family_restart_materializer", ROOT / "materialize_family_kodi_restart.py")
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
+GUARD_SPEC = importlib.util.spec_from_file_location("release_guard_materializer", ROOT / "materialize_release_guard.py")
+GUARD_MODULE = importlib.util.module_from_spec(GUARD_SPEC)
+GUARD_SPEC.loader.exec_module(GUARD_MODULE)
+WIFI_SPEC = importlib.util.spec_from_file_location("bedroom_wifi_materializer", ROOT / "materialize_bedroom_wifi.py")
+WIFI_MODULE = importlib.util.module_from_spec(WIFI_SPEC)
+WIFI_SPEC.loader.exec_module(WIFI_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -26,6 +32,24 @@ class MaterializationTests(unittest.TestCase):
             self.assertEqual(len(manifest["outputs"]), 4)
             self.assertIn("Restart AsterTV", tree_one["skin.asterhome/1080i/Settings.xml"].decode())
             self.assertIn("RestartApp", tree_one["skin.asterhome/tools/restart_astertv.py"].decode())
+
+    def test_release_guard_has_exact_host_bound_units_and_no_accepted_state(self):
+        files, manifest = GUARD_MODULE.render()
+        self.assertEqual(set(manifest["targets"]), {"astertv-family", "astertv-bedroom", "astertv-jen"})
+        self.assertEqual(len(files), 7)
+        for device_id, hostname in GUARD_MODULE.TARGETS.items():
+            unit = files[f"targets/{device_id}/{GUARD_MODULE.UNIT_DESTINATION}"][0]
+            self.assertIn(("--host " + hostname).encode(), unit)
+            self.assertNotIn(b"--host %H", unit)
+        self.assertFalse(manifest["generated_state"][0]["bundled"])
+        self.assertFalse(any("accepted" in name for name in files))
+
+    def test_bedroom_wifi_payload_is_host_bound_and_asserted(self):
+        unit, manifest = WIFI_MODULE.render()
+        self.assertIn(b"ConditionHost=AsterTV-Bedroom", unit)
+        self.assertIn(b"power_save off", unit)
+        self.assertEqual(manifest["files"][0]["destination"], "/" + WIFI_MODULE.DESTINATION)
+        self.assertEqual(manifest["assertions"][0]["expected"], "disabled")
 
 
 if __name__ == "__main__":

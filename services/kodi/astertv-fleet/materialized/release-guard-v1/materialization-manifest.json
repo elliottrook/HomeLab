@@ -1,0 +1,85 @@
+{
+  "files": [
+    {
+      "bytes": 273,
+      "destination": "/storage/.config/system.d/astertv-release-guard.service",
+      "mode": "0644",
+      "render": {
+        "hostname": "AsterTV-Bedroom"
+      },
+      "scope": "astertv-bedroom",
+      "sha256": "5839efc05f743c17f1cacf8397702deb77414e6f5d5c60f65701355392c5be65",
+      "source": "services/kodi/astertv-v3/reliability/astertv-release-guard.service"
+    },
+    {
+      "bytes": 272,
+      "destination": "/storage/.config/system.d/astertv-release-guard.service",
+      "mode": "0644",
+      "render": {
+        "hostname": "AsterTV-Family"
+      },
+      "scope": "astertv-family",
+      "sha256": "c625ba2631cc1addfa74f7ad10acfc62307ef009730697816ad7daa83ce3316c",
+      "source": "services/kodi/astertv-v3/reliability/astertv-release-guard.service"
+    },
+    {
+      "bytes": 269,
+      "destination": "/storage/.config/system.d/astertv-release-guard.service",
+      "mode": "0644",
+      "render": {
+        "hostname": "AsterTV-Jen"
+      },
+      "scope": "astertv-jen",
+      "sha256": "d098e5f63bb4295564b55ac076e45f492772ee912efc0203f082c26c46713270",
+      "source": "services/kodi/astertv-v3/reliability/astertv-release-guard.service"
+    },
+    {
+      "bytes": 7455,
+      "destination": "/storage/.aster-release/release_guard.py",
+      "mode": "0700",
+      "scope": "common",
+      "sha256": "fee7285924fc807d7a2b29a0e6cab6cdfbd7a071494b4d6bef48a4a9fcedb2a6",
+      "source": "services/kodi/astertv-v3/reliability/release_guard.py"
+    },
+    {
+      "bytes": 676,
+      "destination": "/storage/.kodi/addons/service.aster.reliability/addon.xml",
+      "mode": "0644",
+      "scope": "common",
+      "sha256": "8589885ebdba85450911ac06203bb20b7f5726d692880a40f20b58b149fdb9f7",
+      "source": "services/kodi/astertv-v3/reliability/service.aster.reliability/addon.xml"
+    },
+    {
+      "bytes": 658,
+      "destination": "/storage/.kodi/addons/service.aster.reliability/recovery_policy.py",
+      "mode": "0644",
+      "scope": "common",
+      "sha256": "3beb5b1bb1f2baa15d93e092deed191ed6113c7eb1ae65340e35bc9358681763",
+      "source": "services/kodi/astertv-v3/reliability/service.aster.reliability/recovery_policy.py"
+    },
+    {
+      "bytes": 3308,
+      "destination": "/storage/.kodi/addons/service.aster.reliability/service.py",
+      "mode": "0644",
+      "scope": "common",
+      "sha256": "e47f5e1d4e2f13cf3efc3bdf7d65f88c37532467a92a8c3d3ecd6ff7feaf720e",
+      "source": "services/kodi/astertv-v3/reliability/service.aster.reliability/service.py"
+    }
+  ],
+  "generated_state": [
+    {
+      "bundled": false,
+      "method": "host-bound-snapshot-after-idle-acceptance",
+      "owner": "release-guard-v1",
+      "path": "/storage/.aster-release/accepted"
+    }
+  ],
+  "id": "release-guard-v1",
+  "kind": "astertv-materialized-overlay",
+  "schema_version": 1,
+  "targets": [
+    "astertv-bedroom",
+    "astertv-family",
+    "astertv-jen"
+  ]
+}
