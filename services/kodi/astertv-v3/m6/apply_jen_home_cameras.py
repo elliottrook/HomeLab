@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import shutil
 import socket
+import subprocess
 
 
 HOST = "AsterTV-Jen"
@@ -91,6 +92,16 @@ def main():
           or {"home_control", "cameras"} & set(admin.get("entitlements", []))):
         raise RuntimeError("home-profile-authority-drift")
     registry.validate(current)
+    # The camera proxy is an on-demand capability, not a boot daemon.  The
+    # Cameras window starts it explicitly and stops it on leave; disabling the
+    # unit here also repairs older clients where the source service was left
+    # enabled before M6 separated Cameras from Home.
+    subprocess.run(
+        ["systemctl", "disable", "--now", "aster-camera.service"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
 
 if __name__ == "__main__":

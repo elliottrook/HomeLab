@@ -1,6 +1,7 @@
 # AsterTV v3
 
-> Status: Active — Jen-only M5 News chrome retained and mirrored; the M5 eBook
+> Status: Active — Jen-only M6 Home/Cameras is complete and reboot-stable;
+> the M5 eBook
 > word-alignment benchmark is registered and booked, with reader promotion
 > still gated.
 > The completed r8 Guest adapter remains retained on AsterTV-Jen.
@@ -22,10 +23,9 @@
 > subscription execution, release promotion and every later live milestone
 > remain excluded. The separately booked SA-M5B benchmark may run only through
 > its registered Lab Hours runner and remains isolated from SA-M6-JEN.
-> The M6 candidate is retained on Jen after an exact rollback/reinstall and
-> reboot. Its existing Home Assistant publisher code includes Jen on disk, but
-> the running Home Assistant process still holds the older two-target module;
-> a bounded Home Assistant restart is the current authorization boundary.
+> The M6 candidate is retained on Jen after exact rollback/reinstall and two
+> reboot checks. The approved Home Assistant restart loaded the reviewed
+> three-target publisher; Jen now receives 63 fresh allow-listed readings.
 
 ## Purpose and desired outcome
 
@@ -1288,16 +1288,18 @@ synthetic/reversible podcast request path with no duplicate side effect.
 
 ### M6 — Home dashboard, cameras and door events
 
-- [ ] Design a denser but remote-readable Home page using an explicit allowlist
+- [x] Design a denser but remote-readable Home page using an explicit allowlist
   of Home Assistant entities and freshness/failure states.
-- [ ] Build a separate Cameras page with named still/live sources, refresh state
+- [x] Build a separate Cameras page with named still/live sources, refresh state
   and reliable Back navigation.
 - [ ] Add optional continuous feed mode for an explicitly authorized profile and
   display only.
 - [ ] Add debounced door-event preview with source, timeout, dismiss, open-
   camera action, quiet hours and non-interrupting playback default.
-- [ ] Test guest denial, stale/forged event, camera outage, HA outage, event
-  storm, playback and immediate privacy disable.
+- [ ] Test the later door-event slice for stale/forged events, event storm and
+  immediate privacy disable. The completed read-only Home/Cameras slice already
+  passes Guest denial, stale/invalid Home state, camera outage/lifecycle and
+  active-playback non-interruption.
 
 Gate: approved accounts see only allowed entities/cameras; denials and failures
 are explicit; playback and network isolation remain intact.
@@ -1347,15 +1349,26 @@ camera exposure beyond loopback, failed checkpoint or any target other than
   camera path; record the bounded authorization and implementation contract.
 - [x] SA-M6-JEN2: implement and locally test the separate Home/Cameras overlay,
   least-privilege profile extension and denial/failure contracts.
-- [ ] SA-M6-JEN3: checkpoint/install on idle Jen and prove navigation,
+- [x] SA-M6-JEN3: checkpoint/install on idle Jen and prove navigation,
   freshness, camera lifecycle, playback isolation, Guest denial and reboot.
-- [ ] SA-M6-JEN4: prove exact rollback, reinstall the accepted candidate,
+- [x] SA-M6-JEN4: prove exact rollback, reinstall the accepted candidate,
   reconcile evidence and push the completed slice before any door/M7 work.
 
 Owner direction on 2026-11-04 places M8 Aster Remote immediately after this
 bounded M6 slice. M7 equipment automation remains later; the remote may use
 only the already reviewed semantic controls available at that point and must
 not pre-implement M7 Home Assistant or room-equipment authority.
+
+The retained M6 candidate passed Home → Cameras → Back, direct-window Guest
+denial, explicit unavailable state, a bounded real still, camera stop on leave,
+active-digest non-interruption, byte-exact rollback/reinstall and reboot. The
+approved Home Assistant restart returned HTTP 200 on its configured port 80;
+the next five-minute publication delivered schema 4 with 63 entities to Lab,
+Jen and Family. A reboot audit exposed the legacy camera unit still enabled at
+boot. A separate exact-hash correction now disables/stops that unit before
+Kodi; its rollback/reinstall and a second reboot prove the proxy stays inactive
+until the Cameras page's Live view control starts it and stops again on Back.
+No Home Assistant action, new source, credential or network path was added.
 
 ### M7 — Home Assistant bridge and room-equipment control
 
@@ -1718,6 +1731,7 @@ explicit user acceptance.
 | 2026-11-04 | Completed the Jen-only owner-approved podcast request queue | Deployed a non-root, execution-disabled broker with separate read-only Audiobookshelf and Jen identities, then connected Books → Podcasts to a Gold Rim search/request/status add-on. One retained synthetic request was replayed through the real confirmation UI and deduplicated to the same record. | Ordered live focus, Back, status, broker outage, restart and full Jen reboot passed; queue cardinality stayed one and Audiobookshelf stayed at seven items. A malformed third-party feed discovered in acceptance is now omitted individually under test instead of suppressing all safe results. No approval/subscription executor exists. Evidence: `docs/projects/evidence/AsterTV-v3-M5P3-podcast-request-client-2026-11-04.md`. |
 | 2026-11-04 | Opened the Jen-only M6 Home/camera Stream A | Read-only audit found a strongly validated 63-entity schema-4 display export and a bounded localhost-only, five-minute camera viewer, but the v2 page still combines Home, camera and timer while the v3 profile gate grants Jason neither a Home mapping nor Home/camera entitlement. No household values or credentials were captured. | `SA-M6-JEN` permits a separate Home/Cameras overlay and distinct read-only `home_status`/`camera_view` authority on Jen only. It excludes Home Assistant writes, source/network/credential changes, continuous/background capture, door events, Family/Bedroom and M7. Next safe action is local candidate and denial/failure tests. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-readonly-audit-2026-11-04.md`. |
 | 2026-11-04 | Built the Jen M6 Home/Cameras candidate | Exact-hash transform removes the live viewer from Home while retaining the schema-4 list, freshness notice, summary cards and local timer. New window `11134` owns the unchanged five-minute/two-second camera lifecycle. Account authority now distinguishes `home_status` and `camera_view`; Jason gains neither `home_control` nor legacy `cameras`, and Guest/direct-window routes remain denied. | Seven M6, 30 account, 15 Aster-client and 37 shared v3 tests pass, including malformed identity, independent entitlement, closed focus graph and installer/rollback boundary checks. Candidate is local only; next safe action is idle Jen checkpoint/install and physical navigation/failure validation. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-candidate-2026-11-04.md`. |
+| 2026-11-04 | Completed the Jen M6 read-only Home/Cameras slice | Retained the separate Home and Cameras windows, distinct `home_status`/`camera_view` authority and unchanged restricted viewer path after exact rollback/reinstall. The approved Home Assistant restart loaded the reviewed three-target publisher; its first populated cycle delivered 63 schema-4 entities to Jen. A reboot audit found the inherited camera unit enabled without an open page, so an exact-hash correction now disables/stops it before Kodi. | Home → Cameras → Back, Guest direct-window denial, unavailable state, one bounded still, active-digest isolation and two reboots pass. Camera lifecycle rollback/reinstall restored and then removed the legacy enabled/active state exactly; after reboot it remains disabled/inactive, starts only from Live view and stops on Back. Final totals: 8 M6, 30 account, 15 Aster-client and 37 shared tests. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-candidate-2026-11-04.md`. |
 
 ## Close-out
 

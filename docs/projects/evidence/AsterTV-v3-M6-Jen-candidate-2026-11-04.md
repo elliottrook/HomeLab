@@ -1,7 +1,7 @@
 # AsterTV v3 M6 Jen candidate — 2026-11-04
 
 Target: `AsterTV-Jen` only  
-State: installed and reboot-stable; Home publisher runtime reload pending
+State: accepted, installed and reboot-stable
 
 ## Candidate
 
@@ -33,13 +33,12 @@ State: installed and reboot-stable; Home publisher runtime reload pending
 - Python compile and XML parse checks passed with a sandbox-local bytecode
   cache; no credential-like assignment is part of the candidate.
 
-## Remaining live gate
+## Completed live gate
 
-Checkpoint and install only while Jen is idle. Validate Home and Cameras with
+The candidate was installed only while Jen was idle. Home/Cameras navigation,
 the active Jason profile, direct-window Guest denial, stale/invalid feed,
-camera unavailable/expiry, Back/focus, active-playback non-interruption,
-restart and reboot. Then prove rollback and reinstall the identical accepted
-candidate before closing the slice.
+camera unavailable behavior, Back/focus, active-playback non-interruption,
+rollback/reinstall and reboot all passed.
 
 ## Live acceptance to date
 
@@ -63,17 +62,27 @@ candidate before closing the slice.
 - Full reboot completed at 21:34 MST. The M6 service ran successfully before
   Kodi, Kodi returned active and no failed unit was reported.
 
-## Current authorization boundary
+## Publisher and reboot closure
 
-Home correctly displays its stale state. The source-local Home Assistant health
-record shows a new 63-reading publication, but its running module delivered
-only to the two older targets. The on-disk publisher is already the reviewed
-three-target version and contains Jen exactly once. It was patched previously
-without restarting Home Assistant, so the long-running process retained the
-old module after subsequent publications.
+The owner approved one bounded Home Assistant restart. Home Assistant returned
+HTTP 200 on its configured port 80. The startup publication deliberately held
+zero readings while Core populated its registry; the first scheduled refresh
+at `2026-11-05T04:56:15Z` published 63 allow-listed readings successfully to
+`lab`, `low-spec` and `production`. Jen received the matching schema-4 snapshot
+with 63 entities and the same observation time. No configuration, credential,
+entity or automation changed.
 
-Completing the fresh-data gate needs one bounded Home Assistant restart to load
-the already-installed publisher, followed by a content-free three-target health
-check and fresh Jen snapshot test. No configuration, credential, entity or
-automation change is proposed. That Home Assistant restart is outside the
-current Jen-only mutation list and therefore requires explicit authorization.
+The post-reboot audit found one inherited privacy defect: the existing camera
+service was enabled and remained active even though no Cameras page was open.
+An exact-hash, independently reversible correction now makes the M6 boot overlay
+disable and stop that service. Checkpoint
+`/storage/.aster-checkpoints/astertv-v3-m6-camera-on-demand-r1` preserves the
+predecessor file and unit state. Exact rollback restored both enabled/active
+state and the predecessor hash; reinstall returned disabled/inactive state.
+A second reboot at 21:59 MST left Kodi active, the M6 service successful, the
+camera unit disabled/inactive and no failed units. Opening Cameras alone kept
+the proxy stopped; selecting Live view started it, and Back stopped it again.
+
+Final regression totals are 8 M6, 30 account, 15 Aster-client and 37 shared v3
+tests. Family, Bedroom, Home Assistant controls, camera source/credential/path,
+door events and M7 remain unchanged.

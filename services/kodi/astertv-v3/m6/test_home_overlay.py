@@ -133,6 +133,18 @@ class HomeOverlayTests(unittest.TestCase):
         self.assertTrue(imported.isdisjoint({"urllib", "requests", "socketio", "websocket"}))
         self.assertNotIn("service.call", source)
         self.assertIn('{"home_control", "cameras"} & set', source)
+        self.assertIn('["systemctl", "disable", "--now", "aster-camera.service"]', source)
+
+    def test_camera_lifecycle_installer_is_bounded_and_reversible(self):
+        source = (ROOT / "install_jen_camera_on_demand.py").read_text()
+        ast.parse(source)
+        self.assertIn('HOST = "AsterTV-Jen"', source)
+        self.assertIn('UNIT = "aster-camera.service"', source)
+        self.assertIn('PREDECESSOR = "4aad7acc', source)
+        self.assertIn('run("systemctl", "disable", "--now", UNIT)', source)
+        self.assertIn('"unit_enabled": state("enabled") == "enabled"', source)
+        self.assertIn('"unit_active": state("active") == "active"', source)
+        self.assertNotIn("homeassistant", source.casefold())
 
 
 if __name__ == "__main__":
