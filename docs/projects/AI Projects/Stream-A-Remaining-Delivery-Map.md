@@ -475,6 +475,12 @@ review and leaves every effect false. The J2 suite passes 62/62. Source work is
 complete for this gate; real keys, signatures and sealed evaluation custody
 remain external and cannot be fabricated in the shared worktree.
 
+Trainer source work has also started independently of those data gates. The
+dependency-free J2 reference primitives implement the frozen UTF-8 byte
+truncation/right-padding and SplitMix64/high-53-bit conversion with known-vector
+tests, taking the source suite to 67/67. No corpus/evaluation content, weights
+or model artifact are consumed or created.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,

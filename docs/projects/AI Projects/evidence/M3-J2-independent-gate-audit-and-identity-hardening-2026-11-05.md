@@ -61,3 +61,11 @@ claim: obtain the separately controlled corpus and evaluation keys/evidence,
 pin their public-key fingerprints through owner review, validate the real
 content-free chain, and only then present a training-effect release candidate.
 Training remains a later, separately authorized effect.
+
+Independent trainer implementation can still progress without opening those
+data gates. The first dependency-free reference primitives now implement the
+frozen UTF-8 byte truncation/right-padding contract and SplitMix64-v1 with the
+specified high-53-bit uniform conversion. Tests cover a deliberately truncated
+multibyte suffix, exact 512-byte bounds, standard SplitMix64 vectors, unsigned
+wrap and seed/type failures. The expanded J2 source suite passes 67/67. No
+weights, corpus rows, evaluation content or model artifact are created.
