@@ -192,6 +192,14 @@
 > workload and remains conditional on all fresh claim-time gates. It is one
 > attempt only; no retry, route, authority or promotion follows automatically.
 
+> **Candidate-j post-run boundary ready:** the
+> [terminal reconciler](evidence/D4-candidate-j-terminal-reconciliation-boundary-2026-11-05.md)
+> accepts only an exact complete restored transaction and independently scored
+> 6/6 result. Its content-free output can mark eligibility only for a distinct
+> untouched evaluation freeze; it cannot infer quality or promote. Candidate-j
+> source tests now pass 20/20, so reconciliation need not pause for new source
+> after R3 reaches a terminal state.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
