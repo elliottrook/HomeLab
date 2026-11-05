@@ -117,6 +117,13 @@
 > host-command/guest-wrapper scope identity and healthy production are proven
 > with zero restarts. A distinct ledger-clear R2 is next, not a retry.
 
+> **Candidate-i R2 static review:** the [distinct 18:30–19:30 proposal](evidence/D4-candidate-i-r2-booking-review-2026-11-04.md)
+> has a clear authoritative ledger result, exact corrected installed hashes,
+> identical host/guest scope identity, ready lease, absent locks and healthy
+> production. The reservation may be saved after an immediate ledger recheck;
+> all claim-time gates remain fresh. R1 stays spent and no retry or promotion
+> follows.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
