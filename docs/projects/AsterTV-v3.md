@@ -1,6 +1,7 @@
 # AsterTV v3
 
-> Status: Active — Jen-only M5 News chrome retained; local commit and Forgejo push remain open.
+> Status: Active — Jen-only M5 News chrome retained and mirrored; M5 eBook
+> narration is paused at a documented scheduler/timing authorization gate.
 > The completed r8 Guest adapter remains retained on AsterTV-Jen.
 > The earlier page-design pilot is accepted and closed; no PA3
 > synthetic surface is promoted. TV-series presentation remains deployed
@@ -10,9 +11,11 @@
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: Stream A, limited to `SA-M5N-JEN` below and
-> approved by Jason on 2026-11-04. Family, Bedroom, release promotion and every
-> later live milestone remain excluded.
+> Current live-change authorization: the completed Stream A envelope
+> `SA-M5N-JEN` below. Jason's subsequent continuation authorizes the common
+> read-only/local-planning work used for the M5 eBook audit, but does not expand
+> that envelope to narration workloads or scheduler changes. Family, Bedroom,
+> release promotion and every later live milestone remain excluded.
 
 ## Purpose and desired outcome
 
@@ -960,6 +963,27 @@ surface.
 - [x] SA-M5N-JEN3: reconcile evidence, commit locally and request immediate
   confirmation before its Forgejo push.
 
+### M5 eBook narration audit — live change not yet authorized
+
+Read-only inspection on 2026-11-04 found that the accepted eBook pipeline is
+consistently sentence-timed from renderer through Kodi reader; word timing is
+not a dormant switch. The retained faster-whisper experiment failed closed on
+a missing/non-finite measured word interval and was correctly not promoted.
+
+The audit also found that the enabled Proxmox EPUB scheduler checks the Lab
+Hours ledger but does not create a registered workload booking or acquire the
+whole-host lease and shared operation lock. It was denied by existing bookings
+and the narration worker remained inactive, but it must not be allowed to
+start in a future clear window. No EPUB workload is currently registered.
+
+Evidence and the bounded safe sequence are recorded in
+`docs/projects/evidence/AsterTV-v3-M5-ebook-readonly-audit-2026-11-04.md`.
+Stopping the old scheduler, registering a fixed workload, reserving a window,
+running synthesis/alignment or changing the reader schema requires a new M5
+authorization envelope. No execution window may be proposed until the fixed
+workload is registered; the ledger must then be checked for the complete run
+and recovery period.
+
 ## Milestones
 
 ### M0 — Baseline discovery and decision register
@@ -1493,6 +1517,7 @@ explicit user acceptance.
 | 2026-11-04 | Completed the Jen-only M4 Movie integration and stopped YouTube at its identity gate | Added strict Jellyfin-trailer admission, G20 dispatch for script-populated cast/related rails, exact actor-library search and owned Back restoration without changing the accepted v2 baseline. A post-guard/pre-Kodi unit reapplies the candidate deterministically. | Real details-before-playback, Robert Donat search, Back, related *Psycho* and watched *Blue Crush 2* playback/stop passed. An exact unsigned YouTube trailer played with zero tokens, but account rails left a Sign In workflow; the add-on database/state were rolled back and YouTube remains disabled/state-absent. Reboot proved guard then overlay ordering. 111 regression gates pass. Evidence: `docs/projects/evidence/AsterTV-v3-M4-Jen-movie-youtube-2026-11-04.md`. |
 | 2026-11-04 | Retained Jen household YouTube and repaired its startup lifecycle | Owner confirmed all household AsterTVs use the same YouTube identity. The minimum three-file state was transferred privately from read-only Bedroom, represented in the registry only by an opaque hash and mapped only to Jason. Guest disables the official add-on and direct private routes remain denied. | Removed the three unconditional personalized startup providers and rejected a crashing concurrent/control-mutation prototype. The final root helper performs focus only; each signed-in feed is requested serially by its pill. Restart and full reboot completed with no Kodi crash, zero automatic restarts and correct guard→M4→M4Y→Kodi ordering. Native `Application.Quit` still times out on Jen, but the bounded TERM fallback is clean. Temporary credential staging was removed and all 147 discoverable v3 regression tests pass. Evidence: `docs/projects/evidence/AsterTV-v3-M4Y-Jen-youtube-lifecycle-2026-11-04.md`. |
 | 2026-11-04 | Added the approved Aster icon treatment to Jen News | An exact-hash transform adds the plain compass only to Daily Digest, Breaking News, Read briefing and Refresh. Search remains text-only like Media and the side rail remains stone-icon-only. The first unknown Refresh anchor failed closed, restarted Kodi with the unchanged base, and the corrected resumable installer retained the original checkpoint. | Rendered 1920×1080 inspection passed; actual focus traversed all four pills into the story list. A full digest advanced six seconds at speed 1 and stopped empty. Restart preserved the exact four-icon hash through guard→M4→M4Y→M5N→Kodi ordering with zero restarts and no Movie/YouTube regression. All 151 discoverable tests pass. Evidence: `docs/projects/evidence/AsterTV-v3-M5N-Jen-News-icons-2026-11-04.md`. |
+| 2026-11-04 | Audited the M5 eBook narration and scheduling path without effects | LXC 116 has 160 queued and seven ready generations; every accepted manifest, publisher, loader and reader uses exact sentence-sample timing with the pinned canonical Aster cleanup/voice. The retained faster-whisper trial failed closed on an unmeasured word interval. The enabled Proxmox scheduler checks for a clear Lab Hours window but has no registered workload booking, whole-host lease or shared operation lock. | No TTS/model run, booking, timer or reader state was changed. Existing reservations denied the scheduler with status 75 and the worker remained inactive. A bounded correction must first disable the old scheduler, register and pin a fixed workload, then use booking+lease+lock before benchmarking measured word alignment with sentence fallback. This is outside completed `SA-M5N-JEN` and awaits a new authorization envelope. Evidence: `docs/projects/evidence/AsterTV-v3-M5-ebook-readonly-audit-2026-11-04.md`. |
 
 ## Close-out
 
