@@ -46,11 +46,34 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn("margin:6px 0 -13px", CSS)
         self.assertIn("radial-gradient(ellipse at 50% 43%", CSS)
         self.assertIn("rgba(243,236,223,.27)", CSS)
-        self.assertIn("const CACHE = 'aster-remote-shell-v2'", SW)
+        self.assertIn("const CACHE = 'aster-remote-shell-v3'", SW)
+
+    def test_approved_identity_connection_and_voice_language(self):
+        self.assertIn('/remote/aster-compass.png', HTML)
+        self.assertIn('class="brand-name">AsterTV</h1>', HTML)
+        self.assertNotIn('<img src="/aster-app-icon.png" alt="" width="42"', HTML)
+        self.assertIn('class="status disconnected" role="status" aria-label="Disconnected"', HTML)
+        self.assertNotIn('>Disconnected</span>', HTML)
+        self.assertEqual(HTML.count('class="voice-wave"'), 1)
+        self.assertEqual(HTML.count('<span class="voice-wave"'), 1)
+        self.assertEqual(HTML.count('<i></i>'), 5)
+        self.assertIn('.search-icon.recording .voice-wave i', CSS)
+        self.assertIn('@keyframes listen-wave', CSS)
+
+    def test_room_equipment_is_grouped_and_still_safely_disabled(self):
+        self.assertIn('class="volume-cluster"', HTML)
+        self.assertIn('class="power-control" disabled', HTML)
+        for label in ('Volume down', 'Mute', 'Volume up', 'Power'):
+            self.assertIn(f'aria-label="{label}"', HTML)
+        self.assertEqual(HTML.count(' disabled aria-label='), 4)
+        self.assertNotIn('id="now"', HTML)
+        self.assertIn('connection.setAttribute(\'aria-label\'', JS)
+        self.assertNotIn("connection.textContent", JS)
+        self.assertIn("'/remote/aster-compass.png'", SW)
 
     def test_equipment_controls_are_explicitly_unavailable(self):
         self.assertIn("M7 equipment bridge", HTML)
-        self.assertEqual(HTML.count(" disabled>"), 4)
+        self.assertEqual(HTML.count(" disabled aria-label="), 4)
         for action in ("volume.up", "volume.down", "mute", "power"):
             self.assertNotIn("data-action=\"" + action + "\"", HTML)
 

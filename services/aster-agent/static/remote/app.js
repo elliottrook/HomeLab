@@ -88,9 +88,8 @@ function renderSession(session) {
   const active = rooms.find(item => item.room_id === selectedRoom);
   $('#roomLabel').textContent = active?.label || 'No AsterTV assigned';
   const connection = $('#connection');
-  connection.textContent = active?.connected ? 'Connected' : 'Disconnected';
   connection.className = 'status ' + (active?.connected ? 'connected' : 'disconnected');
-  $('#now').textContent = active ? `${active.current_page} · ${active.playback}` : 'No room is assigned';
+  connection.setAttribute('aria-label', active?.connected ? 'Connected' : 'Disconnected');
 }
 async function refresh() {
   if (!token()) return;

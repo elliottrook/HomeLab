@@ -24,7 +24,7 @@ class RemoteTests(unittest.TestCase):
         self.clock = Clock()
         self.root = tempfile.TemporaryDirectory()
         root = Path(self.root.name)
-        for name in ("index.html", "app.js", "styles.css", "sw.js", "manifest.webmanifest"):
+        for name in ("index.html", "app.js", "styles.css", "sw.js", "aster-compass.png", "manifest.webmanifest"):
             (root / name).write_text(name)
 
         def claims(value):

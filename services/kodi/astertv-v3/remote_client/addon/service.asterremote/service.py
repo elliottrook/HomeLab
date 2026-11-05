@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Outbound-only, capability-scoped Aster Remote client for AsterTV-Jen."""
+"""Outbound-only, capability-scoped Aster Remote client."""
 
 from __future__ import annotations
 
@@ -14,8 +14,7 @@ import xbmcgui
 
 
 BASE = "http://192.168.70.10:9120/v1/remote"
-CLIENT_ID = "AsterTV-Jen"
-ROOM_ID = "jen-lab"
+CONFIG = Path("/storage/.aster-private/asterremote-client.json")
 KEY = Path("/storage/.aster-private/asterremote-client.key")
 MAX_TEXT = 512
 WINDOWS = {
@@ -29,6 +28,17 @@ NAVIGATION = {
     "nav.select": "Input.Select", "nav.back": "Input.Back",
     "nav.home": "Input.Home", "nav.context": "Input.ContextMenu",
 }
+
+
+def identity():
+    if not CONFIG.is_file() or CONFIG.stat().st_mode & 0o077:
+        return "AsterTV-Jen", "jen-lab"
+    value = json.loads(CONFIG.read_text(encoding="utf-8"))
+    client_id, room_id = value.get("client_id"), value.get("room_id")
+    if not all(isinstance(item, str) and 1 <= len(item) <= 64
+               for item in (client_id, room_id)):
+        raise RemoteError("identity-invalid")
+    return client_id, room_id
 
 
 class RemoteError(RuntimeError):
@@ -67,14 +77,14 @@ def state():
     return {"current_page": WINDOWS.get(window, "other"), "playback": playback}
 
 
-def request(path, payload, timeout):
+def request(path, payload, timeout, client_id):
     body = json.dumps(payload).encode("utf-8")
     call = urllib.request.Request(
         BASE + path, body,
         {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + private_key(),
-            "X-AsterTV-Client": CLIENT_ID,
+            "X-AsterTV-Client": client_id,
         },
         method="POST",
     )
@@ -92,16 +102,18 @@ def request(path, payload, timeout):
 
 
 def poll():
+    client_id, room_id = identity()
     current = state()
-    current.update({"client_id": CLIENT_ID, "room_id": ROOM_ID})
-    return request("/client/poll", current, 25)
+    current.update({"client_id": client_id, "room_id": room_id})
+    return request("/client/poll", current, 25, client_id)
 
 
 def ack(command, outcome):
+    client_id, room_id = identity()
     request("/client/ack", {
-        "client_id": CLIENT_ID, "room_id": ROOM_ID,
+        "client_id": client_id, "room_id": room_id,
         "request_id": command["request_id"], "outcome": outcome,
-    }, 5)
+    }, 5, client_id)
 
 
 def keyboard_active():

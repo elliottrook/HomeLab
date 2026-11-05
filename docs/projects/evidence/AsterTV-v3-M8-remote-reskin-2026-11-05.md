@@ -69,3 +69,38 @@ Jason should close and reopen the installed Aster Remote, then check the main
 touch surface, icon-only primary controls, Search, More sheet and bottom room
 selector. A second close/reopen may be needed only if iOS had the previous
 service worker active during the first launch.
+
+## Follow-up room-control layout — 2026-11-05
+
+Jason accepted the touch-first reskin and requested the remaining lower-screen
+space be used deliberately. The live follow-up now:
+
+- uses the accepted plain Aster compass and AsterTV wordmark instead of the
+  application/side-rail stone treatment;
+- represents connectivity as a green/red dot with a non-visual status label;
+- replaces the microphone glyph with the approved thin five-beam waveform,
+  animated only while capture is active;
+- removes the redundant current-page/playback line below the selected room;
+- enlarges the stone/cream navigation field; and
+- groups Volume Down, Mute and Volume Up together while separating Power as a
+  distinct equipment action.
+
+The four equipment controls are present but remain disabled and carry no
+`data-action`; the M7 bridge has not been implemented or implied by this visual
+change.
+
+The first static-only attempt encountered the backend's deliberate exact asset
+allowlist when the compass route returned 404. Its installer automatically
+restored all four predecessor files; live hashes proved the rollback was exact.
+The retained failed-attempt checkpoint is
+`/var/lib/aster/checkpoints/astertv-v3-m8-remote-room-controls-20261105`.
+
+After explicit approval for a brief Aster Agent restart, revision 2 jointly
+checkpointed the backend and static shell at
+`/var/lib/aster/checkpoints/astertv-v3-m8-remote-room-controls-20261105-r2`,
+added only exact route `/remote/aster-compass.png`, installed the shell and
+restarted Aster Agent. The final backend/static hashes match the repository;
+Remote, Companion and the compass route return HTTP 200; unauthenticated session
+remains 401; CSP and all other browser security headers are unchanged. Twenty-
+four focused local tests pass. No Kodi or AsterTV client restarted, and all
+transient staging files were removed.

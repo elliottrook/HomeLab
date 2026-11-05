@@ -151,6 +151,7 @@ class AsterRemoteGateway:
         self.router.add_api_route("/remote/app.js", self.asset, methods=["GET"])
         self.router.add_api_route("/remote/styles.css", self.asset, methods=["GET"])
         self.router.add_api_route("/remote/sw.js", self.asset, methods=["GET"])
+        self.router.add_api_route("/remote/aster-compass.png", self.asset, methods=["GET"])
         self.router.add_api_route(
             "/remote/manifest.webmanifest", self.asset, methods=["GET"]
         )
@@ -175,6 +176,7 @@ class AsterRemoteGateway:
             "app.js": "application/javascript",
             "styles.css": "text/css",
             "sw.js": "application/javascript",
+            "aster-compass.png": "image/png",
             "manifest.webmanifest": "application/manifest+json",
         }
         if name not in allowed:
