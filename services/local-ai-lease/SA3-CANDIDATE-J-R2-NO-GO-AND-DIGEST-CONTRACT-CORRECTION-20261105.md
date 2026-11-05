@@ -101,3 +101,19 @@ gate. The EPUB owner must reconcile and restore the scheduler/worker in its own
 project, retain that evidence, and then Stream A can decide whether a new
 distinct Candidate-J transaction is justified. No automatic retry, promotion
 or route follows.
+
+Read-only follow-up narrowed the EPUB fault. In LXC116,
+`epub-narration-monitor.timer` is enabled and active/waiting, while the worker
+is correctly inactive with last result success and exit zero. Its final
+content-free status at 02:59 reported 159 queued and eight ready items before
+the bounded worker exited successfully. The broken component is therefore the
+host admission scheduler: its timer remains disabled/inactive and its service
+retains exit 75. This prevents the queued EPUB work from being admitted again;
+it is not evidence of a failed worker or Candidate-J restoration.
+
+The exact safe owner action is to reconcile why the host timer was stopped,
+retain the failed ladder evidence, then clear the failed scheduler state and
+re-enable the existing timer only if its installed pins and booking-aware
+admission checks still match. Validate one bounded scheduler cycle plus the
+guest monitor/worker result. Stream A does not perform that separate-project
+remote change under this reconciliation.
