@@ -26,14 +26,38 @@ be a canonical lower-case identifier containing only letters, digits, dots,
 underscores and hyphens, with no surrounding whitespace. Role equality is
 then checked only after that canonical form is accepted.
 
-The complete source-only J2 suite passes 54/54, including explicit rejection
+The source-only J2 suite first passed 54/54, including explicit rejection
 of leading/trailing whitespace, case variants and embedded spaces. This is a
 source validation improvement only; it is not evidence of external custody.
 
+The next source-only increment adds dependency-free RSA-2048
+PKCS#1-v1.5/SHA-256 verification for exact external-proof envelopes. It pins a
+trusted public-key fingerprint outside the supplied proof, binds the exact
+payload bytes, scope and canonical signer identity, and rejects altered keys,
+payloads, scopes, signatures and duplicate JSON keys. A separate signed
+disjointness receipt now requires the exact accepted corpus identities, 960
+corpus rows, 32 evaluation cases, the normalized exact-set comparison
+algorithm and intersection count zero. Merely supplying a different set digest
+is no longer sufficient. The signer must be the receipt's canonical custodian.
+
+Synthetic fixed-signature vectors exercise the verifier without adding a
+runtime package or private key. They prove the implementation contract only;
+the real gate still requires a separately controlled custodian key whose
+fingerprint is explicitly trusted. The expanded J2 suite passes 60/60.
+
+The combined admission validator is now source-complete as well. It cross-binds
+the exact corpus-release summary, owner acceptance, frozen recipe, corpus and
+evaluation receipts, two distinct pinned signer keys, and the signed
+zero-intersection receipt. It rejects reused roles/keys and any release,
+owner, evaluation or disjointness mismatch. Even a complete chain advances
+only to `eligible-for-owner-training-effect-review`; training authorization,
+sealed-evaluation access, routing, authority and deployment remain false. The
+expanded source-only J2 suite passes 62/62.
+
 ## Next autonomous work
 
-Build dependency-free validators for a cryptographically or externally
-verifiable proof envelope, an exact corpus/evaluation zero-intersection proof,
-and one combined admission object. Synthetic fixtures may exercise those
-contracts, but only evidence from the separately controlled custodians can
-satisfy the real gates. Training remains a later, separately authorized effect.
+The remaining work is external rather than another shared-worktree identity
+claim: obtain the separately controlled corpus and evaluation keys/evidence,
+pin their public-key fingerprints through owner review, validate the real
+content-free chain, and only then present a training-effect release candidate.
+Training remains a later, separately authorized effect.

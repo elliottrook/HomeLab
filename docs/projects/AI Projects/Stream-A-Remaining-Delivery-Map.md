@@ -463,8 +463,17 @@ merely use a different set digest; custody must carry independently verifiable
 proof rather than a self-hash; and one admission must cross-bind corpus release,
 owner acceptance, both authenticated custody proofs and the frozen recipe.
 Canonical lower-case role IDs now prevent whitespace/case identity aliases,
-and the J2 suite passes 54/54. The three stronger admission contracts remain
-autonomous source work; only their real external evidence is a custodian gate.
+and dependency-free RSA-2048 signature verification now binds exact external
+proof bytes to a separately pinned public-key fingerprint. A signed
+disjointness receipt requires the exact accepted corpus, 960/32 set sizes and
+zero normalized exact-set intersection; digest inequality alone cannot pass.
+Synthetic vectors pass and the J2 suite reaches 60/60 without adding a private
+key or runtime dependency. A combined admission now cross-binds corpus release,
+owner acceptance, the exact recipe, distinct signed corpus/evaluation custody
+and signed zero-intersection proof; it can advance only to owner training-effect
+review and leaves every effect false. The J2 suite passes 62/62. Source work is
+complete for this gate; real keys, signatures and sealed evaluation custody
+remain external and cannot be fabricated in the shared worktree.
 
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
