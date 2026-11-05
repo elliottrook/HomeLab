@@ -1460,6 +1460,13 @@ Kodi JSON-RPC. Ten pinned-environment tests pass. Nothing is installed: live
 Remote equipment controls remain disabled until the outbound Home Assistant
 adapter and its recovery tests are complete.
 
+The matching undeployed Home Assistant candidate polls outbound with a
+separate mode-0600 key and maps only those six actions to locally fixed Family
+TV and main-receiver entities. The gateway cannot select a Home Assistant
+entity, domain, service or payload. No inbound view or general service is
+registered. Six contract/source tests and compile checks pass; an exact network
+path, checkpointed installation and restart/recovery test remain required.
+
 - [ ] Inventory the exact Family television and Onkyo receiver plus the Bedroom
   LG television, soundbar/receiver, connection paths, network capabilities,
   Bluetooth profiles and standby/wake behaviour; do not infer control support

@@ -194,3 +194,14 @@ in Aster Agent's pinned environment. This is a local candidate only: the live
 gateway and disabled Remote buttons are unchanged, and no Home Assistant bridge
 identity or service has been created.
 
+The matching Home Assistant candidate is also source-complete but undeployed.
+It polls outbound, reads its independently revocable key from a mode-0600 file,
+and maps the six gateway actions to fixed local entities: Family TV for power
+and the main Onkyo entity for volume/mute. Gateway payloads cannot supply an
+entity, domain, service or service data. It registers no inbound view or
+general Home Assistant service, publishes only bounded power/volume/mute state,
+and acknowledges denied/unavailable execution distinctly. Six contract/source
+tests and compile checks pass. Deployment still requires an immutable Home
+Assistant configuration/component checkpoint, exact HA-to-gateway path, a new
+equipment identity and restart/recovery validation.
+
