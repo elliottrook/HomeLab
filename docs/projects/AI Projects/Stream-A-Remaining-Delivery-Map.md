@@ -124,6 +124,11 @@
 > all claim-time gates remain fresh. R1 stays spent and no retry or promotion
 > follows.
 
+> **Candidate-i R2 scheduled:** the exact reservation is saved for
+> 18:30–19:30 PST with the fixed 900-second restoration reserve. The dispatcher
+> owns the one claim; no manual invocation or retry is authorized. Continue
+> independent offline work until the terminal result exists.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are

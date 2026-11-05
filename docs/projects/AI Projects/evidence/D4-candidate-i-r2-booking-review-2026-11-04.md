@@ -2,12 +2,17 @@
 
 ## Decision
 
-**STATIC GO; RESERVATION NOT YET SAVED.**
+**CONDITIONAL GO; RESERVATION SCHEDULED.**
 
 R2 is a distinct candidate-i attempt proposed for 18:30–19:30 PST. The
 authoritative Lab Hours ledger reports the complete transaction plus recovery
 window clear. R1 remains spent and retained; this proposal does not retry or
 overwrite it.
+
+The ledger was rechecked clear immediately before effect. The authoritative R2
+record is now `scheduled`, created at epoch `1793839489`, with start/end epochs
+`1793842200` / `1793845800` and restore buffer `900`. The dispatcher owns its
+one claim at 18:30.
 
 The deterministic R1 defect is closed at the installed boundary. The corrected
 host adapter is
