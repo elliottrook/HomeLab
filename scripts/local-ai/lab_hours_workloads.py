@@ -133,6 +133,26 @@ WORKLOADS = {
         packet_sha256="0b9bfb86ef0e3381aca520e294b90b01f9616c51caea21e71d559467837625d0",
         result_max_bytes=524288,
     ),
+    "sa3-evidence-matrix-candidate-j-public-v1": WorkloadSpec(
+        workload_id="sa3-evidence-matrix-candidate-j-public-v1",
+        owner="aster-stream-a",
+        request_count=6, per_request_timeout_seconds=120, deadline_seconds=1800,
+        minimum_booking_seconds=2700, recovery_reserve_seconds=900,
+        runner_kind="sa3-evidence-matrix-candidate-j-public", runtime_pins=(
+            ("sa3-evidence-matrix-candidate-j-public-v1.json",
+             "40f7cfeeb3884887c32f5674afdb840d764214730a23e71c1df660a08953572f"),
+            ("sa3_evidence_matrix_candidate_j_contract.py",
+             "d3c04b28aeed23cb91808c223ec545594a1ff63754d2ada1c15ea87468a0d34d"),
+            ("sa3_evidence_matrix_candidate_j_runner.py",
+             "ee3410dbed70dc9399a094e0260e0af94985daef961017de2dd9f70b4691d223"),
+            ("sa3_evidence_matrix_candidate_j_public.py",
+             "727d1de9707b5d654d828f6d1978bdbcd6da6ca597f234f4f793d4cfe3eed294"),
+            ("sa3_evidence_matrix_candidate_j_batch.py",
+             "856bc39083d078712dbf7289d2524dc0688e07ad5c645382d5dba9d99a75b388"),
+        ),
+        packet_sha256="40f7cfeeb3884887c32f5674afdb840d764214730a23e71c1df660a08953572f",
+        result_max_bytes=262144,
+    ),
 }
 
 
@@ -197,6 +217,22 @@ def validate_registry() -> None:
     if any("keys" in name or "review" in name
            for name, _ in candidate_i.runtime_pins):
         raise ValueError("SA3 candidate-i excluded material entered runtime registration")
+    candidate_j = workload("sa3-evidence-matrix-candidate-j-public-v1")
+    if (candidate_j.owner != "aster-stream-a"
+            or candidate_j.request_count != 6
+            or candidate_j.per_request_timeout_seconds != 120
+            or candidate_j.deadline_seconds != 1800
+            or candidate_j.minimum_booking_seconds != 2700
+            or candidate_j.recovery_reserve_seconds != 900
+            or candidate_j.runner_kind != "sa3-evidence-matrix-candidate-j-public"
+            or len(candidate_j.runtime_pins) != 5
+            or candidate_j.packet_sha256 !=
+                "40f7cfeeb3884887c32f5674afdb840d764214730a23e71c1df660a08953572f"
+            or candidate_j.result_max_bytes != 262144):
+        raise ValueError("SA3 candidate-j registration drift")
+    if any("keys" in name or "review" in name
+           for name, _ in candidate_j.runtime_pins):
+        raise ValueError("SA3 candidate-j excluded material entered runtime registration")
 
 
 def _local_imports(path: Path) -> set[str]:
