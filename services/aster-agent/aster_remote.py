@@ -371,6 +371,12 @@ class AsterRemoteGateway:
                 raise HTTPException(403, "AsterTV equipment action denied")
             if room.equipment_last_seen <= now - CONNECTED_SECONDS:
                 raise HTTPException(503, "AsterTV equipment bridge unavailable")
+            if payload.action.startswith("equipment.power_") and room.equipment_power not in {"on", "off"}:
+                raise HTTPException(503, "AsterTV equipment power state unavailable")
+            if payload.action.startswith("equipment.volume_") and room.equipment_volume_level is None:
+                raise HTTPException(503, "AsterTV equipment volume state unavailable")
+            if payload.action.startswith("equipment.mute_") and room.equipment_muted is None:
+                raise HTTPException(503, "AsterTV equipment mute state unavailable")
             queue = room.equipment_queue
             condition = room.equipment_condition
         else:
@@ -547,16 +553,22 @@ def _environment_equipment_clients() -> dict[str, EquipmentIdentity]:
     result = {}
     for client_id, row in raw.items():
         if (not isinstance(row, dict)
-                or set(row) != {"room_id", "label", "key", "actions"}
+                or set(row) != {"room_id", "label", "key_file", "actions"}
                 or not all(isinstance(row.get(key), str) and row[key]
-                           for key in ("room_id", "label", "key"))
-                or len(row["key"]) < 32
+                           for key in ("room_id", "label", "key_file"))
                 or not isinstance(row["actions"], list)
                 or not row["actions"]
                 or not set(row["actions"]) <= EQUIPMENT_ACTIONS):
             raise ValueError("invalid-remote-equipment-client")
+        key_path = Path(row["key_file"])
+        details = key_path.stat()
+        if not key_path.is_file() or details.st_mode & 0o077:
+            raise ValueError("invalid-remote-equipment-key-boundary")
+        key = key_path.read_text().strip()
+        if len(key) < 32 or any(character.isspace() for character in key):
+            raise ValueError("invalid-remote-equipment-key")
         result[client_id] = EquipmentIdentity(
-            row["room_id"], row["label"], row["key"], frozenset(row["actions"])
+            row["room_id"], row["label"], key, frozenset(row["actions"])
         )
     return result
 

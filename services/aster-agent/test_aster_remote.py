@@ -70,6 +70,7 @@ class RemoteTests(unittest.TestCase):
         self.assertEqual(self.call(self.command(payload))["status"], "accepted")
         with self.assertRaises(HTTPException) as caught: self.call(self.command(payload, origin="https://evil.example"))
         self.assertEqual(caught.exception.status_code, 403)
+
         with self.assertRaises(ValueError): BrowserCommand(request_id="remote-abcdefgh", room_id="jen-lab", action="nav.up", text="secret")
         with self.assertRaises(ValueError): BrowserCommand(request_id="remote-abcdefgh", room_id="jen-lab", action="search.open")
 
@@ -149,6 +150,20 @@ class RemoteTests(unittest.TestCase):
         with self.assertRaises(HTTPException) as caught:
             self.call(gateway.command(denied, request, gateway.origin))
         self.assertEqual(caught.exception.status_code, 503)
+
+        unavailable = EquipmentPoll(client_id="HA-Family", room_id="jen-lab",
+                                    power="unavailable", volume_level=None, muted=None)
+        async def publish_unavailable():
+            task = asyncio.create_task(gateway.equipment_poll(
+                unavailable, "Bearer " + "e" * 40, "HA-Family"))
+            await asyncio.sleep(0); task.cancel()
+            try: await task
+            except asyncio.CancelledError: pass
+        self.call(publish_unavailable())
+        with self.assertRaises(HTTPException) as caught:
+            self.call(gateway.command(denied, request, gateway.origin))
+        self.assertEqual(caught.exception.status_code, 503)
+        gateway.rooms["jen-lab"].equipment_condition = asyncio.Condition()
 
         poll = EquipmentPoll(client_id="HA-Family", room_id="jen-lab", power="on",
                              volume_level=0.59, muted=False)

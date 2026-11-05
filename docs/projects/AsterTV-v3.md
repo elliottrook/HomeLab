@@ -1451,21 +1451,25 @@ slider was too coarse for this boundary and is excluded from Aster; only the
 receiver integration's `volume_down`, `volume_up` and explicit mute services
 are candidates. Physical-display confirmation still gates their acceptance.
 
-The first local M7 gateway candidate adds a separate equipment identity,
+The deployed M7 gateway adds a separate equipment identity,
 heartbeat, queue, acknowledgement channel and per-room action allowlist. Its
 only possible actions are explicit power on/off, volume up/down and mute
 on/off; unconfigured, disconnected or capability-mismatched requests fail
-closed. It exposes no Home Assistant token, arbitrary entity, service name or
-Kodi JSON-RPC. Ten pinned-environment tests pass. Nothing is installed: live
-Remote equipment controls remain disabled until the outbound Home Assistant
-adapter and its recovery tests are complete.
+closed. Independently stale power, volume or mute state also disables and
+rejects the matching action. It exposes no Home Assistant token, arbitrary
+entity, service name or Kodi JSON-RPC. Ten pinned-environment tests pass.
+Family Remote equipment controls are now live; Bedroom and Jen remain disabled.
 
-The matching undeployed Home Assistant candidate polls outbound with a
+The matching Home Assistant component polls outbound with a
 separate mode-0600 key and maps only those six actions to locally fixed Family
 TV and main-receiver entities. The gateway cannot select a Home Assistant
 entity, domain, service or payload. No inbound view or general service is
-registered. Six contract/source tests and compile checks pass; an exact network
-path, checkpointed installation and restart/recovery test remain required.
+registered. The exact source/destination/port firewall rule, protected backup,
+component and gateway checkpoints, clean configuration check and restart are
+complete. An end-to-end semantic volume step and exact restoration passed after
+the component's key read was moved off the event loop and its permanent poll
+was registered as a background task. Evidence:
+`docs/projects/evidence/AsterTV-v3-M7-Family-bridge-2026-11-05.md`.
 
 - [ ] Inventory the exact Family television and Onkyo receiver plus the Bedroom
   LG television, soundbar/receiver, connection paths, network capabilities,
@@ -1970,6 +1974,7 @@ explicit user acceptance.
 | 2026-11-05 | Replaced Remote browser login with network-scoped immediate access | Trusted Nginx plus explicit subnet-to-room maps now authorize the credential-free iPhone/Android PWA; per-TV keys, Origin/schema/rate gates and outbound polling remain. A separate STT-only server key replaces browser speech credentials. Future Guest VLAN is predeclared for only nonexistent room `guest`, with no firewall route opened. | Eight gateway, 25 speech and 20 static/installer tests pass in pinned environments. Trusted HTTPS returns only Bedroom/Family/Jen; direct and forged-Guest requests return 403. Both services are active under checkpoints `remote-network-auth-20261105`; Android uses Chrome Add to Home screen. Evidence: `docs/projects/evidence/AsterTV-v3-M8-network-remote-2026-11-05.md`. |
 | 2026-11-05 | Completed no-login migration and live Kodi keyboard synchronization | iOS retained the retired OAuth shell until a v6 service worker forced immediate takeover, cache deletion and callback-URL cleanup. Bedroom's JSON-RPC notification socket missed keyboard events; the replacement keeps Kodi's native Monitor on the main add-on thread and moves only the outbound long poll to a one-item worker queue. | The iPhone path through administrator Tailscale `/32` returns 200 while other Servers and Guest sources remain 403. Live Bedroom reports the safe field title and value (`input_active=true`) after reopen; password content remains suppressed. Kodi stayed active without a restart under checkpoints `remote-pwa-noauth-migration-20261105` and `astertv-v3-m8-native-input-mainthread-20261105`. |
 | 2026-11-05 | Propagated the accepted input listener to all current rooms | After Bedroom's real iPhone acceptance, the same hash-bound add-on-only installer updated idle Family and Jen; it changes no skin, account, playback or gateway state. | Family and Jen checkpoints are both `astertv-v3-m8-native-input-mainthread-20261105`. Kodi stayed active, all three outbound clients reconnected and the content-free Remote Doctor passes. |
+| 2026-11-05 | Deployed the capability-scoped Family equipment bridge | Added one exact HA-to-Aster TCP rule, separate revocable keys, an outbound-only Home Assistant poll and only explicit Family power, volume and mute actions. Bedroom and Jen remain authority-free. State-specific availability guards disable and reject commands when feedback is stale or unavailable. | Backup `35b3cbd9`, both component checkpoints and the OPNsense before/proof records retain rollback. A startup-task defect and blocking key read were corrected under configuration checks. Semantic volume down/up completed `0.590 → 0.585 → 0.590`; recorder and the bounded live session agree the receiver is on, unmuted and at `0.59`. Evidence: `docs/projects/evidence/AsterTV-v3-M7-Family-bridge-2026-11-05.md`. |
 
 ## Close-out
 

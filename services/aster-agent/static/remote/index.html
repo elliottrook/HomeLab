@@ -57,14 +57,14 @@
           <select id="room" aria-label="Choose AsterTV"></select>
           <svg class="room-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"></path></svg>
         </div>
-        <div class="room-controls" aria-label="Room equipment controls unavailable">
-          <span class="sr-only">Volume, mute and power arrive with the M7 equipment bridge.</span>
+        <div class="room-controls" aria-label="Room equipment controls">
+          <span id="equipmentStatus" class="sr-only">Equipment controls unavailable for this room.</span>
           <div class="volume-cluster" aria-label="Volume controls">
-            <button type="button" disabled aria-label="Volume down"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"></path><path d="M16 12h5"></path></svg></button>
-            <button type="button" disabled aria-label="Mute"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"></path><path d="m17 9 4 6M21 9l-4 6"></path></svg></button>
-            <button type="button" disabled aria-label="Volume up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"></path><path d="M18.5 8a6 6 0 0 1 0 8"></path><path d="M15.5 10.5a2.5 2.5 0 0 1 0 3"></path></svg></button>
+            <button id="volumeDown" type="button" disabled aria-label="Volume down"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"></path><path d="M16 12h5"></path></svg></button>
+            <button id="mute" type="button" disabled aria-label="Mute"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"></path><path d="m17 9 4 6M21 9l-4 6"></path></svg></button>
+            <button id="volumeUp" type="button" disabled aria-label="Volume up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"></path><path d="M18.5 8a6 6 0 0 1 0 8"></path><path d="M15.5 10.5a2.5 2.5 0 0 1 0 3"></path></svg></button>
           </div>
-          <button type="button" class="power-control" disabled aria-label="Power"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v10"></path><path d="M6.3 5.6a8 8 0 1 0 11.4 0"></path></svg></button>
+          <button id="power" type="button" class="power-control" disabled aria-label="Power"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v10"></path><path d="M6.3 5.6a8 8 0 1 0 11.4 0"></path></svg></button>
         </div>
       </section>
 

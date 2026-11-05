@@ -43,12 +43,12 @@ def _private_key(path: str) -> str:
 
 
 class RoomBridge:
-    def __init__(self, hass: HomeAssistant, config: dict):
+    def __init__(self, hass: HomeAssistant, config: dict, key: str):
         self.hass = hass
         self.url = config["gateway_url"].rstrip("/") + "/v1/remote/equipment"
         self.client_id = config["client_id"]
         self.room_id = config["room_id"]
-        self.key = _private_key(config["key_file"])
+        self.key = key
         self.contract = RoomContract(
             config["power_entity"], config["volume_entity"],
             frozenset(config["actions"]),
@@ -109,8 +109,10 @@ class RoomBridge:
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     if DOMAIN not in config:
         return True
-    bridge = RoomBridge(hass, config[DOMAIN])
-    task = hass.async_create_task(bridge.run(), "aster-room-bridge")
+    key = await hass.async_add_executor_job(_private_key,
+                                            config[DOMAIN]["key_file"])
+    bridge = RoomBridge(hass, config[DOMAIN], key)
+    task = hass.async_create_background_task(bridge.run(), "aster-room-bridge")
 
     async def stop(_event):
         task.cancel()

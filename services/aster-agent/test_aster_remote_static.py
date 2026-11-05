@@ -46,7 +46,7 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn("margin:6px 0 -13px", CSS)
         self.assertIn("radial-gradient(ellipse at 50% 43%", CSS)
         self.assertIn("rgba(243,236,223,.27)", CSS)
-        self.assertIn("const CACHE = 'aster-remote-shell-v6'", SW)
+        self.assertIn("const CACHE = 'aster-remote-shell-v7'", SW)
         self.assertIn("self.skipWaiting()", SW)
         self.assertIn("self.clients.claim()", SW)
 
@@ -62,9 +62,9 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn('.search-icon.recording .voice-wave i', CSS)
         self.assertIn('@keyframes listen-wave', CSS)
 
-    def test_room_equipment_is_grouped_and_still_safely_disabled(self):
+    def test_room_equipment_is_grouped_and_defaults_disabled(self):
         self.assertIn('class="volume-cluster"', HTML)
-        self.assertIn('class="power-control" disabled', HTML)
+        self.assertIn('class="power-control" disabled aria-label="Power"', HTML)
         for label in ('Volume down', 'Mute', 'Volume up', 'Power'):
             self.assertIn(f'aria-label="{label}"', HTML)
         self.assertEqual(HTML.count(' disabled aria-label='), 4)
@@ -73,11 +73,16 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertNotIn("connection.textContent", JS)
         self.assertIn("'/remote/aster-compass.png'", SW)
 
-    def test_equipment_controls_are_explicitly_unavailable(self):
-        self.assertIn("M7 equipment bridge", HTML)
+    def test_equipment_controls_require_live_capability_state(self):
+        self.assertIn("Equipment controls unavailable for this room", HTML)
         self.assertEqual(HTML.count(" disabled aria-label="), 4)
-        for action in ("volume.up", "volume.down", "mute", "power"):
-            self.assertNotIn("data-action=\"" + action + "\"", HTML)
+        for action in ("equipment.volume_up", "equipment.volume_down",
+                       "equipment.mute_on", "equipment.power_on"):
+            self.assertIn(action, JS)
+        self.assertIn("delete button.dataset.action", JS)
+        self.assertIn("equipment.connected", JS)
+        self.assertIn("Number.isFinite(equipment.volume_level)", JS)
+        self.assertIn("typeof equipment.muted === 'boolean'", JS)
 
     def test_browser_uses_network_authorization_and_content_is_not_persisted(self):
         self.assertNotIn("sessionStorage", JS)

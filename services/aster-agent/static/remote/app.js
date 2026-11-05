@@ -43,6 +43,22 @@ function renderSession(session) {
   connection.className = 'status ' + (active?.connected ? 'connected' : 'disconnected');
   connection.setAttribute('aria-label', active?.connected ? 'Connected' : 'Disconnected');
   const input = active?.input || {active:false, sensitive:false, title:'', value:''};
+  const equipment = active?.equipment || {connected:false, actions:[], power:'unavailable', muted:null};
+  const allowed = new Set(equipment.actions || []), ready = Boolean(equipment.connected);
+  const bindEquipment = (selector, action, stateAvailable) => {
+    const button = $(selector); button.disabled = !ready || !stateAvailable || !allowed.has(action);
+    if (!button.disabled) button.dataset.action = action; else delete button.dataset.action;
+  };
+  const volumeAvailable = Number.isFinite(equipment.volume_level);
+  bindEquipment('#volumeDown', 'equipment.volume_down', volumeAvailable);
+  bindEquipment('#volumeUp', 'equipment.volume_up', volumeAvailable);
+  const muteAction = equipment.muted === true ? 'equipment.mute_off' : 'equipment.mute_on';
+  bindEquipment('#mute', muteAction, typeof equipment.muted === 'boolean');
+  $('#mute').setAttribute('aria-label', equipment.muted === true ? 'Unmute' : 'Mute');
+  const powerAction = equipment.power === 'on' ? 'equipment.power_off' : 'equipment.power_on';
+  bindEquipment('#power', powerAction, equipment.power === 'on' || equipment.power === 'off');
+  $('#power').setAttribute('aria-label', equipment.power === 'on' ? 'Power off' : 'Power on');
+  $('#equipmentStatus').textContent = ready ? 'Room equipment connected.' : 'Equipment controls unavailable for this room.';
   const field = $('#text'), revision = `${selectedRoom}:${input.active}:${input.sensitive}:${input.title}:${input.value}`;
   $('#textForm').hidden = !input.active;
   $('#keyboardIdle').hidden = input.active;
