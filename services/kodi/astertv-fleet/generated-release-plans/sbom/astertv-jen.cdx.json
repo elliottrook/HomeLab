@@ -31,7 +31,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "jen-account-registry",
@@ -46,7 +46,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "jen-aster-client",
@@ -61,7 +61,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "jen-guest-catalogue",
@@ -76,7 +76,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "jen-home-cameras",
@@ -91,7 +91,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "jen-low-spec-runtime",
@@ -106,7 +106,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "tv-details-v3",
@@ -121,7 +121,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "jen-movie-youtube",
@@ -136,7 +136,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "news-playback-v3",
@@ -151,7 +151,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "jen-news-icons",
@@ -166,7 +166,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "jen-podcast-requests",
@@ -181,7 +181,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     },
     {
       "name": "remote-client-v3",
@@ -196,17 +196,17 @@
         }
       ],
       "type": "application",
-      "version": "composition-494803861744"
+      "version": "composition-52ffb9b1fdbd"
     }
   ],
   "metadata": {
     "component": {
       "name": "astertv-jen",
       "type": "device",
-      "version": "494803861744"
+      "version": "52ffb9b1fdbd"
     }
   },
-  "serialNumber": "urn:uuid:astertv-49480386174410589943491d84762163",
+  "serialNumber": "urn:uuid:astertv-52ffb9b1fdbd3bbf189c9fd10251746d",
   "specVersion": "1.5",
   "version": 1
 }

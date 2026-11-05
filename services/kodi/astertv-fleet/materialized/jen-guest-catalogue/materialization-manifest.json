@@ -1,0 +1,66 @@
+{
+  "dependencies": [
+    "jen-account-registry"
+  ],
+  "external_state": [
+    {
+      "bundled": false,
+      "path": "/storage/.aster-policy/jellyfin_client_policy.py",
+      "sensitive": false,
+      "sha256": "451f4d2173743f5fab93e8ace1a43f7182fb91d1909bdb51651ed87245a7d1d0"
+    }
+  ],
+  "files": [
+    {
+      "bytes": 815,
+      "destination": "/storage/.kodi/addons/plugin.video.asterguest/addon.xml",
+      "mode": "0644",
+      "sha256": "858b74e34b6fe18011ea7910ee45ef356bdd71a0beb9988ee3302a2cdcd01102"
+    },
+    {
+      "bytes": 2544,
+      "destination": "/storage/.kodi/addons/plugin.video.asterguest/client.py",
+      "mode": "0644",
+      "sha256": "41578cb01c2e1bc14c7c6daf8dfeef9c2f3226d78dd4c151cba1170b9cf40e09"
+    },
+    {
+      "bytes": 3481,
+      "destination": "/storage/.kodi/addons/plugin.video.asterguest/core.py",
+      "mode": "0644",
+      "sha256": "8736320751de1682b666b8aa8511eb957c8e2bec91deee2968716b62409af9cd"
+    },
+    {
+      "bytes": 3368,
+      "destination": "/storage/.kodi/addons/plugin.video.asterguest/default.py",
+      "mode": "0644",
+      "sha256": "af61be5f3ad0d29f0c0c3d3e1a801350a823d92d0f096d50cca080e2d4d33271"
+    },
+    {
+      "bytes": 7200,
+      "destination": "/storage/.kodi/addons/plugin.video.asterguest/service.py",
+      "mode": "0644",
+      "sha256": "f53ec451b543277aed3044096f61f96ca081310fa7cb170506c5aeb36ffdc649"
+    }
+  ],
+  "id": "jen-guest-catalogue",
+  "kind": "astertv-materialized-overlay",
+  "mutable_state": [
+    {
+      "bundled": false,
+      "path": "/storage/.aster-private/jellyfin-guest.json",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "path": "/storage/.kodi/userdata/addon_data/plugin.video.asterguest",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "owner": "jen-account-registry",
+      "path": "/storage/.kodi/userdata/addon_data/script.asterprofiles.v3lab",
+      "sensitive": true
+    }
+  ],
+  "schema_version": 1
+}

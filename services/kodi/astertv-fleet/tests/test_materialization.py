@@ -41,6 +41,9 @@ NEWS_ICON_SPEC.loader.exec_module(NEWS_ICON_MODULE)
 PODCAST_SPEC = importlib.util.spec_from_file_location("jen_podcast_materializer", ROOT / "materialize_jen_podcast_requests.py")
 PODCAST_MODULE = importlib.util.module_from_spec(PODCAST_SPEC)
 PODCAST_SPEC.loader.exec_module(PODCAST_MODULE)
+GUEST_SPEC = importlib.util.spec_from_file_location("jen_guest_materializer", ROOT / "materialize_jen_guest_catalogue.py")
+GUEST_MODULE = importlib.util.module_from_spec(GUEST_SPEC)
+GUEST_SPEC.loader.exec_module(GUEST_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -169,6 +172,15 @@ class MaterializationTests(unittest.TestCase):
             files["skin.asterhome/1080i/custom_1120_podcasts.xml"][0]), PODCAST_MODULE.FINAL_PODCASTS)
         self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
         self.assertFalse(any("client.json" in path for path in files))
+
+    def test_jen_guest_catalogue_owns_adapter_not_account_or_credentials(self):
+        files, manifest = GUEST_MODULE.render()
+        self.assertEqual(len(files), 5)
+        self.assertEqual(manifest["dependencies"], ["jen-account-registry"])
+        self.assertFalse(any("asterprofiles" in path or "jellyfin-guest.json" in path
+                             for path in files))
+        self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
+        self.assertEqual(manifest["external_state"][0]["sha256"], GUEST_MODULE.POLICY_SHA256)
 
 
 if __name__ == "__main__":

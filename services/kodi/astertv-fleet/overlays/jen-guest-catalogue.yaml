@@ -9,11 +9,17 @@
   "targets": ["astertv-jen"],
   "owns": ["kodi/jellyfin-guest-catalogue-adapter"],
   "payload_sources": [
-    "services/kodi/astertv-v3/guest_catalogue/addon/plugin.video.asterguest",
-    "services/kodi/astertv-v3/guest_catalogue/build_candidate.py",
-    "services/kodi/astertv-v3/guest_catalogue/install_candidate.py"
+    "services/kodi/astertv-fleet/materialized/jen-guest-catalogue",
+    "services/kodi/astertv-fleet/materialize_jen_guest_catalogue.py"
   ],
-  "payload_blockers": ["duplicated-account-payload-must-be-normalized-to-dependency", "guest-profile-state-is-external"],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "kodi", "key": "addon.plugin.video.asterguest.enabled", "expected": true, "sensitive": false},
+    {"authority": "filesystem", "key": "jellyfin-guest.json.mode", "expected": "0600", "sensitive": false},
+    {"authority": "filesystem", "key": "jellyfin-client-policy.sha256", "expected": "451f4d2173743f5fab93e8ace1a43f7182fb91d1909bdb51651ed87245a7d1d0", "sensitive": false},
+    {"authority": "jellyfin", "key": "jen-guest-client.registration", "expected": "active-restricted", "sensitive": false}
+  ],
   "secret_refs": ["jellyfin-jen-guest-client"],
   "rollback_ref": "astertv-v3-m2-jen-guest-r10-retained-20261104",
   "tests": ["services/kodi/astertv-v3/guest_catalogue/test_adapter.py"]

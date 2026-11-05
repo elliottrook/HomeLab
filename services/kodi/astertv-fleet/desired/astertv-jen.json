@@ -1,6 +1,6 @@
 {
   "channel": "v3-lab",
-  "composition_sha256": "49480386174410589943491d847621636db8cf9a011354eaab24d4a7c247f509",
+  "composition_sha256": "52ffb9b1fdbd3bbf189c9fd10251746d006a87cd1294043f59a78a30520e1cfc",
   "deployed": true,
   "device_id": "astertv-jen",
   "external_integrations": [
@@ -264,39 +264,39 @@
     ],
     "jen-guest-catalogue": [
       {
+        "bytes": 3430,
+        "path": "services/kodi/astertv-fleet/materialize_jen_guest_catalogue.py",
+        "sha256": "fe981794e875f6ea43bb37fabdc9502153f1a5aec8832921c2cecf01a23c8697"
+      },
+      {
+        "bytes": 1963,
+        "path": "services/kodi/astertv-fleet/materialized/jen-guest-catalogue/materialization-manifest.json",
+        "sha256": "bb57d6d2ac25355aa62a95797cd83e09aa66a363d04b82926779acf72390d4b4"
+      },
+      {
         "bytes": 815,
-        "path": "services/kodi/astertv-v3/guest_catalogue/addon/plugin.video.asterguest/addon.xml",
+        "path": "services/kodi/astertv-fleet/materialized/jen-guest-catalogue/plugin.video.asterguest/addon.xml",
         "sha256": "858b74e34b6fe18011ea7910ee45ef356bdd71a0beb9988ee3302a2cdcd01102"
       },
       {
         "bytes": 2544,
-        "path": "services/kodi/astertv-v3/guest_catalogue/addon/plugin.video.asterguest/client.py",
+        "path": "services/kodi/astertv-fleet/materialized/jen-guest-catalogue/plugin.video.asterguest/client.py",
         "sha256": "41578cb01c2e1bc14c7c6daf8dfeef9c2f3226d78dd4c151cba1170b9cf40e09"
       },
       {
         "bytes": 3481,
-        "path": "services/kodi/astertv-v3/guest_catalogue/addon/plugin.video.asterguest/core.py",
+        "path": "services/kodi/astertv-fleet/materialized/jen-guest-catalogue/plugin.video.asterguest/core.py",
         "sha256": "8736320751de1682b666b8aa8511eb957c8e2bec91deee2968716b62409af9cd"
       },
       {
         "bytes": 3368,
-        "path": "services/kodi/astertv-v3/guest_catalogue/addon/plugin.video.asterguest/default.py",
+        "path": "services/kodi/astertv-fleet/materialized/jen-guest-catalogue/plugin.video.asterguest/default.py",
         "sha256": "af61be5f3ad0d29f0c0c3d3e1a801350a823d92d0f096d50cca080e2d4d33271"
       },
       {
         "bytes": 7200,
-        "path": "services/kodi/astertv-v3/guest_catalogue/addon/plugin.video.asterguest/service.py",
+        "path": "services/kodi/astertv-fleet/materialized/jen-guest-catalogue/plugin.video.asterguest/service.py",
         "sha256": "f53ec451b543277aed3044096f61f96ca081310fa7cb170506c5aeb36ffdc649"
-      },
-      {
-        "bytes": 4070,
-        "path": "services/kodi/astertv-v3/guest_catalogue/build_candidate.py",
-        "sha256": "5ae7292a1ef988e9791fd6d596843b7bd1399a993b40a766e3b0f1f34cda28b2"
-      },
-      {
-        "bytes": 9006,
-        "path": "services/kodi/astertv-v3/guest_catalogue/install_candidate.py",
-        "sha256": "f7a704b2efa0ee1ca48a85bf359bb4604d077ebb6c13b9af6837c0ce2580731f"
       }
     ],
     "jen-home-cameras": [
@@ -726,7 +726,7 @@
     "hardware/lenovo-m93p-jen.yaml": "62596413e3f508c77048cfccc3203cca847607ab84383d9cffb4d8768f0db101",
     "overlays/jen-account-registry.yaml": "b3020ba22421c98e14516e2e442e78fb74164182cb176f546b30d5ddf4d37750",
     "overlays/jen-aster-client.yaml": "08621ef27e351cf46381ba3af1efd897b41b42c5c0aa43e84c03f73a5d480a57",
-    "overlays/jen-guest-catalogue.yaml": "d3ba169d592a0100054f8b1c41d361277a3326d5dc4371f80725d44f3a609051",
+    "overlays/jen-guest-catalogue.yaml": "0a3e886a741d09930c7302838296ed4e4dc8e39cfbe0fcce50f3d63188e4466c",
     "overlays/jen-home-cameras.yaml": "645eae905ecd73c776210f9978678fdc342d8e6df88b991041725f6dd7981557",
     "overlays/jen-low-spec-runtime.yaml": "eba688a05c73c9a1af3794fed5552e3e9496ff539d9dd89e8701d729eebcab6d",
     "overlays/jen-movie-youtube.yaml": "0be47b5f818edb8ce30ee096e5dec85b2eb50306dcf4cff8b867c99686210c70",
