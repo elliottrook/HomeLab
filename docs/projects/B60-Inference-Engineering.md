@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+Jason's operational continuation [completed migration and armed November5](B60-Inference-Engineering/qualification-armed-20261105.md).
+Actual timers are enabled/waiting for01:15 integrity and03:10 restore-only,
+with empty prior triggers and inactive services. All30 final source pins and
+five guest plans/helpers independently verify. The narrow resource-file
+extension fixes the observed EPUB metadata gate;183 controller,115 B60 and19
+target disposable tests pass. Production services remain active. Next inspect
+actual booked receipts; no model ran or live recovery success is yet claimed.
+
 The [November4 peer/dependency refresh](B60-Inference-Engineering/peer-refresh-and-fixture-recovery-20261104.md)
 receives actual M3 35B rejection and D4 recovery/booking records, verifies the
 owner's34-pin source release, and recovers the exact missing local v4 test
