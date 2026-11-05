@@ -1,0 +1,107 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7"
+        }
+      ],
+      "name": "astertv-v2.0.7-release-2026-10-31.tar.gz",
+      "properties": [
+        {
+          "name": "astertv:authority",
+          "value": "private-forgejo-release"
+        }
+      ],
+      "type": "application",
+      "version": "astertv-v2.0.7-2026-10-31"
+    },
+    {
+      "name": "release-guard-v1",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "recovery"
+        }
+      ],
+      "type": "application",
+      "version": "composition-b76a8c4606d3"
+    },
+    {
+      "name": "bedroom-stereo",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "device-audio"
+        }
+      ],
+      "type": "application",
+      "version": "composition-b76a8c4606d3"
+    },
+    {
+      "name": "bedroom-wifi-stability",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "libreelec-system"
+        }
+      ],
+      "type": "application",
+      "version": "composition-b76a8c4606d3"
+    },
+    {
+      "name": "remote-client-v3",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-service"
+        }
+      ],
+      "type": "application",
+      "version": "composition-b76a8c4606d3"
+    },
+    {
+      "name": "tv-details-v3",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "experience-design"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-presentation"
+        }
+      ],
+      "type": "application",
+      "version": "composition-b76a8c4606d3"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "name": "astertv-bedroom",
+      "type": "device",
+      "version": "b76a8c4606d3"
+    }
+  },
+  "serialNumber": "urn:uuid:astertv-b76a8c4606d3e702fbfdd142b18e1a5b",
+  "specVersion": "1.5",
+  "version": 1
+}

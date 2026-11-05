@@ -1,0 +1,152 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7"
+        }
+      ],
+      "name": "astertv-v2.0.7-release-2026-10-31.tar.gz",
+      "properties": [
+        {
+          "name": "astertv:authority",
+          "value": "private-forgejo-release"
+        }
+      ],
+      "type": "application",
+      "version": "astertv-v2.0.7-2026-10-31"
+    },
+    {
+      "name": "release-guard-v1",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "recovery"
+        }
+      ],
+      "type": "application",
+      "version": "composition-2c6cc9551e00"
+    },
+    {
+      "name": "family-dolby-hdr",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "device-audio"
+        }
+      ],
+      "type": "application",
+      "version": "composition-2c6cc9551e00"
+    },
+    {
+      "name": "remote-client-v3",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-service"
+        }
+      ],
+      "type": "application",
+      "version": "composition-2c6cc9551e00"
+    },
+    {
+      "name": "family-equipment-bridge",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "external-integration"
+        }
+      ],
+      "type": "application",
+      "version": "composition-2c6cc9551e00"
+    },
+    {
+      "name": "family-kodi-restart",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-recovery-ui"
+        }
+      ],
+      "type": "application",
+      "version": "composition-2c6cc9551e00"
+    },
+    {
+      "name": "family-media-lifecycle",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-runtime"
+        }
+      ],
+      "type": "application",
+      "version": "composition-2c6cc9551e00"
+    },
+    {
+      "name": "news-playback-v3",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-runtime"
+        }
+      ],
+      "type": "application",
+      "version": "composition-2c6cc9551e00"
+    },
+    {
+      "name": "tv-details-v3",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "experience-design"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-presentation"
+        }
+      ],
+      "type": "application",
+      "version": "composition-2c6cc9551e00"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "name": "astertv-family",
+      "type": "device",
+      "version": "2c6cc9551e00"
+    }
+  },
+  "serialNumber": "urn:uuid:astertv-2c6cc9551e0024021f5a12168e5931bd",
+  "specVersion": "1.5",
+  "version": 1
+}

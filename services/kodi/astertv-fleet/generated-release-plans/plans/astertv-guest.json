@@ -1,0 +1,72 @@
+{
+  "compatibility": {
+    "kodi": "22.0-rc1-01d4146",
+    "libreelec": "nightly-20261021-440640e",
+    "python": "3.x-libreelec",
+    "targets": [
+      "astertv-family",
+      "astertv-bedroom",
+      "astertv-jen",
+      "astertv-guest"
+    ]
+  },
+  "composition_sha256": "48ff5bc1fe344bf48d8de0e68a8ba4e10a1fdbb17c01a0d0ce788b2eac276031",
+  "deployable": false,
+  "device_id": "astertv-guest",
+  "kind": "release-plan",
+  "overlays": [],
+  "owned_resources": [],
+  "performance_budget": {
+    "qualification_required": true
+  },
+  "promotion_blockers": [
+    "release-artifact-not-locally-verified",
+    "candidate-not-deployable"
+  ],
+  "promotion_policy": {
+    "artifact_policy": {
+      "hash_required": true,
+      "local_verification_required": true,
+      "sbom_required": true
+    },
+    "candidate_policy": "compile-but-never-deploy",
+    "deprecation": {
+      "notice_days": 30,
+      "requires_replacement_test": true,
+      "rollback_retention_days": 90
+    },
+    "kind": "compatibility-policy",
+    "promotion_order": [
+      "astertv-jen",
+      "astertv-bedroom",
+      "astertv-family"
+    ],
+    "required_dimensions": [
+      "libreelec",
+      "kodi",
+      "python",
+      "targets"
+    ],
+    "schema_version": 1,
+    "stop_conditions": [
+      "unknown-identity",
+      "active-playback",
+      "unexplained-drift",
+      "missing-checkpoint",
+      "secret-output",
+      "compatibility-failure",
+      "rollback-failure"
+    ]
+  },
+  "release": "astertv-v2.0.7-2026-10-31",
+  "required_runtime_gates": [
+    "identity",
+    "idle",
+    "checkpoint",
+    "artifact-hash",
+    "composition",
+    "tests",
+    "rollback"
+  ],
+  "schema_version": 1
+}

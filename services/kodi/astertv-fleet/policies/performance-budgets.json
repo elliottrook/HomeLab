@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "kind": "performance-budgets",
+  "profiles": {
+    "intel-n95-family": {"boot_ready_seconds_max": 45, "page_open_ms_max": 1500, "focus_response_ms_max": 180, "memory_mib_max": 3072, "output_ceiling": "4k-hdr-measured"},
+    "intel-i5-9500t-bedroom": {"boot_ready_seconds_max": 45, "page_open_ms_max": 1500, "focus_response_ms_max": 180, "memory_mib_max": 3072, "output_ceiling": "measured-bedroom-chain"},
+    "lenovo-m93p-jen": {"boot_ready_seconds_max": 60, "page_open_ms_max": 2200, "focus_response_ms_max": 240, "memory_mib_max": 2048, "output_ceiling": "1080p-stereo-device-only"},
+    "unassigned-guest": {"qualification_required": true}
+  }
+}

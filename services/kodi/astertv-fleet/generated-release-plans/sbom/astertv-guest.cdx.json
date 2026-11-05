@@ -1,0 +1,32 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7"
+        }
+      ],
+      "name": "astertv-v2.0.7-release-2026-10-31.tar.gz",
+      "properties": [
+        {
+          "name": "astertv:authority",
+          "value": "private-forgejo-release"
+        }
+      ],
+      "type": "application",
+      "version": "astertv-v2.0.7-2026-10-31"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "name": "astertv-guest",
+      "type": "device",
+      "version": "48ff5bc1fe34"
+    }
+  },
+  "serialNumber": "urn:uuid:astertv-48ff5bc1fe344bf48d8de0e68a8ba4e1",
+  "specVersion": "1.5",
+  "version": 1
+}

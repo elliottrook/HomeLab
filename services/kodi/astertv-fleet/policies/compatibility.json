@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "kind": "compatibility-policy",
+  "required_dimensions": ["libreelec", "kodi", "python", "targets"],
+  "promotion_order": ["astertv-jen", "astertv-bedroom", "astertv-family"],
+  "candidate_policy": "compile-but-never-deploy",
+  "deprecation": {"notice_days": 30, "rollback_retention_days": 90, "requires_replacement_test": true},
+  "artifact_policy": {"hash_required": true, "local_verification_required": true, "sbom_required": true},
+  "stop_conditions": ["unknown-identity", "active-playback", "unexplained-drift", "missing-checkpoint", "secret-output", "compatibility-failure", "rollback-failure"]
+}

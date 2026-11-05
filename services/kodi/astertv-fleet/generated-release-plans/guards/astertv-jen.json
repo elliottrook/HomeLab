@@ -1,0 +1,40 @@
+{
+  "composition_sha256": "f5cf3a93f59f1f9f70c69232b6af23e02ae3ce092b3745ba2962dbcb49e82c0f",
+  "dependency_policy": "all-required-available",
+  "device_id": "astertv-jen",
+  "expected_resources": [
+    "device-performance:jellyfin/client-policy-jen",
+    "device-performance:kodi/settings/jen-1080p-stereo",
+    "kodi-catalogue:kodi/jellyfin-guest-catalogue-adapter",
+    "kodi-identity:kodi/astertv-profile-registry",
+    "kodi-identity:kodi/profile-capability-policy",
+    "kodi-presentation:kodi/plugin.video.astersearch/tv-person-search",
+    "kodi-presentation:kodi/skin.asterhome/cameras-window-v3",
+    "kodi-presentation:kodi/skin.asterhome/episode-art-cache",
+    "kodi-presentation:kodi/skin.asterhome/home-window-v3",
+    "kodi-presentation:kodi/skin.asterhome/movie-details-v3",
+    "kodi-presentation:kodi/skin.asterhome/news-plain-compass-icons",
+    "kodi-presentation:kodi/skin.asterhome/tv-details-window",
+    "kodi-presentation:kodi/skin.asterhome/youtube-v3",
+    "kodi-presentation:kodi/youtube-lifecycle-loader",
+    "kodi-presentation:systemd/jen-camera-on-demand",
+    "kodi-runtime:kodi/script.asterruntime/news-playback-lifecycle",
+    "kodi-service:kodi/aster-ai-dialogs",
+    "kodi-service:kodi/native-input-sync",
+    "kodi-service:kodi/podcast-request-client",
+    "kodi-service:kodi/service.asterremote",
+    "kodi-service:kodi/service.astertv-broker-client",
+    "recovery:state/accepted-manifest-envelope",
+    "recovery:systemd/astertv-release-guard.service"
+  ],
+  "kind": "composition-guard-contract",
+  "mutable_exclusions": [
+    "userdata/Database",
+    "userdata/Thumbnails",
+    "userdata/addon_data",
+    "cache",
+    "temp"
+  ],
+  "registered_extras": [],
+  "schema_version": 1
+}

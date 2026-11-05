@@ -1,0 +1,291 @@
+{
+  "compatibility": {
+    "kodi": "22.0-rc1-01d4146",
+    "libreelec": "nightly-20261021-440640e",
+    "python": "3.x-libreelec",
+    "targets": [
+      "astertv-family",
+      "astertv-bedroom",
+      "astertv-jen",
+      "astertv-guest"
+    ]
+  },
+  "composition_sha256": "f5cf3a93f59f1f9f70c69232b6af23e02ae3ce092b3745ba2962dbcb49e82c0f",
+  "deployable": false,
+  "device_id": "astertv-jen",
+  "kind": "release-plan",
+  "overlays": [
+    {
+      "dependencies": [],
+      "id": "release-guard-v1",
+      "layer": "recovery",
+      "owner": "fleet-engineering",
+      "owns": [
+        "systemd/astertv-release-guard.service",
+        "state/accepted-manifest-envelope"
+      ],
+      "rollback_ref": "host-bound accepted payload and predecessor checkpoint",
+      "tests": [
+        "services/kodi/astertv-v3/reliability/test_reliability.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "jen-account-registry",
+      "layer": "kodi-identity",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/astertv-profile-registry",
+        "kodi/profile-capability-policy"
+      ],
+      "rollback_ref": "astertv-v3-m2-jen-authority-r9-final-20261104",
+      "tests": [
+        "services/kodi/astertv-v3/accounts/test_authority.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "jen-account-registry"
+      ],
+      "id": "jen-aster-client",
+      "layer": "kodi-service",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/service.astertv-broker-client",
+        "kodi/aster-ai-dialogs"
+      ],
+      "rollback_ref": "astertv-v3-m3-jen-client-retained-r3-20261104",
+      "tests": [
+        "services/kodi/astertv-v3/aster_client/test_client.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "jen-account-registry"
+      ],
+      "id": "jen-guest-catalogue",
+      "layer": "kodi-catalogue",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/jellyfin-guest-catalogue-adapter"
+      ],
+      "rollback_ref": "astertv-v3-m2-jen-guest-r10-retained-20261104",
+      "tests": [
+        "services/kodi/astertv-v3/guest_catalogue/test_adapter.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "jen-account-registry"
+      ],
+      "id": "jen-home-cameras",
+      "layer": "kodi-presentation",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/skin.asterhome/home-window-v3",
+        "kodi/skin.asterhome/cameras-window-v3",
+        "systemd/jen-camera-on-demand"
+      ],
+      "rollback_ref": "astertv-v3-m6-jen and astertv-v3-m6-camera-on-demand-r1",
+      "tests": [
+        "services/kodi/astertv-v3/m6/test_home_overlay.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "jen-low-spec-runtime",
+      "layer": "device-performance",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/settings/jen-1080p-stereo",
+        "jellyfin/client-policy-jen"
+      ],
+      "rollback_ref": "astertv-reliability-AsterTV-Jen accepted state",
+      "tests": [
+        "services/kodi/astertv-v3/low-spec/test_jellyfin_client_policy.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "tv-details-v3",
+      "layer": "kodi-presentation",
+      "owner": "experience-design",
+      "owns": [
+        "kodi/skin.asterhome/tv-details-window",
+        "kodi/skin.asterhome/episode-art-cache",
+        "kodi/plugin.video.astersearch/tv-person-search"
+      ],
+      "rollback_ref": "tv-details target checkpoint and accepted guard",
+      "tests": [
+        "services/kodi/astertv-v3/test_tv_details_package.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "jen-account-registry",
+        "tv-details-v3"
+      ],
+      "id": "jen-movie-youtube",
+      "layer": "kodi-presentation",
+      "owner": "experience-design",
+      "owns": [
+        "kodi/skin.asterhome/movie-details-v3",
+        "kodi/skin.asterhome/youtube-v3",
+        "kodi/youtube-lifecycle-loader"
+      ],
+      "rollback_ref": "astertv-v3-m4-jen-movie and astertv-v3-m4y-jen",
+      "tests": [
+        "services/kodi/astertv-v3/m4/test_jen_movie.py",
+        "services/kodi/astertv-v3/m4/test_jen_youtube_lifecycle.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "news-playback-v3",
+      "layer": "kodi-runtime",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/script.asterruntime/news-playback-lifecycle"
+      ],
+      "rollback_ref": "astertv-news-playback target checkpoint",
+      "tests": [
+        "services/kodi/astertv-v3/deploy/news-playback/test_repair.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "news-playback-v3"
+      ],
+      "id": "jen-news-icons",
+      "layer": "kodi-presentation",
+      "owner": "experience-design",
+      "owns": [
+        "kodi/skin.asterhome/news-plain-compass-icons"
+      ],
+      "rollback_ref": "astertv-v3-m5n-jen",
+      "tests": [
+        "services/kodi/astertv-v3/m5/test_jen_news_icons.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "jen-account-registry"
+      ],
+      "id": "jen-podcast-requests",
+      "layer": "kodi-service",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/podcast-request-client"
+      ],
+      "rollback_ref": "astertv-v3-m5p-jen",
+      "tests": [
+        "services/kodi/astertv-v3/podcast_requests/test_client.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "remote-client-v3",
+      "layer": "kodi-service",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/service.asterremote",
+        "kodi/native-input-sync"
+      ],
+      "rollback_ref": "astertv-v3-m8 per-device and gateway checkpoints",
+      "tests": [
+        "services/kodi/astertv-v3/remote_client/test_remote_client.py"
+      ]
+    }
+  ],
+  "owned_resources": [
+    "device-performance:jellyfin/client-policy-jen",
+    "device-performance:kodi/settings/jen-1080p-stereo",
+    "kodi-catalogue:kodi/jellyfin-guest-catalogue-adapter",
+    "kodi-identity:kodi/astertv-profile-registry",
+    "kodi-identity:kodi/profile-capability-policy",
+    "kodi-presentation:kodi/plugin.video.astersearch/tv-person-search",
+    "kodi-presentation:kodi/skin.asterhome/cameras-window-v3",
+    "kodi-presentation:kodi/skin.asterhome/episode-art-cache",
+    "kodi-presentation:kodi/skin.asterhome/home-window-v3",
+    "kodi-presentation:kodi/skin.asterhome/movie-details-v3",
+    "kodi-presentation:kodi/skin.asterhome/news-plain-compass-icons",
+    "kodi-presentation:kodi/skin.asterhome/tv-details-window",
+    "kodi-presentation:kodi/skin.asterhome/youtube-v3",
+    "kodi-presentation:kodi/youtube-lifecycle-loader",
+    "kodi-presentation:systemd/jen-camera-on-demand",
+    "kodi-runtime:kodi/script.asterruntime/news-playback-lifecycle",
+    "kodi-service:kodi/aster-ai-dialogs",
+    "kodi-service:kodi/native-input-sync",
+    "kodi-service:kodi/podcast-request-client",
+    "kodi-service:kodi/service.asterremote",
+    "kodi-service:kodi/service.astertv-broker-client",
+    "recovery:state/accepted-manifest-envelope",
+    "recovery:systemd/astertv-release-guard.service"
+  ],
+  "performance_budget": {
+    "boot_ready_seconds_max": 60,
+    "focus_response_ms_max": 240,
+    "memory_mib_max": 2048,
+    "output_ceiling": "1080p-stereo-device-only",
+    "page_open_ms_max": 2200
+  },
+  "promotion_blockers": [
+    "release-artifact-not-locally-verified"
+  ],
+  "promotion_policy": {
+    "artifact_policy": {
+      "hash_required": true,
+      "local_verification_required": true,
+      "sbom_required": true
+    },
+    "candidate_policy": "compile-but-never-deploy",
+    "deprecation": {
+      "notice_days": 30,
+      "requires_replacement_test": true,
+      "rollback_retention_days": 90
+    },
+    "kind": "compatibility-policy",
+    "promotion_order": [
+      "astertv-jen",
+      "astertv-bedroom",
+      "astertv-family"
+    ],
+    "required_dimensions": [
+      "libreelec",
+      "kodi",
+      "python",
+      "targets"
+    ],
+    "schema_version": 1,
+    "stop_conditions": [
+      "unknown-identity",
+      "active-playback",
+      "unexplained-drift",
+      "missing-checkpoint",
+      "secret-output",
+      "compatibility-failure",
+      "rollback-failure"
+    ]
+  },
+  "release": "astertv-v2.0.7-2026-10-31",
+  "required_runtime_gates": [
+    "identity",
+    "idle",
+    "checkpoint",
+    "artifact-hash",
+    "composition",
+    "tests",
+    "rollback"
+  ],
+  "schema_version": 1
+}

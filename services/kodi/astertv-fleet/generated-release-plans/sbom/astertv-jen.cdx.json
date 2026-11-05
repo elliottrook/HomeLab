@@ -1,0 +1,212 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7"
+        }
+      ],
+      "name": "astertv-v2.0.7-release-2026-10-31.tar.gz",
+      "properties": [
+        {
+          "name": "astertv:authority",
+          "value": "private-forgejo-release"
+        }
+      ],
+      "type": "application",
+      "version": "astertv-v2.0.7-2026-10-31"
+    },
+    {
+      "name": "release-guard-v1",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "recovery"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "jen-account-registry",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-identity"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "jen-aster-client",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-service"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "jen-guest-catalogue",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-catalogue"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "jen-home-cameras",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-presentation"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "jen-low-spec-runtime",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "device-performance"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "tv-details-v3",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "experience-design"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-presentation"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "jen-movie-youtube",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "experience-design"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-presentation"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "news-playback-v3",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-runtime"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "jen-news-icons",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "experience-design"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-presentation"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "jen-podcast-requests",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-service"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    },
+    {
+      "name": "remote-client-v3",
+      "properties": [
+        {
+          "name": "astertv:owner",
+          "value": "fleet-engineering"
+        },
+        {
+          "name": "astertv:layer",
+          "value": "kodi-service"
+        }
+      ],
+      "type": "application",
+      "version": "composition-f5cf3a93f59f"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "name": "astertv-jen",
+      "type": "device",
+      "version": "f5cf3a93f59f"
+    }
+  },
+  "serialNumber": "urn:uuid:astertv-f5cf3a93f59f1f9f70c69232b6af23e0",
+  "specVersion": "1.5",
+  "version": 1
+}

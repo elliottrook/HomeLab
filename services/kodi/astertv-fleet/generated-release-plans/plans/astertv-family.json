@@ -1,0 +1,219 @@
+{
+  "compatibility": {
+    "kodi": "22.0-rc1-01d4146",
+    "libreelec": "nightly-20261021-440640e",
+    "python": "3.x-libreelec",
+    "targets": [
+      "astertv-family",
+      "astertv-bedroom",
+      "astertv-jen",
+      "astertv-guest"
+    ]
+  },
+  "composition_sha256": "2c6cc9551e0024021f5a12168e5931bdf691d0b780c058d5c6e96e86085b6818",
+  "deployable": false,
+  "device_id": "astertv-family",
+  "kind": "release-plan",
+  "overlays": [
+    {
+      "dependencies": [],
+      "id": "release-guard-v1",
+      "layer": "recovery",
+      "owner": "fleet-engineering",
+      "owns": [
+        "systemd/astertv-release-guard.service",
+        "state/accepted-manifest-envelope"
+      ],
+      "rollback_ref": "host-bound accepted payload and predecessor checkpoint",
+      "tests": [
+        "services/kodi/astertv-v3/reliability/test_reliability.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "family-dolby-hdr",
+      "layer": "device-audio",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/settings/audio-hdmi0-passthrough",
+        "systemd/pulseaudio-mask",
+        "display/hdr-contract"
+      ],
+      "rollback_ref": "astertv-v2.0.7-release-20261031-family",
+      "tests": [
+        "services/kodi/astertv-v2/validate_release.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "remote-client-v3",
+      "layer": "kodi-service",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/service.asterremote",
+        "kodi/native-input-sync"
+      ],
+      "rollback_ref": "astertv-v3-m8 per-device and gateway checkpoints",
+      "tests": [
+        "services/kodi/astertv-v3/remote_client/test_remote_client.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "remote-client-v3"
+      ],
+      "id": "family-equipment-bridge",
+      "layer": "external-integration",
+      "owner": "fleet-engineering",
+      "owns": [
+        "home-assistant/aster-room-bridge-family",
+        "aster-agent/family-equipment-actions"
+      ],
+      "rollback_ref": "astertv-v3-m7-family-bridge-20261105 and HA backup 35b3cbd9",
+      "tests": [
+        "services/home-assistant/aster_room_bridge/tests"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "family-kodi-restart",
+      "layer": "kodi-recovery-ui",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/skin.asterhome/settings-restart-action"
+      ],
+      "rollback_ref": "family settings restart checkpoint",
+      "tests": [
+        "services/kodi/astertv-v2/reconciliation/apply_family_restart_button.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "family-media-lifecycle",
+      "layer": "kodi-runtime",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/script.asterruntime/continue-watching-filter",
+        "jellyfin/intro-skipper-compatibility"
+      ],
+      "rollback_ref": "astertv-media-lifecycle-AsterTV-Family-20261105-031033",
+      "tests": [
+        "services/kodi/astertv-v3/deploy/media-lifecycle/test_repair.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "news-playback-v3",
+      "layer": "kodi-runtime",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/script.asterruntime/news-playback-lifecycle"
+      ],
+      "rollback_ref": "astertv-news-playback target checkpoint",
+      "tests": [
+        "services/kodi/astertv-v3/deploy/news-playback/test_repair.py"
+      ]
+    },
+    {
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "tv-details-v3",
+      "layer": "kodi-presentation",
+      "owner": "experience-design",
+      "owns": [
+        "kodi/skin.asterhome/tv-details-window",
+        "kodi/skin.asterhome/episode-art-cache",
+        "kodi/plugin.video.astersearch/tv-person-search"
+      ],
+      "rollback_ref": "tv-details target checkpoint and accepted guard",
+      "tests": [
+        "services/kodi/astertv-v3/test_tv_details_package.py"
+      ]
+    }
+  ],
+  "owned_resources": [
+    "device-audio:display/hdr-contract",
+    "device-audio:kodi/settings/audio-hdmi0-passthrough",
+    "device-audio:systemd/pulseaudio-mask",
+    "external-integration:aster-agent/family-equipment-actions",
+    "external-integration:home-assistant/aster-room-bridge-family",
+    "kodi-presentation:kodi/plugin.video.astersearch/tv-person-search",
+    "kodi-presentation:kodi/skin.asterhome/episode-art-cache",
+    "kodi-presentation:kodi/skin.asterhome/tv-details-window",
+    "kodi-recovery-ui:kodi/skin.asterhome/settings-restart-action",
+    "kodi-runtime:jellyfin/intro-skipper-compatibility",
+    "kodi-runtime:kodi/script.asterruntime/continue-watching-filter",
+    "kodi-runtime:kodi/script.asterruntime/news-playback-lifecycle",
+    "kodi-service:kodi/native-input-sync",
+    "kodi-service:kodi/service.asterremote",
+    "recovery:state/accepted-manifest-envelope",
+    "recovery:systemd/astertv-release-guard.service"
+  ],
+  "performance_budget": {
+    "boot_ready_seconds_max": 45,
+    "focus_response_ms_max": 180,
+    "memory_mib_max": 3072,
+    "output_ceiling": "4k-hdr-measured",
+    "page_open_ms_max": 1500
+  },
+  "promotion_blockers": [
+    "release-artifact-not-locally-verified"
+  ],
+  "promotion_policy": {
+    "artifact_policy": {
+      "hash_required": true,
+      "local_verification_required": true,
+      "sbom_required": true
+    },
+    "candidate_policy": "compile-but-never-deploy",
+    "deprecation": {
+      "notice_days": 30,
+      "requires_replacement_test": true,
+      "rollback_retention_days": 90
+    },
+    "kind": "compatibility-policy",
+    "promotion_order": [
+      "astertv-jen",
+      "astertv-bedroom",
+      "astertv-family"
+    ],
+    "required_dimensions": [
+      "libreelec",
+      "kodi",
+      "python",
+      "targets"
+    ],
+    "schema_version": 1,
+    "stop_conditions": [
+      "unknown-identity",
+      "active-playback",
+      "unexplained-drift",
+      "missing-checkpoint",
+      "secret-output",
+      "compatibility-failure",
+      "rollback-failure"
+    ]
+  },
+  "release": "astertv-v2.0.7-2026-10-31",
+  "required_runtime_gates": [
+    "identity",
+    "idle",
+    "checkpoint",
+    "artifact-hash",
+    "composition",
+    "tests",
+    "rollback"
+  ],
+  "schema_version": 1
+}

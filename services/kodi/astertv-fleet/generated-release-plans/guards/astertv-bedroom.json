@@ -1,0 +1,27 @@
+{
+  "composition_sha256": "b76a8c4606d3e702fbfdd142b18e1a5bb68c3769be0842271fda1d822ad23173",
+  "dependency_policy": "all-required-available",
+  "device_id": "astertv-bedroom",
+  "expected_resources": [
+    "device-audio:kodi/settings/bedroom-stereo-output",
+    "kodi-presentation:kodi/plugin.video.astersearch/tv-person-search",
+    "kodi-presentation:kodi/skin.asterhome/episode-art-cache",
+    "kodi-presentation:kodi/skin.asterhome/tv-details-window",
+    "kodi-service:kodi/native-input-sync",
+    "kodi-service:kodi/service.asterremote",
+    "libreelec-system:network/wifi-power-save-policy",
+    "libreelec-system:systemd/astertv-wifi-stability.service",
+    "recovery:state/accepted-manifest-envelope",
+    "recovery:systemd/astertv-release-guard.service"
+  ],
+  "kind": "composition-guard-contract",
+  "mutable_exclusions": [
+    "userdata/Database",
+    "userdata/Thumbnails",
+    "userdata/addon_data",
+    "cache",
+    "temp"
+  ],
+  "registered_extras": [],
+  "schema_version": 1
+}

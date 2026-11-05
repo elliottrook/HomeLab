@@ -1,0 +1,33 @@
+{
+  "composition_sha256": "2c6cc9551e0024021f5a12168e5931bdf691d0b780c058d5c6e96e86085b6818",
+  "dependency_policy": "all-required-available",
+  "device_id": "astertv-family",
+  "expected_resources": [
+    "device-audio:display/hdr-contract",
+    "device-audio:kodi/settings/audio-hdmi0-passthrough",
+    "device-audio:systemd/pulseaudio-mask",
+    "external-integration:aster-agent/family-equipment-actions",
+    "external-integration:home-assistant/aster-room-bridge-family",
+    "kodi-presentation:kodi/plugin.video.astersearch/tv-person-search",
+    "kodi-presentation:kodi/skin.asterhome/episode-art-cache",
+    "kodi-presentation:kodi/skin.asterhome/tv-details-window",
+    "kodi-recovery-ui:kodi/skin.asterhome/settings-restart-action",
+    "kodi-runtime:jellyfin/intro-skipper-compatibility",
+    "kodi-runtime:kodi/script.asterruntime/continue-watching-filter",
+    "kodi-runtime:kodi/script.asterruntime/news-playback-lifecycle",
+    "kodi-service:kodi/native-input-sync",
+    "kodi-service:kodi/service.asterremote",
+    "recovery:state/accepted-manifest-envelope",
+    "recovery:systemd/astertv-release-guard.service"
+  ],
+  "kind": "composition-guard-contract",
+  "mutable_exclusions": [
+    "userdata/Database",
+    "userdata/Thumbnails",
+    "userdata/addon_data",
+    "cache",
+    "temp"
+  ],
+  "registered_extras": [],
+  "schema_version": 1
+}
