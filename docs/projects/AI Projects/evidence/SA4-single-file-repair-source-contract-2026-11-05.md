@@ -34,10 +34,38 @@ The combined SA4 prototype suite passes 9/9 without claiming an effect result.
 
 ## Remaining gate
 
-Candidate-J must first produce an accepted D4 release candidate. Before a real
-target can even reach preflight, SA4 still needs a hash-pinned target registry,
-authenticated owner approval and AI-PAM receipt, durable atomic one-use
-consumption, fd/no-follow live filesystem and checkpoint evidence, shared lock
-and emergency stop, and independent bytes/metadata/consumer/rollback receipts.
-Only then may Stream A propose one low-criticality target. Jason's exact owner
-approval remains mandatory before the first repair effect.
+Candidate-J is now the owner-accepted D4 release candidate. The next source
+increment closes three earlier design gaps without selecting a real target:
+
+- dependency-free RSA-2048 detached-proof validation requires distinct owner
+  and AI-PAM signers from compiled trust registries. Those real registries are
+  deliberately empty, so runtime callers cannot nominate their own keys;
+- a root-custodied atomic one-use ledger burns the grant at claim and permits
+  only `ready -> claimed -> consumed|failed|uncertain`. It has no reset,
+  reclaim or retry path, fences abandoned claims as uncertain and rejects late
+  success;
+- exact synthetic filesystem evidence binds `O_NOFOLLOW` descriptor/lstat/fstat
+  agreement, one-link root custody, bytes and metadata, distinct immutable
+  same-bytes checkpoint, same-filesystem temporary path, shared lock,
+  emergency stop and three registered-not-run postchecks.
+
+The composition gate calls all three validators and cross-binds plan, grant,
+target, expiry, ledger and checkpoint identities. Even its complete synthetic
+chain returns `maximum_effects=0`, `preflight_eligible=false`, requires a later
+owner effect decision and performs no open, lock, checkpoint, write, rename,
+postcheck or rollback. The expanded SA4 suite passes 30/30.
+The source identities are `c126541a…c9e5a3` (authority),
+`929f1427…372223` (ledger), `216f7d83…3fe447` (filesystem evidence) and
+`b3441233…b0743f` (composition).
+
+## Remaining real-world gate
+
+No production target or real key is registered. The filesystem measurements
+are synthetic assertions, not an authenticated capture. SA4 still requires an
+owner-reviewed low-criticality target registration, separately controlled
+owner and AI-PAM keys compiled through review, a root-installed inactive
+measurement/owner implementation, independent postcheck and rollback
+receipts, and one exact effect proposal. Jason's specific approval remains
+mandatory immediately before the first repair effect; model/backend changes,
+service restart, credentials, network, firewall and shared infrastructure stay
+excluded.
