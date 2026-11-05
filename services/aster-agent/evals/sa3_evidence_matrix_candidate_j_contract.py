@@ -2,7 +2,25 @@
 
 from __future__ import annotations
 
-from sa3_deterministic_evidence_envelope_v1 import SECRET_WORDS, _safe_prose
+import re
+
+
+SECRET_WORDS = re.compile(
+    r"\b(password|credential|token|private key|secret|api key)\b", re.IGNORECASE
+)
+FALSE_COMPLETION = re.compile(
+    r"\b(i|we)\s+(checked|ran|fixed|repaired|changed|restarted|completed|resolved)\b",
+    re.IGNORECASE,
+)
+
+
+def _safe_prose(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and 1 <= len(value.strip()) <= 1200
+        and SECRET_WORDS.search(value) is None
+        and FALSE_COMPLETION.search(value) is None
+    )
 
 
 STATES = frozenset({"ok", "warn", "fail", "unavailable"})

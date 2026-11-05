@@ -37,7 +37,7 @@ error-bearing deterministic abstention with no retry. The combined focused
 suite passes 10/10 and the complete SA3 suite passes 211/211. Current source
 SHA-256 values are:
 
-- contract: `d3c04b28aeed23cb91808c223ec545594a1ff63754d2ada1c15ea87468a0d34d`;
+- contract: `b243d429218b134177f2b2cdf5ca4e3f28c8e0ed08a55b11e9d2ccb6bd17b2af`;
 - runner: `ee3410dbed70dc9399a094e0260e0af94985daef961017de2dd9f70b4691d223`.
 
 ## Next untouched boundary
@@ -58,8 +58,15 @@ abstentions, records errors without retry, and accepts a public result only at
 fixture, scorer and batch while pinning candidate-g/i's spent quality packets
 and keeping model calls unauthorized. Batch and freeze SHA-256 values are
 `856bc39083d078712dbf7289d2524dc0688e07ad5c645382d5dba9d99a75b388`
-and `7ab3bf93a326fad5748e5fe6f584d0b1a1bc890e78823059a19941832c0d3e74`.
+and `34b3fc5c2af1f51f50dddeed75397b37913a676803338880a12753e055169eea`.
 The combined candidate-j suite passes 17/17 and SA3 passes 218/218.
+
+The first platform registration review found that the contract still imported
+one helper from the spent candidate-i lineage even though the freeze and
+registration named only candidate-j's five files. Before any installation or
+booking, the contract was made self-contained with the same bounded secret and
+false-completion checks and the freeze was repinned. This closes the runtime
+dependency graph without adding prior candidate code to the transaction.
 
 This is not authority to run. A bounded public-development model call now
 requires an exact registered transaction and Lab Hours booking. Only after a
