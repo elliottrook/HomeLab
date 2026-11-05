@@ -14,6 +14,12 @@ registered and runner-admitted while no unit or booking exists. Failure rolls
 back only bytes that still match the intended candidate-j targets and fails
 closed on uncertainty.
 
+The first live read-only preflight caught one stale installer baseline before
+mutation: the current installed v11 release manifest is `05e41525…`, exactly
+matching platform commit `7abfb8c9`, while the source initially carried the
+pre-scope-correction `c2812b75…` value. The installer now pins the observed,
+repository-proven v11 manifest. No target byte changed during this correction.
+
 The CLI is a no-op without `--apply`. Bundle construction is deterministic and
 contains 15 entries including its manifest. Focused tests cover the exact
 change boundary, source hashes, no-op default and repeatable cross-commit

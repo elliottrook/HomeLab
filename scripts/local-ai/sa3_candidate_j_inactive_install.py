@@ -27,7 +27,7 @@ HOST_REPLACE = {
         "6c7767e5a22829d3369b5c385495aea7d2879986c9adb5e698aef29d3df198ad",
         "1760fa046156d7a8268a9e7fbf52c06eac2df9690a2033d184afb8b6b2211c8c", 0o755),
     "lab_hours_release_manifest.json": (
-        "c2812b754c2d5c87156898548d63a407f5afcca7ac7d4000ece645b14a922a5e",
+        "05e41525f08f52597128b6523b92c1ed7de3316cee09e3e79f95d347d31eb65d",
         "3c12af56e18612c314fdcc4cc336064264d1593a74bc94e9980357ab5366d9e8", 0o644),
 }
 HOST_ADD = {
