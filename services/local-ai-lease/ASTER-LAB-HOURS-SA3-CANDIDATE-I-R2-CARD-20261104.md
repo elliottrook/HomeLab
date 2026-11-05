@@ -9,6 +9,11 @@
   2,700-second transaction ceiling and 900-second recovery reserve
 - Authoritative ledger check: clear, no booking IDs
 
+The ledger was rechecked clear immediately before effect and the authoritative
+reservation is now saved as `scheduled`, with created epoch `1793839489`,
+start epoch `1793842200`, end epoch `1793845800` and restore buffer `900`.
+The dispatcher owns the one claim at 18:30.
+
 R2 is distinct from spent R1. R1 failed restored before the candidate workload
 because the host adapter supplied candidate-g's scope prefix. Its attempt and
 terminal evidence remain retained; it will not be retried or overwritten.
