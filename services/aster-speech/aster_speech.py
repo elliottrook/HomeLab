@@ -32,6 +32,7 @@ from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict
 
 ASTER_SPEECH_API_KEY = os.environ.get("ASTER_SPEECH_API_KEY", "")
+ASTER_REMOTE_SPEECH_API_KEY = os.environ.get("ASTER_REMOTE_SPEECH_API_KEY", "")
 WHISPER_MODEL_SIZE = os.environ.get("ASTER_SPEECH_STT_MODEL", "base.en")
 WHISPER_LANGUAGE = os.environ.get("ASTER_SPEECH_STT_LANGUAGE", "en")
 WHISPER_HOTWORDS = os.environ.get("ASTER_SPEECH_STT_HOTWORDS", "").strip() or None
@@ -122,6 +123,15 @@ def require_api_key(authorization: str | None = Header(default=None)) -> None:
     raise HTTPException(status_code=401, detail="Invalid or missing credentials")
 
 
+def require_stt_key(authorization: str | None = Header(default=None)) -> None:
+    """Accept the narrow Remote key for STT, never for synthesis."""
+    if ASTER_REMOTE_SPEECH_API_KEY and authorization and hmac.compare_digest(
+        authorization, f"Bearer {ASTER_REMOTE_SPEECH_API_KEY}"
+    ):
+        return
+    require_api_key(authorization)
+
+
 class TTSRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -154,7 +164,7 @@ def _validation_digest(text: str) -> str:
     return hashlib.sha256(" ".join(words).encode("utf-8")).hexdigest()
 
 
-@app.post("/v1/stt", dependencies=[Depends(require_api_key)])
+@app.post("/v1/stt", dependencies=[Depends(require_stt_key)])
 async def speech_to_text(
     audio: UploadFile,
     profile: Annotated[str, Form()] = "default",

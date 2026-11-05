@@ -186,7 +186,7 @@ def validate():
             or reply.headers.get("X-Frame-Options") != "DENY"
         ):
             raise RuntimeError("browser-security-header-regression")
-    if status("/v1/remote/session") != 401:
+    if status("/v1/remote/session") != 403:
         raise RuntimeError("remote-session-denial-failed")
     payload = json.dumps({
         "client_id": CLIENT_ID, "room_id": ROOM_ID,

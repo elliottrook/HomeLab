@@ -25,7 +25,7 @@ class InstallRemoteTests(unittest.TestCase):
 
     def test_install_preserves_existing_service_and_denies_unauthenticated_paths(self):
         self.assertIn('status("/companion") != 200', SOURCE)
-        self.assertIn('status("/v1/remote/session") != 401', SOURCE)
+        self.assertIn('status("/v1/remote/session") != 403', SOURCE)
         self.assertIn('"Authorization": "Bearer wrong"', SOURCE)
         self.assertIn("systemctl", SOURCE)
 

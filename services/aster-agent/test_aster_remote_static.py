@@ -46,7 +46,7 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn("margin:6px 0 -13px", CSS)
         self.assertIn("radial-gradient(ellipse at 50% 43%", CSS)
         self.assertIn("rgba(243,236,223,.27)", CSS)
-        self.assertIn("const CACHE = 'aster-remote-shell-v4'", SW)
+        self.assertIn("const CACHE = 'aster-remote-shell-v5'", SW)
 
     def test_approved_identity_connection_and_voice_language(self):
         self.assertIn('/remote/aster-compass.png', HTML)
@@ -77,10 +77,13 @@ class RemoteStaticTests(unittest.TestCase):
         for action in ("volume.up", "volume.down", "mute", "power"):
             self.assertNotIn("data-action=\"" + action + "\"", HTML)
 
-    def test_session_is_short_lived_and_content_is_not_persisted(self):
-        self.assertIn("sessionStorage.setItem('aster_remote_access_token'", JS)
+    def test_browser_uses_network_authorization_and_content_is_not_persisted(self):
+        self.assertNotIn("sessionStorage", JS)
         self.assertNotIn("localStorage", JS)
         self.assertNotIn("refresh_token", JS)
+        self.assertNotIn("auth.elliottrook.com", JS)
+        self.assertNotIn('id="login"', HTML)
+        self.assertNotIn('id="signOut"', HTML)
         self.assertNotIn("caches.open", JS)
         self.assertNotIn("console.log", JS)
         self.assertIn("inputDirty = false", JS)
@@ -88,6 +91,8 @@ class RemoteStaticTests(unittest.TestCase):
 
     def test_voice_uses_bounded_british_media_profile(self):
         self.assertIn("form.append('profile', 'en-GB-media')", JS)
+        self.assertIn("fetch('/v1/remote/voice'", JS)
+        self.assertNotIn("Authorization", JS)
         self.assertIn("$('#search').value = heard", JS)
         self.assertNotIn("send('voice.search', heard)", JS)
 

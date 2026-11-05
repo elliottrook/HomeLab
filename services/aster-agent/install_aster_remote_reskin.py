@@ -86,7 +86,7 @@ def validate(expected: dict[str, str]) -> None:
     try:
         urllib.request.urlopen(request, timeout=4)
     except urllib.error.HTTPError as error:
-        if error.code == 401:
+        if error.code == 403:
             return
     raise RuntimeError("remote-reskin-auth-regression")
 

@@ -1,13 +1,6 @@
 'use strict';
-const AUTH = {
-  clientId: 'aster-companion',
-  authorizeUrl: 'https://auth.elliottrook.com/application/o/authorize/',
-  tokenUrl: 'https://auth.elliottrook.com/application/o/token/',
-  scope: 'openid profile',
-  redirectUri: location.origin + '/remote/',
-};
 const $ = value => document.querySelector(value);
-const loginPanel = $('#login'), remotePanel = $('#remote'), errorBox = $('#error');
+const errorBox = $('#error');
 let rooms = [], selectedRoom = '', statusTimer = null, recorder = null, mediaStream = null;
 let inputRevision = '', inputDirty = false;
 
@@ -15,63 +8,16 @@ function searchText(value) {
   return value.trim().replace(/[.!?,;:]+$/u, '').trim();
 }
 
-function b64url(buffer) {
-  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-function randomString(length) {
-  const value = new Uint8Array(length); crypto.getRandomValues(value); return b64url(value);
-}
-async function sha256(value) {
-  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
-}
-function token() { return sessionStorage.getItem('aster_remote_access_token'); }
-function clearSession() { sessionStorage.removeItem('aster_remote_access_token'); }
-
-async function login() {
-  const verifier = randomString(64), state = randomString(24);
-  sessionStorage.setItem('aster_remote_verifier', verifier);
-  sessionStorage.setItem('aster_remote_state', state);
-  const query = new URLSearchParams({
-    client_id: AUTH.clientId, response_type: 'code', redirect_uri: AUTH.redirectUri,
-    scope: AUTH.scope, code_challenge: b64url(await sha256(verifier)),
-    code_challenge_method: 'S256', state,
-  });
-  location.href = AUTH.authorizeUrl + '?' + query;
-}
-async function callback() {
-  const query = new URLSearchParams(location.search), code = query.get('code');
-  if (!code) return;
-  const state = sessionStorage.getItem('aster_remote_state');
-  const verifier = sessionStorage.getItem('aster_remote_verifier');
-  sessionStorage.removeItem('aster_remote_state');
-  sessionStorage.removeItem('aster_remote_verifier');
-  history.replaceState({}, '', '/remote/');
-  if (!state || query.get('state') !== state || !verifier) throw new Error('Login state did not match.');
-  const body = new URLSearchParams({
-    grant_type: 'authorization_code', code, redirect_uri: AUTH.redirectUri,
-    client_id: AUTH.clientId, code_verifier: verifier,
-  });
-  const response = await fetch(AUTH.tokenUrl, {
-    method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body,
-  });
-  const result = await response.json();
-  if (!response.ok || !result.access_token) throw new Error(result.error_description || 'Login failed.');
-  sessionStorage.setItem('aster_remote_access_token', result.access_token);
-}
 async function api(path, options = {}) {
   const headers = new Headers(options.headers || {});
-  headers.set('Authorization', 'Bearer ' + (token() || ''));
   if (options.body && !(options.body instanceof FormData)) headers.set('Content-Type', 'application/json');
   const response = await fetch(path, {...options, headers});
-  if (response.status === 401) { clearSession(); showLogin(); throw new Error('Session expired. Sign in again.'); }
   let result = null;
   if (response.status !== 204) result = await response.json().catch(() => ({}));
+  if (response.status === 403) throw new Error('Aster Remote is available only on an authorized home network.');
   if (!response.ok) throw new Error(result?.detail || 'Aster Remote is unavailable.');
   return result;
 }
-function showLogin() { loginPanel.hidden = false; remotePanel.hidden = true; }
-function showRemote() { loginPanel.hidden = true; remotePanel.hidden = false; }
 function requestId() { return 'remote-' + crypto.randomUUID().replaceAll('-', '').slice(0, 24); }
 function room() { return selectedRoom || $('#room').value; }
 
@@ -108,7 +54,6 @@ function renderSession(session) {
   inputRevision = revision;
 }
 async function refresh() {
-  if (!token()) return;
   try { renderSession(await api('/v1/remote/session')); }
   catch (error) { errorBox.textContent = error.message; }
 }
@@ -172,7 +117,7 @@ async function voiceSearch() {
       if (!blob.size) throw new Error('No audio was recorded.');
       const form = new FormData(); form.append('audio', blob, blob.type.includes('mp4') ? 'voice.m4a' : 'voice.webm');
       form.append('profile', 'en-GB-media');
-      const response = await fetch('/voice/v1/stt', {method:'POST', headers:{Authorization:'Bearer ' + token()}, body:form});
+      const response = await fetch('/v1/remote/voice', {method:'POST', body:form});
       const result = await response.json();
       if (!response.ok || !result.text?.trim()) throw new Error(result.detail || 'No speech was recognized.');
       const heard = searchText(result.text); if (!heard) throw new Error('No searchable speech was recognized.');
@@ -186,12 +131,8 @@ async function voiceSearch() {
   setTimeout(() => { if (recorder?.state === 'recording') recorder.stop(); }, 15000);
 }
 $('#voice').addEventListener('click', () => voiceSearch().catch(error => { errorBox.textContent = error.message; }));
-$('#signIn').addEventListener('click', () => login().catch(error => { $('#loginError').textContent = error.message; }));
-$('#signOut').addEventListener('click', () => { setMore(false); clearSession(); showLogin(); });
 
 (async () => {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/remote/sw.js', {scope:'/remote/'}).catch(() => {});
-  try { await callback(); } catch (error) { $('#loginError').textContent = error.message; }
-  if (!token()) { showLogin(); return; }
-  showRemote(); await refresh(); statusTimer = setInterval(refresh, 4000);
+  await refresh(); statusTimer = setInterval(refresh, 4000);
 })();

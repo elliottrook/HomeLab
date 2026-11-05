@@ -89,8 +89,5 @@ label { display:block; margin-bottom:7px; color:var(--gold-bright); font-size:.7
 .sign-out { width:100%; margin-top:14px; padding:.7rem; }
 .error { min-height:1.2rem; margin-top:4px; color:var(--danger); font-size:.72rem; text-align:center; }
 .home-indicator { width:112px; height:4px; margin:5px auto 0; border-radius:9px; background:rgba(243,236,223,.74); }
-.login { text-align:center; padding:18vh 12px 0; }
-.login img { margin-bottom:12px; }.login p { color:var(--muted); margin:10px 0 20px; }
-.login button { min-height:48px; padding:.7rem 1.1rem; border:1px solid var(--gold); border-radius:15px; color:var(--cream); background:linear-gradient(145deg,#278a6d,var(--green-deep)); }
 @media (max-height:760px) { .touchpad { min-height:300px; }.room-controls { min-height:62px; }.room-controls button { width:48px; min-height:48px; } }
 @media (min-width:431px) { main { min-height:760px; margin-top:18px; border-radius:42px; } }

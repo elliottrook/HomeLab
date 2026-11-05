@@ -76,7 +76,7 @@ def install(identifier):
             temporary = path.with_suffix(path.suffix + ".installing")
             shutil.copy2(source[name], temporary); os.replace(temporary, path)
         run("systemctl", "start", "aster-agent"); wait_ready()
-        if status("/remote/") != 200 or status("/v1/remote/session") != 401:
+        if status("/remote/") != 200 or status("/v1/remote/session") != 403:
             raise RuntimeError("remote-input-validation")
     except Exception:
         run("systemctl", "stop", "aster-agent", check=False)

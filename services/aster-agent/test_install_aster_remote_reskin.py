@@ -27,7 +27,7 @@ class RemoteReskinInstallerTests(unittest.TestCase):
         self.assertIn('"service_restart": False', SOURCE)
 
     def test_validation_checks_exact_http_bytes_and_auth_denial(self):
-        for value in ("remote-reskin-http-drift", "/v1/remote/session", "error.code == 401"):
+        for value in ("remote-reskin-http-drift", "/v1/remote/session", "error.code == 403"):
             self.assertIn(value, SOURCE)
 
 

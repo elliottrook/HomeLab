@@ -51,7 +51,7 @@ values={}
 for line in open("/etc/aster/asterremote.env"):
  if "=" in line:
   key,value=line.rstrip().split("=",1);values[key]=value
-clients=json.loads(values["ASTER_REMOTE_CLIENTS"]);subjects=json.loads(values["ASTER_REMOTE_SUBJECT_ROOMS"])
+clients=json.loads(values["ASTER_REMOTE_CLIENTS"]);networks=json.loads(values["ASTER_REMOTE_NETWORK_ROOMS"])
 def status(path):
  try:
   return urllib.request.urlopen("http://192.168.70.10:9120"+path,timeout=3).status
@@ -59,7 +59,10 @@ def status(path):
 print(json.dumps({"agent":subprocess.run(["systemctl","is-active","aster-agent"],capture_output=True,text=True).stdout.strip(),
  "remote":status("/remote/"),"denial":status("/v1/remote/session"),
  "clients":sorted((key,row["room_id"]) for key,row in clients.items()),
- "rooms":sorted(next(iter(subjects.values()))),"subject_count":len(subjects),
+ "trusted_rooms":sorted(networks.get("192.168.1.0/24",[])),
+ "guest_rooms":sorted(networks.get("192.168.40.0/24",[])),
+ "proxy":values.get("ASTER_REMOTE_TRUSTED_PROXIES"),
+ "voice_configured":bool(values.get("ASTER_REMOTE_SPEECH_API_KEY")),
  "keys_present":all(bool(row.get("key")) for row in clients.values())}))
 '''
 
@@ -75,9 +78,11 @@ def validate_gateway(row):
     expected = sorted((host, room) for host, _ip, room in CLIENTS)
     if not (
         row.get("agent") == "active" and row.get("remote") == 200
-        and row.get("denial") == 401 and row.get("clients") == [list(item) for item in expected]
-        and row.get("rooms") == sorted(room for _host, _ip, room in CLIENTS)
-        and row.get("subject_count") == 1 and row.get("keys_present") is True
+        and row.get("denial") == 403 and row.get("clients") == [list(item) for item in expected]
+        and row.get("trusted_rooms") == sorted(room for _host, _ip, room in CLIENTS)
+        and row.get("guest_rooms") == ["guest"]
+        and row.get("proxy") == "192.168.50.23"
+        and row.get("voice_configured") is True and row.get("keys_present") is True
     ):
         raise RuntimeError("gateway identity, route or denial drift")
 
@@ -98,6 +103,11 @@ def main():
         input_text=GATEWAY_PROBE,
     ))
     validate_gateway(gateway)
+    public = json.loads(command(("curl", "-fsS", "https://aster.elliottrook.com/v1/remote/session")))
+    if sorted(row.get("room_id") for row in public.get("rooms", [])) != sorted(
+        room for _host, _ip, room in CLIENTS
+    ):
+        raise RuntimeError("trusted-network room mapping drift")
     for host, ip, _room in CLIENTS:
         transport = SSH
         if host != "AsterTV-Jen":

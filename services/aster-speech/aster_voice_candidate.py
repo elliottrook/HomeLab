@@ -13,7 +13,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, PlainTextResponse, Response
 
 import aster_speech as legacy_speech
-from aster_speech import TTSRequest, require_api_key, speech_to_text
+from aster_speech import TTSRequest, require_api_key, require_stt_key, speech_to_text
 from kokoro_candidate import KokoroRendererPool
 from vulkan_renderer_client import VulkanRendererPool
 from voice_candidate import VoiceScheduler
@@ -80,7 +80,7 @@ app.add_api_route(
     "/v1/stt",
     speech_to_text,
     methods=["POST"],
-    dependencies=[Depends(require_api_key)],
+    dependencies=[Depends(require_stt_key)],
 )
 
 

@@ -1,6 +1,6 @@
 """Private, capability-scoped Aster Remote gateway.
 
-Browser sessions are authenticated by the existing Companion OIDC verifier.
+Browser sessions are authorized by their source network at the trusted proxy.
 Each television polls outbound with its own key.  The gateway transports only
 the enumerated semantic actions below; it is deliberately not a JSON-RPC,
 Home Assistant, equipment or shell proxy.
@@ -13,12 +13,14 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import hmac
+import ipaddress
 import json
 import os
 from pathlib import Path
 import time
 from typing import Any, Callable, Literal
 
+import httpx
 from fastapi import APIRouter, Header, HTTPException, Request, Response
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -34,7 +36,7 @@ REMOTE_HEADERS = {
         "frame-ancestors 'none'; form-action 'none'; img-src 'self'; "
         "script-src 'self'; style-src 'self'; worker-src 'self'; "
         "manifest-src 'self'; media-src 'self' blob:; "
-        "connect-src 'self' https://auth.elliottrook.com"
+        "connect-src 'self'"
     ),
     "Permissions-Policy": "camera=(), geolocation=(), microphone=(self)",
     "Referrer-Policy": "no-referrer",
@@ -141,11 +143,15 @@ class RoomRuntime:
 class AsterRemoteGateway:
     def __init__(
         self,
-        claims: Callable[[str | None], dict[str, Any]],
+        claims: Callable[[str | None], dict[str, Any]] | None,
         static_root: Path,
         *,
         clients: dict[str, ClientIdentity],
         subject_rooms: dict[str, set[str]],
+        network_rooms: dict[ipaddress.IPv4Network, set[str]] | None = None,
+        trusted_proxies: set[ipaddress.IPv4Address] | None = None,
+        voice_url: str = "http://192.168.70.14:9130/v1/stt",
+        voice_key: str = "",
         origin: str = REMOTE_ORIGIN,
         clock: Callable[[], float] = time.time,
     ):
@@ -153,6 +159,12 @@ class AsterRemoteGateway:
         self.static_root = Path(static_root)
         self.clients = dict(clients)
         self.subject_rooms = {key: frozenset(value) for key, value in subject_rooms.items()}
+        self.network_rooms = {
+            network: frozenset(rooms) for network, rooms in (network_rooms or {}).items()
+        }
+        self.trusted_proxies = frozenset(trusted_proxies or set())
+        self.voice_url = voice_url
+        self.voice_key = voice_key
         self.origin = origin.rstrip("/")
         self.clock = clock
         self.rooms = {identity.room_id: RoomRuntime() for identity in clients.values()}
@@ -173,6 +185,7 @@ class AsterRemoteGateway:
         )
         self.router.add_api_route("/v1/remote/session", self.session, methods=["GET"])
         self.router.add_api_route("/v1/remote/command", self.command, methods=["POST"])
+        self.router.add_api_route("/v1/remote/voice", self.voice, methods=["POST"])
         self.router.add_api_route(
             "/v1/remote/client/poll", self.client_poll, methods=["POST"]
         )
@@ -202,15 +215,27 @@ class AsterRemoteGateway:
             headers["Service-Worker-Allowed"] = "/remote/"
         return FileResponse(self.static_root / name, media_type=allowed[name], headers=headers)
 
-    def _browser(self, authorization: str | None) -> tuple[str, frozenset[str]]:
-        result = self.claims(authorization)
-        owner = result.get("owner_hash")
-        if not isinstance(owner, str) or not owner:
-            raise HTTPException(401, "Sign in to Aster Remote")
-        rooms = self.subject_rooms.get(owner, frozenset())
-        if not rooms:
-            raise HTTPException(403, "No AsterTV rooms are assigned")
-        return owner, rooms
+    def _browser(self, request: Request) -> tuple[str, frozenset[str]]:
+        try:
+            proxy = ipaddress.ip_address(request.client.host if request.client else "")
+        except ValueError as error:
+            raise HTTPException(403, "Remote proxy denied") from error
+        if proxy not in self.trusted_proxies:
+            raise HTTPException(403, "Remote proxy denied")
+        forwarded = request.headers.get("X-Forwarded-For", "")
+        if not forwarded or "," in forwarded:
+            raise HTTPException(403, "Remote client address denied")
+        try:
+            client = ipaddress.ip_address(forwarded.strip())
+        except ValueError as error:
+            raise HTTPException(403, "Remote client address denied") from error
+        for network, rooms in self.network_rooms.items():
+            if client in network:
+                allowed = frozenset(room for room in rooms if room in self.rooms)
+                if not allowed:
+                    raise HTTPException(403, "No AsterTV rooms are assigned")
+                return "network:" + network.with_prefixlen, allowed
+        raise HTTPException(403, "Remote network denied")
 
     def _same_origin(self, origin: str | None):
         if origin != self.origin:
@@ -257,8 +282,8 @@ class AsterRemoteGateway:
             },
         }
 
-    async def session(self, authorization: str | None = Header(default=None)):
-        _owner, allowed = self._browser(authorization)
+    async def session(self, request: Request):
+        _owner, allowed = self._browser(request)
         identities = {row.room_id: row for row in self.clients.values()}
         return {
             "status": "ready",
@@ -273,11 +298,11 @@ class AsterRemoteGateway:
     async def command(
         self,
         payload: BrowserCommand,
+        request: Request,
         origin: str | None = Header(default=None),
-        authorization: str | None = Header(default=None),
     ):
         self._same_origin(origin)
-        owner, allowed = self._browser(authorization)
+        owner, allowed = self._browser(request)
         if payload.room_id not in allowed or payload.room_id not in self.rooms:
             raise HTTPException(403, "AsterTV room denied")
         self._rate(owner)
@@ -296,6 +321,34 @@ class AsterRemoteGateway:
         async with room.condition:
             room.condition.notify_all()
         return {"status": "accepted", "request_id": payload.request_id}
+
+    async def voice(self, request: Request, origin: str | None = Header(default=None)):
+        self._same_origin(origin)
+        self._browser(request)
+        content_type = request.headers.get("Content-Type", "")
+        if not content_type.startswith("multipart/form-data;"):
+            raise HTTPException(415, "Remote voice content type denied")
+        length = request.headers.get("Content-Length")
+        if length and (not length.isdecimal() or int(length) > 15 * 1024 * 1024):
+            raise HTTPException(413, "Remote voice exceeds the maximum permitted size")
+        body = await request.body()
+        if not body or len(body) > 15 * 1024 * 1024:
+            raise HTTPException(413 if body else 400, "Remote voice body invalid")
+        if len(self.voice_key) < 32:
+            raise HTTPException(503, "Remote voice is not configured")
+        try:
+            async with httpx.AsyncClient(timeout=40) as client:
+                response = await client.post(
+                    self.voice_url, content=body,
+                    headers={"Content-Type": content_type,
+                             "Authorization": "Bearer " + self.voice_key},
+                )
+        except httpx.HTTPError as error:
+            raise HTTPException(502, "Remote voice is unavailable") from error
+        if len(response.content) > 65536:
+            raise HTTPException(502, "Remote voice response invalid")
+        return Response(content=response.content, status_code=response.status_code,
+                        media_type="application/json")
 
     async def client_poll(
         self,
@@ -380,11 +433,45 @@ def _environment_rooms() -> dict[str, set[str]]:
     return result
 
 
+def _environment_network_rooms() -> dict[ipaddress.IPv4Network, set[str]]:
+    raw = json.loads(os.environ.get("ASTER_REMOTE_NETWORK_ROOMS", "{}"))
+    if not isinstance(raw, dict):
+        raise ValueError("invalid-remote-network-rooms")
+    result = {}
+    for value, rooms in raw.items():
+        try:
+            network = ipaddress.ip_network(value, strict=True)
+        except ValueError as error:
+            raise ValueError("invalid-remote-network") from error
+        if network.version != 4 or not isinstance(rooms, list) or not all(
+            isinstance(room, str) and room for room in rooms
+        ):
+            raise ValueError("invalid-remote-network-room")
+        result[network] = set(rooms)
+    return result
+
+
+def _environment_trusted_proxies() -> set[ipaddress.IPv4Address]:
+    result = set()
+    for value in os.environ.get("ASTER_REMOTE_TRUSTED_PROXIES", "").split(","):
+        if not value.strip(): continue
+        address = ipaddress.ip_address(value.strip())
+        if address.version != 4: raise ValueError("invalid-remote-trusted-proxy")
+        result.add(address)
+    return result
+
+
 def from_environment(claims, static_root: Path) -> AsterRemoteGateway:
     return AsterRemoteGateway(
         claims,
         static_root,
         clients=_environment_clients(),
         subject_rooms=_environment_rooms(),
+        network_rooms=_environment_network_rooms(),
+        trusted_proxies=_environment_trusted_proxies(),
+        voice_url=os.environ.get(
+            "ASTER_REMOTE_VOICE_URL", "http://192.168.70.14:9130/v1/stt"
+        ),
+        voice_key=os.environ.get("ASTER_REMOTE_SPEECH_API_KEY", ""),
         origin=os.environ.get("ASTER_REMOTE_ORIGIN", REMOTE_ORIGIN),
     )

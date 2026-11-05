@@ -13,7 +13,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import HTTPException, UploadFile
 
 import aster_speech
-from aster_speech import health, require_api_key, speech_to_text, text_to_speech, transcribe_pcm, TTSRequest
+from aster_speech import health, require_api_key, require_stt_key, speech_to_text, text_to_speech, transcribe_pcm, TTSRequest
 
 
 class RequireApiKeyTests(unittest.TestCase):
@@ -38,6 +38,14 @@ class RequireApiKeyTests(unittest.TestCase):
     def test_correct_key_is_accepted(self):
         with patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
             require_api_key(authorization="Bearer the-real-key")  # does not raise
+
+    def test_remote_key_is_stt_only(self):
+        with patch("aster_speech.ASTER_REMOTE_SPEECH_API_KEY", "remote-only"), \
+             patch("aster_speech.ASTER_SPEECH_API_KEY", "general-key"):
+            require_stt_key(authorization="Bearer remote-only")
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization="Bearer remote-only")
+        self.assertEqual(raised.exception.status_code, 401)
 
 
 class AuthentikTokenTests(unittest.TestCase):

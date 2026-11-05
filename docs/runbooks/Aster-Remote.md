@@ -3,11 +3,15 @@
 ## Service boundary
 
 Aster Remote is the private iPhone PWA at
-`https://aster.elliottrook.com/remote/`. Authentik supplies a short-lived owner
-session. Aster Agent LXC 104 holds an in-memory semantic command queue. Jen,
+`https://aster.elliottrook.com/remote/`. The browser needs no login: the trusted
+Nginx proxy passes the immediate client address and Aster Agent maps only
+explicit household subnets to rooms. Aster Agent LXC 104 holds an in-memory
+semantic command queue. Jen,
 Family and Bedroom each maintain an outbound authenticated poll to TCP 9120.
 There is no inbound television listener and the browser never receives a Kodi,
-Home Assistant or equipment credential.
+speech, Home Assistant or equipment credential. Each television retains an
+independently revocable client key. Voice uses a separate STT-only server key
+which the speech service does not accept for synthesis.
 
 Current rooms:
 
@@ -23,9 +27,11 @@ installs explicit room-equipment authority.
 
 ## User operation
 
-Install from Safari with **Share → Add to Home Screen → Open as Web App**.
-Sign in with the existing passkey, choose the controlled AsterTV from the
-bottom room selector, and use the touch surface or icon controls.
+Install on iPhone from Safari with **Share → Add to Home Screen → Open as Web
+App**. On Android, open the same address in Chrome and choose **Add to Home
+screen** or **Install app**. No App Store or Play Store package is needed.
+While connected to an authorized home network, choose the controlled AsterTV
+from the bottom room selector and use the touch surface or icon controls.
 
 Voice recognition places cleaned text into Search. It does not submit
 automatically: correct or append with the iPhone keyboard, then press Search.
@@ -52,8 +58,8 @@ For a disconnected room, check in order:
 3. The client can reach `192.168.70.10:9120`.
 4. The client key remains mode `0600`.
 5. Stable and live add-on manifests match.
-6. Aster Agent is active and `/v1/remote/session` denies an unauthenticated
-   request with HTTP 401.
+6. Aster Agent is active; direct `/v1/remote/session` access is HTTP 403 while
+   the same request through private HTTPS on the trusted LAN is HTTP 200.
 
 Do not print the gateway environment or client key while diagnosing.
 
@@ -79,5 +85,18 @@ Accepted recovery points on 2026-11-05:
 
 Restore only through the matching installer/checkpoint contract. Confirm Kodi
 is idle before any client restart. A gateway restore must retain Companion and
-the unauthenticated 401 denial. After any restore or reinstall, run the probe
-and then test one harmless Home action per room.
+the direct-access 403 denial. After any restore or reinstall, run the probe and
+then test one harmless Home action per room.
+
+## Future Guest room
+
+The network authorization map already reserves Guest VLAN `192.168.40.0/24`
+for room ID `guest`, but no such client exists and no Guest firewall route has
+been opened. The mapping therefore fails closed today.
+
+When the fourth box arrives, enroll it with a new `AsterTV-GuestRoom` identity
+and room ID `guest`. Only then add the narrow Guest-to-Nginx TCP 443 firewall
+rule ahead of the RFC1918 deny. Do not permit Guest access to LXC 104, Kodi,
+speech, Home Assistant or another AsterTV directly. Validate that a Guest
+device sees exactly one room; household devices retain their separately
+declared room set.
