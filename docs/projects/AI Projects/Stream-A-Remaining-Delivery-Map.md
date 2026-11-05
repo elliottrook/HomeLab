@@ -167,6 +167,16 @@
 > first complete clear window, 23:00–23:45; AsterTV retains 22:15–23:00
 > including recovery. R1 is spent and will not be retried.
 
+> **Candidate-j R2 NO-GO / digest correction ready, 2026-11-04 23:03:** R2
+> claimed exactly and [failed restored after 226 seconds](evidence/D4-candidate-j-r1-no-go-correction-and-r2-schedule-2026-11-04.md).
+> The batch correctly emitted the canonical semantic fixture digest, while
+> the wrapper and transaction incorrectly expected the raw file-custody hash.
+> Production restored and R2 is spent. The bounded source correction separates
+> raw file custody from semantic result identity; 60/60 platform and 17/17
+> candidate-j source tests pass. Next is the reversible inactive install with
+> preservation of the concurrent 41-pin EPUB manifest, followed by a distinct
+> conflict-free R3 booking only if every installed gate passes.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
