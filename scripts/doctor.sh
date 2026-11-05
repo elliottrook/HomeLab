@@ -588,6 +588,15 @@ check_aster_ha_report_freshness() {
     fi
 }
 
+check_astertv_remote() {
+    local state
+    if state="$(python3 "$REPO/scripts/check-astertv-remote.py" 2>/dev/null)"; then
+        pass "$state"
+    else
+        fail "${state:-Aster Remote health could not be verified}"
+    fi
+}
+
 check_aster_lab_operations() {
     local state
     if state="$(python3 "$REPO/scripts/check-aster-lab-operations.py" 2>/dev/null)"; then
@@ -2198,6 +2207,7 @@ check_nut
 category "Applications & Services"
 
 check_aster
+check_astertv_remote
 check_aster_ha_report_freshness
 check_aster_speech
 check_aster_notifications
