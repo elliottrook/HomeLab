@@ -1,6 +1,6 @@
 # AsterTV v3
 
-> Status: Active — Jen-only M4 Movie and household YouTube integration retained; local commit and Forgejo push remain open.
+> Status: Active — Jen-only M5 News chrome retained; local commit and Forgejo push remain open.
 > The completed r8 Guest adapter remains retained on AsterTV-Jen.
 > The earlier page-design pilot is accepted and closed; no PA3
 > synthetic surface is promoted. TV-series presentation remains deployed
@@ -10,7 +10,7 @@
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: Stream A, limited to `SA-M4Y-JEN` below and
+> Current authorization stream: Stream A, limited to `SA-M5N-JEN` below and
 > approved by Jason on 2026-11-04. Family, Bedroom, release promotion and every
 > later live milestone remain excluded.
 
@@ -872,7 +872,7 @@ any required change outside Jen.
   cast/person search, related titles, trailer admission, playback and Back.
 - [x] SA-M4-JEN3: checkpoint and install the YouTube page integration; prove
   public route behaviour, focus/Back and Guest isolation without account state.
-- [ ] SA-M4-JEN4: rehearse rollback/reinstall, retain or remove the candidate,
+- [x] SA-M4-JEN4: rehearse rollback/reinstall, retain or remove the candidate,
   reconcile evidence, commit and push the completed bounded milestone.
 
 ### SA-M4Y-JEN — Jen-only household YouTube identity and lifecycle repair
@@ -921,6 +921,44 @@ target/add-on version, accepted-guard drift or any need to mutate a source box.
   roll back according to the gates.
 - [x] SA-M4Y-JEN4: reconcile evidence, commit locally and request the required
   immediate confirmation before pushing the closed milestone.
+
+### SA-M5N-JEN — Jen-only News chrome and playback preservation
+
+Jason directed continuation after the M4Y push on 2026-11-04. The next bounded
+Stream A slice is limited to AsterTV-Jen and the non-AI News portion of M5:
+
+- checkpoint the exact retained News window, relevant skin asset and guard/M4Y
+  ordering before effects;
+- add the plain Aster compass icon to the four existing News header pills while
+  preserving every control ID, label, focus edge, route and playback action;
+- install the change through a deterministic post-M4Y/pre-Kodi overlay rather
+  than refreshing or weakening the accepted v2 guard;
+- prove News entry, story focus, reader entry, full-digest playback, stop/Back,
+  restart persistence, exact rollback inputs and no Movie/YouTube regression;
+  and
+- retain or remove the candidate, reconcile evidence and stop at the next
+  remote-write approval boundary.
+
+Family, Bedroom, News source service, digest content, reader/player runtime,
+accounts, credentials, network policy and release promotion are excluded.
+Podcast submission and eBook TTS/timing are separate M5 sub-gates. No Lab Hours
+booking is needed because this slice runs no local-AI or narration workload.
+
+Risks are obscured labels, focus regression, stale entry-lock routes, release-
+guard overwrite and retained-player recurrence. Controls are exact live-hash
+pins, XML route/focus equivalence tests, idle-player admission, a mode-0700
+checkpoint, post-guard overlay ordering, one bounded playback/stop check and
+rollback without changing the accepted baseline. Stop on active playback,
+unknown News hash, missing compass asset, route/focus change, checkpoint or
+guard failure, source-service mutation or a need to broaden this Jen-only
+surface.
+
+- [x] SA-M5N-JEN1: inventory and build the exact-hash News icon transform with
+  route/focus equivalence and rollback tests.
+- [x] SA-M5N-JEN2: checkpoint and install on idle Jen; prove visual/focus and
+  playback behavior, then restart and verify ordering.
+- [x] SA-M5N-JEN3: reconcile evidence, commit locally and request immediate
+  confirmation before its Forgejo push.
 
 ## Milestones
 
@@ -1073,7 +1111,7 @@ primary-account leak or loss of existing YouTube functions.
   real books while preserving current Aster corrections.
 - [ ] Produce measured single-word timestamps from actual canonical narration;
   reject drift and retain sentence fallback.
-- [ ] Add Aster icons to News pills without changing digest selection, reading,
+- [x] Add Aster icons to News pills without changing digest selection, reading,
   playback or shared chrome.
 - [ ] Extend Requests to podcasts through the selected authority with stable
   IDs, preview, duplicates, status and explicit submission.
@@ -1453,7 +1491,8 @@ explicit user acceptance.
 | 2026-11-04 | Completed Jen-only Guest catalogue and playback | Created the independently revocable `AsterTV-Guest` Jellyfin identity after an exact disposable create/delete rehearsal. Its policy exposes only Movies, Shows, Archive Movies and Archive TV, permits playback plus required remux/audio/video transcode, and denies administration, deletion, downloads, remote control, live TV, preferences and all private AsterTV surfaces. The Jen adapter keeps the credential mode `0600`, stores only its opaque subject reference in the account registry and relays allowlisted HLS over localhost without putting a token in Kodi URLs. | Exact client rollback removed the adapter/mapping, exposed and corrected a clean-reinstall add-on-enable gap, then retained the same r8 archive `c7452312…bc9d` under checkpoint `astertv-v3-m2-jen-guest-r10-retained-20261104`. A cold-start real-film test advanced at speed 1, stopped cleanly and left Guest watch state unchanged; Kodi remained idle and the 528-file v2 guard remained clean. Family, Bedroom, Jason's Jellyfin identity and all non-film/television services were unchanged. |
 | 2026-11-04 | Completed the Jen-only M3 broker/client Stream A | Installed a deterministic, dedicated AsterTV route on Aster LXC 104 and a separately identified Jen client. The broker exposes only allowlisted search, navigation, named playback, News and exact-alias intents; model output is not authority. Jen adds the accepted compact/search surfaces, real local artwork, full-search handoff, named TV playback and News playback. Jason gained only `aster_tv_commands`; Guest has no broker access. | Aster and Jen rollback/reinstall rehearsals passed. Fifty-two local gates and seven Aster-environment broker tests pass; live TV and News playback started and stopped cleanly with empty queues, Kodi is idle, the 528-file guard is clean and staging secrets were removed. G20 capture and Home aliases are explicit deferred sub-gates because the receiver is absent and no exact alias was approved. Evidence: `docs/projects/evidence/AsterTV-v3-M3-Jen-broker-client-2026-11-04.md`. |
 | 2026-11-04 | Completed the Jen-only M4 Movie integration and stopped YouTube at its identity gate | Added strict Jellyfin-trailer admission, G20 dispatch for script-populated cast/related rails, exact actor-library search and owned Back restoration without changing the accepted v2 baseline. A post-guard/pre-Kodi unit reapplies the candidate deterministically. | Real details-before-playback, Robert Donat search, Back, related *Psycho* and watched *Blue Crush 2* playback/stop passed. An exact unsigned YouTube trailer played with zero tokens, but account rails left a Sign In workflow; the add-on database/state were rolled back and YouTube remains disabled/state-absent. Reboot proved guard then overlay ordering. 111 regression gates pass. Evidence: `docs/projects/evidence/AsterTV-v3-M4-Jen-movie-youtube-2026-11-04.md`. |
-| 2026-11-04 | Retained Jen household YouTube and repaired its startup lifecycle | Owner confirmed all household AsterTVs use the same YouTube identity. The minimum three-file state was transferred privately from read-only Bedroom, represented in the registry only by an opaque hash and mapped only to Jason. Guest disables the official add-on and direct private routes remain denied. | Removed the three unconditional personalized startup providers and rejected a crashing concurrent/control-mutation prototype. The final root helper performs focus only; each signed-in feed is requested serially by its pill. Restart and full reboot completed with no Kodi crash, zero automatic restarts and correct guard→M4→M4Y→Kodi ordering. Native `Application.Quit` still times out on Jen, but the bounded TERM fallback is clean. Temporary credential staging was removed and all 110 discoverable v3 regression tests pass. Evidence: `docs/projects/evidence/AsterTV-v3-M4Y-Jen-youtube-lifecycle-2026-11-04.md`. |
+| 2026-11-04 | Retained Jen household YouTube and repaired its startup lifecycle | Owner confirmed all household AsterTVs use the same YouTube identity. The minimum three-file state was transferred privately from read-only Bedroom, represented in the registry only by an opaque hash and mapped only to Jason. Guest disables the official add-on and direct private routes remain denied. | Removed the three unconditional personalized startup providers and rejected a crashing concurrent/control-mutation prototype. The final root helper performs focus only; each signed-in feed is requested serially by its pill. Restart and full reboot completed with no Kodi crash, zero automatic restarts and correct guard→M4→M4Y→Kodi ordering. Native `Application.Quit` still times out on Jen, but the bounded TERM fallback is clean. Temporary credential staging was removed and all 147 discoverable v3 regression tests pass. Evidence: `docs/projects/evidence/AsterTV-v3-M4Y-Jen-youtube-lifecycle-2026-11-04.md`. |
+| 2026-11-04 | Added the approved Aster icon treatment to Jen News | An exact-hash transform adds the plain compass only to Daily Digest, Breaking News, Read briefing and Refresh. Search remains text-only like Media and the side rail remains stone-icon-only. The first unknown Refresh anchor failed closed, restarted Kodi with the unchanged base, and the corrected resumable installer retained the original checkpoint. | Rendered 1920×1080 inspection passed; actual focus traversed all four pills into the story list. A full digest advanced six seconds at speed 1 and stopped empty. Restart preserved the exact four-icon hash through guard→M4→M4Y→M5N→Kodi ordering with zero restarts and no Movie/YouTube regression. All 151 discoverable tests pass. Evidence: `docs/projects/evidence/AsterTV-v3-M5N-Jen-News-icons-2026-11-04.md`. |
 
 ## Close-out
 

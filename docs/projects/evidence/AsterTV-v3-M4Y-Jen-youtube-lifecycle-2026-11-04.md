@@ -88,10 +88,10 @@ that reject `Files.GetDirectory`, `addItems`, token fields or execution outside
 the exact YouTube root. The XML transform rejects missing anchors and removes
 only the three pinned unconditional providers.
 
-All 110 discoverable v3 regression tests pass. This includes 30 account tests,
-15 Aster-client tests, 12 contract tests, 11 low-spec tests, 11 reliability
-tests, eight Guest-catalogue tests, eight M4 tests, seven Bedroom Wi-Fi tests,
-four candidate tests, four News-repair tests and ten top-level integration
+All 147 discoverable v3 regression tests pass. This includes 37 top-level
+integration tests, 30 account tests, 15 Aster-client tests, 12 contract tests,
+11 low-spec tests, 11 reliability tests, eight Guest-catalogue tests, eight M4
+tests, seven Bedroom Wi-Fi tests, four candidate tests and four News-repair
 tests. The target-pinned live HEVC harness is not a unit test and was not run on
 the Mac workspace. The low-spec suite required only a sandbox-safe Python
 bytecode-cache path.
