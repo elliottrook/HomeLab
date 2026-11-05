@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "4c6b53be1b7e9ca4aecccdeed441353015a25441bb17e0bf6e43a101202b5c92",
+  "composition_sha256": "49480386174410589943491d847621636db8cf9a011354eaab24d4a7c247f509",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-jen",
   "expected_assertions": [
@@ -85,6 +85,34 @@
       "expected": "present",
       "key": "skin.asterhome.media.aster-compass-128.png",
       "overlay": "jen-news-icons",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": true,
+      "key": "addon.script.astertv.podcast.requests.enabled",
+      "overlay": "jen-podcast-requests",
+      "sensitive": false
+    },
+    {
+      "authority": "systemd",
+      "expected": "enabled",
+      "key": "astertv-v3-m5p-jen.service",
+      "overlay": "jen-podcast-requests",
+      "sensitive": false
+    },
+    {
+      "authority": "filesystem",
+      "expected": "0600",
+      "key": "podcast-request-client.config.mode",
+      "overlay": "jen-podcast-requests",
+      "sensitive": false
+    },
+    {
+      "authority": "aster-broker",
+      "expected": "active",
+      "key": "jen-podcast-request-client.registration",
+      "overlay": "jen-podcast-requests",
       "sensitive": false
     },
     {
@@ -389,6 +417,104 @@
       "overlay": "jen-news-icons",
       "path": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1111_digest.xml",
       "sha256": "f9c4b4b9483908eb06a15ee9f126a60caceeedd8b6908cbb7af786b68cce9074"
+    },
+    {
+      "bytes": 26517,
+      "mode": "0600",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.aster-v3/m5p/IncludesBooks.base.xml",
+      "sha256": "0ba7ab639f0819fb057389c69652fd134e8330f08584bfe575c0a3874d58be4d"
+    },
+    {
+      "bytes": 4968,
+      "mode": "0600",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.aster-v3/m5p/apply_jen_podcast_requests.py",
+      "sha256": "43e3461352e9091997edea1ef8f16c6082703af4ea15d14d4f7f227d89319e2a"
+    },
+    {
+      "bytes": 711,
+      "mode": "0600",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.aster-v3/m5p/custom_1120_podcasts.base.xml",
+      "sha256": "70bb81dc58d3373ee434ca70b17b81c8823a41f27d51829891c8eba2f7ca7ee6"
+    },
+    {
+      "bytes": 741,
+      "mode": "0600",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.aster-v3/m5p/script.astertv.podcast.requests/addon.xml",
+      "sha256": "b6d421a490544e13fa2e30c7348c1f6a075f26d8c6c99e5e86deeee1a9f700ea"
+    },
+    {
+      "bytes": 9820,
+      "mode": "0600",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.aster-v3/m5p/script.astertv.podcast.requests/client.py",
+      "sha256": "05e88688a46763cd3a0a7fcfde682902126e7e694f965f65f758b2c4a3424951"
+    },
+    {
+      "bytes": 6470,
+      "mode": "0600",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.aster-v3/m5p/script.astertv.podcast.requests/default.py",
+      "sha256": "8901dc85c96693b0d4905ca9228940cb521b573b0cf6c35505884bde6d170678"
+    },
+    {
+      "bytes": 8678,
+      "mode": "0600",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.aster-v3/m5p/script.astertv.podcast.requests/resources/skins/Default/1080i/PodcastRequests.xml",
+      "sha256": "16c3b47ef229ba4f0c6a30500b75bbba5fe18726f832ee148af6259a65d14a04"
+    },
+    {
+      "bytes": 250,
+      "mode": "0644",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.config/system.d/astertv-v3-m5p-jen.service",
+      "sha256": "8cb3b6ceef7e1bdc66c5e2636723be1a301595f6892b2b927cd808cc86e63c99"
+    },
+    {
+      "bytes": 741,
+      "mode": "0644",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.kodi/addons/script.astertv.podcast.requests/addon.xml",
+      "sha256": "b6d421a490544e13fa2e30c7348c1f6a075f26d8c6c99e5e86deeee1a9f700ea"
+    },
+    {
+      "bytes": 9820,
+      "mode": "0644",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.kodi/addons/script.astertv.podcast.requests/client.py",
+      "sha256": "05e88688a46763cd3a0a7fcfde682902126e7e694f965f65f758b2c4a3424951"
+    },
+    {
+      "bytes": 6470,
+      "mode": "0644",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.kodi/addons/script.astertv.podcast.requests/default.py",
+      "sha256": "8901dc85c96693b0d4905ca9228940cb521b573b0cf6c35505884bde6d170678"
+    },
+    {
+      "bytes": 8678,
+      "mode": "0644",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.kodi/addons/script.astertv.podcast.requests/resources/skins/Default/1080i/PodcastRequests.xml",
+      "sha256": "16c3b47ef229ba4f0c6a30500b75bbba5fe18726f832ee148af6259a65d14a04"
+    },
+    {
+      "bytes": 27547,
+      "mode": "0644",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.kodi/addons/skin.asterhome/1080i/IncludesBooks.xml",
+      "sha256": "4173abc214531689026ccff0201f0c69115aefb77eacd646ffc8394eac66a4b7"
+    },
+    {
+      "bytes": 809,
+      "mode": "0644",
+      "overlay": "jen-podcast-requests",
+      "path": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1120_podcasts.xml",
+      "sha256": "2869213de3b3d7b5cc025ac4c3d36d70124ab5bec2b439e3a3290b5a5f9e0ea8"
     },
     {
       "bytes": 1565,

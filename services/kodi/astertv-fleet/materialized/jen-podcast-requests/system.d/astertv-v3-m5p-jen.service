@@ -1,0 +1,9 @@
+[Unit]
+Description=Apply AsterTV v3 podcast request UI on Jen
+After=astertv-v3-m5n-jen.service
+Before=kodi.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /storage/.aster-v3/m5p/apply_jen_podcast_requests.py
+[Install]
+WantedBy=kodi.service

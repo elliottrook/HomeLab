@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1120" type="window">
+  <defaultcontrol always="true">112</defaultcontrol>
+  <onload>RunScript(special://skin/tools/books_data.py,podcasts)</onload>
+  <backgroundcolor>asterStone</backgroundcolor>
+  <controls>
+    <include content="AsterBooksPage">
+      <param name="page" value="podcasts" />
+      <param name="actionlabel" value="Browse episodes" />
+      <param name="heading" value="Podcasts" />
+      <param name="emptylabel" value="No subscribed shows yet · add one in Audiobookshelf" />
+      <param name="activeleft" value="1098" />
+      <param name="icon" value="special://skin/media/aster-compass-128.png" />
+    </include>
+  </controls>
+</window>

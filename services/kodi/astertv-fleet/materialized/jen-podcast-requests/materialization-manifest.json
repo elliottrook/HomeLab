@@ -1,0 +1,114 @@
+{
+  "files": [
+    {
+      "bytes": 741,
+      "destination": "/storage/.kodi/addons/script.astertv.podcast.requests/addon.xml",
+      "mode": "0644",
+      "sha256": "b6d421a490544e13fa2e30c7348c1f6a075f26d8c6c99e5e86deeee1a9f700ea"
+    },
+    {
+      "bytes": 9820,
+      "destination": "/storage/.kodi/addons/script.astertv.podcast.requests/client.py",
+      "mode": "0644",
+      "sha256": "05e88688a46763cd3a0a7fcfde682902126e7e694f965f65f758b2c4a3424951"
+    },
+    {
+      "bytes": 6470,
+      "destination": "/storage/.kodi/addons/script.astertv.podcast.requests/default.py",
+      "mode": "0644",
+      "sha256": "8901dc85c96693b0d4905ca9228940cb521b573b0cf6c35505884bde6d170678"
+    },
+    {
+      "bytes": 8678,
+      "destination": "/storage/.kodi/addons/script.astertv.podcast.requests/resources/skins/Default/1080i/PodcastRequests.xml",
+      "mode": "0644",
+      "sha256": "16c3b47ef229ba4f0c6a30500b75bbba5fe18726f832ee148af6259a65d14a04"
+    },
+    {
+      "bytes": 27547,
+      "destination": "/storage/.kodi/addons/skin.asterhome/1080i/IncludesBooks.xml",
+      "mode": "0644",
+      "sha256": "4173abc214531689026ccff0201f0c69115aefb77eacd646ffc8394eac66a4b7"
+    },
+    {
+      "bytes": 809,
+      "destination": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1120_podcasts.xml",
+      "mode": "0644",
+      "sha256": "2869213de3b3d7b5cc025ac4c3d36d70124ab5bec2b439e3a3290b5a5f9e0ea8"
+    },
+    {
+      "bytes": 26517,
+      "destination": "/storage/.aster-v3/m5p/IncludesBooks.base.xml",
+      "mode": "0600",
+      "sha256": "0ba7ab639f0819fb057389c69652fd134e8330f08584bfe575c0a3874d58be4d"
+    },
+    {
+      "bytes": 4968,
+      "destination": "/storage/.aster-v3/m5p/apply_jen_podcast_requests.py",
+      "mode": "0600",
+      "sha256": "43e3461352e9091997edea1ef8f16c6082703af4ea15d14d4f7f227d89319e2a"
+    },
+    {
+      "bytes": 711,
+      "destination": "/storage/.aster-v3/m5p/custom_1120_podcasts.base.xml",
+      "mode": "0600",
+      "sha256": "70bb81dc58d3373ee434ca70b17b81c8823a41f27d51829891c8eba2f7ca7ee6"
+    },
+    {
+      "bytes": 741,
+      "destination": "/storage/.aster-v3/m5p/script.astertv.podcast.requests/addon.xml",
+      "mode": "0600",
+      "sha256": "b6d421a490544e13fa2e30c7348c1f6a075f26d8c6c99e5e86deeee1a9f700ea"
+    },
+    {
+      "bytes": 9820,
+      "destination": "/storage/.aster-v3/m5p/script.astertv.podcast.requests/client.py",
+      "mode": "0600",
+      "sha256": "05e88688a46763cd3a0a7fcfde682902126e7e694f965f65f758b2c4a3424951"
+    },
+    {
+      "bytes": 6470,
+      "destination": "/storage/.aster-v3/m5p/script.astertv.podcast.requests/default.py",
+      "mode": "0600",
+      "sha256": "8901dc85c96693b0d4905ca9228940cb521b573b0cf6c35505884bde6d170678"
+    },
+    {
+      "bytes": 8678,
+      "destination": "/storage/.aster-v3/m5p/script.astertv.podcast.requests/resources/skins/Default/1080i/PodcastRequests.xml",
+      "mode": "0600",
+      "sha256": "16c3b47ef229ba4f0c6a30500b75bbba5fe18726f832ee148af6259a65d14a04"
+    },
+    {
+      "bytes": 250,
+      "destination": "/storage/.config/system.d/astertv-v3-m5p-jen.service",
+      "mode": "0644",
+      "sha256": "8cb3b6ceef7e1bdc66c5e2636723be1a301595f6892b2b927cd808cc86e63c99"
+    }
+  ],
+  "id": "jen-podcast-requests",
+  "kind": "astertv-materialized-overlay",
+  "mutable_state": [
+    {
+      "bundled": false,
+      "path": "/storage/.kodi/userdata/addon_data/script.astertv.podcast.requests/client.json",
+      "sensitive": true
+    },
+    {
+      "bundled": false,
+      "path": "/storage/.kodi/userdata/addon_data/script.astertv.podcast.requests/receipts.json",
+      "sensitive": true
+    }
+  ],
+  "provenance": {
+    "base_sha256": {
+      "IncludesBooks.xml": "0ba7ab639f0819fb057389c69652fd134e8330f08584bfe575c0a3874d58be4d",
+      "custom_1120_podcasts.xml": "70bb81dc58d3373ee434ca70b17b81c8823a41f27d51829891c8eba2f7ca7ee6"
+    },
+    "checkpoint": "astertv-v3-m5p-jen",
+    "renderer": {
+      "path": "services/kodi/astertv-v3/podcast_requests/apply_jen_podcast_requests.py",
+      "sha256": "43e3461352e9091997edea1ef8f16c6082703af4ea15d14d4f7f227d89319e2a"
+    }
+  },
+  "schema_version": 1
+}

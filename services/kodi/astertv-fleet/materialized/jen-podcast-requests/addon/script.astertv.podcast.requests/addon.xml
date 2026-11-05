@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.astertv.podcast.requests" name="Aster Podcast Requests" version="0.1.0" provider-name="Aster">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+  </requires>
+  <extension point="xbmc.python.script" library="default.py">
+    <provides>executable</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Owner-approved podcast request queue</summary>
+    <description lang="en_GB">Searches podcasts and places explicit requests into Aster's owner-approval queue. It cannot subscribe or download podcasts.</description>
+    <platform>all</platform>
+    <license>Private HomeLab pilot</license>
+  </extension>
+</addon>

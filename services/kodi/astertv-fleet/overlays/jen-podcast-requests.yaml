@@ -9,11 +9,17 @@
   "targets": ["astertv-jen"],
   "owns": ["kodi/podcast-request-client"],
   "payload_sources": [
-    "services/kodi/astertv-v3/podcast_requests/addon/script.astertv.podcast.requests",
-    "services/kodi/astertv-v3/podcast_requests/apply_jen_podcast_requests.py",
-    "services/kodi/astertv-v3/podcast_requests/install_jen_podcast_requests.py"
+    "services/kodi/astertv-fleet/materialized/jen-podcast-requests",
+    "services/kodi/astertv-fleet/materialize_jen_podcast_requests.py"
   ],
-  "payload_blockers": ["rendered-books-podcasts-xml-and-unit-not-materialized", "client-config-is-private-external-state"],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "kodi", "key": "addon.script.astertv.podcast.requests.enabled", "expected": true, "sensitive": false},
+    {"authority": "systemd", "key": "astertv-v3-m5p-jen.service", "expected": "enabled", "sensitive": false},
+    {"authority": "filesystem", "key": "podcast-request-client.config.mode", "expected": "0600", "sensitive": false},
+    {"authority": "aster-broker", "key": "jen-podcast-request-client.registration", "expected": "active", "sensitive": false}
+  ],
   "secret_refs": ["jen-podcast-request-client"],
   "rollback_ref": "astertv-v3-m5p-jen",
   "tests": ["services/kodi/astertv-v3/podcast_requests/test_client.py"]

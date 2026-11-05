@@ -38,6 +38,9 @@ CLIENT_SPEC.loader.exec_module(CLIENT_MODULE)
 NEWS_ICON_SPEC = importlib.util.spec_from_file_location("jen_news_icon_materializer", ROOT / "materialize_jen_news_icons.py")
 NEWS_ICON_MODULE = importlib.util.module_from_spec(NEWS_ICON_SPEC)
 NEWS_ICON_SPEC.loader.exec_module(NEWS_ICON_MODULE)
+PODCAST_SPEC = importlib.util.spec_from_file_location("jen_podcast_materializer", ROOT / "materialize_jen_podcast_requests.py")
+PODCAST_MODULE = importlib.util.module_from_spec(PODCAST_SPEC)
+PODCAST_SPEC.loader.exec_module(PODCAST_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -156,6 +159,16 @@ class MaterializationTests(unittest.TestCase):
         final = files["skin.asterhome/1080i/custom_1111_digest.xml"][0]
         self.assertEqual(NEWS_ICON_MODULE.sha(final), NEWS_ICON_MODULE.FINAL_SHA256)
         self.assertIn("system.d/astertv-v3-m5n-jen.service", files)
+
+    def test_jen_podcast_request_payload_excludes_private_client_state(self):
+        files, manifest = PODCAST_MODULE.render()
+        self.assertEqual(len(files), 14)
+        self.assertEqual(PODCAST_MODULE.sha(
+            files["skin.asterhome/1080i/IncludesBooks.xml"][0]), PODCAST_MODULE.FINAL_INCLUDES)
+        self.assertEqual(PODCAST_MODULE.sha(
+            files["skin.asterhome/1080i/custom_1120_podcasts.xml"][0]), PODCAST_MODULE.FINAL_PODCASTS)
+        self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
+        self.assertFalse(any("client.json" in path for path in files))
 
 
 if __name__ == "__main__":
