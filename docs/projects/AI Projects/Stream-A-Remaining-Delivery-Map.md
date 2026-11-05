@@ -489,6 +489,11 @@ parameters, epoch/threshold/coverage and replay digest; and keeps deployment
 false. Synthetic shape/binding tests take J2 to 73/73. No trained artifact has
 been created, and the synthetic zero tensor is not a candidate.
 
+The replay contract then requires two exact 192-row clean single-thread CPU
+reproductions, the frozen validation case set/ontology, valid guarded records,
+and artifact-matching record digest and accepted count. J2 reaches 76/76; the
+synthetic replay is contract evidence only and authorizes no deployment.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,

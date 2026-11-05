@@ -84,3 +84,11 @@ Unknown optimizer state, changed tensor shape, excess precision, nonfinite
 values or binding drift fail closed. Validation still returns deployment false
 and requires replay. Four artifact-contract tests take the J2 suite to 73/73;
 their all-zero synthetic tensor fixture is schema evidence, not a model.
+
+The replay boundary now requires two separately identified clean single-thread
+CPU reproductions with exact equality across all 192 validation records. Every
+record must use the frozen case-ID set and ontology, finite ten-decimal
+confidence/margin values, a valid guarded interpretation and a boolean
+acceptance. The exact record digest and accepted count must match the artifact.
+Changed rows, case IDs, labels, counts or duplicate keys fail closed. Three
+synthetic replay tests take J2 to 76/76 and still return deployment false.
