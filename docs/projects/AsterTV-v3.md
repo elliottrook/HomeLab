@@ -16,9 +16,11 @@
 > `SA-M5N-JEN` below. Jason's subsequent continuation authorizes the common
 > read-only/local-planning work used for the M5 eBook audit. Jason then
 > authorized `SA-M5B` on 2026-11-04, including the scheduler safety correction,
-> fixed workload registration and one booked alignment benchmark. Family,
-> Bedroom, reader/catalogue promotion, release promotion and every later live
-> milestone remain excluded.
+> fixed workload registration and one booked alignment benchmark. Jason then
+> authorized `SA-M5P-JEN` on 2026-11-04 using the recommended owner-approved
+> podcast request queue. Family, Bedroom, reader/catalogue promotion, podcast
+> subscription execution, release promotion and every later live milestone
+> remain excluded.
 
 ## Purpose and desired outcome
 
@@ -1032,6 +1034,55 @@ deadline guardian and restoration gates all pass.
   restoration evidence.
 - [ ] SA-M5B4: reconcile milestone evidence, commit locally, request push
   approval and stop before any reader/catalogue promotion.
+
+### SA-M5P-JEN — owner-approved podcast request queue
+
+Jason approved the recommended owner-approved queue model on 2026-11-04. This
+bounded autonomous slice may:
+
+- implement and test a semantic podcast discovery, duplicate, proposal,
+  idempotency and queue-status broker;
+- create one independently revocable Audiobookshelf read-only API key for that
+  broker, held server-side only;
+- deploy one isolated broker on the TrueNAS Docker host with private durable
+  queue/audit state and no Audiobookshelf admin credential;
+- create one independently revocable AsterTV-Jen client token, install it
+  mode `0600`, and add only the exact Jen-to-broker firewall path;
+- connect only the accepted Jen podcast-request surface after broker denial,
+  replay, stale-proposal, wrong-profile, outage and restart tests pass; and
+- submit one clearly labelled synthetic queue-only request, prove duplicate
+  replay is idempotent, then retain or cancel it as test evidence without
+  creating an Audiobookshelf item.
+
+It does not authorize an Audiobookshelf admin credential, owner approval UI,
+podcast subscription/folder creation, artwork or episode download, arbitrary
+feed fetch, Seerr changes, production Family/Bedroom deployment, public ingress
+or release promotion. The broker must expose only health plus authenticated
+search, status, propose and explicit request operations; clients receive opaque
+references rather than service credentials, filesystem paths or general API
+access.
+
+Pre-start risks are credential leakage, an SSRF-like arbitrary feed surface,
+duplicate requests, cross-profile access, corrupt queue state and accidental
+subscription. Mitigations are source-bound firewalling, independent tokens,
+server-side search candidates, canonical HTTPS feeds, short-lived opaque
+references, single-use idempotency, locked atomic persistence, bounded audit,
+no execution adapter and checkpointed rollback.
+
+- [x] SA-M5P1: implement the broker core and synthetic contract/failure tests.
+- [ ] SA-M5P2: checkpoint and deploy the inert queue broker plus restricted
+  identities and exact firewall path; prove restart and denial behavior.
+- [ ] SA-M5P3: connect Jen's accepted request page and complete physical focus,
+  Back, duplicate/status and outage acceptance without a podcast side effect.
+- [ ] SA-M5P4: reconcile evidence and operational documentation, commit and
+  push the completed milestone before any subscription-execution proposal.
+
+SA-M5P1 is retained in `services/aster-podcast-request-broker`. Its broker has
+no approval or subscription executor. Thirteen synthetic tests cover strict
+token custody, the live 2.36 search route, canonical feed identity, duplicate
+and idempotent queue behavior, stale/cross-profile denial, atomic persistence,
+bounded HTTP handling and absence of a general proxy. Evidence is in
+`docs/projects/evidence/AsterTV-v3-M5P1-podcast-broker-core-2026-11-04.md`.
 
 ## Milestones
 
