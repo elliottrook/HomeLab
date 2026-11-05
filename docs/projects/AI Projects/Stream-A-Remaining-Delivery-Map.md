@@ -177,6 +177,21 @@
 > preservation of the concurrent 41-pin EPUB manifest, followed by a distinct
 > conflict-free R3 booking only if every installed gate passes.
 
+> **Candidate-j digest correction installed, 2026-11-05:** mirrored platform
+> commit `816791af` is installed inactive with exact host/guest wrapper,
+> transaction and derived 41-pin manifest hashes. Both concurrent EPUB pins,
+> production services and Proxmox daemons are unchanged and healthy; the lease
+> is ready, locks/state are absent, rollback is retained and zero services were
+> restarted. The next gate is an authoritative ledger check and one distinct
+> R3 booking with fresh claim-time validation.
+
+> **Candidate-j R3 scheduled, 2026-11-05:** the daily 03:10–03:55 protected
+> reservation plus recovery made 04:00 unavailable. The authoritative ledger
+> accepted the first complete later window, 04:15–05:00 PST. Booking
+> `aster-stream-a-sa3-candidate-j-20261105-0415-r3` names the fixed registered
+> workload and remains conditional on all fresh claim-time gates. It is one
+> attempt only; no retry, route, authority or promotion follows automatically.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are

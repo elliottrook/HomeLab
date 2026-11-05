@@ -49,3 +49,20 @@ source suite remains 17/17. A dedicated inactive installer preserves the
 concurrent 41-pin EPUB release manifest, changes only the host wrapper,
 transaction and derived manifest plus the guest wrapper, retains a new
 root-only rollback checkpoint, and performs no restart or model request.
+
+The correction subsequently installed inactive from mirrored platform commit
+`816791af`. Independent postchecks accepted identical host/guest wrapper
+`fc283224…06f4`, host transaction `c2fbcf6b…4108`, derived concurrent 41-pin
+manifest `99e41a1e…9fda`, unchanged EPUB pins, ready lease, absent locks/state,
+running LXC104/110/116 and healthy Aster Agent, accepted llama.cpp/SYCL,
+Speech, `pvescheduler` and `pvestatd`. The installation restarted no service
+and invoked no workload. The temporary install stages were removed and the
+root-only rollback checkpoint was retained.
+
+The authoritative ledger then rejected 04:00 because the protected daily B60
+reservation at 03:10–03:55 retains a 15-minute recovery reserve. It returned
+clear for the complete 04:15–05:00 PST window. Distinct booking
+`aster-stream-a-sa3-candidate-j-20261105-0415-r3` is scheduled there with the
+registered fixed workload. R3 remains conditional on every fresh claim-time
+ledger, hash/custody, lease, lock, conflict and production-health gate. It may
+run once only and grants no retry, routing, authority or promotion.
