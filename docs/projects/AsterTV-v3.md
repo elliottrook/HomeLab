@@ -1,7 +1,8 @@
 # AsterTV v3
 
-> Status: Active — Jen-only M5 News chrome retained and mirrored; M5 eBook
-> narration is paused at a documented scheduler/timing authorization gate.
+> Status: Active — Jen-only M5 News chrome retained and mirrored; the M5 eBook
+> word-alignment benchmark is registered and booked, with reader promotion
+> still gated.
 > The completed r8 Guest adapter remains retained on AsterTV-Jen.
 > The earlier page-design pilot is accepted and closed; no PA3
 > synthetic surface is promoted. TV-series presentation remains deployed
@@ -13,9 +14,11 @@
 >
 > Current live-change authorization: the completed Stream A envelope
 > `SA-M5N-JEN` below. Jason's subsequent continuation authorizes the common
-> read-only/local-planning work used for the M5 eBook audit, but does not expand
-> that envelope to narration workloads or scheduler changes. Family, Bedroom,
-> release promotion and every later live milestone remain excluded.
+> read-only/local-planning work used for the M5 eBook audit. Jason then
+> authorized `SA-M5B` on 2026-11-04, including the scheduler safety correction,
+> fixed workload registration and one booked alignment benchmark. Family,
+> Bedroom, reader/catalogue promotion, release promotion and every later live
+> milestone remain excluded.
 
 ## Purpose and desired outcome
 
@@ -978,11 +981,57 @@ start in a future clear window. No EPUB workload is currently registered.
 
 Evidence and the bounded safe sequence are recorded in
 `docs/projects/evidence/AsterTV-v3-M5-ebook-readonly-audit-2026-11-04.md`.
-Stopping the old scheduler, registering a fixed workload, reserving a window,
-running synthesis/alignment or changing the reader schema requires a new M5
-authorization envelope. No execution window may be proposed until the fixed
-workload is registered; the ledger must then be checked for the complete run
-and recovery period.
+The bounded scheduler retirement, fixed-workload registration and one booked
+alignment benchmark are now authorized under SA-M5B below. Backlog synthesis,
+recurring execution and any reader/catalogue change remain outside that
+envelope.
+
+### SA-M5B — registered eBook word-alignment benchmark
+
+Jason authorized this bounded Stream A slice and its preceding audit commit
+push on 2026-11-04. It may:
+
+- checkpoint and disable the noncompliant host scheduler while leaving the
+  read-only catalogue monitor active;
+- register one immutable, fixed-input word-alignment benchmark in the existing
+  Lab Hours full-drain controller;
+- reconcile that controller to require the retired scheduler and worker to
+  remain disabled/inactive;
+- reserve one clear 30-minute window for a 15-minute benchmark plus 15-minute
+  recovery reserve; and
+- retain only content-free hashes/counts in project evidence while keeping any
+  private token timing under root-only Aster Speech custody.
+
+It does not authorize backlog narration, automatic recurring bookings,
+catalogue/reader schema promotion, deletion of failed artifacts, Family or
+Bedroom changes. A recognizer mismatch is a valid negative benchmark result,
+not permission to infer timing.
+
+The old scheduler was checkpointed at
+`/var/lib/epub-narration/checkpoints/sa-m5b-20261104`, then disabled and stopped.
+Registration checkpoints are
+`/var/lib/local-ai-lab/checkpoints/astertv-v3-m5b-registration-20261105T030043Z`
+and
+`/var/lib/local-ai-lab/checkpoints/astertv-v3-m5b-retired-scheduler-20261105T030549Z`.
+The inert registration and 71 retained platform tests pass. During validation,
+a previously booked unregistered resource-ladder service started the old
+worker at 20:00. It was fenced immediately; both service and worker are now
+inactive, and its reservation remains intact through recovery time.
+
+The authoritative ledger reported 22:15–22:45 Pacific clear. Booking
+`astertv-v3-m5b-align-20261104-2215` now names registered workload
+`astertv-v3-ebook-word-alignment-v1` and owner `astertv-v3-m5`. The dispatcher
+must still fail closed unless fresh admission, whole-host lease, shared lock,
+deadline guardian and restoration gates all pass.
+
+- [x] SA-M5B1: checkpoint and retire the noncompliant scheduler; prove worker
+  inactive and monitor retained.
+- [x] SA-M5B2: install the inert hash-pinned workload and reconcile the
+  full-drain baseline with all platform tests passing.
+- [ ] SA-M5B3: run the booked benchmark and retain content-free pass/no-go plus
+  restoration evidence.
+- [ ] SA-M5B4: reconcile milestone evidence, commit locally, request push
+  approval and stop before any reader/catalogue promotion.
 
 ## Milestones
 
