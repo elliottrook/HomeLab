@@ -33,14 +33,16 @@ untouched packet requires 14 model requests, six no-transport abstentions,
 three model-blind reviewers, at least 18/20 conservative-intersection passes,
 all abstentions and zero false-completion failures.
 
-Candidate-i R1 claimed exactly and restored production but failed before the
-workload because the host adapter used candidate-g's scope prefix. The exact
-two-file correction is installed inactive with root-only rollback, all 36 pins
-and identical host-command/guest-wrapper scope proof. R1 is spent. The distinct
-R2 booking is scheduled for 18:30–19:30 PST. The schema-v2 reconciliation,
-blind-review and decision path is already frozen and passes 34/34 tests. D4
-remains open until R2 yields an eligible restored result and the three-reviewer
-quality decision passes.
+Candidate-i R1 exposed and closed one scope-prefix defect. Its distinct R2 then
+claimed exactly, completed in 230 seconds and restored production. Exact
+reconciliation accepted 20 cases, 14 model requests, six deterministic
+no-transport abstentions and zero retries/errors/effects. Three fresh
+model-blind reviewers applied the frozen conservative decision, which rejected
+candidate-i at 8/20 against the 18/20 floor, with 0/6 mandatory abstentions
+passing and zero false-completion failures. Candidate-g and candidate-i are
+both spent. D4 remains open and now requires a materially new preregistered
+successor with an untouched evaluation boundary; case-level tuning or retry is
+closed.
 
 ## Active offline milestone — M3 semantic handover
 
@@ -81,8 +83,8 @@ model/backend, restart a system, expose credentials, open sealed evaluation
 content, grant tools/repair authority, enable automatic routing or broaden the
 project without the applicable separate gate.
 
-The immediate sequence is: reconcile R2 once terminal; if complete, generate
-the key-free model-blind packet and obtain three independent reviews; if failed,
-retain the exact bounded cause and correct only a deterministic source defect
-without retrying the spent booking. M3 external custody can proceed in parallel
-when an independent signer/custodian becomes available.
+The immediate sequence is: preserve candidate-i's NO-GO and reassess D4 at the
+architecture boundary before preregistering any materially new successor; do
+not tune on exposed case-level failures. M3 external custody can proceed in
+parallel when an independent signer and distinct sealed-evaluation custodian
+become available.
