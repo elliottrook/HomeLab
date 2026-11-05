@@ -65,3 +65,11 @@ absent; only a host preflight checkpoint was retained. Platform commit
 `c0e55f62c0e04a36f642056037acff5aaad7fc7` changes R2 to verify those two
 files in place and add only three quality-specific guest files. The 61/61 suite
 passes; applying R2 is a fresh deployment gate.
+
+R2 bundle `5a1424b5…fd6e` subsequently installed successfully. Platform result
+commit `676be2394bc5beb17619b62d982f4854ce72969b` records 46/46 pins,
+three added guest files, two exact shared dependencies, retained checkpoints,
+no units, no service restart and no workload effect. The lease is ready,
+shared state/locks are absent, production services are healthy and the fresh
+Doctor result is healthy with no codes. The next gate is one exact ledger-booked
+untouched quality transaction.

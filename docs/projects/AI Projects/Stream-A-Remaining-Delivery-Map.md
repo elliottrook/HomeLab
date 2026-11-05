@@ -54,6 +54,12 @@
 > verifies them as shared dependencies and adds only packet, key-free quality
 > runtime and wrapper. Quality-specific targets remain absent; 61/61 tests
 > pass. R2 requires a fresh deployment approval.
+> **R2 installed inactive:** approved bundle `5a1424b5…fd6e` passed at platform
+> result commit `676be239`. All 46 combined pins, three new guest files and two
+> shared dependencies validate; checkpoints are retained, no units exist, no
+> restart/model call occurred, lease/locks are clean, production is healthy and
+> Doctor reports no codes. The next action is one authoritative ledger-booked
+> untouched quality transaction; blind review follows only a complete result.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).
