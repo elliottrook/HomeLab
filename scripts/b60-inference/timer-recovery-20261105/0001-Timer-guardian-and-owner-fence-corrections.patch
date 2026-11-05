@@ -1,0 +1,514 @@
+From 9103e198d8182a7311931ecebaa17025251a45a3 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 5 Nov 2026 12:57:30 -0700
+Subject: [PATCH 1/3] Repair calendar and bounded monotonic recovery with
+ restoration-aware guardian
+
+---
+ .../local-ai/b60_daytime_integrity_prepare.py |  8 +-
+ scripts/local-ai/lab_hours_exclusive_cli.py   |  3 +
+ .../local-ai/lab_hours_exclusive_guardian.py  |  9 +-
+ scripts/local-ai/lab_hours_proxmox_adapter.py |  5 +-
+ scripts/local-ai/lab_hours_source_update.py   |  2 +
+ scripts/local-ai/lab_hours_timer_resume.py    | 93 ++++++++++++++-----
+ .../test_b60_daytime_qualification.py         |  7 ++
+ .../test_lab_hours_exclusive_guardian.py      | 19 ++++
+ .../test_lab_hours_source_update_host.py      |  6 ++
+ .../local-ai/test_lab_hours_timer_resume.py   | 30 +++++-
+ 10 files changed, 155 insertions(+), 27 deletions(-)
+
+diff --git a/scripts/local-ai/b60_daytime_integrity_prepare.py b/scripts/local-ai/b60_daytime_integrity_prepare.py
+index 54c51d4..84b74d8 100644
+--- a/scripts/local-ai/b60_daytime_integrity_prepare.py
++++ b/scripts/local-ai/b60_daytime_integrity_prepare.py
+@@ -56,6 +56,11 @@ def runner(command,timeout):
+     return result.returncode,result.stdout
+ 
+ 
++def reusable_through_claim(previous,booking):
++    finished=previous.get('finished_epoch') if isinstance(previous,dict) else None
++    return type(finished) is int and 0<=booking['start_epoch']+120-finished<=10800
++
++
+ def prepare(booking_id):
+     sys.path.insert(0,str(PACKAGE))
+     from lab_hours_exclusive_profile import load_profile
+@@ -116,8 +121,7 @@ def prepare(booking_id):
+             # or replace it merely to claim this preparation produced it.
+             reused=False
+             if (previous is not None and previous.get('date')==cycle
+-                    and type(previous.get('finished_epoch')) is int
+-                    and 0<=int(time.time())-previous['finished_epoch']<=10800):
++                    and reusable_through_claim(previous,bookings.get(booking_id))):
+                 proof=verify(previous,inventory,date=cycle,now_epoch=int(time.time()),
+                              resolve=fixed_resolve,lstat=os.lstat)
+                 receipt=previous; reused=True
+diff --git a/scripts/local-ai/lab_hours_exclusive_cli.py b/scripts/local-ai/lab_hours_exclusive_cli.py
+index 5de0f6e..5de1539 100644
+--- a/scripts/local-ai/lab_hours_exclusive_cli.py
++++ b/scripts/local-ai/lab_hours_exclusive_cli.py
+@@ -27,6 +27,9 @@ PACKAGE=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
+ # reviewed constants may cross the journal boundary; never forward unit output,
+ # subprocess arguments, configuration or an arbitrary exception string.
+ UNIT_FAILURE_CODES=frozenset({
++    'TIMER_RESUME_PROFILE_UNSUPPORTED','TIMER_MUST_BE_STOPPED_BEFORE_REARM',
++    'TIMER_RESUME_IDENTITY','TIMER_RESUME_OBSERVATION','MONOTONIC_TIMER_ENTRY_NOT_IDLE',
++    'MONOTONIC_TIMER_RESUME_WINDOW','MONOTONIC_TIMER_RESUME_FAILED',
+     'UNIT_OUTSIDE_AI_STACK','UNIT_OPERATION_DEADLINE',
+     'UNIT_OBSERVATION_FAILED','UNIT_OBSERVATION_MALFORMED',
+     'UNIT_OBSERVATION_UNSUPPORTED','UNIT_INVENTORY_INVALID',
+diff --git a/scripts/local-ai/lab_hours_exclusive_guardian.py b/scripts/local-ai/lab_hours_exclusive_guardian.py
+index 970a04d..70ea428 100644
+--- a/scripts/local-ai/lab_hours_exclusive_guardian.py
++++ b/scripts/local-ai/lab_hours_exclusive_guardian.py
+@@ -28,7 +28,12 @@ def guard(store, adapter, *, owner, owner_alive, fence_owner,
+         if state['phase']=='released-late':
+             raise SessionError('RESTORED_AFTER_DEADLINE')
+         now=clock()
+-        if now>=state['trial_deadline'] or owner_alive(state) is not True:
++        # A live owner restoring production is no longer running a trial.
++        # Preserve its restoration until the independently reserved15min
++        # rescue margin, rather than killing it at the expired trial cutoff.
++        cutoff=(state['restore_deadline']-900 if state['phase'] in {'restoring','restored'}
++                else state['trial_deadline'])
++        if now>=cutoff or owner_alive(state) is not True:
+             if fence_owner(state) is not True:
+                 raise SessionError('OWNER_SCOPE_NOT_FENCED')
+             result=ExclusiveSession(store,adapter,clock=clock).recover(owner=owner)
+@@ -36,4 +41,4 @@ def guard(store, adapter, *, owner, owner_alive, fence_owner,
+                 return {'state':'aborted-before-claim','recovery_attempted':False}
+             return {'state':'rescued','recovery_attempted':True,
+                     'production_restored':result['production_restored']}
+-        sleep(min(5.,max(0.1,state['trial_deadline']-now)))
++        sleep(min(5.,max(0.1,cutoff-now)))
+diff --git a/scripts/local-ai/lab_hours_proxmox_adapter.py b/scripts/local-ai/lab_hours_proxmox_adapter.py
+index c64b72a..062de36 100644
+--- a/scripts/local-ai/lab_hours_proxmox_adapter.py
++++ b/scripts/local-ai/lab_hours_proxmox_adapter.py
+@@ -24,7 +24,7 @@ class ProxmoxEntryAdapter:
+         self.runner,self.admission,self.arm=runner,admission,arm_guardian
+         self.clock=clock
+         self.units=ProxmoxUnitAdapter(runner,clock=clock)
+-        self.timers=CalendarTimerResume(self.units)
++        self.timers=CalendarTimerResume(self.units,booking_id=profile.get('booking_id'),clock=clock)
+         self.boundary=ExclusiveHostBoundary(root,operation,bookings,ready=self._ready)
+         self.private=None
+         self.gpu_users=gpu_users
+@@ -103,6 +103,9 @@ class ProxmoxEntryAdapter:
+     def capture(self):
+         deadline=self.private['end_epoch']-900
+         rows=self.units.capture([tuple(row) for row in self.profile['units']],deadline)
++        for row in rows:
++            if row['unit'].endswith('.timer') and row['active']=='active':
++                self.timers.preflight(row,deadline,rows)
+         receipts={guest:self._guest(guest,'capture',deadline) for guest in self.profile['guest_plans']}
+         main=receipts['110']
+         if main.get('active_process_verified') is not True:
+diff --git a/scripts/local-ai/lab_hours_source_update.py b/scripts/local-ai/lab_hours_source_update.py
+index 4c3283a..cafcc9b 100644
+--- a/scripts/local-ai/lab_hours_source_update.py
++++ b/scripts/local-ai/lab_hours_source_update.py
+@@ -18,6 +18,8 @@ CLAIM_MAP = 'e16b3bfe02f8a12e08271b6e95baddf206192cbd37e765d0d9c5dee929608b82'
+ CLAIM_CHANGED = ('lab_hours_exclusive_boundary.py', 'lab_hours_proxmox_adapter.py',
+                  'lab_hours_reservations.py')
+ TRANSITIONS = {
++    ('09597ea2edd6c6e0b24b7036f8974b69c6cf3617d0a159fe937de89934a3675d', '529fea8dda6433ce483ae5fb6b31aa0cd74bc4d53600adb4f97383a5f7847124'):
++        (('lab_hours_exclusive_cli.py', 'lab_hours_exclusive_guardian.py', 'lab_hours_proxmox_adapter.py', 'lab_hours_timer_resume.py'), 'timer-recovery-20261105-v1'),
+     ('20e2ce272634d13c7e40a0c625cd0c48a7c4e20716588d2bc950abe86a6f9b71', '09597ea2edd6c6e0b24b7036f8974b69c6cf3617d0a159fe937de89934a3675d'):
+         (('lab_hours_exclusive_admission.py', 'lab_hours_prepare_entry_plan.py', 'lab_hours_proxmox_adapter.py', 'lab_hours_unit_adapter.py'), 'daytime-qualification-20261105-v1'),
+     (OLD_MAP, NEW_MAP): (CHANGED, 'diagnostics-20261101-v1'),
+diff --git a/scripts/local-ai/lab_hours_timer_resume.py b/scripts/local-ai/lab_hours_timer_resume.py
+index dddc717..cb8fbc6 100644
+--- a/scripts/local-ai/lab_hours_timer_resume.py
++++ b/scripts/local-ai/lab_hours_timer_resume.py
+@@ -1,34 +1,85 @@
+-"""Explicit no-catch-up rearm for declared calendar timers only.
++"""Fixed timer recovery: skip missed calendar events and deny overdue polling.
+ 
+-systemd.timer documents clean --what=state for its persistent timestamp cache.
+-This records a deliberately skipped interval, never a successful application job.
+-Monotonic/boot-triggered timers require a separate reviewed resume policy.
++The monotonic policy is only for the observed Paperless2min/5min/no-persistence
++contract. Its first overdue activation is denied with ExecCondition=false,
++then the exact temporary gate is removed and the next future interval proved.
+ """
+ from __future__ import annotations
+-
++import json
++import math
++import re
++import time
+ from lab_hours_unit_adapter import UnitStateError
+ 
++PAPERLESS_RECOVERY="\nimport pathlib,subprocess,time,json,os,re,sys,stat\nunit='paperless-summary.timer';service='paperless-summary.service'\nbooking=sys.argv[1];deadline=int(sys.argv[2])\nassert re.fullmatch(r'[a-z0-9][a-z0-9-]{7,63}',booking) and time.time()+20<deadline\ndef run(args):\n p=subprocess.run(args,capture_output=True,text=True,check=True,timeout=30);return p.stdout.strip()\ndef prop(unit,key):return run(['systemctl','show',unit,'--property='+key,'--value'])\nassert prop(unit,'ActiveState') in {'inactive','active'} and prop(unit,'UnitFileState')=='enabled'\nassert prop(service,'ActiveState')=='inactive' and prop(service,'MainPID')=='0'\nassert prop(unit,'Persistent')=='no' and not prop(unit,'TimersCalendar')\nraw=prop(unit,'TimersMonotonic').splitlines()\nassert len(raw)==2 and any('OnBootUSec=2min' in s for s in raw) and any('OnUnitInactiveUSec=5min' in s for s in raw)\nparent=pathlib.Path('/run/systemd/system/paperless-summary.service.d')\ncreated=not parent.exists();parent.mkdir(mode=0o755,exist_ok=True)\nassert parent.is_dir() and not parent.is_symlink() and parent.stat().st_uid==0\np=parent/('90-b60-no-replay-'+booking+'.conf')\nexpected=b'[Service]\\nExecCondition=\\nExecCondition=/usr/bin/false\\n'\nfor parent_path in (parent,*parent.parents):\n s=parent_path.lstat();assert stat.S_ISDIR(s.st_mode) and s.st_uid==0 and not s.st_mode&0o022\nif p.exists() or p.is_symlink():\n s=p.lstat();assert stat.S_ISREG(s.st_mode) and s.st_uid==0 and s.st_nlink==1 and stat.S_IMODE(s.st_mode)==0o600 and p.read_bytes()==expected\nelse:\n temp=p.with_suffix('.conf.new')\n if temp.exists():\n  s=temp.lstat();assert stat.S_ISREG(s.st_mode) and s.st_uid==0 and s.st_nlink==1 and stat.S_IMODE(s.st_mode)==0o600 and temp.read_bytes()==expected\n else:\n  fd=os.open(temp,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)\n  with os.fdopen(fd,'wb') as f:f.write(expected);f.flush();os.fsync(f.fileno())\n os.replace(temp,p)\nrun(['systemctl','daemon-reload'])\nrun(['systemctl','start',unit])\nlimit=time.monotonic()+15\nwhile prop(service,'Result')!='exec-condition' or prop(service,'ActiveState')!='inactive':\n if time.monotonic()>limit:raise RuntimeError('FIRST_POLL_NOT_SAFELY_SKIPPED_GATE_RETAINED')\n time.sleep(.2)\nassert prop(service,'MainPID')=='0'\nnext_value=run(['busctl','get-property','org.freedesktop.systemd1','/org/freedesktop/systemd1/unit/paperless_2dsummary_2etimer','org.freedesktop.systemd1.Timer','NextElapseUSecMonotonic'])\nkind,raw=next_value.split();assert kind=='t' and 0<int(raw)/1000000-time.monotonic()<=301\n# A false ExecCondition means ExecStart (the document worker) did not execute.\np.unlink()\nif created:parent.rmdir()\nrun(['systemctl','daemon-reload'])\nvalue=run(['busctl','get-property','org.freedesktop.systemd1','/org/freedesktop/systemd1/unit/paperless_2dsummary_2etimer','org.freedesktop.systemd1.Timer','NextElapseUSecMonotonic'])\nkind,raw=value.split();remaining=int(raw)/1000000-time.monotonic()\nassert kind=='t' and 0<remaining<=301\nassert prop(unit,'ActiveState')=='active' and prop(unit,'SubState')=='waiting'\nassert prop(service,'MainPID')=='0' and prop(service,'ActiveState')=='inactive'\nassert str(p) not in prop(service,'DropInPaths') and not p.exists()\nprint(json.dumps({'state':'monotonic-resumed','overdue_worker_skipped':True,'job_success_claimed':False,'temporary_gate_removed':True,'next_interval_remaining_seconds':remaining}))\n"
++
++
++def timer_profile(raw,row):
++    if not isinstance(raw,str) or len(raw)>8192:raise UnitStateError('TIMER_RESUME_PROFILE_UNSUPPORTED')
++    values={'Persistent':[],'TimersCalendar':[],'TimersMonotonic':[]}
++    for line in raw.splitlines():
++        key,sep,value=line.partition('=')
++        if not sep or key not in values:raise UnitStateError('TIMER_RESUME_PROFILE_UNSUPPORTED')
++        if value:values[key].append(value)
++    if len(values['Persistent'])!=1 or values['Persistent'][0] not in {'yes','no'}:
++        raise UnitStateError('TIMER_RESUME_PROFILE_UNSUPPORTED')
++    if values['TimersCalendar'] and not values['TimersMonotonic']:
++        return 'calendar',values['Persistent'][0]
++    if ((row.get('guest'),row.get('unit'))==('115','paperless-summary.timer')
++            and values['Persistent']==['no'] and not values['TimersCalendar']):
++        parsed=[]
++        for item in values['TimersMonotonic']:
++            match=re.fullmatch(r'\{ (OnBootUSec|OnUnitInactiveUSec)=(2min|5min) ; next_elapse=[^{}]+ \}',item)
++            if not match:raise UnitStateError('TIMER_RESUME_PROFILE_UNSUPPORTED')
++            parsed.append(match.groups())
++        if len(parsed)==2 and set(parsed)=={('OnBootUSec','2min'),('OnUnitInactiveUSec','5min')}:
++            return 'paperless-monotonic','no'
++    raise UnitStateError('TIMER_RESUME_PROFILE_UNSUPPORTED')
++
+ 
+ class CalendarTimerResume:
+-    def __init__(self, units): self.units=units; self.skipped=[]
++    def __init__(self,units,*,booking_id=None,clock=time.time):
++        self.units,self.booking_id,self.clock=units,booking_id,clock
++        self.skipped=[]
++
++    def profile(self,row,deadline):
++        code,raw=self.units.call(row['guest'],row['unit'],('show','--no-pager',
++            '--property=Persistent,TimersCalendar,TimersMonotonic'),deadline)
++        if code:raise UnitStateError('TIMER_RESUME_OBSERVATION')
++        return timer_profile(raw,row)
++
++    def preflight(self,row,deadline,entry):
++        kind,_=self.profile(row,deadline)
++        if kind=='paperless-monotonic':
++            service=[r for r in entry if (r['guest'],r['unit'])==('115','paperless-summary.service')]
++            if len(service)!=1 or service[0]['active']!='inactive' or not self.booking_id:
++                raise UnitStateError('MONOTONIC_TIMER_ENTRY_NOT_IDLE')
++        return True
+ 
+     def __call__(self,row,deadline):
+         if not row['unit'].endswith('.timer') or row['active']!='active':
+             raise UnitStateError('TIMER_RESUME_IDENTITY')
+-        observed=self.units.observe(row['guest'],row['unit'],deadline)
+-        if observed['ActiveState']!='inactive':
++        if self.units.observe(row['guest'],row['unit'],deadline)['ActiveState']!='inactive':
+             raise UnitStateError('TIMER_MUST_BE_STOPPED_BEFORE_REARM')
+-        code,output=self.units.call(row['guest'],row['unit'],('show','--no-pager',
+-            '--property=Persistent,TimersCalendar,TimersMonotonic'),deadline)
+-        if code: raise UnitStateError('TIMER_RESUME_OBSERVATION')
+-        fields={line.partition('=')[0]:line.partition('=')[2] for line in output.splitlines()}
+-        if (set(fields)!={'Persistent','TimersCalendar','TimersMonotonic'}
+-                or fields['Persistent'] not in {'yes','no'}
+-                or not fields['TimersCalendar']
+-                or fields['TimersMonotonic'] not in {'','[]'}):
+-            raise UnitStateError('TIMER_RESUME_PROFILE_UNSUPPORTED')
+-        if fields['Persistent']=='yes':
+-            self.units.effect(row,('clean','--what=state'),deadline)
+-            self.skipped.append({'guest':row['guest'],'unit':row['unit'],
+-                'policy':'skip-missed-calendar-events','job_success_claimed':False})
++        kind,persistent=self.profile(row,deadline)
++        if kind=='calendar':
++            if persistent=='yes':
++                self.units.effect(row,('clean','--what=state'),deadline)
++                self.skipped.append({'guest':row['guest'],'unit':row['unit'],
++                    'policy':'skip-missed-calendar-events','job_success_claimed':False})
++            return True
++        if (not isinstance(self.booking_id,str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]{7,63}',self.booking_id)
++                or deadline-self.clock()<=30):raise UnitStateError('MONOTONIC_TIMER_RESUME_WINDOW')
++        command=('pct','exec','115','--','python3','-B','-c',PAPERLESS_RECOVERY,self.booking_id,str(int(deadline)))
++        code,raw=self.units.runner(command,min(60,deadline-self.clock()))
++        try:value=json.loads(raw)
++        except (ValueError,TypeError):raise UnitStateError('MONOTONIC_TIMER_RESUME_FAILED') from None
++        remaining=value.get('next_interval_remaining_seconds') if isinstance(value,dict) else None
++        if (code or not isinstance(value,dict) or value.get('state')!='monotonic-resumed'
++                or value.get('overdue_worker_skipped') is not True or value.get('job_success_claimed') is not False
++                or value.get('temporary_gate_removed') is not True or type(remaining) not in (int,float)
++                or not math.isfinite(remaining) or not 0<remaining<=301):
++            raise UnitStateError('MONOTONIC_TIMER_RESUME_FAILED')
++        self.skipped.append({'guest':'115','unit':row['unit'],
++            'policy':'deny-overdue-worker-then-resume-future-interval','job_success_claimed':False})
+         return True
+diff --git a/scripts/local-ai/test_b60_daytime_qualification.py b/scripts/local-ai/test_b60_daytime_qualification.py
+index 9a1dd9e..f3db2ac 100644
+--- a/scripts/local-ai/test_b60_daytime_qualification.py
++++ b/scripts/local-ai/test_b60_daytime_qualification.py
+@@ -49,3 +49,10 @@ class DaytimeQualificationTests(unittest.TestCase):
+         for hour,minute in [(6,30),(7,0),(21,1),(23,30)]:
+             start=int(datetime(2026,11,5,hour,minute,tzinfo=ZoneInfo('America/Vancouver')).timestamp())
+             self.assertTrue(day_window_invalid(dict(self.booking,start_epoch=start,end_epoch=start+2700)))
++
++
++    def test_integrity_reuse_must_remain_fresh_at_claim_not_just_preparation(self):
++        from b60_daytime_integrity_prepare import reusable_through_claim
++        self.assertFalse(reusable_through_claim({'finished_epoch':self.start-10800},self.booking))
++        self.assertTrue(reusable_through_claim({'finished_epoch':self.start-10680},self.booking))
++        self.assertFalse(reusable_through_claim({'finished_epoch':True},self.booking))
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_guardian.py b/scripts/local-ai/test_lab_hours_exclusive_guardian.py
+index 25a7b1c..aa0d39e 100644
+--- a/scripts/local-ai/test_lab_hours_exclusive_guardian.py
++++ b/scripts/local-ai/test_lab_hours_exclusive_guardian.py
+@@ -47,3 +47,22 @@ class GuardianTests(unittest.TestCase):
+             owner_alive=lambda state:False,fence_owner=lambda state:True,
+             clock=lambda:self.now)['state'],'complete')
+         self.assertEqual(len(self.adapter.events),count)
++
++
++    def test_live_restoring_owner_is_not_killed_at_old_trial_deadline(self):
++        self.begin();state=self.store.read('session.json');state['phase']='restoring'
++        state['trial_deadline']=self.now-1;self.store.write('session.json',state)
++        fenced=[]
++        def finish(seconds):
++            state=self.store.read('session.json');state['phase']='released';self.store.write('session.json',state)
++        result=guard(self.store,self.adapter,owner='b60-stream-a',owner_alive=lambda state:True,
++            fence_owner=lambda state:fenced.append(True) or True,clock=lambda:self.now,sleep=finish)
++        self.assertEqual(fenced,[]);self.assertEqual(result['state'],'complete')
++
++    def test_hung_restoring_owner_is_fenced_with_900_seconds_reserved(self):
++        self.begin();state=self.store.read('session.json');state['phase']='restoring'
++        state['trial_deadline']=self.now-1;self.store.write('session.json',state)
++        self.now=state['restore_deadline']-900;fenced=[]
++        result=guard(self.store,self.adapter,owner='b60-stream-a',owner_alive=lambda state:True,
++            fence_owner=lambda state:fenced.append(self.now) or True,clock=lambda:self.now)
++        self.assertEqual(fenced,[state['restore_deadline']-900]);self.assertTrue(result['production_restored'])
+diff --git a/scripts/local-ai/test_lab_hours_source_update_host.py b/scripts/local-ai/test_lab_hours_source_update_host.py
+index 26db98b..af1a766 100644
+--- a/scripts/local-ai/test_lab_hours_source_update_host.py
++++ b/scripts/local-ai/test_lab_hours_source_update_host.py
+@@ -105,3 +105,9 @@ class DaytimeHostAdapterTests(HostAdapterTests):
+     new_bundle=Path(os.environ.get('B60_DAYTIME_NEW_SOURCE_BUNDLE',
+         '/private/tmp/b60-daytime-candidate-20261105-v3'))
+     changed=('lab_hours_exclusive_admission.py','lab_hours_prepare_entry_plan.py','lab_hours_proxmox_adapter.py','lab_hours_unit_adapter.py')
++
++
++class TimerRecoveryHostAdapterTests(HostAdapterTests):
++    old_bundle=Path(os.environ.get('B60_TIMER_OLD_SOURCE_BUNDLE','/private/tmp/b60-daytime-candidate-20261105-v3'))
++    new_bundle=Path(os.environ.get('B60_TIMER_NEW_SOURCE_BUNDLE','/private/tmp/b60-timer-recovery-candidate-20261105-v1'))
++    changed=('lab_hours_exclusive_cli.py','lab_hours_exclusive_guardian.py','lab_hours_proxmox_adapter.py','lab_hours_timer_resume.py')
+diff --git a/scripts/local-ai/test_lab_hours_timer_resume.py b/scripts/local-ai/test_lab_hours_timer_resume.py
+index 448a740..614c342 100644
+--- a/scripts/local-ai/test_lab_hours_timer_resume.py
++++ b/scripts/local-ai/test_lab_hours_timer_resume.py
+@@ -32,4 +32,32 @@ class TimerResumeTests(unittest.TestCase):
+         with self.assertRaisesRegex(UnitStateError,'UNSUPPORTED'): self.policy(self.row,100)
+ 
+ 
+-if __name__=='__main__': unittest.main()
++
++
++    def test_omitted_empty_monotonic_property_is_valid_calendar(self):
++        self.units.call=lambda *args:(0,'Persistent=yes\nTimersCalendar={ OnCalendar=*-*-* 13:00:00 ; next_elapse=(null) }\n')
++        self.assertTrue(self.policy(self.row,100))
++        self.assertEqual(self.units.effects,[('clean','--what=state')])
++
++    def test_malformed_duplicate_or_mixed_properties_fail_closed(self):
++        for raw in ['Persistent=yes\nPersistent=no\nTimersCalendar=x\n',
++                    'TimersCalendar=x\n','Persistent=yes\nUntrusted=x\n',
++                    'Persistent=no\nTimersCalendar=x\nTimersMonotonic=y\n']:
++            self.units.call=lambda *args,raw=raw:(0,raw)
++            with self.assertRaises(UnitStateError):self.policy(self.row,100)
++        self.assertEqual(self.units.effects,[])
++
++    def test_only_exact_paperless_monotonic_profile_can_resume(self):
++        import json
++        raw='Persistent=no\nTimersMonotonic={ OnUnitInactiveUSec=5min ; next_elapse=0 }\nTimersMonotonic={ OnBootUSec=2min ; next_elapse=0 }\n'
++        self.units.call=lambda *args:(0,raw)
++        self.units.runner=lambda command,timeout:(0,json.dumps({'state':'monotonic-resumed',
++            'overdue_worker_skipped':True,'job_success_claimed':False,'temporary_gate_removed':True,
++            'next_interval_remaining_seconds':299}))
++        from lab_hours_timer_resume import CalendarTimerResume
++        policy=CalendarTimerResume(self.units,booking_id='b60-exclusive-20261105-day-r2',clock=lambda:1)
++        row={'guest':'115','unit':'paperless-summary.timer','active':'active'}
++        self.assertTrue(policy.preflight(row,100,[{'guest':'115','unit':'paperless-summary.service','active':'inactive'}]))
++        self.assertTrue(policy(row,100));self.assertFalse(policy.skipped[0]['job_success_claimed'])
++        with self.assertRaises(UnitStateError):policy.preflight(row,100,[{'guest':'115','unit':'paperless-summary.service','active':'activating'}])
++        with self.assertRaises(UnitStateError):policy(dict(row,guest='114'),100)
+-- 
+2.50.1 (Apple Git-155)
+
+
+From bf1bfa7c80c18ea59688985d1a0a716bac7d24ec Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 5 Nov 2026 13:07:17 -0700
+Subject: [PATCH 2/3] Resume an already-future monotonic interval without
+ inventing an overdue activation
+
+---
+ scripts/local-ai/lab_hours_source_update.py           | 2 ++
+ scripts/local-ai/lab_hours_timer_resume.py            | 4 ++--
+ scripts/local-ai/test_lab_hours_source_update_host.py | 6 ++++++
+ scripts/local-ai/test_lab_hours_timer_resume.py       | 2 +-
+ 4 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/scripts/local-ai/lab_hours_source_update.py b/scripts/local-ai/lab_hours_source_update.py
+index cafcc9b..681e788 100644
+--- a/scripts/local-ai/lab_hours_source_update.py
++++ b/scripts/local-ai/lab_hours_source_update.py
+@@ -18,6 +18,8 @@ CLAIM_MAP = 'e16b3bfe02f8a12e08271b6e95baddf206192cbd37e765d0d9c5dee929608b82'
+ CLAIM_CHANGED = ('lab_hours_exclusive_boundary.py', 'lab_hours_proxmox_adapter.py',
+                  'lab_hours_reservations.py')
+ TRANSITIONS = {
++    ('529fea8dda6433ce483ae5fb6b31aa0cd74bc4d53600adb4f97383a5f7847124', '3967a1b3e7d9e0fde83a7c765f24efcf88508274d88dc82bd00a970e89ec4a82'):
++        (('lab_hours_timer_resume.py',), 'timer-future-interval-20261105-v1'),
+     ('09597ea2edd6c6e0b24b7036f8974b69c6cf3617d0a159fe937de89934a3675d', '529fea8dda6433ce483ae5fb6b31aa0cd74bc4d53600adb4f97383a5f7847124'):
+         (('lab_hours_exclusive_cli.py', 'lab_hours_exclusive_guardian.py', 'lab_hours_proxmox_adapter.py', 'lab_hours_timer_resume.py'), 'timer-recovery-20261105-v1'),
+     ('20e2ce272634d13c7e40a0c625cd0c48a7c4e20716588d2bc950abe86a6f9b71', '09597ea2edd6c6e0b24b7036f8974b69c6cf3617d0a159fe937de89934a3675d'):
+diff --git a/scripts/local-ai/lab_hours_timer_resume.py b/scripts/local-ai/lab_hours_timer_resume.py
+index cb8fbc6..f9c9b3f 100644
+--- a/scripts/local-ai/lab_hours_timer_resume.py
++++ b/scripts/local-ai/lab_hours_timer_resume.py
+@@ -11,7 +11,7 @@ import re
+ import time
+ from lab_hours_unit_adapter import UnitStateError
+ 
+-PAPERLESS_RECOVERY="\nimport pathlib,subprocess,time,json,os,re,sys,stat\nunit='paperless-summary.timer';service='paperless-summary.service'\nbooking=sys.argv[1];deadline=int(sys.argv[2])\nassert re.fullmatch(r'[a-z0-9][a-z0-9-]{7,63}',booking) and time.time()+20<deadline\ndef run(args):\n p=subprocess.run(args,capture_output=True,text=True,check=True,timeout=30);return p.stdout.strip()\ndef prop(unit,key):return run(['systemctl','show',unit,'--property='+key,'--value'])\nassert prop(unit,'ActiveState') in {'inactive','active'} and prop(unit,'UnitFileState')=='enabled'\nassert prop(service,'ActiveState')=='inactive' and prop(service,'MainPID')=='0'\nassert prop(unit,'Persistent')=='no' and not prop(unit,'TimersCalendar')\nraw=prop(unit,'TimersMonotonic').splitlines()\nassert len(raw)==2 and any('OnBootUSec=2min' in s for s in raw) and any('OnUnitInactiveUSec=5min' in s for s in raw)\nparent=pathlib.Path('/run/systemd/system/paperless-summary.service.d')\ncreated=not parent.exists();parent.mkdir(mode=0o755,exist_ok=True)\nassert parent.is_dir() and not parent.is_symlink() and parent.stat().st_uid==0\np=parent/('90-b60-no-replay-'+booking+'.conf')\nexpected=b'[Service]\\nExecCondition=\\nExecCondition=/usr/bin/false\\n'\nfor parent_path in (parent,*parent.parents):\n s=parent_path.lstat();assert stat.S_ISDIR(s.st_mode) and s.st_uid==0 and not s.st_mode&0o022\nif p.exists() or p.is_symlink():\n s=p.lstat();assert stat.S_ISREG(s.st_mode) and s.st_uid==0 and s.st_nlink==1 and stat.S_IMODE(s.st_mode)==0o600 and p.read_bytes()==expected\nelse:\n temp=p.with_suffix('.conf.new')\n if temp.exists():\n  s=temp.lstat();assert stat.S_ISREG(s.st_mode) and s.st_uid==0 and s.st_nlink==1 and stat.S_IMODE(s.st_mode)==0o600 and temp.read_bytes()==expected\n else:\n  fd=os.open(temp,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)\n  with os.fdopen(fd,'wb') as f:f.write(expected);f.flush();os.fsync(f.fileno())\n os.replace(temp,p)\nrun(['systemctl','daemon-reload'])\nrun(['systemctl','start',unit])\nlimit=time.monotonic()+15\nwhile prop(service,'Result')!='exec-condition' or prop(service,'ActiveState')!='inactive':\n if time.monotonic()>limit:raise RuntimeError('FIRST_POLL_NOT_SAFELY_SKIPPED_GATE_RETAINED')\n time.sleep(.2)\nassert prop(service,'MainPID')=='0'\nnext_value=run(['busctl','get-property','org.freedesktop.systemd1','/org/freedesktop/systemd1/unit/paperless_2dsummary_2etimer','org.freedesktop.systemd1.Timer','NextElapseUSecMonotonic'])\nkind,raw=next_value.split();assert kind=='t' and 0<int(raw)/1000000-time.monotonic()<=301\n# A false ExecCondition means ExecStart (the document worker) did not execute.\np.unlink()\nif created:parent.rmdir()\nrun(['systemctl','daemon-reload'])\nvalue=run(['busctl','get-property','org.freedesktop.systemd1','/org/freedesktop/systemd1/unit/paperless_2dsummary_2etimer','org.freedesktop.systemd1.Timer','NextElapseUSecMonotonic'])\nkind,raw=value.split();remaining=int(raw)/1000000-time.monotonic()\nassert kind=='t' and 0<remaining<=301\nassert prop(unit,'ActiveState')=='active' and prop(unit,'SubState')=='waiting'\nassert prop(service,'MainPID')=='0' and prop(service,'ActiveState')=='inactive'\nassert str(p) not in prop(service,'DropInPaths') and not p.exists()\nprint(json.dumps({'state':'monotonic-resumed','overdue_worker_skipped':True,'job_success_claimed':False,'temporary_gate_removed':True,'next_interval_remaining_seconds':remaining}))\n"
++PAPERLESS_RECOVERY="\nimport pathlib,subprocess,time,json,os,re,sys,stat\nunit='paperless-summary.timer';service='paperless-summary.service'\nbooking=sys.argv[1];deadline=int(sys.argv[2])\nassert re.fullmatch(r'[a-z0-9][a-z0-9-]{7,63}',booking) and time.time()+20<deadline\ndef run(args):\n p=subprocess.run(args,capture_output=True,text=True,check=True,timeout=30);return p.stdout.strip()\ndef prop(unit,key):return run(['systemctl','show',unit,'--property='+key,'--value'])\nassert prop(unit,'ActiveState') in {'inactive','active'} and prop(unit,'UnitFileState')=='enabled'\nassert prop(service,'ActiveState')=='inactive' and prop(service,'MainPID')=='0'\nassert prop(unit,'Persistent')=='no' and not prop(unit,'TimersCalendar')\nraw=prop(unit,'TimersMonotonic').splitlines()\nassert len(raw)==2 and any('OnBootUSec=2min' in s for s in raw) and any('OnUnitInactiveUSec=5min' in s for s in raw)\nparent=pathlib.Path('/run/systemd/system/paperless-summary.service.d')\ncreated=not parent.exists();parent.mkdir(mode=0o755,exist_ok=True)\nassert parent.is_dir() and not parent.is_symlink() and parent.stat().st_uid==0\np=parent/('90-b60-no-replay-'+booking+'.conf')\nexpected=b'[Service]\\nExecCondition=\\nExecCondition=/usr/bin/false\\n'\nfor parent_path in (parent,*parent.parents):\n s=parent_path.lstat();assert stat.S_ISDIR(s.st_mode) and s.st_uid==0 and not s.st_mode&0o022\nif p.exists() or p.is_symlink():\n s=p.lstat();assert stat.S_ISREG(s.st_mode) and s.st_uid==0 and s.st_nlink==1 and stat.S_IMODE(s.st_mode)==0o600 and p.read_bytes()==expected\nelse:\n temp=p.with_suffix('.conf.new')\n if temp.exists():\n  s=temp.lstat();assert stat.S_ISREG(s.st_mode) and s.st_uid==0 and s.st_nlink==1 and stat.S_IMODE(s.st_mode)==0o600 and temp.read_bytes()==expected\n else:\n  fd=os.open(temp,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)\n  with os.fdopen(fd,'wb') as f:f.write(expected);f.flush();os.fsync(f.fileno())\n os.replace(temp,p)\nrun(['systemctl','daemon-reload'])\nrun(['systemctl','start',unit])\nlimit=time.monotonic()+15\nwhile True:\n next_value=run(['busctl','get-property','org.freedesktop.systemd1','/org/freedesktop/systemd1/unit/paperless_2dsummary_2etimer','org.freedesktop.systemd1.Timer','NextElapseUSecMonotonic'])\n kind,raw=next_value.split();remaining=int(raw)/1000000-time.monotonic()\n if (kind=='t' and 0<remaining<=301 and prop(unit,'SubState')=='waiting'\n         and prop(service,'ActiveState')=='inactive' and prop(service,'MainPID')=='0'):break\n if time.monotonic()>limit:raise RuntimeError('FUTURE_POLL_NOT_PROVEN_GATE_RETAINED')\n time.sleep(.2)\nassert prop(service,'MainPID')=='0'\nnext_value=run(['busctl','get-property','org.freedesktop.systemd1','/org/freedesktop/systemd1/unit/paperless_2dsummary_2etimer','org.freedesktop.systemd1.Timer','NextElapseUSecMonotonic'])\nkind,raw=next_value.split();assert kind=='t' and 0<int(raw)/1000000-time.monotonic()<=301\n# Any due activation was denied; an already-future interval needs no fake skip.\np.unlink()\nif created:parent.rmdir()\nrun(['systemctl','daemon-reload'])\nvalue=run(['busctl','get-property','org.freedesktop.systemd1','/org/freedesktop/systemd1/unit/paperless_2dsummary_2etimer','org.freedesktop.systemd1.Timer','NextElapseUSecMonotonic'])\nkind,raw=value.split();remaining=int(raw)/1000000-time.monotonic()\nassert kind=='t' and 0<remaining<=301\nassert prop(unit,'ActiveState')=='active' and prop(unit,'SubState')=='waiting'\nassert prop(service,'MainPID')=='0' and prop(service,'ActiveState')=='inactive'\nassert str(p) not in prop(service,'DropInPaths') and not p.exists()\nprint(json.dumps({'state':'monotonic-resumed','no_overdue_work_executed':True,'job_success_claimed':False,'temporary_gate_removed':True,'next_interval_remaining_seconds':remaining}))\n"
+ 
+ 
+ def timer_profile(raw,row):
+@@ -76,7 +76,7 @@ class CalendarTimerResume:
+         except (ValueError,TypeError):raise UnitStateError('MONOTONIC_TIMER_RESUME_FAILED') from None
+         remaining=value.get('next_interval_remaining_seconds') if isinstance(value,dict) else None
+         if (code or not isinstance(value,dict) or value.get('state')!='monotonic-resumed'
+-                or value.get('overdue_worker_skipped') is not True or value.get('job_success_claimed') is not False
++                or value.get('no_overdue_work_executed') is not True or value.get('job_success_claimed') is not False
+                 or value.get('temporary_gate_removed') is not True or type(remaining) not in (int,float)
+                 or not math.isfinite(remaining) or not 0<remaining<=301):
+             raise UnitStateError('MONOTONIC_TIMER_RESUME_FAILED')
+diff --git a/scripts/local-ai/test_lab_hours_source_update_host.py b/scripts/local-ai/test_lab_hours_source_update_host.py
+index af1a766..6d07259 100644
+--- a/scripts/local-ai/test_lab_hours_source_update_host.py
++++ b/scripts/local-ai/test_lab_hours_source_update_host.py
+@@ -111,3 +111,9 @@ class TimerRecoveryHostAdapterTests(HostAdapterTests):
+     old_bundle=Path(os.environ.get('B60_TIMER_OLD_SOURCE_BUNDLE','/private/tmp/b60-daytime-candidate-20261105-v3'))
+     new_bundle=Path(os.environ.get('B60_TIMER_NEW_SOURCE_BUNDLE','/private/tmp/b60-timer-recovery-candidate-20261105-v1'))
+     changed=('lab_hours_exclusive_cli.py','lab_hours_exclusive_guardian.py','lab_hours_proxmox_adapter.py','lab_hours_timer_resume.py')
++
++
++class TimerFutureIntervalHostAdapterTests(HostAdapterTests):
++    old_bundle=Path(os.environ.get('B60_TIMER_FUTURE_OLD_SOURCE_BUNDLE','/private/tmp/b60-timer-recovery-candidate-20261105-v1'))
++    new_bundle=Path(os.environ.get('B60_TIMER_FUTURE_NEW_SOURCE_BUNDLE','/private/tmp/b60-timer-recovery-candidate-20261105-v2'))
++    changed=('lab_hours_timer_resume.py',)
+diff --git a/scripts/local-ai/test_lab_hours_timer_resume.py b/scripts/local-ai/test_lab_hours_timer_resume.py
+index 614c342..58e0162 100644
+--- a/scripts/local-ai/test_lab_hours_timer_resume.py
++++ b/scripts/local-ai/test_lab_hours_timer_resume.py
+@@ -52,7 +52,7 @@ class TimerResumeTests(unittest.TestCase):
+         raw='Persistent=no\nTimersMonotonic={ OnUnitInactiveUSec=5min ; next_elapse=0 }\nTimersMonotonic={ OnBootUSec=2min ; next_elapse=0 }\n'
+         self.units.call=lambda *args:(0,raw)
+         self.units.runner=lambda command,timeout:(0,json.dumps({'state':'monotonic-resumed',
+-            'overdue_worker_skipped':True,'job_success_claimed':False,'temporary_gate_removed':True,
++            'no_overdue_work_executed':True,'job_success_claimed':False,'temporary_gate_removed':True,
+             'next_interval_remaining_seconds':299}))
+         from lab_hours_timer_resume import CalendarTimerResume
+         policy=CalendarTimerResume(self.units,booking_id='b60-exclusive-20261105-day-r2',clock=lambda:1)
+-- 
+2.50.1 (Apple Git-155)
+
+
+From afb2de8034f4d165d2b2f7fac797999f98331032 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 5 Nov 2026 13:13:51 -0700
+Subject: [PATCH 3/3] Accept proven absent owner scopes as fenced without no-op
+ recreation
+
+---
+ scripts/local-ai/lab_hours_owner_scope.py     | 12 ++++++---
+ scripts/local-ai/lab_hours_source_update.py   |  2 ++
+ .../local-ai/test_lab_hours_owner_scope.py    | 25 +++++++++++++++++--
+ .../test_lab_hours_source_update_host.py      |  6 +++++
+ 4 files changed, 39 insertions(+), 6 deletions(-)
+
+diff --git a/scripts/local-ai/lab_hours_owner_scope.py b/scripts/local-ai/lab_hours_owner_scope.py
+index 4937e7a..dc1a33a 100644
+--- a/scripts/local-ai/lab_hours_owner_scope.py
++++ b/scripts/local-ai/lab_hours_owner_scope.py
+@@ -29,11 +29,15 @@ class OwnerScopes:
+     def fence(self,state):
+         # No restart and no wildcard kill. systemd owns the exact cgroup and
+         # KillMode=control-group is required by the launcher.
+-        code,_=self.runner(('systemctl','stop',self.owner),30)
+-        if code: return False
+-        fields=self._show()
+-        return (fields['ActiveState'] in {'inactive','failed'} and fields['MainPID']=='0'
++        def empty(fields):
++            return (fields['LoadState'] in {'loaded','not-found'}
++                and fields['ActiveState'] in {'inactive','failed'} and fields['MainPID']=='0'
+                 and fields['TasksCurrent'] in {'0','','[not set]'})
++        if empty(self._show()): return True
++        # A unit may disappear between observation and stop. The fresh exact
++        # zero-PID/zero-task observation is authoritative, not stop's exit code.
++        self.runner(('systemctl','stop',self.owner),30)
++        return empty(self._show())
+ 
+     def arm(self,state,profile):
+         remaining=int(state['restore_deadline']-self.clock())
+diff --git a/scripts/local-ai/lab_hours_source_update.py b/scripts/local-ai/lab_hours_source_update.py
+index 681e788..b2d0371 100644
+--- a/scripts/local-ai/lab_hours_source_update.py
++++ b/scripts/local-ai/lab_hours_source_update.py
+@@ -18,6 +18,8 @@ CLAIM_MAP = 'e16b3bfe02f8a12e08271b6e95baddf206192cbd37e765d0d9c5dee929608b82'
+ CLAIM_CHANGED = ('lab_hours_exclusive_boundary.py', 'lab_hours_proxmox_adapter.py',
+                  'lab_hours_reservations.py')
+ TRANSITIONS = {
++    ('3967a1b3e7d9e0fde83a7c765f24efcf88508274d88dc82bd00a970e89ec4a82', '96201c5d13d42886055f708a5c33b70108c51fdbbcd018bf28592458cf8dd4bd'):
++        (('lab_hours_owner_scope.py',), 'owner-absence-fence-20261105-v1'),
+     ('529fea8dda6433ce483ae5fb6b31aa0cd74bc4d53600adb4f97383a5f7847124', '3967a1b3e7d9e0fde83a7c765f24efcf88508274d88dc82bd00a970e89ec4a82'):
+         (('lab_hours_timer_resume.py',), 'timer-future-interval-20261105-v1'),
+     ('09597ea2edd6c6e0b24b7036f8974b69c6cf3617d0a159fe937de89934a3675d', '529fea8dda6433ce483ae5fb6b31aa0cd74bc4d53600adb4f97383a5f7847124'):
+diff --git a/scripts/local-ai/test_lab_hours_owner_scope.py b/scripts/local-ai/test_lab_hours_owner_scope.py
+index 40b48f2..2c40ae9 100644
+--- a/scripts/local-ai/test_lab_hours_owner_scope.py
++++ b/scripts/local-ai/test_lab_hours_owner_scope.py
+@@ -18,7 +18,7 @@ class ScopeTests(unittest.TestCase):
+     def test_fence_stops_only_exact_owner_and_proves_no_tasks(self):
+         self.assertTrue(self.scope.alive({})); self.assertTrue(self.scope.fence({}))
+         self.assertFalse(self.scope.alive({}))
+-        self.assertEqual(self.calls[1][0],('systemctl','stop',self.scope.owner))
++        self.assertEqual([c for c,t in self.calls if c[:2]==('systemctl','stop')],[('systemctl','stop',self.scope.owner)])
+ 
+     def test_guardian_is_independent_no_restart_and_has_bounded_lifetime(self):
+         self.assertTrue(self.scope.arm({'restore_deadline':3700},{}))
+@@ -33,4 +33,25 @@ class ScopeTests(unittest.TestCase):
+         self.assertFalse(self.scope.arm({'restore_deadline':3700},{}))
+ 
+ 
+-if __name__=='__main__': unittest.main()
++    def test_absent_empty_scope_is_fenced_without_stop_or_noop_creation(self):
++        calls=[]
++        def runner(command,timeout):
++            calls.append(command)
++            return 0,'LoadState=not-found\nActiveState=inactive\nMainPID=0\nTasksCurrent=[not set]\n'
++        self.scope.runner=runner
++        self.assertTrue(self.scope.fence({}))
++        self.assertEqual(len(calls),1);self.assertEqual(calls[0][:2],('systemctl','show'))
++
++    def test_stop_race_accepts_only_fresh_proven_empty_scope(self):
++        count=[0]
++        def runner(command,timeout):
++            if command[:2]==('systemctl','stop'):return 5,''
++            count[0]+=1
++            return 0,('LoadState=loaded\nActiveState=active\nMainPID=100\nTasksCurrent=2\n' if count[0]==1
++                else 'LoadState=not-found\nActiveState=inactive\nMainPID=0\nTasksCurrent=[not set]\n')
++        self.scope.runner=runner;self.assertTrue(self.scope.fence({}))
++
++    def test_absence_label_cannot_hide_remaining_pid_or_tasks(self):
++        self.scope.runner=lambda command,timeout:(0,'LoadState=not-found\nActiveState=inactive\nMainPID=9\nTasksCurrent=1\n')
++        self.assertFalse(self.scope.fence({}))
++
+diff --git a/scripts/local-ai/test_lab_hours_source_update_host.py b/scripts/local-ai/test_lab_hours_source_update_host.py
+index 6d07259..b7259c0 100644
+--- a/scripts/local-ai/test_lab_hours_source_update_host.py
++++ b/scripts/local-ai/test_lab_hours_source_update_host.py
+@@ -117,3 +117,9 @@ class TimerFutureIntervalHostAdapterTests(HostAdapterTests):
+     old_bundle=Path(os.environ.get('B60_TIMER_FUTURE_OLD_SOURCE_BUNDLE','/private/tmp/b60-timer-recovery-candidate-20261105-v1'))
+     new_bundle=Path(os.environ.get('B60_TIMER_FUTURE_NEW_SOURCE_BUNDLE','/private/tmp/b60-timer-recovery-candidate-20261105-v2'))
+     changed=('lab_hours_timer_resume.py',)
++
++
++class OwnerAbsenceHostAdapterTests(HostAdapterTests):
++    old_bundle=Path(os.environ.get('B60_OWNER_ABSENCE_OLD_SOURCE_BUNDLE','/private/tmp/b60-timer-recovery-candidate-20261105-v2'))
++    new_bundle=Path(os.environ.get('B60_OWNER_ABSENCE_NEW_SOURCE_BUNDLE','/private/tmp/b60-timer-recovery-candidate-20261105-v3'))
++    changed=('lab_hours_owner_scope.py',)
+-- 
+2.50.1 (Apple Git-155)
+

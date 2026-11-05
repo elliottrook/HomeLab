@@ -1,5 +1,10 @@
 # November5 daytime qualification — operational continuation
 
+**SUPERSEDED by [R1 outcome and final R2 revision3](daytime-r1-assisted-r2-armed-20261105.md).**
+R1 is spent FAILED_RESTORED with assistance. R2 is armed14:05/15:00; read
+its actual results at15:10. Do not replay any historical steps below.
+
+
 **Migration and arming COMPLETED. Do not replay the steps below.**
 Read [the verified arming record](daytime-qualification-armed-20261105.md) first.
 At12:40 reconcile actual scheduled receipts and restoration; existing steps

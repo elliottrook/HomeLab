@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+[R1 required assisted restoration; corrected R2 is armed](B60-Inference-Engineering/daytime-r1-assisted-r2-armed-20261105.md).
+R1 is terminal FAILED_RESTORED, restored/released12:52 before deadline, with
+manual assistance explicitly recorded. Calendar/monotonic recovery, guardian
+window and absent-owner fencing are corrected. Final R2 revision3 is verified
+for14:05 integrity and15:00–15:45 restore-only, with15:10 reconciliation.
+217 controller,6 daytime,115 B60 and target checks pass; no live R2 pass claimed.
+
 The [received Candidate-J D4 release envelope](B60-Inference-Engineering/peer-release-receipt-20261105.md)
 records the owner-reported18/20 blind-quality acceptance with no deployment or
 policy grant. B60 daytime qualification remains armed; its actual results and
