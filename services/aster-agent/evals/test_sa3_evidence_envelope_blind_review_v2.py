@@ -52,6 +52,12 @@ class EvidenceEnvelopeBlindReviewV2Tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             blind.build_review_packet(PACKET, value)
 
+    def test_per_row_model_identity_drift_fails_before_blinding(self):
+        value = result()
+        value["predictions"][0]["model"] = "different-hidden-model"
+        with self.assertRaises(ValueError):
+            blind.build_review_packet(PACKET, value)
+
     def test_pending_duplicate_identity_exposure_and_error_fail(self):
         packet = blind.build_review_packet(PACKET, result())
         pending = complete(packet)

@@ -61,7 +61,7 @@ def _prediction_index(result: object) -> dict[str, dict]:
                 or row["prose_source"] not in {
                     "bounded-model-diagnosis", "deterministic-diagnosis"
                 }
-                or not isinstance(row["model"], str) or not row["model"]
+                or row["model"] != result["model"]
                 or type(row["model_requested"]) is not bool
                 or row["finish_reason"] not in {"stop", "deterministic"}
                 or type(row["latency_seconds"]) not in {int, float}

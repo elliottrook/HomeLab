@@ -23,15 +23,16 @@ promotion `not-authorized`.
 ## Frozen source
 
 - blind packet and response validator:
-  `6c3cd5a1a35f19cbb1e321bcd84f26346996430bbbd8f41651991ff6e3fc8c43`
+  `eda5d75bff4361a0d8072ec3aceb0f0087e851b1cf47a893f7536e7a6e21a961`
 - terminal reconciliation:
   `3d9530f790246d3c5b87f1021b1eec09515ca89a3f9d48b1227e7cd2819bdb2b`
 - three-reviewer decision:
   `6b1794ee97015764496e7bcd5cb8d48d7c51b526249398e930103ab9076357b7`
 
-The focused candidate-i suite passes 33/33, including packet/result drift,
-transport-on-abstention, wrong request counts, runtime errors, incomplete or
-identity-exposed reviews, duplicate reviewers, conservative threshold,
+The focused candidate-i suite passes 34/34, including packet/result drift,
+per-row model-identity drift before blinding, transport-on-abstention, wrong
+request counts, runtime errors, incomplete or identity-exposed reviews,
+duplicate reviewers, conservative threshold,
 mandatory-abstention and false-completion failures. The reconciliation CLI
 writes the blind packet exclusively at mode 0600 and emits only a content-free
 summary.
