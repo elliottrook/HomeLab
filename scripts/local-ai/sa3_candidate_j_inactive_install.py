@@ -28,7 +28,7 @@ HOST_REPLACE = {
         "1760fa046156d7a8268a9e7fbf52c06eac2df9690a2033d184afb8b6b2211c8c", 0o755),
     "lab_hours_release_manifest.json": (
         "05e41525f08f52597128b6523b92c1ed7de3316cee09e3e79f95d347d31eb65d",
-        "3c12af56e18612c314fdcc4cc336064264d1593a74bc94e9980357ab5366d9e8", 0o644),
+        "9eddfdd24ab10fb0b678479dabeae0ac6676997361d80f354bb7a7586e82d665", 0o644),
 }
 HOST_ADD = {
     "sa3_candidate_j_evidence_matrix_transaction.py":
@@ -36,7 +36,7 @@ HOST_ADD = {
     "sa3_candidate_j_evidence_matrix_listener_adapter.py":
         ("bef9e8f4a8845847448691d8054b23321dfcf6ef177e5b7250b5bcadc435a4df", 0o644),
     "aster_llama_sa3_candidate_j_evidence_matrix_wrapper.py":
-        ("ec6e2297665f169eb50c67be42aba592066fd0be1c9e14784ebd530e4921d2f8", 0o644),
+        ("a883c144ead962dc5862c54005a90157db173e88667122a89a23496796f05f2a", 0o644),
 }
 GUEST_EXISTING: dict[str, str] = {}
 GUEST_ADD = {
@@ -51,7 +51,7 @@ GUEST_ADD = {
     "sa3_evidence_matrix_candidate_j_batch.py":
         "856bc39083d078712dbf7289d2524dc0688e07ad5c645382d5dba9d99a75b388",
     "aster_llama_sa3_candidate_j_evidence_matrix_wrapper.py":
-        "ec6e2297665f169eb50c67be42aba592066fd0be1c9e14784ebd530e4921d2f8",
+        "a883c144ead962dc5862c54005a90157db173e88667122a89a23496796f05f2a",
 }
 GUEST_SOURCE_PATHS = {
     "aster_llama_sa3_candidate_j_evidence_matrix_wrapper.py":

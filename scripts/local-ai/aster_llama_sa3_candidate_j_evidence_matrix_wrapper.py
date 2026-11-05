@@ -58,8 +58,6 @@ PINS = {
         "856bc39083d078712dbf7289d2524dc0688e07ad5c645382d5dba9d99a75b388",
 }
 EXCLUDED = (
-    "sa3-evidence-envelope-quality-v1.json",
-    "sa3-evidence-envelope-candidate-i-quality-v1.json",
     "sa3_evidence_envelope_blind_review_v1.py",
     "sa3_evidence_envelope_decision_v1.py",
 )
@@ -193,7 +191,7 @@ def check_pins() -> None:
         if not _pinned_file(RUNTIME_ROOT / name, expected, 0o644):
             raise GuestError("candidate-j runtime pin drift")
     if any((RUNTIME_ROOT / name).exists() for name in EXCLUDED):
-        raise GuestError("candidate-j excluded predecessor or review material is present")
+        raise GuestError("candidate-j excluded review material is present")
     if not _pinned_model() or not _pinned_file(Path(SERVER), BINARY_SHA, 0o755):
         raise GuestError("accepted model or binary pin drift")
 

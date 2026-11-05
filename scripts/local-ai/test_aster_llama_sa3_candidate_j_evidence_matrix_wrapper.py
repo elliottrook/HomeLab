@@ -30,6 +30,10 @@ class CandidateJGuestWrapperTests(unittest.TestCase):
         self.assertEqual(2, wrapper.MODEL_REQUESTS)
         self.assertFalse(any("keys" in name or "review" in name
                              for name in wrapper.PINS))
+        self.assertNotIn("sa3-evidence-envelope-quality-v1.json", wrapper.PINS)
+        self.assertNotIn(
+            "sa3-evidence-envelope-candidate-i-quality-v1.json", wrapper.PINS)
+        self.assertFalse(any("candidate-i" in name for name in wrapper.PINS))
 
     def test_valid_result_accepts_only_no_effect_zero_error_batch(self):
         wrapper.validate_result(valid_result())
