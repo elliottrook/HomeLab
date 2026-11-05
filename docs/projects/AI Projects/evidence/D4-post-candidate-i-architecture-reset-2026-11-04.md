@@ -42,9 +42,19 @@ SHA-256 values are:
 
 ## Next untouched boundary
 
+The separate public-development fixture is now frozen at six generic cases:
+two registered-hypothesis plans and four deterministic abstentions covering
+stale, unavailable, secret-dependent and unsupported paths. Its deterministic
+scorer binds the exact identity/composition/expectations, reports only counts
+and a fixture digest, and grants no authority. Public fixture/scorer SHA-256
+values are `40f7cfeeb3884887c32f5674afdb840d764214730a23e71c1df660a08953572f`
+and `1539697db4a4f2018a95f71c18f5053f9cec7e7b6e0b7b2a488826e40f1ecd7c`.
+The combined candidate-j suite passes 12/12 and complete SA3 passes 213/213.
+
 This is not a candidate release or authority to run. Before any model request,
-candidate-j still needs a separate public development fixture, a source
-freeze, and an independently created untouched
+candidate-j still needs a batch/result envelope and exact source freeze. Only
+after a bounded public-development result may an independent custodian create
+an untouched
 quality packet that does not reuse candidate-g or candidate-i evaluation
 cases. The quality bar remains conservative; no threshold is lowered and no
 automatic route, repair authority, tool grant or model/backend change follows.

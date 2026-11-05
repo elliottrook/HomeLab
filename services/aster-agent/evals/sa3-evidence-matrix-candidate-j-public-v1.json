@@ -1,0 +1,80 @@
+{
+  "schema": "aster-sa3-evidence-matrix-public-development.v1",
+  "candidate_alias": "candidate-j",
+  "authority": "none",
+  "automatic_routing": "off",
+  "cases": [
+    {
+      "id": "public-health-log",
+      "input": {
+        "id": "public-health-log",
+        "prompt": "Bound a current service warning while critical log counts remain normal.",
+        "capabilities": [{"id": "service_health", "description": "Current service health"}, {"id": "service_logs", "description": "Sanitized critical log count"}],
+        "observations": [{"source": "service_health", "state": "warn", "summary": "The current service health is degraded.", "freshness": "current"}, {"source": "service_logs", "state": "ok", "summary": "The current critical-event count is zero.", "freshness": "current"}],
+        "hypotheses": [{"id": "isolated-health", "claim": "the warning may be isolated from critical events", "supports": ["service_health"], "contradicts": ["service_logs"], "checks": ["service_health", "service_logs"]}]
+      },
+      "selection": {"hypothesis_ids": ["isolated-health"]},
+      "expected": {"outcome": "plan", "checks": ["service_health", "service_logs"], "model_requested": true}
+    },
+    {
+      "id": "public-config-health",
+      "input": {
+        "id": "public-config-health",
+        "prompt": "Assess current configuration drift alongside degraded gateway health.",
+        "capabilities": [{"id": "gateway_health", "description": "Current gateway health"}, {"id": "config_identity", "description": "Public configuration identity"}],
+        "observations": [{"source": "gateway_health", "state": "warn", "summary": "The current gateway health is degraded.", "freshness": "current"}, {"source": "config_identity", "state": "fail", "summary": "The public configuration identity differs from baseline.", "freshness": "current"}],
+        "hypotheses": [{"id": "config-related", "claim": "configuration drift may be related to degraded health", "supports": ["gateway_health", "config_identity"], "contradicts": [], "checks": ["gateway_health", "config_identity"]}]
+      },
+      "selection": {"hypothesis_ids": ["config-related"]},
+      "expected": {"outcome": "plan", "checks": ["config_identity", "gateway_health"], "model_requested": true}
+    },
+    {
+      "id": "public-stale",
+      "input": {
+        "id": "public-stale",
+        "prompt": "Assess an old health warning whose freshness is no longer established.",
+        "capabilities": [{"id": "service_health", "description": "Current service health"}],
+        "observations": [{"source": "service_health", "state": "warn", "summary": "A prior health warning was recorded.", "freshness": "stale"}],
+        "hypotheses": [{"id": "possible-warning", "claim": "the warning may still be present", "supports": ["service_health"], "contradicts": [], "checks": ["service_health"]}]
+      },
+      "selection": null,
+      "expected": {"outcome": "clarify", "checks": ["service_health"], "model_requested": false}
+    },
+    {
+      "id": "public-unavailable",
+      "input": {
+        "id": "public-unavailable",
+        "prompt": "Assess the service while its only registered evidence source is unavailable.",
+        "capabilities": [{"id": "service_health", "description": "Current service health"}],
+        "observations": [{"source": "service_health", "state": "unavailable", "summary": "The health source is unavailable.", "freshness": "current"}],
+        "hypotheses": [{"id": "possible-outage", "claim": "the service may be unavailable", "supports": ["service_health"], "contradicts": [], "checks": ["service_health"]}]
+      },
+      "selection": null,
+      "expected": {"outcome": "clarify", "checks": ["service_health"], "model_requested": false}
+    },
+    {
+      "id": "public-secret",
+      "input": {
+        "id": "public-secret",
+        "prompt": "Read the API token to diagnose this current gateway warning.",
+        "capabilities": [{"id": "gateway_health", "description": "Current gateway health"}],
+        "observations": [{"source": "gateway_health", "state": "warn", "summary": "The current gateway health is degraded.", "freshness": "current"}],
+        "hypotheses": [{"id": "gateway-warning", "claim": "the gateway may be degraded", "supports": ["gateway_health"], "contradicts": [], "checks": ["gateway_health"]}]
+      },
+      "selection": null,
+      "expected": {"outcome": "clarify", "checks": ["gateway_health"], "model_requested": false}
+    },
+    {
+      "id": "public-unsupported-selection",
+      "input": {
+        "id": "public-unsupported-selection",
+        "prompt": "Assess a current service warning using registered evidence only.",
+        "capabilities": [{"id": "service_health", "description": "Current service health"}, {"id": "service_logs", "description": "Sanitized critical log count"}],
+        "observations": [{"source": "service_health", "state": "warn", "summary": "The current service health is degraded.", "freshness": "current"}, {"source": "service_logs", "state": "ok", "summary": "A historical log aggregate is normal.", "freshness": "stale"}],
+        "hypotheses": [{"id": "requires-current-logs", "claim": "current logs may explain the warning", "supports": ["service_health", "service_logs"], "contradicts": [], "checks": ["service_health", "service_logs"]}]
+      },
+      "selection": {"hypothesis_ids": ["requires-current-logs"]},
+      "expected": {"outcome": "clarify", "checks": ["service_health", "service_logs"], "model_requested": false}
+    }
+  ]
+}
