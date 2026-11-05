@@ -28,13 +28,15 @@ BINARY_SHA = "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5"
 UNIT_SHA = "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"
 PROCESS_MARKERS = ("vzdump", "zstd -t", "f2_preflight", "f3_from_f2",
                    "stream_a_evaluation_evidence", "full_aster_first_screen",
-                   "m3_joint_semantic_35b", "sa3_candidate_i")
+                   "m3_joint_semantic_35b", "sa3_candidate_i",
+                   "sa3_candidate_j")
 REGISTERED_RUNNER_KINDS = frozenset({
     "full-inference-pilot",
     "owner-loss-exercise",
     "sa3-expanded-quality",
     "sa3-evidence-envelope-quality",
     "sa3-evidence-envelope-candidate-i-quality",
+    "sa3-evidence-matrix-candidate-j-public",
     "m3-joint-semantic-35b",
 })
 
@@ -268,8 +270,10 @@ def run(booking_id: str) -> int:
                            if spec.runner_kind=="sa3-evidence-envelope-quality" else
                           ("sa3-evidence-envelope-candidate-i-quality-complete"
                            if spec.runner_kind=="sa3-evidence-envelope-candidate-i-quality" else
+                          ("sa3-evidence-matrix-candidate-j-public-complete"
+                           if spec.runner_kind=="sa3-evidence-matrix-candidate-j-public" else
                           ("m3-joint-semantic-public-complete"
-                           if spec.runner_kind=="m3-joint-semantic-35b" else "pilot-complete")))))
+                           if spec.runner_kind=="m3-joint-semantic-35b" else "pilot-complete"))))))
         receipt_body=receipt.get("receipt")
         receipt_valid=(isinstance(receipt_body,dict)
             and receipt_body.get("exit_status")==0
@@ -297,6 +301,20 @@ def run(booking_id: str) -> int:
                 and receipt.get("production_restored") is True
                 and receipt_body.get("model_request_count")==14
                 and receipt_body.get("case_count")==20
+                and receipt_body.get("error_count")==0
+                and isinstance(receipt_body.get("prediction_sha256"),str)
+                and len(receipt_body["prediction_sha256"])==64
+                and all(c in "0123456789abcdef"
+                        for c in receipt_body["prediction_sha256"]))
+        elif spec.runner_kind=="sa3-evidence-matrix-candidate-j-public":
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "model_request_count","case_count",
+                                        "prediction_sha256","error_count"}
+                and receipt.get("production_restored") is True
+                and receipt_body.get("model_request_count")==2
+                and receipt_body.get("case_count")==6
                 and receipt_body.get("error_count")==0
                 and isinstance(receipt_body.get("prediction_sha256"),str)
                 and len(receipt_body["prediction_sha256"])==64
