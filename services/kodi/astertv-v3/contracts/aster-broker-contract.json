@@ -1,8 +1,11 @@
 {
   "schema": 1,
-  "kind": "astertv-synthetic-broker-contract",
-  "status": "proposed",
-  "client_identity": "dedicated-revocable-astertv-client",
+  "kind": "astertv-television-broker-contract",
+  "status": "active-jen-pilot",
+  "client_identity": "dedicated-revocable-astertv-jen-client",
+  "authentication": "independent-bearer-plus-exact-client-header",
+  "allowed_profiles": ["recovery_admin"],
+  "guest_access": "denied",
   "allowed_intents": ["media.search", "page.open", "playback.play_named", "playback.resume_named", "news.play", "news.open", "home.alias_execute"],
   "denied_capabilities": ["shell", "filesystem", "credential_read", "arbitrary_json_rpc", "arbitrary_home_assistant_service", "camera_export", "media_request_submit", "account_admin", "general_aster_tools"],
   "surfaces": {
@@ -12,6 +15,12 @@
   "context_fields": ["request_id", "profile_id", "client_id", "room_id", "origin_page", "utterance", "issued_at", "expires_at"],
   "forbidden_context_fields": ["password", "token", "api_key", "cookie", "raw_camera_frame", "service_credential"],
   "limits": {"utterance_bytes": 512, "result_count": 12, "timeout_seconds": 15, "max_alias_targets": 1},
+  "authority": {
+    "classification": "deterministic_allowlisted_grammar",
+    "model_output": "untrusted_and_never_execution_authority",
+    "media_execution": "active_profile_local_astertv_adapter",
+    "home_execution": "server_side_exact_alias_only"
+  },
   "confirmation": {
     "never": ["media.search", "page.open", "news.open"],
     "visible_during_execution": ["playback.play_named", "playback.resume_named", "news.play"],
@@ -19,5 +28,6 @@
   },
   "failure_states": ["denied", "ambiguous", "unavailable", "timeout", "cancelled", "stale_context", "invalid_response"],
   "audit_fields": ["request_id", "client_id", "profile_id_hash", "intent", "decision", "duration_ms", "error_class"],
-  "audit_excludes": ["utterance", "media_history", "camera_content", "credential", "model_prompt"]
+  "audit_excludes": ["utterance", "media_history", "camera_content", "credential", "model_prompt"],
+  "recovery": ["checkpoint_before_install", "independent_credential_revocation", "exact_route_rollback", "client_fails_closed_when_unavailable"]
 }

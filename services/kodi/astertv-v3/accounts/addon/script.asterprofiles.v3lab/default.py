@@ -123,10 +123,10 @@ def main():
         xbmc.executebuiltin("RunScript(special://skin/tools/select_dispatch.py)")
         return
     if action == "voice":
-        if not allows(current, ("aster_private_context", "aster")):
+        if not allows(current, ("aster_tv_commands", "aster_tv")):
             denied("voice")
             return
-        xbmc.executebuiltin("RunScript(script.astervoice.v2lab)")
+        xbmc.executebuiltin("RunScript(script.astertv.voice)")
         return
     requested = options.get("profile")
     if action == "sign-out":

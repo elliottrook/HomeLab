@@ -97,6 +97,18 @@ def discover(root=Path("/")):
             present = False
         if present:
             subjects["seerr"] = "local:seerr:client:astertv-jen"
+
+    aster_tv_path = storage / ".aster-private/astertv-broker.key"
+    if _private_file(aster_tv_path):
+        try:
+            broker_key = aster_tv_path.read_text(encoding="utf-8").strip()
+        except OSError:
+            broker_key = ""
+        if len(broker_key) >= 32:
+            subjects["aster_tv"] = (
+                "local:astertv-broker:sha256:"
+                + hashlib.sha256(broker_key.encode()).hexdigest()
+            )
     return subjects
 
 

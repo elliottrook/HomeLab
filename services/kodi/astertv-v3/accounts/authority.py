@@ -40,7 +40,7 @@ def load_authority(path):
 def build_registry(authority, updated_at, root=Path("/")):
     subjects = discover(root)
     mappings = []
-    for service in ("jellyfin", "audiobookshelf", "seerr"):
+    for service in ("jellyfin", "audiobookshelf", "seerr", "aster_tv"):
         subject = subjects.get(service)
         if subject:
             mappings.append({
@@ -58,6 +58,8 @@ def build_registry(authority, updated_at, root=Path("/")):
         entitlements.extend(["books_private", "listening_history"])
     if "seerr" in subjects:
         entitlements.append("requests_submit")
+    if "aster_tv" in subjects:
+        entitlements.append("aster_tv_commands")
     registry = {
         "schema": 1,
         "active_profile_id": "guest",

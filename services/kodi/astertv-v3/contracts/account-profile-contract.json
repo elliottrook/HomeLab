@@ -10,10 +10,10 @@
   "roles": ["recovery_admin", "member", "guest"],
   "service_mapping_fields": ["service", "opaque_subject_id", "enabled"],
   "forbidden_fields": ["password", "passphrase", "token", "api_key", "secret", "cookie", "oauth_code", "refresh_token", "access_token"],
-  "guest_denied": ["personal_youtube", "requests_submit", "books_private", "viewing_history", "personal_recommendations", "listening_history", "home_control", "cameras", "aster_private_context", "profile_admin"],
+  "guest_denied": ["personal_youtube", "requests_submit", "books_private", "viewing_history", "personal_recommendations", "listening_history", "home_control", "cameras", "aster_private_context", "aster_tv_commands", "profile_admin"],
   "guest_allowed_by_default": ["public_catalogue_browse", "clock", "local_settings_read"],
   "write_rules": ["atomic_replace", "mode_0600", "schema_validate_before_activate", "retain_one_previous_copy", "deny_unknown_fields"],
-  "identity_resolution_rules": ["opaque_subject_must_match_local_custody", "unresolved_mapping_disabled_in_memory", "credentials_remain_outside_registry", "guest_has_no_service_mapping"],
+  "identity_resolution_rules": ["opaque_subject_must_match_local_custody", "unresolved_mapping_disabled_in_memory", "credentials_remain_outside_registry", "guest_has_only_dedicated_guest_mapping"],
   "malformed_registry_fallback": "malformed_registry_fails_to_restricted_guest",
   "recovery_rules": ["physical_local_recovery_only", "no_service_credential_in_registry", "missing_or_malformed_registry_fails_to_restricted_guest", "explicit_recovery_rebuilds_from_local_authority"]
 }

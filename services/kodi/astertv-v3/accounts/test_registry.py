@@ -195,10 +195,13 @@ class RegistryTests(unittest.TestCase):
             for path, value in files.items():
                 path.write_text(json.dumps(value)); path.chmod(0o600)
             (private / "seerr-token").write_text("fixture-token"); (private / "seerr-token").chmod(0o600)
+            (private / "astertv-broker.key").write_text("fixture-broker-key-which-is-at-least-32-bytes")
+            (private / "astertv-broker.key").chmod(0o600)
             subjects = resolver.discover(root)
             self.assertEqual(subjects["jellyfin"], "local:jellyfin:sha256:" + user_hash)
             self.assertEqual(subjects["audiobookshelf"], "local:audiobookshelf:sha256:" + "b" * 64)
             self.assertEqual(subjects["seerr"], "local:seerr:client:astertv-jen")
+            self.assertTrue(subjects["aster_tv"].startswith("local:astertv-broker:sha256:"))
             data = fixture()
             data["profiles"][0]["service_mappings"] = [{
                 "service": "jellyfin", "opaque_subject_id": subjects["jellyfin"], "enabled": True,

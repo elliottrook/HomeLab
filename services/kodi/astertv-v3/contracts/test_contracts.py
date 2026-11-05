@@ -127,6 +127,16 @@ class BrokerContractTests(unittest.TestCase):
         self.assertLessEqual(self.contract["limits"]["result_count"], 12)
         self.assertLessEqual(self.contract["limits"]["max_alias_targets"], 1)
 
+    def test_live_pilot_contract_denies_guest_and_model_authority(self):
+        self.assertEqual(self.contract["status"], "active-jen-pilot")
+        self.assertEqual(self.contract["guest_access"], "denied")
+        self.assertEqual(self.contract["allowed_profiles"], ["recovery_admin"])
+        self.assertEqual(
+            self.contract["authority"]["model_output"],
+            "untrusted_and_never_execution_authority",
+        )
+        self.assertIn("independent_credential_revocation", self.contract["recovery"])
+
 
 class FixturePrivacyTests(unittest.TestCase):
     def test_contracts_have_no_private_addresses_or_secret_assignments(self):

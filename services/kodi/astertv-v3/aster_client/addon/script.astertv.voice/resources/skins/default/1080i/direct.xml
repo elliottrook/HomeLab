@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window type="dialog">
+  <defaultcontrol always="true">10</defaultcontrol>
+  <backgroundcolor>00000000</backgroundcolor>
+  <controls>
+    <control type="button" id="10"><left>1358</left><top>838</top><width>484</width><height>164</height><label></label><texturefocus border="20">special://skin/media/ui-dialog-section.png</texturefocus><texturenofocus border="20">special://skin/media/ui-dialog-section.png</texturenofocus><onclick>Dialog.Close(all,true)</onclick></control>
+    <control type="image"><left>1390</left><top>862</top><width>54</width><height>54</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>1456</left><top>867</top><width>170</width><height>40</height><label>Aster AI</label><font>font28</font><textcolor>asterIvory</textcolor><aligny>center</aligny></control>
+    <control type="multiimage"><left>1632</left><top>874</top><width>62</width><height>24</height><imagepath>special://home/addons/script.astertv.voice/resources/media/aster-ai-listening-png</imagepath><timeperimage>180</timeperimage><fadetime>90</fadetime><loop>true</loop></control>
+    <control type="label"><left>1700</left><top>868</top><width>110</width><height>38</height><label>Understood</label><font>font16</font><textcolor>asterGold</textcolor><align>right</align><aligny>center</aligny></control>
+    <control type="label"><left>1390</left><top>928</top><width>420</width><height>46</height><label>$INFO[Window(Home).Property(AsterTV.Command.Response)]</label><font>font22</font><textcolor>asterV3Success</textcolor><align>center</align><aligny>center</aligny><scroll>true</scroll></control>
+  </controls>
+</window>

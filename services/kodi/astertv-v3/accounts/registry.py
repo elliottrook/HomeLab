@@ -19,21 +19,21 @@ MAPPING_FIELDS = {"service", "opaque_subject_id", "enabled"}
 ROLES = {"recovery_admin", "member", "guest"}
 SERVICES = {
     "jellyfin", "jellyfin_guest", "audiobookshelf", "youtube", "seerr",
-    "home_assistant", "aster",
+    "home_assistant", "aster", "aster_tv",
 }
 ENTITLEMENTS = {
     "fixture_catalogue", "fixture_listening", "public_catalogue_browse",
     "clock", "local_settings_read", "personal_youtube", "requests_submit",
     "books_private", "viewing_history", "personal_recommendations",
     "listening_history", "home_control", "cameras",
-    "aster_private_context", "profile_admin",
+    "aster_private_context", "aster_tv_commands", "profile_admin",
     "guest_catalogue_browse", "guest_media_playback",
 }
 PREFERENCES = {"clock", "captions"}
 DENIED_GUEST = {
     "personal_youtube", "requests_submit", "books_private", "listening_history",
     "viewing_history", "personal_recommendations", "home_control", "cameras",
-    "aster_private_context", "profile_admin",
+    "aster_private_context", "aster_tv_commands", "profile_admin",
 }
 SECRET_NAMES = {
     "password", "passphrase", "token", "api_key", "secret", "cookie",
@@ -43,7 +43,8 @@ ID = re.compile(r"^[a-z][a-z0-9-]{0,47}$")
 OPAQUE_SUBJECT = re.compile(
     r"^(?:synthetic:[a-z0-9-]+:[a-z0-9-]+"
     r"|local:(?:jellyfin|jellyfin-guest|audiobookshelf):sha256:[0-9a-f]{64}"
-    r"|local:seerr:client:astertv-jen)$"
+    r"|local:seerr:client:astertv-jen"
+    r"|local:astertv-broker:sha256:[0-9a-f]{64})$"
 )
 RFC3339_UTC = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 

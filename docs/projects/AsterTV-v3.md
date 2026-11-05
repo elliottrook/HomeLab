@@ -1,7 +1,8 @@
 # AsterTV v3
 
-> Status: Active — Jen-only M2 Guest-catalogue/playback Stream A completed.
-> The r8 Guest adapter is retained on AsterTV-Jen.
+> Status: Active — Jen-only M3 broker/client retained; physical G20 and Home
+> alias sub-gates deferred.
+> The completed r8 Guest adapter remains retained on AsterTV-Jen.
 > The earlier page-design pilot is accepted and closed; no PA3
 > synthetic surface is promoted. TV-series presentation remains deployed
 > through the existing fail-closed v2 episode engine on Bedroom and Family.
@@ -10,9 +11,9 @@
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: none. `SA-M2-JEN-GUEST` ended after its four
-> gates passed. Family, Bedroom, release promotion, M3 and every later
-> milestone require a new bounded authorization.
+> The bounded `SA-M3-JEN` Stream A approved by Jason on 2026-11-04 is complete.
+> Family, Bedroom, release promotion and every later live milestone remain
+> excluded until a new bounded stream is approved.
 
 ## Purpose and desired outcome
 
@@ -772,6 +773,63 @@ clean-start add-on-enable correction. Final checkpoint and acceptance evidence
 are recorded in
 `docs/projects/evidence/AsterTV-v3-M2-Jen-Guest-catalogue-playback-2026-11-04.md`.
 
+### SA-M3-JEN — Jen-only Aster television broker and client
+
+Jason approved a new autonomous Stream A on 2026-11-04 and directed continuous
+execution until a genuine authorization boundary. This envelope implements M3
+on AsterTV-Jen only:
+
+- checkpoint the current Aster agent and Jen r8/account/guard state;
+- add one independently revocable AsterTV client credential and a dedicated
+  structured broker route to Aster LXC 104;
+- permit only media search, named film/episode playback, page navigation, News
+  open/play and reviewed Home Assistant aliases; never expose general Aster
+  chat/tools, shell, arbitrary JSON-RPC or arbitrary HA services;
+- add the accepted compact direct-command and large media-results surfaces to
+  Jen, starting with synthetic capture because the G20 microphone is not
+  currently present;
+- keep media lookup and playback inside the active profile's existing bounded
+  AsterTV/Jellyfin routes; the broker receives no Jellyfin credential or
+  viewing history;
+- require non-Guest profile entitlement, room/client context, short expiry,
+  strict response validation and credential-free audit fields;
+- stage Home Assistant grammar and denial tests without executing a live HA
+  mutation until exact owner-approved aliases and confirmation policy exist;
+- prove prompt-injection denial, malformed/stale context, timeout,
+  cancellation, unavailable broker, restart, direct-route bypass, rollback and
+  accepted-v2 guard preservation; and
+- use Aster's canonical voice only if spoken responses are enabled.
+
+Expected changes are repository code/tests/docs, one additive Aster-agent route
+and environment credential on LXC 104, the narrow Jen-to-Aster network path if
+the existing path does not suffice, and one checkpointed Jen client add-on,
+keymap/skin overlay and private credential. No public ingress, schedule,
+exclusive local-AI booking, Family/Bedroom change, general whole-home Aster
+credential, unrestricted Home Assistant token on Kodi, release promotion or
+other milestone is authorized. A live HA alias effect is a separate sub-gate:
+unknown aliases always deny, and work stops before effects if exact alias
+authority is absent.
+
+Stop on active playback, checkpoint/rollback failure, credential output,
+unexpected source identity or route, broadened firewall/trust, private-context
+leakage, non-allowlisted action, model output treated as authority, guard drift
+or a materially different topology. Controls are least-privilege credentials,
+schema and grammar allowlists, deterministic validation after any classifier,
+mode-`0600` custody, idempotent/expiring requests, localhost/client mediation,
+sanitized audit fields and exact rollback.
+
+- [x] SA-M3-JEN1: adopt and test the strict broker schema, deterministic intent
+  validator, profile/room boundary and denial corpus locally.
+- [x] SA-M3-JEN2: checkpoint and install the dedicated broker identity/route;
+  prove authentication, expiry, denial, restart and rollback on LXC 104.
+- [x] SA-M3-JEN3: checkpoint and install the Jen client/surfaces; prove
+  synthetic capture, media search/navigation/playback, News and failure states.
+- [x] SA-M3-JEN4: complete G20 capture and one reviewed Home alias when their
+  physical/authority prerequisites exist, or record them as explicit blocked
+  sub-gates without weakening the completed broker/client boundary.
+- [x] SA-M3-JEN5: reconcile evidence, retain or roll back, commit and push the
+  completed bounded milestone.
+
 ## Milestones
 
 ### M0 — Baseline discovery and decision register
@@ -855,12 +913,12 @@ remain deliberately absent.
 
 ### M3 — Aster AI television integration
 
-- [ ] Define a capability-scoped AsterTV client identity and broker contract.
+- [x] Define a capability-scoped AsterTV client identity and broker contract.
   Expose only reviewed television intents—media search, page navigation,
   bounded playback, News actions and allowlisted Home Assistant commands—not
   the general whole-home Aster tool set; record secret custody metadata,
   rotation/revocation and break-glass paths.
-- [ ] Invoke the compact lower-right command card from every AsterTV page and
+- [x] Invoke the compact lower-right command card from every AsterTV page and
   implement visible activity/response/error states using
   the G20 microphone or a synthetic capture fixture first, always returning to
   the originating page when dismissed.
@@ -868,12 +926,12 @@ remain deliberately absent.
   resuming the next episode of a named series or operating an allowlisted Home
   Assistant entity from the compact card, with account/room context and a clear
   confirmation before or during execution as appropriate.
-- [ ] Open the larger search dialog only for queries that return browseable
+- [x] Open the larger search dialog only for queries that return browseable
   media results. Return a bounded set of matches inside it; selecting a match
   opens its normal AsterTV details route, while View all opens the full search
   results page with the phrase and result context preserved.
-- [ ] Apply account context only after authorization and data-minimization tests.
-- [ ] Test prompt injection, unavailable broker/model, timeout, cancellation,
+- [x] Apply account context only after authorization and data-minimization tests.
+- [x] Test prompt injection, unavailable broker/model, timeout, cancellation,
   stale context, denied tools and restart during a request.
 - [ ] Validate spoken output against the canonical Aster voice and cleanup.
 
@@ -882,6 +940,15 @@ bounded playback and one allowlisted Home Assistant command from different
 originating pages. Search results open correctly, direct commands use the
 compact card, full results preserve context, cancellation returns to origin,
 and the client receives no service credentials or unreviewed authority.
+
+Jen now implements the broker, compact/search surfaces, synthetic text capture,
+local media search, guarded full-search handoff, named TV playback and News
+playback. The G20 receiver is not attached to Jen, so microphone capture and
+spoken response remain open. No exact Home Assistant alias has been approved;
+Home/camera destinations and every HA effect therefore fail closed. These are
+physical/authority sub-gates, not reasons to reuse the whole-home Aster key or
+broaden the television client. Evidence is in
+`docs/projects/evidence/AsterTV-v3-M3-Jen-broker-client-2026-11-04.md`.
 
 ### M4 — Movies and YouTube redesign
 
@@ -1281,6 +1348,7 @@ explicit user acceptance.
 | 2026-11-04 | Closed the Jen-only M2 synthetic-account Stream A | Owner directed the milestone push and continuation through the end of its authorization. Final read-only acceptance found Kodi active and idle, restricted Guest persisted in mode-`0600` state, exactly three synthetic profiles, zero enabled mappings and a clean 528-file accepted-v2 guard. | Retained r6 `0.2.0` (`d21acdb3…f6c3`) on Jen as a reversible candidate and completed `SA-M2-JEN4`. It is not a v3 account release. Real account authority, recovery admin, service identity lifecycle, a Guest-safe catalogue adapter, M3 and all Family/Bedroom changes require a new bounded authorization. |
 | 2026-11-04 | Completed Jen-only M2 account-authority integration | Owner adopted AsterTV's local registry, Jason as recovery administrator, no initial ordinary-profile PIN and fail-closed Guest. r9 `0.3.2` (`ca123447…e1d4`) resolves only exact opaque references to Jen's existing service-specific credential custody; drift disables the affected mapping in memory. | Exact r7 rollback restored 14 files byte-for-byte. r9 passed Jason/Guest switching and restart, malformed/missing-state self-recovery, direct Guest bypass denial and clean 528-file guard. Ninety-four cumulative tests pass. The candidate remains on Jen as Guest; Family, Bedroom, source services, Guest playback and M3 were unchanged and require later authorization. |
 | 2026-11-04 | Completed Jen-only Guest catalogue and playback | Created the independently revocable `AsterTV-Guest` Jellyfin identity after an exact disposable create/delete rehearsal. Its policy exposes only Movies, Shows, Archive Movies and Archive TV, permits playback plus required remux/audio/video transcode, and denies administration, deletion, downloads, remote control, live TV, preferences and all private AsterTV surfaces. The Jen adapter keeps the credential mode `0600`, stores only its opaque subject reference in the account registry and relays allowlisted HLS over localhost without putting a token in Kodi URLs. | Exact client rollback removed the adapter/mapping, exposed and corrected a clean-reinstall add-on-enable gap, then retained the same r8 archive `c7452312…bc9d` under checkpoint `astertv-v3-m2-jen-guest-r10-retained-20261104`. A cold-start real-film test advanced at speed 1, stopped cleanly and left Guest watch state unchanged; Kodi remained idle and the 528-file v2 guard remained clean. Family, Bedroom, Jason's Jellyfin identity and all non-film/television services were unchanged. |
+| 2026-11-04 | Completed the Jen-only M3 broker/client Stream A | Installed a deterministic, dedicated AsterTV route on Aster LXC 104 and a separately identified Jen client. The broker exposes only allowlisted search, navigation, named playback, News and exact-alias intents; model output is not authority. Jen adds the accepted compact/search surfaces, real local artwork, full-search handoff, named TV playback and News playback. Jason gained only `aster_tv_commands`; Guest has no broker access. | Aster and Jen rollback/reinstall rehearsals passed. Fifty-two local gates and seven Aster-environment broker tests pass; live TV and News playback started and stopped cleanly with empty queues, Kodi is idle, the 528-file guard is clean and staging secrets were removed. G20 capture and Home aliases are explicit deferred sub-gates because the receiver is absent and no exact alias was approved. Evidence: `docs/projects/evidence/AsterTV-v3-M3-Jen-broker-client-2026-11-04.md`. |
 
 ## Close-out
 
