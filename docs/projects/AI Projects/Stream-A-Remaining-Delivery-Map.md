@@ -85,6 +85,14 @@
 > inactive transaction package; no booking, model call, route or promotion is
 > authorized by source completion.
 
+> **Candidate-i installed / R1 reviewed, 2026-11-04 17:03:** the
+> [inactive install and exact booking review](evidence/D4-candidate-i-inactive-install-and-r1-booking-review-2026-11-04.md)
+> accept the corrected deterministic archive, exact host/guest pins, retained
+> checkpoints and healthy production with zero restarts. The authoritative
+> ledger is clear for 17:30–18:30 PST, including recovery. The exact R1
+> reservation may be saved under standing Stream A authority; all claim-time
+> gates remain fresh and fail closed. No retry or automatic promotion follows.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
