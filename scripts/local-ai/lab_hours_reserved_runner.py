@@ -29,7 +29,7 @@ UNIT_SHA = "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"
 PROCESS_MARKERS = ("vzdump", "zstd -t", "f2_preflight", "f3_from_f2",
                    "stream_a_evaluation_evidence", "full_aster_first_screen",
                    "m3_joint_semantic_35b", "sa3_candidate_i",
-                   "sa3_candidate_j")
+                   "sa3_candidate_j", "aster_tts_dual_cpu")
 REGISTERED_RUNNER_KINDS = frozenset({
     "full-inference-pilot",
     "owner-loss-exercise",
@@ -39,6 +39,8 @@ REGISTERED_RUNNER_KINDS = frozenset({
     "sa3-evidence-matrix-candidate-j-public",
     "sa3-evidence-matrix-candidate-j-quality",
     "m3-joint-semantic-35b",
+    "ebook-word-alignment",
+    "aster-tts-dual-cpu-screen",
 })
 
 
@@ -217,6 +219,11 @@ def run(booking_id: str) -> int:
         spec = workload(str(booking.get("workload")))
         if spec.runner_kind not in REGISTERED_RUNNER_KINDS:
             raise RunError("WORKLOAD_RUNNER_NOT_REGISTERED")
+        if spec.runner_kind in {"ebook-word-alignment", "aster-tts-dual-cpu-screen"}:
+            if booking.get("owner") != spec.owner:
+                raise RunError("WORKLOAD_OWNER_MISMATCH")
+            if int(booking["end_epoch"]) - int(booking["start_epoch"]) < spec.minimum_booking_seconds:
+                raise RunError("WORKLOAD_WINDOW_TOO_SHORT")
         if evidence.exists(): raise RunError("ATTEMPT_ALREADY_EXISTS")
         evidence.mkdir(mode=0o700, parents=True)
         phase = "static-preflight"; require_quiet()
@@ -264,19 +271,19 @@ def run(booking_id: str) -> int:
             raise RunError(measured or "OWNER_TRANSACTION_FAILED_RESTORED")
         phase="production-postcheck"; postcheck(owner_unit); restored=True
         expected_requests=spec.request_count
-        expected_effect=("guardian-rescued" if expected_requests==0 else
-                         ("sa3-expanded-quality-complete"
-                          if spec.runner_kind=="sa3-expanded-quality" else
-                          ("sa3-evidence-envelope-quality-complete"
-                           if spec.runner_kind=="sa3-evidence-envelope-quality" else
-                          ("sa3-evidence-envelope-candidate-i-quality-complete"
-                           if spec.runner_kind=="sa3-evidence-envelope-candidate-i-quality" else
-                          ("sa3-evidence-matrix-candidate-j-public-complete"
-                           if spec.runner_kind=="sa3-evidence-matrix-candidate-j-public" else
-                          ("sa3-evidence-matrix-candidate-j-quality-complete"
-                           if spec.runner_kind=="sa3-evidence-matrix-candidate-j-quality" else
-                          ("m3-joint-semantic-public-complete"
-                           if spec.runner_kind=="m3-joint-semantic-35b" else "pilot-complete")))))))
+        expected_effect=("guardian-rescued" if expected_requests==0 else {
+            "sa3-expanded-quality": "sa3-expanded-quality-complete",
+            "sa3-evidence-envelope-quality": "sa3-evidence-envelope-quality-complete",
+            "sa3-evidence-envelope-candidate-i-quality":
+                "sa3-evidence-envelope-candidate-i-quality-complete",
+            "sa3-evidence-matrix-candidate-j-public":
+                "sa3-evidence-matrix-candidate-j-public-complete",
+            "sa3-evidence-matrix-candidate-j-quality":
+                "sa3-evidence-matrix-candidate-j-quality-complete",
+            "m3-joint-semantic-35b": "m3-joint-semantic-public-complete",
+            "ebook-word-alignment": "ebook-word-alignment-benchmark-complete",
+            "aster-tts-dual-cpu-screen": "aster-tts-dual-cpu-screen-complete",
+        }.get(spec.runner_kind, "pilot-complete"))
         receipt_body=receipt.get("receipt")
         receipt_valid=(isinstance(receipt_body,dict)
             and receipt_body.get("exit_status")==0
@@ -324,6 +331,31 @@ def run(booking_id: str) -> int:
                 and len(receipt_body["prediction_sha256"])==64
                 and all(c in "0123456789abcdef"
                         for c in receipt_body["prediction_sha256"]))
+        elif spec.runner_kind=="ebook-word-alignment":
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "result_sha256","passed","failure_code",
+                                        "measured_word_count"}
+                and receipt.get("production_restored") is True
+                and isinstance(receipt_body.get("result_sha256"),str)
+                and len(receipt_body["result_sha256"])==64
+                and all(c in "0123456789abcdef" for c in receipt_body["result_sha256"])
+                and type(receipt_body.get("passed")) is bool
+                and isinstance(receipt_body.get("failure_code"),str)
+                and type(receipt_body.get("measured_word_count")) is int
+                and 0 <= receipt_body["measured_word_count"] <= 4000)
+        elif spec.runner_kind=="aster-tts-dual-cpu-screen":
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "result_sha256","candidate_count","passed_count"}
+                and receipt.get("production_restored") is True
+                and isinstance(receipt_body.get("result_sha256"),str)
+                and len(receipt_body["result_sha256"])==64
+                and all(c in "0123456789abcdef" for c in receipt_body["result_sha256"])
+                and receipt_body.get("candidate_count")==2
+                and receipt_body.get("passed_count")==2)
         elif spec.runner_kind=="m3-joint-semantic-35b":
             receipt_valid=(receipt_valid
                 and set(receipt)=={"effects","production_restored","receipt"}

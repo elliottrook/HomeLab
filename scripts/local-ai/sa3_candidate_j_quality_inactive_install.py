@@ -18,17 +18,17 @@ GUEST_CHECKPOINT = str(CHECKPOINT)
 UNIT_PREFIX = "aster-lab-hours-booking-sa3-evidence-matrix-candidate-j-quality-v1"
 HOST_REPLACE = {
     "lab_hours_workloads.py": (
-        "5ce62c20367278631b34ca3df1241f502d7d77b1b4bad70a5f70bd9ee221a22a",
-        "b9116f694a3c6b00064963b213241aa537787ad9125915496d2eb087af83d046", 0o644),
+        "10e1e8aad89f4910bd3eb139720abfabba87a7ef692522dea7ba9bad2ab18587",
+        "a6a6acb58de8ca8fee2246522aa8e2aa3ebb7d57db2348d694238e4cffbcdfec", 0o755),
     "lab_hours_reserved_runner.py": (
-        "33cd16b8ec24a202146b0417e0453a0d2bb9071765d9450ab7341bf6cb28167a",
-        "e735661ec3d1981405bbfa34f721696b0f2e5a3da3220426f65bacd9b2f5164a", 0o755),
+        "eb06b9f54d10d622dee753a9e94e514c9fde2f7974ebc99d6c74e0f7a6179c7d",
+        "4d28ccc44db8a343aa0a1e4baea87d4964bced7db53154f627b5904f7270b11b", 0o755),
     "full_inference_lab_runtime.py": (
-        "59ad753846892db2d749a462f96ce8d6355f5bc900e582d42e63d4f8825a241b",
-        "14de086d3dab80f53acb87066547bd0b9a035f801ff273fd77464a25c03c117e", 0o755),
+        "c2dbe8f0a5a4f1ed7383db663875c4a7ab6cf6480df006bf671034f52ba1f484",
+        "cddae0e3da7ad3c6c6b11b5fb2503f54dec916815e3eb336e13bed74c16b2f61", 0o755),
     "lab_hours_release_manifest.json": (
-        "99e41a1e7e3e92a3a5860ada3877c7cfadf207cccc9a56b641477b918c1d9fda",
-        "ca0445fdcb871a66b86fbee6d1e0779f715debd6be6e94148382d5cd375b46ec", 0o644),
+        "a78cc536df95d0c1c5356d974e9d1a076b8d4d7362895d008952fa939bd86e8e",
+        "908b4fe5cd39fca781305913b426e8f6de5991e9246ba4ac16cab15ad9f2f64e", 0o600),
 }
 HOST_ADD = {
     "sa3_candidate_j_quality_transaction.py":
@@ -194,7 +194,7 @@ def install(stage: Path) -> dict[str, object]:
             "import full_inference_lab_runtime;"
             "import sa3_candidate_j_quality_transaction;"
             "import sa3_candidate_j_quality_listener_adapter;"
-            "assert len(r.load_manifest())==42;"
+            "assert len(r.load_manifest())==46;"
             "s=w.workload('sa3-evidence-matrix-candidate-j-quality-v1');"
             "assert s.runner_kind in r.REGISTERED_RUNNER_KINDS and len(s.runtime_pins)==4"),
             env=host_env, capture_output=True, text=True, timeout=30,
@@ -215,7 +215,7 @@ def install(stage: Path) -> dict[str, object]:
         return {"state": "installed-inactive",
                 "host_replaced": len(HOST_REPLACE),
                 "host_added": len(HOST_ADD), "guest": guest_value,
-                "manifest_pins": 42, "checkpoint": "retained",
+                "manifest_pins": 46, "checkpoint": "retained",
                 "service_restart": False, "workload_effect": "not-attempted",
                 "booking": "absent"}
     except BaseException:

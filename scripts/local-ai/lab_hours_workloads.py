@@ -153,6 +153,28 @@ WORKLOADS = {
         packet_sha256="40f7cfeeb3884887c32f5674afdb840d764214730a23e71c1df660a08953572f",
         result_max_bytes=262144,
     ),
+    "astertv-v3-ebook-word-alignment-v1": WorkloadSpec(
+        workload_id="astertv-v3-ebook-word-alignment-v1", owner="astertv-v3-m5",
+        request_count=1, per_request_timeout_seconds=600, deadline_seconds=900,
+        minimum_booking_seconds=1800, recovery_reserve_seconds=900,
+        runner_kind="ebook-word-alignment", runtime_pins=(
+            ("epub_word_alignment_transaction.py", "fb4cbcb5dd22963ae9557971e2b74eaba634a39ae233c3c75d00262125730a50"),
+            ("epub_word_alignment_adapter.py", "59d47d79cd924f992d999a2c2f0928c51ab22747227c11bde6c9bd890586af8c"),
+        ),
+        packet_sha256="1fde84377288795f522d5946380734e43dc643fd58b06720fdf79b56d59dd257",
+        result_max_bytes=65536,
+    ),
+    "aster-tts-dual-cpu-screen-v1": WorkloadSpec(
+        workload_id="aster-tts-dual-cpu-screen-v1", owner="aster-tts-experiment",
+        request_count=2, per_request_timeout_seconds=2000, deadline_seconds=4500,
+        minimum_booking_seconds=5400, recovery_reserve_seconds=900,
+        runner_kind="aster-tts-dual-cpu-screen", runtime_pins=(
+            ("tts_dual_cpu_screen_transaction.py", "e3614a0b8f569d0997c0ead2beb433526725dd2b199d29a429fb3b5db25a3955"),
+            ("tts_dual_cpu_screen_adapter.py", "94b27a7e48777d9ebf1f8cf47ed21dab4e3220e1d1fee77d54dddb329db46b39"),
+        ),
+        packet_sha256="83616d4e4e5329d626e23597542487f0e43903622f0daea4c5648d53d74a6f90",
+        result_max_bytes=65536,
+    ),
     "sa3-evidence-matrix-candidate-j-quality-v1": WorkloadSpec(
         workload_id="sa3-evidence-matrix-candidate-j-quality-v1",
         owner="aster-stream-a",
@@ -251,6 +273,35 @@ def validate_registry() -> None:
     if any("keys" in name or "review" in name
            for name, _ in candidate_j.runtime_pins):
         raise ValueError("SA3 candidate-j excluded material entered runtime registration")
+
+    ebook = workload("astertv-v3-ebook-word-alignment-v1")
+    if (ebook.owner != "astertv-v3-m5"
+            or ebook.request_count != 1
+            or ebook.per_request_timeout_seconds != 600
+            or ebook.deadline_seconds != 900
+            or ebook.minimum_booking_seconds != 1800
+            or ebook.recovery_reserve_seconds != 900
+            or ebook.runner_kind != "ebook-word-alignment"
+            or len(ebook.runtime_pins) != 2
+            or ebook.packet_sha256 !=
+                "1fde84377288795f522d5946380734e43dc643fd58b06720fdf79b56d59dd257"
+            or ebook.result_max_bytes != 65536):
+        raise ValueError("eBook word-alignment registration drift")
+
+    tts = workload("aster-tts-dual-cpu-screen-v1")
+    if (tts.owner != "aster-tts-experiment"
+            or tts.request_count != 2
+            or tts.per_request_timeout_seconds != 2000
+            or tts.deadline_seconds != 4500
+            or tts.minimum_booking_seconds != 5400
+            or tts.recovery_reserve_seconds != 900
+            or tts.runner_kind != "aster-tts-dual-cpu-screen"
+            or len(tts.runtime_pins) != 2
+            or tts.packet_sha256 !=
+                "83616d4e4e5329d626e23597542487f0e43903622f0daea4c5648d53d74a6f90"
+            or tts.result_max_bytes != 65536):
+        raise ValueError("Aster TTS dual CPU screen registration drift")
+
     candidate_j_quality = workload("sa3-evidence-matrix-candidate-j-quality-v1")
     if (candidate_j_quality.owner != "aster-stream-a"
             or candidate_j_quality.request_count != 20

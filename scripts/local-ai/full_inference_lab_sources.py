@@ -25,26 +25,29 @@ class FullDrainSourceError(ValueError):
 
 
 def epub_narration_healthy(run_command: Callable[[Sequence[str]], str]) -> bool:
-    """Validate the current host-scheduled, bounded EPUB worker architecture."""
-    scheduler = run_command(("systemctl", "is-active",
-                             "epub-narration-scheduler.timer"))
-    scheduler_enabled = run_command(("systemctl", "is-enabled",
-                                     "epub-narration-scheduler.timer"))
-    monitor = run_command(("pct", "exec", "116", "--", "systemctl", "is-active",
-                           "epub-narration-monitor.timer"))
-    monitor_enabled = run_command(("pct", "exec", "116", "--", "systemctl", "is-enabled",
-                                   "epub-narration-monitor.timer"))
+    """Validate the retired-scheduler, registered-workload EPUB baseline."""
+    scheduler = run_command(("systemctl", "show", "epub-narration-scheduler.timer",
+                             "--property=ActiveState", "--value"))
+    scheduler_enabled = run_command(("systemctl", "show", "epub-narration-scheduler.timer",
+                                     "--property=UnitFileState", "--value"))
+    monitor = run_command(("pct", "exec", "116", "--", "systemctl", "show",
+                           "epub-narration-monitor.timer", "--property=ActiveState", "--value"))
+    monitor_enabled = run_command(("pct", "exec", "116", "--", "systemctl", "show",
+                                   "epub-narration-monitor.timer", "--property=UnitFileState", "--value"))
+    worker_timer = run_command(("pct", "exec", "116", "--", "systemctl", "show",
+                                "epub-narration-worker.timer", "--property=ActiveState", "--value"))
+    worker_timer_enabled = run_command(("pct", "exec", "116", "--", "systemctl", "show",
+                                        "epub-narration-worker.timer", "--property=UnitFileState", "--value"))
     worker_state = run_command(("pct", "exec", "116", "--", "systemctl", "show",
                                 "epub-narration-worker.service",
                                 "--property=ActiveState", "--value"))
     worker_result = run_command(("pct", "exec", "116", "--", "systemctl", "show",
                                  "epub-narration-worker.service",
                                  "--property=Result", "--value"))
-    return (scheduler == "active" and scheduler_enabled == "enabled"
+    return (scheduler == "inactive" and scheduler_enabled == "disabled"
             and monitor == "active" and monitor_enabled == "enabled"
-            and worker_state in {"inactive", "active", "activating"}
-            and worker_result == "success")
-
+            and worker_timer == "inactive" and worker_timer_enabled == "disabled"
+            and worker_state == "inactive" and worker_result == "success")
 
 @dataclass(frozen=True)
 class AcceptedBaseline:

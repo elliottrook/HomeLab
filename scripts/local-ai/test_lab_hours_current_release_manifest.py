@@ -13,10 +13,10 @@ class CurrentReleaseManifestTests(unittest.TestCase):
     def test_current_release_is_complete_and_source_exact(self):
         value = json.loads(MANIFEST.read_text())
         self.assertEqual("aster-lab-hours-release-manifest.v1", value["schema"])
-        self.assertEqual("sa3-candidate-j-quality-transaction-source-v16",
+        self.assertEqual("aster-tts-dual-cpu-screen-plus-candidate-j-quality-v1",
                          value["release"])
         pins = value["pins"]
-        self.assertEqual(42, len(pins))
+        self.assertEqual(46, len(pins))
         for name, expected in pins.items():
             with self.subTest(name=name):
                 path = ROOT / name

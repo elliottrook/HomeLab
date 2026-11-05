@@ -16,8 +16,7 @@ MAX_DRAIN_SECONDS = 45 * 60
 FULL_DRAIN_CONSUMERS = (("104", "aster-agent.service"), ("116", "aster-speech.service"),
                         ("110", "aster-llama.service"),
                         ("114", "news-aggregator-ingest.timer"),
-                        ("114", "news-aggregator-digest.timer"),
-                        ("116", "epub-narration-worker.service"))
+                        ("114", "news-aggregator-digest.timer"))
 
 
 class FullDrainError(ValueError):
@@ -84,9 +83,7 @@ FULL_WARMUP_COMMAND = _command("110", "/usr/local/sbin/aster-llama-production-au
 
 def canonical_commands() -> tuple[tuple[tuple[str, ...], ...], tuple[tuple[str, ...], ...]]:
     drain = tuple(_command(v, "systemctl", "mask", "--runtime", "--now", u)
-                  for v, u in FULL_DRAIN_CONSUMERS[:-1]) + (
-        _command("116", "systemctl", "stop", "epub-narration-worker.service"),
-    )
+                  for v, u in FULL_DRAIN_CONSUMERS)
     restore = (
         _command("110", "systemctl", "unmask", "--runtime", "aster-llama.service"),
         _command("116", "systemctl", "unmask", "--runtime", "aster-speech.service"),
