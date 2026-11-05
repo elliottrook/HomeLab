@@ -133,6 +133,8 @@ class J2TrainingRecipeManifestTests(unittest.TestCase):
                          value["runtime_boundary"]["reference_forward_source_sha256"])
         self.assertEqual(expected["validation_selection_source_sha256"],
                          value["runtime_boundary"]["validation_selection_source_sha256"])
+        self.assertEqual(expected["training_math_source_sha256"],
+                         value["runtime_boundary"]["training_math_source_sha256"])
 
 
 if __name__ == "__main__":

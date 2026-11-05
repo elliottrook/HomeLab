@@ -208,6 +208,8 @@ def expected_manifest() -> dict[str, object]:
                 "nlu_j2_reference_forward_v1.py"),
             "validation_selection_source_sha256": _source_sha256(
                 "nlu_j2_validation_selection_v1.py"),
+            "training_math_source_sha256": _source_sha256(
+                "nlu_j2_training_math_v1.py"),
             "guard_projection": "preserve-coherent-label-unless-strictly-more-restrictive",
             "personal_sensitivity_floor": True,
             "coherent_joint_label_only": True,

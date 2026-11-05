@@ -99,6 +99,7 @@
     "reference_primitives_source_sha256": "b42583072ae2e5a21e66284fea80cf3f41a0bf036a9aec1ef5c7d32b73c2df61",
     "route_effects": "forbidden",
     "tools": "forbidden",
+    "training_math_source_sha256": "42533e321b57c74375fb7166b827d09e8f5bbce61e0cbd4c678cc90422d77015",
     "validation_selection_source_sha256": "e1f69f8f800882c035d94c7bb991668971d640c4c45828ab771cb0066a1fb2ba"
   },
   "schema": "aster-nlu-j2-training-recipe-manifest.v1",

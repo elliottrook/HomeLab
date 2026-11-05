@@ -77,9 +77,11 @@ path test fixes the weight layouts end to end. The recipe manifest binds both
 reference sources and those semantics. Deterministic validation-only selection
 now implements all 40 epoch tie-breaks and the 0.005 margin grid, admitting a
 threshold only when at least 116 accepted rows are both raw- and guard-exact;
-sealed evaluation inputs are absent. The recipe binds that source too, and its
-current file identity is `3c3de3a4…a099`. The expanded J2 source suite passes
-84/84. No training step,
+sealed evaluation inputs are absent. Frozen binary64 training math now covers
+max-shifted cross-entropy and scalar AdamW with exact bias correction, epsilon
+placement, gradient-then-decoupled-decay order and weights-only decay. The
+recipe binds those sources too, and its current file identity is
+`aba6e3d7…23ec`. The expanded J2 source suite passes 88/88. No training step,
 corpus row, evaluation content or retained model artifact is created.
 
 The future artifact boundary is now executable source rather than prose. It

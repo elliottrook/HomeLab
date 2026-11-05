@@ -484,7 +484,9 @@ that exact source. A portable reference forward path fixes byte lookup,
 cross-correlation, pooling, hidden/output layers, stable ties and softmax, with
 a sparse end-to-end layout test. Validation-only selection fixes all 40 epoch
 tie-breaks and the 0.005 threshold grid, requires at least 116 raw/guard-exact
-accepted rows, and excludes sealed evaluation. The source suite passes 84/84. No
+accepted rows, and excludes sealed evaluation. Binary64 max-shifted loss and
+scalar AdamW now fix bias correction, epsilon placement, update order and
+weights-only decay. The source suite passes 88/88. No
 corpus/evaluation content, training step or retained model artifact is consumed
 or created.
 
