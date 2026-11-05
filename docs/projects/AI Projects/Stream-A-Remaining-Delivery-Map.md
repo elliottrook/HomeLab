@@ -33,9 +33,12 @@
 > are now separate exact artifacts and platform commit `77abd40c` registers
 > only the packet plus three key-free runtime dependencies. The suite passes
 > 40/40 and platform registry tests pass 10/10. The runner kind remains
-> deliberately unadmitted, so nothing can execute. Fixed transaction,
-> wrapper/listener and reserved-runner integration source are next; inactive
-> installation and any booked run remain later gates.
+> deliberately unadmitted, so registration alone cannot execute. Platform
+> commit `20490b65` now adds the fixed 20/14 transaction, bounded listener,
+> key-free guest wrapper and reserved-runner integration; release v16 passes
+> 57/57 focused tests. Nothing is installed. A deterministic reversible
+> inactive installer and target proof are next; any booked run remains a later
+> gate.
 
 > **Live D4 update, 2026-11-04 13:30:** candidate-g r3 is spent and
 > [NO-GO](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md).

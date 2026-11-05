@@ -27,7 +27,11 @@ set. Nothing has been installed on Proxmox or LXC110, no Lab Hours window was
 queried or reserved, and no model call, service stop, restart, route, authority
 or promotion occurred. Registration cannot execute the workload.
 
-Next is the fixed transaction/listener/wrapper and reserved-runner integration
-source, with deterministic tests, before any separately gated inactive
-installation. A live attempt remains downstream of installation proof, an
+Platform commit `20490b65e85a9afd35b0673f7018c72278051668` now completes
+the fixed transaction, bounded host listener, key-free guest wrapper and
+reserved-runner integration source. Release v16 pins the joined path and 57/57
+focused platform tests pass. Nothing is installed.
+
+Next is a deterministic reversible inactive installer and target proof. A live
+attempt remains downstream of installation proof, an
 authoritative conflict-free Lab Hours booking and fresh lease/lock admission.
