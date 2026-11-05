@@ -1,12 +1,12 @@
 # AsterTV Platform Engineering and Design Operations
 
-> Status: Proposed — scope and Stream A authorization awaiting owner approval
+> Status: Active — Stream A; M0 complete, M1 in progress
 >
 > Owner: Jason
 >
 > Proposed: 2026-11-05
 >
-> Authorization: Proposed Stream A — Autonomous after explicit approval
+> Authorization: Stream A — approved by Jason on 2026-11-05
 
 ## Purpose and desired outcome
 
@@ -476,10 +476,10 @@ hashes. No step depends on conversational memory.
 
 ### M0 — Authority and corpus inventory
 
-- [ ] Inventory every appliance, release, overlay, unit, profile, asset,
+- [x] Inventory every appliance, release, overlay, unit, profile, asset,
   credential reference, checkpoint and external integration read-only.
-- [ ] Classify ownership/authority and reconcile wiki/reference/NetBox coverage.
-- [ ] Map every current local difference into a migration destination.
+- [x] Classify ownership/authority and reconcile wiki/reference/NetBox coverage.
+- [x] Map every current local difference into a migration destination.
 
 **Gate:** no unexplained component or device behavior remains.
 
@@ -607,13 +607,15 @@ media mutation, playback interruption, unknown identity or broader firewall.
 
 ## Current resume state
 
-**Milestone:** proposed; implementation not authorized.
+**Milestone:** M1 fleet lifecycle and composition foundation.
 
-**Verified:** wiki/collector and Forgejo repository are healthy; charter is from
-repository and read-only evidence. No wiki repo, skill or live device changed.
+**Verified:** M0 accepted pinned identities for Family, Bedroom and Jen, recorded
+Guest as not deployed, classified the existing wiki/reference/NetBox/release
+authorities and mapped every accepted current difference to a release, profile,
+overlay or integration destination. No wiki repo, skill or live device changed.
 
-**Next after approval:** M0 read-only inventory, then M1 lifecycle/composition
-before further per-device features.
+**Next:** complete M1 schemas, compiler, unchanged fleet compositions,
+determinism/conflict gates and the human-readable release matrix.
 
 ## Evidence log
 
@@ -622,6 +624,8 @@ before further per-device features.
 | 2026-11-05 | Audited fleet, guard, v3 evidence and design records | Target-aware v2, seven-root guard, per-device overlays and private asset releases | Strong controls; no unified composition authority |
 | 2026-11-05 | Audited existing wiki and Forgejo | `homelab-wiki` `c9bd011…90cb`, MkDocs, Human Wiki Contract, LXC 113 intake/collector/mirror | Adopt existing wiki; no parallel platform |
 | 2026-11-05 | Logic review | Added ownership/expiry, compatibility, SBOM, security response, budgets, accessibility, incidents, EOL, training, SLO and link validation | Scope ready for owner review |
+| 2026-11-05 | Owner approved the recorded Stream A envelope | Explicit approval in the project thread; repository rules still require immediate approval before each push | Opened M0/M1 with local/read-only work only |
+| 2026-11-05 | Completed M0 authority/corpus/fleet inventory | `docs/projects/evidence/AsterTV-Platform-M0-authority-corpus-inventory-2026-11-05.md`; pinned read-only checks found Family, Bedroom and Jen on the recorded LibreELEC build with enabled guards | All active differences have a migration destination; Guest remains a non-deployed candidate; no live system changed |
 
 ## Close-out
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-11-05 — Inventory the AsterTV platform authority and fleet
+
+- Activated the owner-approved Stream A platform-operations project and
+  completed its read-only M0 inventory.
+- Reconciled the global v2.0.7 release, Family/Bedroom/Jen compositions,
+  non-deployed Guest candidate, current overlays, units, opaque identity
+  references, recovery classes, external services and private design assets.
+- Confirmed all three active appliance identities and recovery guards through
+  content-free pinned SSH checks without changing a client or wiki.
+- Mapped every accepted local difference to a release, profile, overlay or
+  integration destination for the deterministic M1 fleet compiler.
+
 ## 2026-11-05 — Propose AsterTV platform engineering and design operations
 
 - Drafted a department-level project for AsterTV fleet composition, lifecycle,
