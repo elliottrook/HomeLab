@@ -12,6 +12,10 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+[R2 fresh integrity completed at14:12](B60-Inference-Engineering/r2-integrity-receipt-20261105.md).
+The final15:00 qualification clock is still waiting/untriggered; no duplicate
+execution or live restoration claim. Actual outcome reconciliation remains15:10.
+
 [R1 required assisted restoration; corrected R2 is armed](B60-Inference-Engineering/daytime-r1-assisted-r2-armed-20261105.md).
 R1 is terminal FAILED_RESTORED, restored/released12:52 before deadline, with
 manual assistance explicitly recorded. Calendar/monotonic recovery, guardian
