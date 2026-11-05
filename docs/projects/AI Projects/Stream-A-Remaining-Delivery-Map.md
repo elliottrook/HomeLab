@@ -239,6 +239,14 @@ approval is now retained and validates as corpus-release-only at file SHA-256
 signer or evaluation custodian, and training, sealed-evaluation access,
 authority and automatic routing remain off.
 
+The exact [external-custody handoff card](evidence/M3-J2-external-custody-handoff-card-2026-11-04.md)
+now binds all accepted artifact identities and the required content-free facts.
+It requires a detached signature, separate-account audit record or equivalent
+independent proof and explicitly rejects another shared-worktree identity
+claim. This makes the remaining human/external act precise without fabricating
+custody or exposing corpus content. Training remains closed pending both that
+proof and the distinct sealed-evaluation custodian.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,
