@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17130f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Aster Remote">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Aster Remote</title>
+  <link rel="manifest" href="/remote/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/aster-app-icon.png">
+  <link rel="stylesheet" href="/remote/styles.css">
+</head>
+<body>
+  <main>
+    <section id="remote">
+      <header class="app-header">
+        <div class="brand">
+          <img src="/remote/aster-compass.png" alt="" width="48" height="48">
+          <div><h1 class="brand-name">AsterTV</h1><p class="brand-sub">Remote</p></div>
+        </div>
+        <span id="connection" class="status disconnected" role="status" aria-label="Disconnected"><i aria-hidden="true"></i></span>
+      </header>
+
+      <form id="searchForm" class="search-strip" role="search">
+        <label class="sr-only" for="search">Search AsterTV</label>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+        <input id="search" maxlength="512" autocomplete="off" enterkeyhint="search" placeholder="Search AsterTV">
+        <button type="button" id="voice" class="search-icon" aria-label="Voice search">
+          <span class="voice-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        </button>
+        <button type="submit" class="search-icon" aria-label="Submit search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+        </button>
+      </form>
+      <p id="heard" class="heard" aria-live="polite"></p>
+
+      <section class="control-panel" aria-label="Remote navigation">
+        <div id="touchpad" class="touchpad" tabindex="0" role="button" aria-label="Touchpad: swipe to navigate, tap to select, hold for context menu">
+          <img src="/remote/aster-compass.png" alt="" width="42" height="42">
+          <strong>Swipe to navigate</strong>
+          <span>Tap to select · Hold for more</span>
+        </div>
+        <nav class="transport" aria-label="Primary remote controls">
+          <button type="button" data-action="nav.back" aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+          <button type="button" data-action="nav.home" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10M9 20v-6h6v6"></path></svg></button>
+          <button type="button" data-action="playback.toggle" class="primary" aria-label="Play or pause"><svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7Z"></path></svg></button>
+          <button type="button" id="moreOpen" aria-label="More controls" aria-expanded="false" aria-controls="moreSheet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"></path></svg></button>
+        </nav>
+      </section>
+
+      <section class="room-zone" aria-label="Room and equipment controls">
+        <div class="room-target" aria-label="Controlled AsterTV">
+          <img class="room-mark" src="/remote/aster-compass.png" alt="" width="34" height="34">
+          <span class="room-copy"><small>Controlling</small><strong id="roomLabel">AsterTV</strong></span>
+          <select id="room" aria-label="Choose AsterTV"></select>
+          <svg class="room-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"></path></svg>
+        </div>
+        <div class="room-controls" aria-label="Room equipment controls">
+          <span id="equipmentStatus" class="sr-only">Equipment controls unavailable for this room.</span>
+          <div class="volume-cluster" aria-label="Volume controls">
+            <button id="volumeDown" type="button" disabled aria-label="Volume down"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"></path><path d="M16 12h5"></path></svg></button>
+            <button id="mute" type="button" disabled aria-label="Mute"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"></path><path d="m17 9 4 6M21 9l-4 6"></path></svg></button>
+            <button id="volumeUp" type="button" disabled aria-label="Volume up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"></path><path d="M18.5 8a6 6 0 0 1 0 8"></path><path d="M15.5 10.5a2.5 2.5 0 0 1 0 3"></path></svg></button>
+          </div>
+          <button id="power" type="button" class="power-control" disabled aria-label="Power"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v10"></path><path d="M6.3 5.6a8 8 0 1 0 11.4 0"></path></svg></button>
+        </div>
+      </section>
+
+      <section id="moreSheet" class="more-sheet" hidden aria-label="More remote controls">
+        <header class="sheet-header">
+          <div><p class="kicker">Secondary controls</p><h2>More</h2></div>
+          <button type="button" id="moreClose" aria-label="Close more controls"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+        </header>
+        <div class="dpad" aria-label="Directional controls">
+          <button data-action="nav.up" aria-label="Up">▲</button>
+          <button data-action="nav.left" aria-label="Left">◀</button>
+          <button data-action="nav.select" class="select" aria-label="Select">OK</button>
+          <button data-action="nav.right" aria-label="Right">▶</button>
+          <button data-action="nav.down" aria-label="Down">▼</button>
+        </div>
+        <p id="keyboardIdle" class="keyboard-idle">Open a text field on AsterTV to edit it here.</p>
+        <form id="textForm" class="keyboard-form" hidden>
+          <label id="textLabel" for="text">Kodi text field</label>
+          <div class="input-row">
+            <input id="text" maxlength="512" autocomplete="off" autocapitalize="sentences" placeholder="Symbols and paste work here">
+            <button type="submit" class="gold">Update</button>
+          </div>
+          <div class="text-actions">
+            <button type="button" data-action="text.backspace">Backspace</button>
+            <button type="button" data-action="text.clear">Clear</button>
+            <button type="button" data-action="text.cancel">Cancel</button>
+            <button type="button" data-action="text.enter">Enter</button>
+          </div>
+        </form>
+      </section>
+
+      <p id="error" class="error" role="alert"></p>
+      <div class="home-indicator" aria-hidden="true"></div>
+    </section>
+  </main>
+  <script src="/remote/app.js"></script>
+</body>
+</html>

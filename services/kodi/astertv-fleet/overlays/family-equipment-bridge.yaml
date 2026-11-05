@@ -9,11 +9,21 @@
   "targets": ["astertv-family"],
   "owns": ["home-assistant/aster-room-bridge-family", "aster-agent/family-equipment-actions"],
   "payload_sources": [
-    "services/home-assistant/aster_room_bridge/custom_components/aster_room_bridge",
-    "services/aster-agent/aster_remote.py",
-    "services/aster-agent/static/remote"
+    "services/kodi/astertv-fleet/materialized/family-equipment-bridge",
+    "services/kodi/astertv-fleet/materialize_family_equipment_bridge.py"
   ],
-  "payload_blockers": ["ha-config-entry-opnsense-rules-and-identities-are-external-state"],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "apply_strategy": "preserve-and-verify",
+  "assertions": [
+    {"authority": "aster-agent", "key": "remote.gateway.sha256", "expected": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983", "sensitive": false},
+    {"authority": "aster-agent", "key": "remote.ui.app-js-sha256", "expected": "c4b3b371c18a7b3f53dad298ad8440f303b47f8c9c96cafbbb5c4c364e0df52b", "sensitive": false},
+    {"authority": "aster-agent", "key": "equipment-key.mode", "expected": "0600", "sensitive": false},
+    {"authority": "home-assistant", "key": "component.aster-room-bridge.init-sha256", "expected": "213a813d3c6b71ab5b6208223060bd24ed7f4a030a247aebe43bc0b012d95fac", "sensitive": false},
+    {"authority": "home-assistant", "key": "aster-room-bridge.contract", "expected": "HA-Family:family:TCL-power:Onkyo-volume-mute:six-actions:outbound-only", "sensitive": false},
+    {"authority": "home-assistant", "key": "aster-room-bridge.key-mode", "expected": "0600", "sensitive": false},
+    {"authority": "opnsense", "key": "rule.5e3a94b5-8059-45f7-b45c-f3b7484c4cf1", "expected": "192.168.20.11>192.168.70.10:9120/tcp:loaded", "sensitive": false}
+  ],
   "secret_refs": ["family-equipment-client", "home-assistant-room-bridge"],
   "rollback_ref": "astertv-v3-m7-family-bridge-20261105 and HA backup 35b3cbd9",
   "tests": ["services/home-assistant/aster_room_bridge/tests"]

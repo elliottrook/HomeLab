@@ -58,8 +58,10 @@ Kodi addon enablement and the shared family-manifest component pin remain typed
 assertions. News playback is rendered per target from exact accepted
 predecessors, with Family advanced to the current bounded-queue revision.
 Family media lifecycle is also rendered from its exact checkpoint, while
-Intro Skipper remains hash-pinned external Jellyfin state. Family has one
-incomplete overlay, Jen has eight, and Guest is an
+Intro Skipper remains hash-pinned external Jellyfin state. The Family equipment
+bridge packages exact recovery sources and verifies live HA/Agent/OPNsense
+state through assertions. Bedroom and Family are complete, Jen has eight
+incomplete overlays, and Guest is an
 intentional non-deployed candidate. This status is eligibility evidence, not a
 deployment instruction.
 

@@ -9,10 +9,10 @@ base release and ordered overlay source bytes. The guard contract includes
 expected payload hashes and required external dependencies.
 
 This is deliberately a **candidate build gate**, not a deployment approval.
-Nine overlays now have complete contracts: Family restart, target-aware release
+Ten overlays now have complete contracts: Family restart, target-aware release
 guard, Bedroom Wi-Fi, Bedroom stereo assertions, Family Dolby/HDR assertions
 the target-aware Remote client, the reconciled TV-details tree, and target-aware
-News playback, and Family media lifecycle. The other nine
+News playback, Family media lifecycle, and the Family equipment bridge. The other eight
 overlay definitions name their exact current inputs and explicit blockers.
 Plans build successfully; Bedroom is now the first composition eligible for a
 future promotion transaction. No promotion was performed.
@@ -32,7 +32,7 @@ future promotion transaction. No promotion was performed.
 
 ## Verification
 
-- Fleet/release suite: 30/30 passing, including typed assertion drift and
+- Fleet/release suite: 31/31 passing, including typed assertion drift and
   target isolation.
 - Four deterministic bundles build from the locally verified immutable release.
 - Repeated builds are byte-identical.
@@ -60,15 +60,19 @@ future promotion transaction. No promotion was performed.
 - Family media lifecycle replays four runtime files from its exact checkpoint.
   Intro Skipper is represented as a Jellyfin server assertion with pinned ZIP
   and DLL SHA-256 values; plugin databases and server state are not bundled.
-- Bedroom has no incomplete overlay contract and is the sole deployable plan.
-  Family remains blocked only by its equipment bridge, Jen by eight, and Guest remains a
+- The Family equipment bridge is a preserve-and-verify external composition:
+  exact HA/Agent/Remote recovery sources are bundled, device guard paths exclude
+  external hosts, and seven HA/Agent/OPNsense/key assertions carry live state.
+- Bedroom and Family have no incomplete overlay contracts and are the two
+  deployable bundle-build plans. Jen remains blocked by eight overlays, and Guest remains a
   non-deployed candidate.
 - Payload and dependency drift tests fail closed.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 
 ## Next
 
-Materialize Family equipment state next. Continue defining typed assertions/external artifacts and
-mutable-state exclusions one overlay at a time. Bedroom eligibility does not
-authorize deployment; it must still pass Doctor observation and the later M8
-promotion gate.
+Resolve Jen's duplicated account/client ownership, then materialize its eight
+remaining overlays. Continue defining typed assertions/external artifacts and
+mutable-state exclusions one overlay at a time. Bedroom/Family eligibility does
+not authorize deployment; both must still pass Doctor observation and later
+promotion gates.

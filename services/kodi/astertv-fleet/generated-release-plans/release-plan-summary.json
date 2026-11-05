@@ -17,8 +17,7 @@
       "artifact_verified": false,
       "blockers": [
         "release-artifact-not-locally-verified",
-        "composition-bundle-not-built",
-        "overlay-payload-incomplete:family-equipment-bridge"
+        "composition-bundle-not-built"
       ],
       "bundle_built": false,
       "bundle_sha256": null,

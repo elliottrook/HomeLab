@@ -26,6 +26,9 @@ NEWS_SPEC.loader.exec_module(NEWS_MODULE)
 MEDIA_SPEC = importlib.util.spec_from_file_location("family_media_materializer", ROOT / "materialize_family_media_lifecycle.py")
 MEDIA_MODULE = importlib.util.module_from_spec(MEDIA_SPEC)
 MEDIA_SPEC.loader.exec_module(MEDIA_MODULE)
+EQUIPMENT_SPEC = importlib.util.spec_from_file_location("family_equipment_materializer", ROOT / "materialize_family_equipment_bridge.py")
+EQUIPMENT_MODULE = importlib.util.module_from_spec(EQUIPMENT_SPEC)
+EQUIPMENT_SPEC.loader.exec_module(EQUIPMENT_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -108,6 +111,17 @@ class MaterializationTests(unittest.TestCase):
         self.assertFalse(any(path.endswith("family-manifest.json") for path in files))
         self.assertEqual(manifest["checkpoint"],
                          "astertv-media-lifecycle-AsterTV-Family-20261105-031033")
+
+    def test_family_equipment_payload_is_external_and_secrets_are_excluded(self):
+        files, manifest = EQUIPMENT_MODULE.render()
+        self.assertGreaterEqual(len(files), 10)
+        self.assertTrue(all(row["scope"] == "external" for row in manifest["files"]))
+        self.assertEqual(
+            next(row for row in manifest["files"]
+                 if row["destination"] == "/opt/aster-agent/aster_remote.py")["sha256"],
+            EQUIPMENT_MODULE.PINNED["/opt/aster-agent/aster_remote.py"],
+        )
+        self.assertTrue(all(not row.get("bundled", True) for row in manifest["mutable_state"]))
 
 
 if __name__ == "__main__":

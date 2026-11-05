@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "8d2c60ca24c791da167cdd7c4f2a4397c9b9caa5af0b271b90367f68b6ad807b",
+  "composition_sha256": "2299ff5d13677b4c62b816bda7d41d9bfdb518f5060737052a84e88d12a32648",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [
@@ -43,6 +43,55 @@
       "expected": "0600",
       "key": "asterremote-client-key.mode",
       "overlay": "remote-client-v3",
+      "sensitive": false
+    },
+    {
+      "authority": "aster-agent",
+      "expected": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983",
+      "key": "remote.gateway.sha256",
+      "overlay": "family-equipment-bridge",
+      "sensitive": false
+    },
+    {
+      "authority": "aster-agent",
+      "expected": "c4b3b371c18a7b3f53dad298ad8440f303b47f8c9c96cafbbb5c4c364e0df52b",
+      "key": "remote.ui.app-js-sha256",
+      "overlay": "family-equipment-bridge",
+      "sensitive": false
+    },
+    {
+      "authority": "aster-agent",
+      "expected": "0600",
+      "key": "equipment-key.mode",
+      "overlay": "family-equipment-bridge",
+      "sensitive": false
+    },
+    {
+      "authority": "home-assistant",
+      "expected": "213a813d3c6b71ab5b6208223060bd24ed7f4a030a247aebe43bc0b012d95fac",
+      "key": "component.aster-room-bridge.init-sha256",
+      "overlay": "family-equipment-bridge",
+      "sensitive": false
+    },
+    {
+      "authority": "home-assistant",
+      "expected": "HA-Family:family:TCL-power:Onkyo-volume-mute:six-actions:outbound-only",
+      "key": "aster-room-bridge.contract",
+      "overlay": "family-equipment-bridge",
+      "sensitive": false
+    },
+    {
+      "authority": "home-assistant",
+      "expected": "0600",
+      "key": "aster-room-bridge.key-mode",
+      "overlay": "family-equipment-bridge",
+      "sensitive": false
+    },
+    {
+      "authority": "opnsense",
+      "expected": "192.168.20.11>192.168.70.10:9120/tcp:loaded",
+      "key": "rule.5e3a94b5-8059-45f7-b45c-f3b7484c4cf1",
+      "overlay": "family-equipment-bridge",
       "sensitive": false
     },
     {

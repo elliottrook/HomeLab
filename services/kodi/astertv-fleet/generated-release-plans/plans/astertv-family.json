@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-family-8d2c60ca24c7.tar.gz",
+    "name": "astertv-family-2299ff5d1367.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "8d2c60ca24c791da167cdd7c4f2a4397c9b9caa5af0b271b90367f68b6ad807b",
+  "composition_sha256": "2299ff5d13677b4c62b816bda7d41d9bfdb518f5060737052a84e88d12a32648",
   "deployable": false,
   "device_id": "astertv-family",
   "kind": "release-plan",
@@ -293,8 +293,51 @@
       ]
     },
     {
-      "apply_strategy": "install",
-      "assertions": [],
+      "apply_strategy": "preserve-and-verify",
+      "assertions": [
+        {
+          "authority": "aster-agent",
+          "expected": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983",
+          "key": "remote.gateway.sha256",
+          "sensitive": false
+        },
+        {
+          "authority": "aster-agent",
+          "expected": "c4b3b371c18a7b3f53dad298ad8440f303b47f8c9c96cafbbb5c4c364e0df52b",
+          "key": "remote.ui.app-js-sha256",
+          "sensitive": false
+        },
+        {
+          "authority": "aster-agent",
+          "expected": "0600",
+          "key": "equipment-key.mode",
+          "sensitive": false
+        },
+        {
+          "authority": "home-assistant",
+          "expected": "213a813d3c6b71ab5b6208223060bd24ed7f4a030a247aebe43bc0b012d95fac",
+          "key": "component.aster-room-bridge.init-sha256",
+          "sensitive": false
+        },
+        {
+          "authority": "home-assistant",
+          "expected": "HA-Family:family:TCL-power:Onkyo-volume-mute:six-actions:outbound-only",
+          "key": "aster-room-bridge.contract",
+          "sensitive": false
+        },
+        {
+          "authority": "home-assistant",
+          "expected": "0600",
+          "key": "aster-room-bridge.key-mode",
+          "sensitive": false
+        },
+        {
+          "authority": "opnsense",
+          "expected": "192.168.20.11>192.168.70.10:9120/tcp:loaded",
+          "key": "rule.5e3a94b5-8059-45f7-b45c-f3b7484c4cf1",
+          "sensitive": false
+        }
+      ],
       "dependencies": [
         "remote-client-v3"
       ],
@@ -306,60 +349,68 @@
         "home-assistant/aster-room-bridge-family",
         "aster-agent/family-equipment-actions"
       ],
-      "payload_blockers": [
-        "ha-config-entry-opnsense-rules-and-identities-are-external-state"
-      ],
-      "payload_status": "incomplete",
+      "payload_blockers": [],
+      "payload_status": "complete",
       "payloads": [
         {
-          "bytes": 26669,
-          "path": "services/aster-agent/aster_remote.py",
-          "sha256": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983"
-        },
-        {
-          "bytes": 9026,
-          "path": "services/aster-agent/static/remote/app.js",
-          "sha256": "c4b3b371c18a7b3f53dad298ad8440f303b47f8c9c96cafbbb5c4c364e0df52b"
-        },
-        {
-          "bytes": 22093,
-          "path": "services/aster-agent/static/remote/aster-compass.png",
-          "sha256": "6b8788ade5bcc3447d93f497a296e55354e15a4dd9a403b22268c907c0f67ddf"
-        },
-        {
-          "bytes": 6858,
-          "path": "services/aster-agent/static/remote/index.html",
-          "sha256": "21df9781d38e31423be9ac9b78508fe618ff9e1a6bdb877eec07818ab38e00c6"
-        },
-        {
-          "bytes": 365,
-          "path": "services/aster-agent/static/remote/manifest.webmanifest",
-          "sha256": "1f60d65e19b010afcf11e58b1184341f39e98a59f768419c28a41832e7a5795b"
-        },
-        {
-          "bytes": 10073,
-          "path": "services/aster-agent/static/remote/styles.css",
-          "sha256": "6d3d4ad4f068d0344987c7fee3e4a771af6343bcd2b08bcb4733cda38a3f8738"
-        },
-        {
-          "bytes": 978,
-          "path": "services/aster-agent/static/remote/sw.js",
-          "sha256": "4011c0bd123a743937a6d9053ad44d1da15c7ac646ddc50cbf401b38cbd94968"
+          "bytes": 4351,
+          "path": "services/kodi/astertv-fleet/materialize_family_equipment_bridge.py",
+          "sha256": "8a5f8e434d4b0e15e3723322b77ef8098bdb4884c3a8713532afbb0334a41b66"
         },
         {
           "bytes": 4911,
-          "path": "services/home-assistant/aster_room_bridge/custom_components/aster_room_bridge/__init__.py",
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/config/custom_components/aster_room_bridge/__init__.py",
           "sha256": "213a813d3c6b71ab5b6208223060bd24ed7f4a030a247aebe43bc0b012d95fac"
         },
         {
           "bytes": 2366,
-          "path": "services/home-assistant/aster_room_bridge/custom_components/aster_room_bridge/contract.py",
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/config/custom_components/aster_room_bridge/contract.py",
           "sha256": "ea42ebedcb59703b93d592b40da90d7796b65ab213a10f7caf671b61f131434f"
         },
         {
           "bytes": 207,
-          "path": "services/home-assistant/aster_room_bridge/custom_components/aster_room_bridge/manifest.json",
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/config/custom_components/aster_room_bridge/manifest.json",
           "sha256": "a0caa81000a091c6758de8e8135611970ecee3756d295c81aa3aaa40068c960a"
+        },
+        {
+          "bytes": 26669,
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/aster_remote.py",
+          "sha256": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983"
+        },
+        {
+          "bytes": 9026,
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/app.js",
+          "sha256": "c4b3b371c18a7b3f53dad298ad8440f303b47f8c9c96cafbbb5c4c364e0df52b"
+        },
+        {
+          "bytes": 22093,
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/aster-compass.png",
+          "sha256": "6b8788ade5bcc3447d93f497a296e55354e15a4dd9a403b22268c907c0f67ddf"
+        },
+        {
+          "bytes": 6858,
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/index.html",
+          "sha256": "21df9781d38e31423be9ac9b78508fe618ff9e1a6bdb877eec07818ab38e00c6"
+        },
+        {
+          "bytes": 365,
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/manifest.webmanifest",
+          "sha256": "1f60d65e19b010afcf11e58b1184341f39e98a59f768419c28a41832e7a5795b"
+        },
+        {
+          "bytes": 10073,
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/styles.css",
+          "sha256": "6d3d4ad4f068d0344987c7fee3e4a771af6343bcd2b08bcb4733cda38a3f8738"
+        },
+        {
+          "bytes": 978,
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/sw.js",
+          "sha256": "4011c0bd123a743937a6d9053ad44d1da15c7ac646ddc50cbf401b38cbd94968"
+        },
+        {
+          "bytes": 3643,
+          "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/materialization-manifest.json",
+          "sha256": "3ae01b1a644ee3ed1768f4579db5b111f1f01f4986ef15d0dab35cebf3c22e65"
         }
       ],
       "rollback_ref": "astertv-v3-m7-family-bridge-20261105 and HA backup 35b3cbd9",
@@ -834,8 +885,7 @@
   },
   "promotion_blockers": [
     "release-artifact-not-locally-verified",
-    "composition-bundle-not-built",
-    "overlay-payload-incomplete:family-equipment-bridge"
+    "composition-bundle-not-built"
   ],
   "promotion_policy": {
     "artifact_policy": {

@@ -100,19 +100,20 @@ class ReleasePipelineTests(unittest.TestCase):
             result = PLANS.build(ROOT, Path(destination), artifact_root)
             self.assertEqual(result["verified_artifacts"], 4)
             self.assertEqual(result["built_bundles"], 4)
-            self.assertEqual(result["deployable_devices"], 1)
+            self.assertEqual(result["deployable_devices"], 2)
             family = json.loads((Path(destination) / "plans/astertv-family.json").read_text())
             bedroom = json.loads((Path(destination) / "plans/astertv-bedroom.json").read_text())
             self.assertTrue(family["artifact"]["verified"])
             self.assertNotIn("release-artifact-not-locally-verified", family["promotion_blockers"])
             self.assertNotIn("composition-bundle-not-built", family["promotion_blockers"])
-            self.assertTrue(any(item.startswith("overlay-payload-incomplete:") for item in family["promotion_blockers"]))
+            self.assertFalse(any(item.startswith("overlay-payload-incomplete:") for item in family["promotion_blockers"]))
             bundle = Path(destination) / "bundles" / family["bundle"]["name"]
             self.assertEqual(PLANS.file_sha256(bundle), family["bundle"]["sha256"])
             with tarfile.open(bundle, "r:gz") as archive:
                 manifest = json.load(archive.extractfile("manifest.json"))
             self.assertEqual(manifest["composition_sha256"], family["composition_sha256"])
-            self.assertFalse(family["deployable"])
+            self.assertTrue(family["deployable"])
+            self.assertEqual(family["promotion_blockers"], [])
             self.assertTrue(bedroom["deployable"])
             self.assertEqual(bedroom["promotion_blockers"], [])
 
