@@ -100,3 +100,10 @@ modules because that interpreter lacks `jwt`, `fastapi` and `cryptography`.
 No ad-hoc dependency installation was performed. The missing interpreter
 dependencies do not weaken the clean-archive Candidate-J or SA3 results and
 are not represented as a production or candidate failure.
+
+One joined synthetic pipeline test now crosses the exact runtime result,
+terminal reconciliation, blind handoff, three complete review files,
+conservative decision and bounded owner-review release packet. It reaches only
+`ready-for-owner-D4-release-review`, retains authority `none` and routing
+`off`, excludes model identity and leaves deployment false. The complete
+Candidate-J suite therefore passes 50/50 end to end before the live result.
