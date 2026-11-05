@@ -66,3 +66,9 @@ outbound poll to a bounded one-item worker queue; Kodi's Monitor and command
 execution remain serialized on the main add-on thread. A real reopen reported
 `input_active=true`, the safe Search title and the existing non-secret value.
 Password notification handling remains fail-closed and content-free.
+
+After the real Bedroom field passed, the identical accepted client was applied
+to idle Family and Jen through a separate exact-predecessor installer. Neither
+Kodi instance restarted. Both clients reconnected, stable/live manifests match
+and the three-room Doctor passes. Each retained checkpoint is
+`/storage/.aster-checkpoints/astertv-v3-m8-native-input-mainthread-20261105`.
