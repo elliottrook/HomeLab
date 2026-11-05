@@ -9,11 +9,12 @@ base release and ordered overlay source bytes. The guard contract includes
 expected payload hashes and required external dependencies.
 
 This is deliberately a **candidate build gate**, not a deployment approval.
-Six overlays now have complete contracts: Family restart, target-aware release
+Seven overlays now have complete contracts: Family restart, target-aware release
 guard, Bedroom Wi-Fi, Bedroom stereo assertions, Family Dolby/HDR assertions
-and the target-aware Remote client. The other 12
+the target-aware Remote client, and the reconciled TV-details tree. The other 11
 overlay definitions name their exact current inputs and explicit blockers.
-Plans therefore build successfully but remain non-deployable.
+Plans build successfully; Bedroom is now the first composition eligible for a
+future promotion transaction. No promotion was performed.
 
 ## Audit findings preserved as blockers
 
@@ -25,11 +26,12 @@ Plans therefore build successfully but remain non-deployable.
 - Jen low-spec setup transforms more than 25 undeclared v2 files.
 - Account, Aster client, Guest and Home installers duplicate payload ownership.
 - The accepted remote-client service hash and current source need reconciliation.
-- TV details is still a hotfix chain rather than one reconciled final payload.
+- Shared family-manifest state must remain an assertion/merge surface rather
+  than being copied from one appliance over another.
 
 ## Verification
 
-- Fleet/release suite: 27/27 passing, including typed assertion drift and
+- Fleet/release suite: 28/28 passing, including typed assertion drift and
   target isolation.
 - Four deterministic bundles build from the locally verified immutable release.
 - Repeated builds are byte-identical.
@@ -46,14 +48,20 @@ Plans therefore build successfully but remain non-deployable.
   Jen and the repository all use `0eba8fc5...`; `1a4d52f3...` is the recorded
   predecessor. Current add-on, stable copies, manifests and host-specific units
   are materialized while keys/config/database state remain excluded.
-- Family, Bedroom and Jen remain blocked by their other incomplete overlay payload contracts.
+- TV details is reconciled into one 12-file materialized tree. Every historical
+  transformer input was verified from the Bedroom checkpoint chain, Family
+  independently matched the final output hashes, and addon/family-manifest
+  state is represented as typed assertions.
+- Bedroom has no incomplete overlay contract and is the sole deployable plan.
+  Family remains blocked by three overlays, Jen by nine, and Guest remains a
+  non-deployed candidate.
 - Payload and dependency drift tests fail closed.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 
 ## Next
 
-Materialize transformer output trees from the pinned predecessor, define typed
-assertions/external artifacts/mutable-state exclusions, resolve ownership, then
-mark overlays complete one at a time. Only after all selected overlays are
-complete may Doctor consume live sanitized observations and a device plan become
-eligible for the M7 Jen rehearsal.
+Materialize the shared News playback overlay next, then Family lifecycle and
+equipment state. Continue defining typed assertions/external artifacts and
+mutable-state exclusions one overlay at a time. Bedroom eligibility does not
+authorize deployment; it must still pass Doctor observation and the later M8
+promotion gate.

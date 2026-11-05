@@ -1,6 +1,6 @@
 {
   "channel": "v3-lab",
-  "composition_sha256": "a59a0ccbdaebb43cdc6e3def01b6e5edfe3302d0196315cd26fa31f6270533e9",
+  "composition_sha256": "e3c2b56cea37af74e152b4c67d48b50a64943849357c4e93bb52add2e2e6c934",
   "deployed": true,
   "device_id": "astertv-jen",
   "external_integrations": [
@@ -527,114 +527,69 @@
     ],
     "tv-details-v3": [
       {
-        "bytes": 2512,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/README.md",
-        "sha256": "17f0a0eb76d6272f7e0dfeff39a2db26512bc9488eb1eee3632f196185a02d4d"
+        "bytes": 5798,
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/materialization-manifest.json",
+        "sha256": "5ea8f46e6b16ffa6b314528ae213bea5ce98bcaed5a8ba30e7d07a7bec1e447c"
+      },
+      {
+        "bytes": 343,
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/plugin.video.astersearch/actor_search.py",
+        "sha256": "3af636f47623514d69e3aa8480a0de91f048eeb629c029fc8cc2d486b515a39c"
+      },
+      {
+        "bytes": 706,
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/plugin.video.astersearch/addon.xml",
+        "sha256": "80ab9ffde1a06e3938825a37751aa0b1efbd8ac0dc8863bc438124938c3cdd85"
+      },
+      {
+        "bytes": 3735,
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/plugin.video.astersearch/default.py",
+        "sha256": "6353c1473f25bd6b46fb37894e01ed101c89771f32dbf352d145debc9bcf97aa"
+      },
+      {
+        "bytes": 31824,
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/script.asterruntime/aster-series-preview24/default.py",
+        "sha256": "f81658e70630ed5c4b8c6e995b073be6c8287faabf5127fac8c1335fbbff720a"
+      },
+      {
+        "bytes": 1688,
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/script.asterruntime/aster-series-preview24/manifest.json",
+        "sha256": "aa589c8939b627aa19f9ec9b7abf9a0852eb3b33595b8c884e2b56f8ddb2dba0"
+      },
+      {
+        "bytes": 9633,
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/script.asterruntime/aster-series-preview24/resources/lib/series_seerr_client.py",
+        "sha256": "26615b4ca67745d60fd1ce60517fb4d4f2908407c4d2e44a40c4194c741e8c33"
       },
       {
         "bytes": 14342,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/aster-series-preview24/resources/skins/Default/1080i/SeriesPreview.xml",
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/script.asterruntime/aster-series-preview24/resources/skins/Default/1080i/SeriesPreview.xml",
         "sha256": "cf708381d77b137e17036b44899dca5ce352c7b7dd52efc935875c1b08d07a7d"
       },
       {
         "bytes": 10639,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/aster-series-preview24/v3_series_extension.py",
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/script.asterruntime/aster-series-preview24/v3_series_extension.py",
         "sha256": "c4c183c0ada6f7b7152760b78d837e01d39f546a0ec8491c253949138ecaf111"
       },
       {
-        "bytes": 8876,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/deploy.py",
-        "sha256": "fc72f95d9c74397efc5df7c3f36eade842537f62623ff6482ee255072465951d"
-      },
-      {
-        "bytes": 3905,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/hotfix_dynamic_lists.py",
-        "sha256": "6378b1810f1cea80cf6a053c8f4bc02699aacfeb8dd1953121026b2da5eaf664"
-      },
-      {
-        "bytes": 3061,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/hotfix_episode_art.py",
-        "sha256": "8a58ff0641bc790adf558005d9ee89b10ae2a55deb0f44dacffacfa70272b46e"
-      },
-      {
-        "bytes": 8278,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/hotfix_series_cache_bounds.py",
-        "sha256": "d3a0ed8e4ba1c5f48455a1642b6e73751020eeef4adfb5251c4f8dfe7399e1e6"
-      },
-      {
-        "bytes": 3981,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/hotfix_series_cache_limit.py",
-        "sha256": "bfd37be2ae13537cc1a82b4536bff7ef8f30d436c604b91caa50891319586552"
-      },
-      {
-        "bytes": 3955,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/hotfix_trailer_icon.py",
-        "sha256": "dabfa2b7c4b7b438570857972e0131a9f528a9b5ca553c32367d1f5a9f1cdbb9"
-      },
-      {
-        "bytes": 6930,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/hotfix_tv_connections.py",
-        "sha256": "6dc99882af0f9466328a765bdcd9d09b96cd467356da89a6cdf8c1875e2e429d"
-      },
-      {
-        "bytes": 343,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/plugin.video.astersearch/actor_search.py",
-        "sha256": "3af636f47623514d69e3aa8480a0de91f048eeb629c029fc8cc2d486b515a39c"
-      },
-      {
-        "bytes": 706,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/plugin.video.astersearch/addon.xml",
-        "sha256": "80ab9ffde1a06e3938825a37751aa0b1efbd8ac0dc8863bc438124938c3cdd85"
-      },
-      {
-        "bytes": 3735,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/plugin.video.astersearch/default.py",
-        "sha256": "6353c1473f25bd6b46fb37894e01ed101c89771f32dbf352d145debc9bcf97aa"
-      },
-      {
-        "bytes": 3210,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/repair_digest_entry.py",
-        "sha256": "ae7a96fda4698e240fbe41795677e2c0330a46d11553cf07328397769aeef3a8"
-      },
-      {
-        "bytes": 1691,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/rollback.py",
-        "sha256": "4744f8262426efaf1da040048b82808e6b295a5901fc96d877c5a8e77c8fc757"
-      },
-      {
         "bytes": 1889,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/skin.asterhome/media/player-controls/trailer.png",
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/skin.asterhome/media/player-controls/trailer.png",
         "sha256": "b2d7d331f02ddbced8c5eb875c43d3d9a0bdcf1c758cd9e4369ed38392730c71"
       },
       {
         "bytes": 4519,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/skin.asterhome/media/ui-button-current-gold-rim.png",
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/skin.asterhome/media/ui-button-current-gold-rim.png",
         "sha256": "cbaf368d835e864e68ba816c9184350d59a9c0a861e1de9b6e8e03b6bb955925"
       },
       {
         "bytes": 4400,
-        "path": "services/kodi/astertv-v3/deploy/tv-details/skin.asterhome/media/ui-button-focus-gold-rim.png",
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/skin.asterhome/media/ui-button-focus-gold-rim.png",
         "sha256": "c1de42c5d178eeb0c2136781f891c9543fea78a9a41c4a084a78d8fbc86f214f"
       },
       {
-        "bytes": 343,
-        "path": "services/kodi/astertv-v3/overlay/plugin.video.astersearch/actor_search.py",
-        "sha256": "3af636f47623514d69e3aa8480a0de91f048eeb629c029fc8cc2d486b515a39c"
-      },
-      {
-        "bytes": 706,
-        "path": "services/kodi/astertv-v3/overlay/plugin.video.astersearch/addon.xml",
-        "sha256": "80ab9ffde1a06e3938825a37751aa0b1efbd8ac0dc8863bc438124938c3cdd85"
-      },
-      {
-        "bytes": 3735,
-        "path": "services/kodi/astertv-v3/overlay/plugin.video.astersearch/default.py",
-        "sha256": "6353c1473f25bd6b46fb37894e01ed101c89771f32dbf352d145debc9bcf97aa"
-      },
-      {
-        "bytes": 17990,
-        "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1196_tv_rework.xml",
-        "sha256": "a5b2cf5bbb9b3818d72cf68ab69e7014adb6f37b4f62487073763d48f7db6f11"
+        "bytes": 2265,
+        "path": "services/kodi/astertv-fleet/materialized/tv-details-v3/skin.asterhome/tools/aster_v2_series.py",
+        "sha256": "79522aa5a816067b174ae932fbb7740a0aeccb84fde6443ee0b209cfaacb0b18"
       }
     ]
   },
@@ -670,7 +625,7 @@
     "overlays/news-playback-v3.yaml": "85899313ea59ef6f76031497fb89162804bb8b3877c01fe5bfa83c5b2dd481c9",
     "overlays/release-guard-v1.yaml": "a3afc7db25e4c295b3f4bd944f32e4cf47fa0ccefae2cbf182edbed38214c038",
     "overlays/remote-client-v3.yaml": "40267e62ec475ce2318ea20bf5f8771943a46b30b60ace77ac91ea96a8cc948a",
-    "overlays/tv-details-v3.yaml": "f286da4c579d60db3c6db858cf30c00353e8db861cc1bbd624c402ef81c0c115",
+    "overlays/tv-details-v3.yaml": "717c1f44e8ee12804cd58f2513e275292c28bbd3eb50dfb2d22cd9ec17a6b03e",
     "peripherals/jen-low-spec-stereo.yaml": "d56ab40a683315e30e7a4696d105d4707bbde51bbe3abbbdca79f0876ab1f6f5",
     "releases/astertv-v2.0.7-2026-10-31.yaml": "204a004c9b099cedfbaa49ed5eed55185c0d33cd10d9d06942409fc7dd8add36"
   }

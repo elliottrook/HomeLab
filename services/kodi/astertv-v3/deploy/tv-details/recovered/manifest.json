@@ -1,0 +1,53 @@
+{
+  "component": "aster-series-preview24",
+  "files": [
+    {
+      "bytes": 31824,
+      "path": "default.py",
+      "sha256": "f81658e70630ed5c4b8c6e995b073be6c8287faabf5127fac8c1335fbbff720a"
+    },
+    {
+      "bytes": 4451,
+      "path": "resources/lib/series_adapter.py",
+      "sha256": "7b17f19b4843bbf2a9f005cc331fa0a6b19d95faafd42647a95966456fe0b6f6"
+    },
+    {
+      "bytes": 8875,
+      "path": "resources/lib/series_catalogue.py",
+      "sha256": "be54fcba8eb7a00278b0c4335db81448461b2d3fd4e54905c52419596cf0facf"
+    },
+    {
+      "bytes": 7043,
+      "path": "resources/lib/series_model.py",
+      "sha256": "e18315468efde429a545fbb68e30744e714b6f09d3a45cef5d254dd80bef59c3"
+    },
+    {
+      "bytes": 7183,
+      "path": "resources/lib/series_playback.py",
+      "sha256": "939d66139b1727e9612f222aad28b96bb2001039f2c8ab1bfc95be1ca233dc7d"
+    },
+    {
+      "bytes": 9633,
+      "path": "resources/lib/series_seerr_client.py",
+      "sha256": "26615b4ca67745d60fd1ce60517fb4d4f2908407c4d2e44a40c4194c741e8c33"
+    },
+    {
+      "bytes": 1817,
+      "path": "resources/lib/series_view.py",
+      "sha256": "1d7f73988c7c2de7e6cb9e6f9243526d5e93b6a2f7ca669c4d85741c7c4a3bcb"
+    },
+    {
+      "bytes": 14342,
+      "path": "resources/skins/Default/1080i/SeriesPreview.xml",
+      "sha256": "cf708381d77b137e17036b44899dca5ce352c7b7dd52efc935875c1b08d07a7d"
+    },
+    {
+      "bytes": 10639,
+      "path": "v3_series_extension.py",
+      "sha256": "c4c183c0ada6f7b7152760b78d837e01d39f546a0ec8491c253949138ecaf111"
+    }
+  ],
+  "kind": "hp-series-player",
+  "schema": 1,
+  "source_manifest_sha256": "cb20bd542a53ab8f03ca1df5ba6359da7535e6ffcf9d4e9de4e5b1d0cd543f3d"
+}

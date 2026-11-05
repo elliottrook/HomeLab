@@ -8,8 +8,13 @@
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-family", "astertv-bedroom", "astertv-jen"],
   "owns": ["kodi/skin.asterhome/tv-details-window", "kodi/skin.asterhome/episode-art-cache", "kodi/plugin.video.astersearch/tv-person-search"],
-  "payload_sources": ["services/kodi/astertv-v3/deploy/tv-details", "services/kodi/astertv-v3/overlay/plugin.video.astersearch", "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1196_tv_rework.xml"],
-  "payload_blockers": ["hotfix-chain-not-reconciled-to-single-output-tree", "addon-enablement-is-external-state"],
+  "payload_sources": ["services/kodi/astertv-fleet/materialized/tv-details-v3"],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "kodi", "key": "addon.enabled.plugin.video.astersearch", "expected": true, "sensitive": false},
+    {"authority": "kodi", "key": "family-manifest.component.aster-series-preview24", "expected": "aa589c8939b627aa19f9ec9b7abf9a0852eb3b33595b8c884e2b56f8ddb2dba0", "sensitive": false}
+  ],
   "secret_refs": [],
   "rollback_ref": "tv-details target checkpoint and accepted guard",
   "tests": ["services/kodi/astertv-v3/test_tv_details_package.py"]

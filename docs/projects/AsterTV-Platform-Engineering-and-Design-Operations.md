@@ -522,7 +522,7 @@ deliberately pending; no live wiki or mirror changed in M2 preparation.
 
 ### M4 — Build, release, guard and Doctor
 
-- [ ] Compile global/profile/overlay bundles and device manifests.
+- [x] Compile global/profile/overlay bundles and device manifests.
 - [x] Add matrix, SBOM, compatibility, deprecation and performance gates.
 - [ ] Upgrade guard/Doctor for desired state, registered extras and dependencies.
 - [x] Prove interrupted build/deploy and isolated rollback.
@@ -612,7 +612,7 @@ media mutation, playback interruption, unknown identity or broader firewall.
 
 ## Current resume state
 
-**Milestone:** M2/M3 owner acceptance and publication gates; M4 payload materialization in progress.
+**Milestone:** M2/M3 owner acceptance and publication gates; M4 Bedroom bundle complete, shared overlays in progress.
 
 **Verified:** M0 accepted pinned identities for Family, Bedroom and Jen, recorded
 Guest as not deployed, classified the existing wiki/reference/NetBox/release
@@ -624,11 +624,12 @@ hash-bound design authority and synthetic reference library but still needs
 owner visual acceptance. M4 has deterministic plan-only SBOM, compatibility,
 performance and composition-guard foundations; the immutable v2.0.7 archive is
 locally hash-verified and synthetic interrupted promotion/rollback is proven,
-M4 now builds deterministic hash-bound candidate appliance bundles, but only
-six overlays have complete contracts, including target-aware release guard,
-Remote, Bedroom Wi-Fi/audio and Family restart/audio. The remaining overlays fail
-closed on their recorded render, provenance, external-state or ownership gaps,
-so M4 does not yet permit deployment. M5's Guest fixture fails closed on unresolved physical and
+M4 now builds deterministic hash-bound candidate appliance bundles. Seven
+overlays have complete contracts, including target-aware release guard, Remote,
+Bedroom Wi-Fi/audio, Family restart/audio and the reconciled 12-file TV-details
+tree. Bedroom is the first composition with no overlay blocker; this is release
+eligibility only and did not deploy it. Family remains blocked by three overlays,
+Jen by nine, and Guest remains a non-deployed candidate. M5's Guest fixture fails closed on unresolved physical and
 NetBox facts. Both M6 skills are installed from a hash manifest and passed
 independent effect-free forward tests. No published wiki, Aster mirror or live
 AsterTV changed.
@@ -636,8 +637,9 @@ AsterTV changed.
 **Next:** owner-review the 25-page wiki and generated design reference, then
 obtain the required immediate confirmation before each Forgejo push. Build the
 wiki through the established LXC 113 path only after content acceptance. In
-parallel, finish M4's actual hash-bound bundle/guard/Doctor integration and
-interrupted rollback proof before any M7 appliance migration.
+parallel, materialize the shared News playback contract, then Family lifecycle
+and equipment overlays, and finish Doctor observation before any appliance
+migration.
 
 ## Evidence log
 
@@ -652,7 +654,7 @@ interrupted rollback proof before any M7 appliance migration.
 | 2026-11-05 | Built and validated the additive M2 HomeLab Wiki candidate | Local `homelab-wiki` commit `1fdcf6a`; `docs/projects/evidence/AsterTV-Platform-M2-wiki-candidate-2026-11-05.md`; two pinned intake sources | 25 pages, 3/3 tests and real bounded source fetches pass; human acceptance/push/LXC publication/mirror remain pending; no live system changed |
 | 2026-11-05 | Built M3–M6 platform foundations | `docs/projects/evidence/AsterTV-Platform-M3-M6-foundations-2026-11-05.md`; design, release-plan, onboarding and skill packages | Hash-bound design assets and fixtures, plan-only SBOM/guards, least-privilege Guest planning and two independently tested skills; no appliance/wiki publication |
 | 2026-11-05 | Verified the immutable base and transaction recovery | v2.0.7 archive hash, 17/17 fleet/release tests, synthetic interruption and rollback fixture | All plans now prove the base artifact; deployment remains blocked until every overlay declares exact payload paths/hashes and guard/Doctor integration is complete |
-| 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 27/27 fleet/release tests | Four byte-stable candidate bundles build; six contracts are complete; installed destinations, assertions and Remote lineage fail closed; promotion remains blocked on 12 incomplete payload contracts and Doctor observation integration |
+| 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 28/28 fleet/release tests | Four byte-stable candidate bundles build; seven contracts are complete; TV details is one provenance-bound tree; Bedroom is eligible but not deployed; 11 incomplete contracts and Doctor gates remain |
 
 ## Close-out
 

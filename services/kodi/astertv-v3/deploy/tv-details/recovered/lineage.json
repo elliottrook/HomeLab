@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-recovered-transform-lineage",
+  "id": "tv-details-v3",
+  "base_release": "astertv-v2.0.7-2026-10-31",
+  "checkpoint_host": "AsterTV-Bedroom",
+  "independent_final_match_host": "AsterTV-Family",
+  "stages": [
+    {"renderer": "deploy.py", "predecessor_manifest_sha256": "d5b3d93ecde14574f4a391211fe22a5a7c3a4d3d119332138ef2ed143cab5da9"},
+    {"renderer": "hotfix_dynamic_lists.py", "predecessor_manifest_sha256": "644ef0a3aa5f4d720c65091cf454f23f3be2624e5a173b5939b529c5f381e366"},
+    {"renderer": "hotfix_episode_art.py", "predecessor_manifest_sha256": "bd4bffc5d94064142337243f2e3a21584c00e05059ccd7753aeabbdf6769207a"},
+    {"renderer": "hotfix_tv_connections.py", "predecessor_manifest_sha256": "6256883cc10d92f343305e437cbfb199ce60af6a801507664528d387b6e21126"},
+    {"renderer": "hotfix_trailer_icon.py", "predecessor_manifest_sha256": "de9e4ee20bfe38c44d07a5dec26b2548dbd6862a6dc8e78236ca84c07f232bb8"},
+    {"renderer": "hotfix_series_cache_bounds.py", "predecessor_manifest_sha256": "8e53c2cc8c1fdb16bc55111893a2986bb9d863e458e998cb48c356b05e6505a6"},
+    {"renderer": "hotfix_series_cache_limit.py", "predecessor_manifest_sha256": "7e95b5a7229941fc835cddc7552d876c9cbf4f0f396ea62f8e65e7902cc4bbf6"}
+  ],
+  "outputs": {
+    "default.py": "f81658e70630ed5c4b8c6e995b073be6c8287faabf5127fac8c1335fbbff720a",
+    "series_seerr_client.py": "26615b4ca67745d60fd1ce60517fb4d4f2908407c4d2e44a40c4194c741e8c33",
+    "manifest.json": "aa589c8939b627aa19f9ec9b7abf9a0852eb3b33595b8c884e2b56f8ddb2dba0",
+    "aster_v2_series.py": "79522aa5a816067b174ae932fbb7740a0aeccb84fde6443ee0b209cfaacb0b18"
+  }
+}

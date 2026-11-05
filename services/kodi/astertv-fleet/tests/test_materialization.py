@@ -17,6 +17,9 @@ WIFI_SPEC.loader.exec_module(WIFI_MODULE)
 REMOTE_SPEC = importlib.util.spec_from_file_location("remote_client_materializer", ROOT / "materialize_remote_client.py")
 REMOTE_MODULE = importlib.util.module_from_spec(REMOTE_SPEC)
 REMOTE_SPEC.loader.exec_module(REMOTE_MODULE)
+TV_SPEC = importlib.util.spec_from_file_location("tv_details_materializer", ROOT / "materialize_tv_details.py")
+TV_MODULE = importlib.util.module_from_spec(TV_SPEC)
+TV_SPEC.loader.exec_module(TV_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -63,6 +66,21 @@ class MaterializationTests(unittest.TestCase):
         self.assertIn(("astertv-jen", "/storage/.config/system.d/astertv-v3-m8-jen.service"), destinations)
         self.assertIn(("astertv-family", "/storage/.config/system.d/astertv-v3-m8-remote.service"), destinations)
         self.assertTrue(all(not row["path"].startswith("common/") for row in manifest["mutable_state"]))
+
+    def test_tv_details_materializes_one_reconciled_hash_bound_tree(self):
+        files, manifest = TV_MODULE.render()
+        self.assertEqual(len(files), 12)
+        self.assertEqual(manifest["id"], "tv-details-v3")
+        self.assertEqual(len(manifest["provenance"]["renderers"]), 7)
+        self.assertEqual(
+            files["script.asterruntime/aster-series-preview24/manifest.json"],
+            (TV_MODULE.RECOVERED / "manifest.json").read_bytes(),
+        )
+        self.assertNotIn("script.asterruntime/family-manifest.json", files)
+        self.assertEqual(
+            {row["sha256"] for row in manifest["files"]},
+            {TV_MODULE.EXPECTED[path] for path in files},
+        )
 
 
 if __name__ == "__main__":

@@ -94,14 +94,15 @@ class ReleasePipelineTests(unittest.TestCase):
         mismatch = dict(wrong, device_id="box", composition_sha256="def")
         self.assertTrue(GUARD.inspect(contract, mismatch)["composition_mismatch"])
 
-    def test_real_artifact_builds_hash_bound_bundles_but_incomplete_overlays_block(self):
+    def test_real_artifact_builds_hash_bound_bundles_and_only_complete_device_promotes(self):
         artifact_root = ROOT.parent / "dist"
         with tempfile.TemporaryDirectory() as destination:
             result = PLANS.build(ROOT, Path(destination), artifact_root)
             self.assertEqual(result["verified_artifacts"], 4)
             self.assertEqual(result["built_bundles"], 4)
-            self.assertEqual(result["deployable_devices"], 0)
+            self.assertEqual(result["deployable_devices"], 1)
             family = json.loads((Path(destination) / "plans/astertv-family.json").read_text())
+            bedroom = json.loads((Path(destination) / "plans/astertv-bedroom.json").read_text())
             self.assertTrue(family["artifact"]["verified"])
             self.assertNotIn("release-artifact-not-locally-verified", family["promotion_blockers"])
             self.assertNotIn("composition-bundle-not-built", family["promotion_blockers"])
@@ -112,6 +113,8 @@ class ReleasePipelineTests(unittest.TestCase):
                 manifest = json.load(archive.extractfile("manifest.json"))
             self.assertEqual(manifest["composition_sha256"], family["composition_sha256"])
             self.assertFalse(family["deployable"])
+            self.assertTrue(bedroom["deployable"])
+            self.assertEqual(bedroom["promotion_blockers"], [])
 
     def test_verified_bundle_build_is_byte_deterministic(self):
         artifact_root = ROOT.parent / "dist"

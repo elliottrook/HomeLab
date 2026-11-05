@@ -4,10 +4,10 @@
 
 | Device | State | Channel | Release | Hardware / output | Overlays | Composition |
 |---|---|---|---|---|---|---|
-| astertv-bedroom | production | production | `astertv-v2.0.7-2026-10-31` | Intel i5-9500T Bedroom appliance; stereo | `release-guard-v1`<br>`bedroom-stereo`<br>`bedroom-wifi-stability`<br>`remote-client-v3`<br>`tv-details-v3` | `e10552636ff1` |
-| astertv-family | production | production | `astertv-v2.0.7-2026-10-31` | Intel N95 Family appliance; Dolby passthrough and HDR | `release-guard-v1`<br>`family-dolby-hdr`<br>`remote-client-v3`<br>`family-equipment-bridge`<br>`family-kodi-restart`<br>`family-media-lifecycle`<br>`news-playback-v3`<br>`tv-details-v3` | `ba096640aadf` |
+| astertv-bedroom | production | production | `astertv-v2.0.7-2026-10-31` | Intel i5-9500T Bedroom appliance; stereo | `release-guard-v1`<br>`bedroom-stereo`<br>`bedroom-wifi-stability`<br>`remote-client-v3`<br>`tv-details-v3` | `a44818a509d1` |
+| astertv-family | production | production | `astertv-v2.0.7-2026-10-31` | Intel N95 Family appliance; Dolby passthrough and HDR | `release-guard-v1`<br>`family-dolby-hdr`<br>`remote-client-v3`<br>`family-equipment-bridge`<br>`family-kodi-restart`<br>`family-media-lifecycle`<br>`news-playback-v3`<br>`tv-details-v3` | `410cd36ce263` |
 | astertv-guest | candidate / not deployed | unassigned | `astertv-v2.0.7-2026-10-31` | Guest hardware not selected; pending | none | `5ca63262bb49` |
-| astertv-jen | lab | v3-lab | `astertv-v2.0.7-2026-10-31` | Lenovo M93p Jen low-spec appliance; 1080p stereo qualification | `release-guard-v1`<br>`jen-account-registry`<br>`jen-aster-client`<br>`jen-guest-catalogue`<br>`jen-home-cameras`<br>`jen-low-spec-runtime`<br>`tv-details-v3`<br>`jen-movie-youtube`<br>`news-playback-v3`<br>`jen-news-icons`<br>`jen-podcast-requests`<br>`remote-client-v3` | `a59a0ccbdaeb` |
+| astertv-jen | lab | v3-lab | `astertv-v2.0.7-2026-10-31` | Lenovo M93p Jen low-spec appliance; 1080p stereo qualification | `release-guard-v1`<br>`jen-account-registry`<br>`jen-aster-client`<br>`jen-guest-catalogue`<br>`jen-home-cameras`<br>`jen-low-spec-runtime`<br>`tv-details-v3`<br>`jen-movie-youtube`<br>`news-playback-v3`<br>`jen-news-icons`<br>`jen-podcast-requests`<br>`remote-client-v3` | `e3c2b56cea37` |
 
 ## Boundaries
 

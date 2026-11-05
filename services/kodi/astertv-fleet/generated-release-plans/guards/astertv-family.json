@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "ba096640aadfe43681db60c95277f211c91d07ad38ee5c60e1980277453d349f",
+  "composition_sha256": "410cd36ce2635e041ab390e63b06db4ec135cde0ce144edf062c4586c609ef49",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [
@@ -43,6 +43,20 @@
       "expected": "0600",
       "key": "asterremote-client-key.mode",
       "overlay": "remote-client-v3",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": true,
+      "key": "addon.enabled.plugin.video.astersearch",
+      "overlay": "tv-details-v3",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": "aa589c8939b627aa19f9ec9b7abf9a0852eb3b33595b8c884e2b56f8ddb2dba0",
+      "key": "family-manifest.component.aster-series-preview24",
+      "overlay": "tv-details-v3",
       "sensitive": false
     }
   ],
@@ -158,6 +172,90 @@
       "overlay": "family-kodi-restart",
       "path": "/storage/.kodi/addons/skin.asterhome/tools/select_dispatch.py",
       "sha256": "d5f1bea969f2acf8d084949ff84c24353c60bc29e6ad42ea4c22160a445d43f1"
+    },
+    {
+      "bytes": 343,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/plugin.video.astersearch/actor_search.py",
+      "sha256": "3af636f47623514d69e3aa8480a0de91f048eeb629c029fc8cc2d486b515a39c"
+    },
+    {
+      "bytes": 706,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/plugin.video.astersearch/addon.xml",
+      "sha256": "80ab9ffde1a06e3938825a37751aa0b1efbd8ac0dc8863bc438124938c3cdd85"
+    },
+    {
+      "bytes": 3735,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/plugin.video.astersearch/default.py",
+      "sha256": "6353c1473f25bd6b46fb37894e01ed101c89771f32dbf352d145debc9bcf97aa"
+    },
+    {
+      "bytes": 31824,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-series-preview24/default.py",
+      "sha256": "f81658e70630ed5c4b8c6e995b073be6c8287faabf5127fac8c1335fbbff720a"
+    },
+    {
+      "bytes": 1688,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-series-preview24/manifest.json",
+      "sha256": "aa589c8939b627aa19f9ec9b7abf9a0852eb3b33595b8c884e2b56f8ddb2dba0"
+    },
+    {
+      "bytes": 9633,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-series-preview24/resources/lib/series_seerr_client.py",
+      "sha256": "26615b4ca67745d60fd1ce60517fb4d4f2908407c4d2e44a40c4194c741e8c33"
+    },
+    {
+      "bytes": 14342,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-series-preview24/resources/skins/Default/1080i/SeriesPreview.xml",
+      "sha256": "cf708381d77b137e17036b44899dca5ce352c7b7dd52efc935875c1b08d07a7d"
+    },
+    {
+      "bytes": 10639,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-series-preview24/v3_series_extension.py",
+      "sha256": "c4c183c0ada6f7b7152760b78d837e01d39f546a0ec8491c253949138ecaf111"
+    },
+    {
+      "bytes": 1889,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/skin.asterhome/media/player-controls/trailer.png",
+      "sha256": "b2d7d331f02ddbced8c5eb875c43d3d9a0bdcf1c758cd9e4369ed38392730c71"
+    },
+    {
+      "bytes": 4519,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/skin.asterhome/media/ui-button-current-gold-rim.png",
+      "sha256": "cbaf368d835e864e68ba816c9184350d59a9c0a861e1de9b6e8e03b6bb955925"
+    },
+    {
+      "bytes": 4400,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/skin.asterhome/media/ui-button-focus-gold-rim.png",
+      "sha256": "c1de42c5d178eeb0c2136781f891c9543fea78a9a41c4a084a78d8fbc86f214f"
+    },
+    {
+      "bytes": 2265,
+      "mode": "0644",
+      "overlay": "tv-details-v3",
+      "path": "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_series.py",
+      "sha256": "79522aa5a816067b174ae932fbb7740a0aeccb84fde6443ee0b209cfaacb0b18"
     }
   ],
   "expected_resources": [

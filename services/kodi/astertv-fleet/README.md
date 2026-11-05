@@ -51,6 +51,14 @@ The composition guard now accepts exact payload observations and required
 dependency states. Missing, unknown or changed payloads, unavailable required
 dependencies, identity mismatch and composition mismatch all produce drift.
 
+Current bundle-build status (2026-11-05): Bedroom is the first composition with
+all selected overlays materialized. TV details is emitted as one 12-file tree
+whose recovered outputs are bound to the complete exact-hash transformer chain;
+Kodi addon enablement and the shared family-manifest component pin remain typed
+assertions. Family has three incomplete overlays, Jen has nine, and Guest is an
+intentional non-deployed candidate. This status is eligibility evidence, not a
+deployment instruction.
+
 Generated composition hashes deliberately exclude observations and timestamps.
 They remain stable for identical source manifests. Live state belongs in a
 future `observed/` Doctor surface and can never become desired state implicitly.

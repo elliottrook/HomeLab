@@ -6,8 +6,7 @@
       "artifact_verified": false,
       "blockers": [
         "release-artifact-not-locally-verified",
-        "composition-bundle-not-built",
-        "overlay-payload-incomplete:tv-details-v3"
+        "composition-bundle-not-built"
       ],
       "bundle_built": false,
       "bundle_sha256": null,
@@ -21,8 +20,7 @@
         "composition-bundle-not-built",
         "overlay-payload-incomplete:family-equipment-bridge",
         "overlay-payload-incomplete:family-media-lifecycle",
-        "overlay-payload-incomplete:news-playback-v3",
-        "overlay-payload-incomplete:tv-details-v3"
+        "overlay-payload-incomplete:news-playback-v3"
       ],
       "bundle_built": false,
       "bundle_sha256": null,
@@ -51,7 +49,6 @@
         "overlay-payload-incomplete:jen-guest-catalogue",
         "overlay-payload-incomplete:jen-home-cameras",
         "overlay-payload-incomplete:jen-low-spec-runtime",
-        "overlay-payload-incomplete:tv-details-v3",
         "overlay-payload-incomplete:jen-movie-youtube",
         "overlay-payload-incomplete:news-playback-v3",
         "overlay-payload-incomplete:jen-news-icons",
