@@ -2,30 +2,34 @@
   "deployable_devices": 0,
   "devices": [
     {
+      "artifact_verified": true,
       "blockers": [
-        "release-artifact-not-locally-verified"
+        "composition-bundle-not-built"
       ],
       "components": 6,
       "device_id": "astertv-bedroom"
     },
     {
+      "artifact_verified": true,
       "blockers": [
-        "release-artifact-not-locally-verified"
+        "composition-bundle-not-built"
       ],
       "components": 9,
       "device_id": "astertv-family"
     },
     {
+      "artifact_verified": true,
       "blockers": [
-        "release-artifact-not-locally-verified",
+        "composition-bundle-not-built",
         "candidate-not-deployable"
       ],
       "components": 1,
       "device_id": "astertv-guest"
     },
     {
+      "artifact_verified": true,
       "blockers": [
-        "release-artifact-not-locally-verified"
+        "composition-bundle-not-built"
       ],
       "components": 13,
       "device_id": "astertv-jen"
@@ -33,5 +37,6 @@
   ],
   "kind": "release-plan-summary",
   "mode": "plan-only",
-  "schema_version": 1
+  "schema_version": 1,
+  "verified_artifacts": 4
 }

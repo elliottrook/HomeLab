@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import os
@@ -25,6 +26,14 @@ def canonical(value: object) -> bytes:
     return (json.dumps(value, sort_keys=True, indent=2, ensure_ascii=True) + "\n").encode()
 
 
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for block in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def atomic_write(path: Path, data: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}-", dir=path.parent)
@@ -39,7 +48,7 @@ def atomic_write(path: Path, data: bytes) -> None:
             os.unlink(temporary)
 
 
-def build(root: Path, output: Path) -> dict:
+def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
     root = root.resolve()
     output = output.resolve()
     with tempfile.TemporaryDirectory(prefix="astertv-plan-compositions-") as compiled:
@@ -48,6 +57,7 @@ def build(root: Path, output: Path) -> dict:
     overlays = {item["id"]: item for item in (FLEET.load_json_yaml(path) for path in sorted((root / "overlays").glob("*.yaml")))}
     budgets = load(root / "policies/performance-budgets.json")
     compatibility = load(root / "policies/compatibility.json")
+    artifact_root = artifact_root.resolve() if artifact_root else None
     results = []
     for desired in compositions:
         release = releases[desired["release"]]
@@ -82,7 +92,18 @@ def build(root: Path, output: Path) -> dict:
                     {"name": "astertv:layer", "value": overlay["layer"]},
                 ],
             })
-        blockers = ["release-artifact-not-locally-verified"]
+        artifact_path = artifact_root / release["artifact"]["name"] if artifact_root else None
+        artifact_verified = False
+        artifact_observed_sha256 = None
+        if artifact_path and artifact_path.is_file():
+            artifact_observed_sha256 = file_sha256(artifact_path)
+            if artifact_observed_sha256 != release["artifact"]["sha256"]:
+                raise FLEET.FleetError(f'artifact-hash-mismatch:{release["id"]}')
+            artifact_verified = True
+        blockers = []
+        if not artifact_verified:
+            blockers.append("release-artifact-not-locally-verified")
+        blockers.append("composition-bundle-not-built")
         if not desired["deployed"]:
             blockers.append("candidate-not-deployable")
         plan = {
@@ -91,6 +112,12 @@ def build(root: Path, output: Path) -> dict:
             "device_id": desired["device_id"],
             "composition_sha256": desired["composition_sha256"],
             "release": desired["release"],
+            "artifact": {
+                "name": release["artifact"]["name"],
+                "expected_sha256": release["artifact"]["sha256"],
+                "observed_sha256": artifact_observed_sha256,
+                "verified": artifact_verified,
+            },
             "compatibility": release["compatibility"],
             "performance_budget": budget,
             "overlays": overlay_rows,
@@ -121,8 +148,8 @@ def build(root: Path, output: Path) -> dict:
         atomic_write(output / "plans" / f'{desired["device_id"]}.json', canonical(plan))
         atomic_write(output / "sbom" / f'{desired["device_id"]}.cdx.json', canonical(sbom))
         atomic_write(output / "guards" / f'{desired["device_id"]}.json', canonical(guard))
-        results.append({"device_id": desired["device_id"], "blockers": blockers, "components": len(components)})
-    summary = {"schema_version": 1, "kind": "release-plan-summary", "devices": results, "deployable_devices": 0, "mode": "plan-only"}
+        results.append({"device_id": desired["device_id"], "blockers": blockers, "components": len(components), "artifact_verified": artifact_verified})
+    summary = {"schema_version": 1, "kind": "release-plan-summary", "devices": results, "deployable_devices": 0, "verified_artifacts": sum(1 for row in results if row["artifact_verified"]), "mode": "plan-only"}
     atomic_write(output / "release-plan-summary.json", canonical(summary))
     return summary
 
@@ -131,9 +158,10 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=HERE)
     parser.add_argument("--output", type=Path, default=HERE / "generated-release-plans")
+    parser.add_argument("--artifact-root", type=Path)
     args = parser.parse_args(argv)
     try:
-        result = build(args.root, args.output)
+        result = build(args.root, args.output, args.artifact_root)
     except FLEET.FleetError as exc:
         parser.exit(2, f"release planning failed: {exc}\n")
     print(json.dumps(result, sort_keys=True))

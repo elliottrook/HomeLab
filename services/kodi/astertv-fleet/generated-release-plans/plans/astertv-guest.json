@@ -1,4 +1,10 @@
 {
+  "artifact": {
+    "expected_sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7",
+    "name": "astertv-v2.0.7-release-2026-10-31.tar.gz",
+    "observed_sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7",
+    "verified": true
+  },
   "compatibility": {
     "kodi": "22.0-rc1-01d4146",
     "libreelec": "nightly-20261021-440640e",
@@ -20,7 +26,7 @@
     "qualification_required": true
   },
   "promotion_blockers": [
-    "release-artifact-not-locally-verified",
+    "composition-bundle-not-built",
     "candidate-not-deployable"
   ],
   "promotion_policy": {

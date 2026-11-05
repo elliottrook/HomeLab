@@ -9,7 +9,9 @@
   archive and pinned the archive, SVG master and four runtime export hashes.
 - Added plan-only per-device release plans, CycloneDX SBOMs, compatibility,
   deprecation, hardware-specific performance budgets and desired-state guard
-  classification; every plan remains non-deployable until artifact verification.
+  classification. Verified the immutable v2.0.7 archive and proved synthetic
+  interrupted promotion plus isolated rollback; plans remain non-deployable
+  until exact overlay payloads can form composition bundles.
 - Added a fail-closed Guest onboarding planner and replacement, rotation,
   retirement and EOL workflows with no mutation implementation.
 - Built, officially validated, independently forward-tested and hash-installed

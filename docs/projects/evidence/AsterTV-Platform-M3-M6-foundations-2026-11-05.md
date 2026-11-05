@@ -31,15 +31,20 @@ plan, CycloneDX SBOM and desired-state guard contract for Family, Bedroom, Jen
 and the Guest candidate. Compatibility/deprecation policy and per-hardware
 performance budgets preserve Jen's 1080p/stereo limit as Jen-only.
 
-All plans deliberately report `deployable: false` and the blocker
-`release-artifact-not-locally-verified`; Guest also reports
+The immutable local v2.0.7 archive now matches its recorded SHA-256 for every
+composition. All plans still deliberately report `deployable: false` and the
+blocker `composition-bundle-not-built`; Guest also reports
 `candidate-not-deployable`. `composition_guard.py` classifies clean state,
 registered extras, missing/unknown resources, dependency loss, composition
-drift and identity mismatch. The combined fleet/release suite passes 14/14.
+drift and identity mismatch. The combined fleet/release suite passes 17/17.
+
+The atomic transaction fixture injects an interruption after the predecessor
+move, proves automatic predecessor restoration, then proves normal promotion
+and isolated rollback to the old bytes.
 
 This is not yet a deployable global/profile/overlay bundle and is not wired into
-the appliance guard or HomeLab Doctor. Interrupted deployment and isolated
-rollback proof remain M4 work.
+the appliance guard or HomeLab Doctor. Each overlay must first declare exact
+payload paths and hashes; metadata-only packaging is intentionally rejected.
 
 ## M5 onboarding foundation
 

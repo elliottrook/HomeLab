@@ -525,7 +525,7 @@ deliberately pending; no live wiki or mirror changed in M2 preparation.
 - [ ] Compile global/profile/overlay bundles and device manifests.
 - [x] Add matrix, SBOM, compatibility, deprecation and performance gates.
 - [ ] Upgrade guard/Doctor for desired state, registered extras and dependencies.
-- [ ] Prove interrupted build/deploy and isolated rollback.
+- [x] Prove interrupted build/deploy and isolated rollback.
 
 **Gate:** a synthetic global change cannot promote if any composition fails.
 
@@ -622,8 +622,9 @@ tests include deliberate ownership, dependency, compatibility, candidate and
 secret-bearing failures. M2 is a local wiki candidate only. M3 supplies the
 hash-bound design authority and synthetic reference library but still needs
 owner visual acceptance. M4 has deterministic plan-only SBOM, compatibility,
-performance and composition-guard foundations; it does not yet build or deploy
-an appliance bundle. M5's Guest fixture fails closed on unresolved physical and
+performance and composition-guard foundations; the immutable v2.0.7 archive is
+locally hash-verified and synthetic interrupted promotion/rollback is proven,
+but M4 does not yet build or deploy an appliance bundle. M5's Guest fixture fails closed on unresolved physical and
 NetBox facts. Both M6 skills are installed from a hash manifest and passed
 independent effect-free forward tests. No published wiki, Aster mirror or live
 AsterTV changed.
@@ -646,6 +647,7 @@ interrupted rollback proof before any M7 appliance migration.
 | 2026-11-05 | Completed M1 lifecycle and composition foundation | `docs/Environment-and-Release-Lifecycle.md`; `services/kodi/astertv-fleet/`; `docs/projects/evidence/AsterTV-Platform-M1-composition-foundation-2026-11-05.md` | Four devices compile deterministically; three remain deployed unchanged and Guest remains candidate; 8/8 gates pass including deliberate conflicts and secret rejection |
 | 2026-11-05 | Built and validated the additive M2 HomeLab Wiki candidate | Local `homelab-wiki` commit `1fdcf6a`; `docs/projects/evidence/AsterTV-Platform-M2-wiki-candidate-2026-11-05.md`; two pinned intake sources | 25 pages, 3/3 tests and real bounded source fetches pass; human acceptance/push/LXC publication/mirror remain pending; no live system changed |
 | 2026-11-05 | Built M3–M6 platform foundations | `docs/projects/evidence/AsterTV-Platform-M3-M6-foundations-2026-11-05.md`; design, release-plan, onboarding and skill packages | Hash-bound design assets and fixtures, plan-only SBOM/guards, least-privilege Guest planning and two independently tested skills; no appliance/wiki publication |
+| 2026-11-05 | Verified the immutable base and transaction recovery | v2.0.7 archive hash, 17/17 fleet/release tests, synthetic interruption and rollback fixture | All plans now prove the base artifact; deployment remains blocked until every overlay declares exact payload paths/hashes and guard/Doctor integration is complete |
 
 ## Close-out
 
