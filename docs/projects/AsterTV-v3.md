@@ -1200,6 +1200,16 @@ regression coverage; representative listening and any synthesis remain a
 separate booked live gate. Evidence is in
 `docs/projects/evidence/AsterTV-v3-M5-pronunciation-readonly-audit-2026-11-04.md`.
 
+The same day's read-only podcast audit confirms Audiobookshelf 2.36.0 as the
+correct discovery/catalogue authority, but not as a direct AsterTV write
+target. The existing AsterTV client is intentionally a non-admin account with
+no update/upload/delete authority, while Audiobookshelf requires admin-or-up
+authority to create a podcast. Search, stable provider/feed identity and
+duplicate preview can remain client-readable; submission needs a separately
+authorized, server-side semantic broker or an owner-approved request queue.
+Evidence and the proposed bounded gate are in
+`docs/projects/evidence/AsterTV-v3-M5-podcast-request-readonly-audit-2026-11-04.md`.
+
 Gate: real-book listening and timing acceptance, News regression pass and one
 synthetic/reversible podcast request path with no duplicate side effect.
 
