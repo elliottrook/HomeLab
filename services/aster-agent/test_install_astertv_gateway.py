@@ -11,6 +11,8 @@ class AsterTVInstallTests(unittest.TestCase):
         source = (ROOT / "astertv_with_delegation.py").read_text()
         self.assertIn("attach(app, companion_owner)", source)
         self.assertIn("app.include_router(from_environment().router)", source)
+        self.assertIn("remote_from_environment", source)
+        self.assertIn("companion_claims", source)
         self.assertNotIn("ASTER_API_KEY", source)
 
     def test_dropin_uses_separate_environment_and_wrapper(self):

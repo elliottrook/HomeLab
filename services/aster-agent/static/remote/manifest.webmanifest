@@ -1,0 +1,18 @@
+{
+  "id": "/remote",
+  "name": "Aster Remote",
+  "short_name": "Remote",
+  "start_url": "/remote/",
+  "scope": "/remote/",
+  "display": "standalone",
+  "background_color": "#17130f",
+  "theme_color": "#17130f",
+  "icons": [
+    {
+      "src": "/aster-app-icon.png",
+      "sizes": "2048x2048",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17130f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Aster Remote">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Aster Remote</title>
+  <link rel="manifest" href="/remote/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/aster-app-icon.png">
+  <link rel="stylesheet" href="/remote/styles.css">
+</head>
+<body>
+  <main>
+    <section id="login" class="login" hidden>
+      <img src="/aster-app-icon.png" alt="" width="92" height="92">
+      <h1>Aster Remote</h1>
+      <p>Private control for your AsterTV.</p>
+      <button id="signIn" class="gold">Sign in with passkey</button>
+      <p id="loginError" class="error" role="alert"></p>
+    </section>
+
+    <section id="remote" hidden>
+      <header>
+        <div class="brand">
+          <img src="/aster-app-icon.png" alt="" width="54" height="54">
+          <div><p class="kicker">AsterTV</p><h1>Remote</h1></div>
+        </div>
+        <button id="signOut" class="quiet">Sign out</button>
+      </header>
+
+      <section class="roombar panel" aria-label="Connection">
+        <label for="room">Room</label>
+        <select id="room"></select>
+        <span id="connection" class="status disconnected" role="status">Disconnected</span>
+        <span id="now" class="now"></span>
+      </section>
+
+      <section class="panel control-panel">
+        <div id="touchpad" class="touchpad" tabindex="0" role="button"
+             aria-label="Touchpad: swipe to navigate, tap to select, hold for context menu">
+          <img src="/aster-app-icon.png" alt="" width="58" height="58">
+          <strong>Swipe · Tap · Hold</strong>
+          <span>Navigate · Select · Context</span>
+        </div>
+        <div class="dpad" aria-label="Directional controls">
+          <button data-action="nav.up" aria-label="Up">▲</button>
+          <button data-action="nav.left" aria-label="Left">◀</button>
+          <button data-action="nav.select" class="select" aria-label="Select">OK</button>
+          <button data-action="nav.right" aria-label="Right">▶</button>
+          <button data-action="nav.down" aria-label="Down">▼</button>
+        </div>
+        <div class="transport">
+          <button data-action="nav.back">Back</button>
+          <button data-action="nav.home">Home</button>
+          <button data-action="playback.toggle">Play / Pause</button>
+          <button data-action="nav.context">More</button>
+        </div>
+      </section>
+
+      <section class="panel input-panel">
+        <form id="searchForm">
+          <label for="search">Search AsterTV</label>
+          <div class="input-row">
+            <input id="search" maxlength="512" autocomplete="off" enterkeyhint="search"
+                   placeholder="Movies, television, music or listening">
+            <button type="button" id="voice" class="icon" aria-label="Voice search">●</button>
+            <button type="submit" class="gold">Search</button>
+          </div>
+          <p id="heard" class="heard" aria-live="polite"></p>
+        </form>
+
+        <form id="textForm">
+          <label for="text">Type into Kodi’s open keyboard</label>
+          <div class="input-row">
+            <input id="text" maxlength="512" autocomplete="off" autocapitalize="sentences"
+                   placeholder="Symbols and paste work here">
+            <button type="submit" class="gold">Send</button>
+          </div>
+          <div class="text-actions">
+            <button type="button" data-action="text.backspace">Backspace</button>
+            <button type="button" data-action="text.clear">Clear</button>
+            <button type="button" data-action="text.cancel">Cancel</button>
+            <button type="button" data-action="text.enter">Enter</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel equipment" aria-label="Equipment controls unavailable">
+        <div><p class="kicker">Room equipment</p><p>Volume, mute and power arrive with the M7 equipment bridge.</p></div>
+        <div class="disabled-row" aria-disabled="true">
+          <button disabled>Volume −</button><button disabled>Mute</button>
+          <button disabled>Volume +</button><button disabled>Power</button>
+        </div>
+      </section>
+      <p id="error" class="error" role="alert"></p>
+    </section>
+  </main>
+  <script src="/remote/app.js"></script>
+</body>
+</html>

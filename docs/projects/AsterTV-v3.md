@@ -1418,6 +1418,71 @@ or IR path is sufficient.
 
 ### M8 — Aster Remote iPhone web app
 
+#### SA-M8-JEN — private PWA and outbound Jen command bridge
+
+Jason directed that M8 follow the completed M6 milestone and approved continued
+Stream A work with milestone-end pushes. This bounded first M8 slice may:
+
+- add the Aster Remote PWA at `https://aster.elliottrook.com/remote`, reusing
+  the existing private HTTPS host, Aster Companion public OIDC client, passkey
+  flow and local `/voice/` STT route;
+- add the strict `/remote` redirect URI to that existing public client after a
+  verified Authentik checkpoint, without changing its authentication flow,
+  claims, other redirect URIs or users;
+- add a capability-scoped remote router to Aster LXC 104 and one independently
+  revocable AsterTV-Jen client identity held only in the existing private
+  credential custody pattern;
+- let Jen maintain an outbound authenticated long poll over its existing
+  client-to-Aster TCP 9120 path, executing only the enumerated navigation,
+  Play/Pause, direct Search and active-Kodi-keyboard actions;
+- checkpoint/restart only Aster Agent and idle Jen Kodi as required, validate
+  with synthetic input first, prove exact rollback/reinstall, and update
+  content-free evidence, recovery and operator documentation; and
+- create local commits and synchronize completed milestones through Forgejo
+  under the owner's standing milestone-end push direction.
+
+It does **not** authorize Family or Bedroom deployment, a public route, new
+DNS/certificate/firewall path, arbitrary Kodi JSON-RPC, shell, Home Assistant
+or equipment control, volume/mute/power, viewing-history export, credential or
+typed-text logging, background audio, M7 implementation or release promotion.
+Volume, mute and power remain visibly unavailable until M7 adopts room-level
+equipment authority. Voice is input-only through the existing local CPU STT
+route; this slice produces no Aster speech and does not use the shared AI stack
+or require Lab Hours.
+
+The principal risks are a browser token or typed text escaping storage, a web
+endpoint becoming a general Kodi proxy, duplicate commands after reconnect,
+profile/room crossover, remote control while the television is unattended and
+regression of the shared Aster/Companion service. Controls are short-lived
+same-origin PKCE sessions, no refresh/token/content caching, exact origin and
+profile/room allowlists, per-client keys, semantic schemas, expiry,
+idempotency/rate limits, at-most-once delivery, content-free logs, an outbound
+client path, physical-remote fallback, additive routes and exact checkpoints.
+Abort on secret/content output, broader identity claims, an unexpected
+redirect/proxy/firewall change, an unknown Aster wrapper, active playback at a
+Kodi restart, checkpoint failure or any target other than LXC 104 and
+`AsterTV-Jen`.
+
+- [x] SA-M8-JEN1: implement and locally test the credential-free gateway,
+  installable shell and Jen client protocol, including denial and failure
+  contracts.
+- [ ] SA-M8-JEN2: checkpoint the existing Authentik/Aster/Jen boundaries and
+  install only the additive redirect, Aster router and idle Jen client.
+- [ ] SA-M8-JEN3: pass real iPhone passkey, Home Screen, touch/hold/swipe,
+  search, text/symbol/paste/dictation, sleep/reconnect and denial tests.
+- [ ] SA-M8-JEN4: prove rollback/reinstall, add Doctor/backup/operator evidence
+  and close the Jen pilot before any Family/Bedroom or M7 work.
+
+The SA-M8-JEN1 candidate is additive and not deployed. It provides a
+same-origin, passkey-PKCE PWA shell; an in-memory, expiring, at-most-once
+semantic queue; exact owner/room/origin/client gates; bounded rate and queue
+limits; content-free connection state; and an outbound-only Jen Kodi service.
+The client implements navigation, context, Play/Pause, accepted global Search
+and active-keyboard Send/Backspace/Clear/Cancel/Enter. Volume, mute and power
+remain disabled in the UI. Five protocol tests pass in Aster's pinned runtime;
+15 static/client/wrapper tests and both JavaScript syntax checks pass locally.
+Evidence: `docs/projects/evidence/AsterTV-v3-M8-Jen-remote-candidate-2026-11-04.md`.
+
 - [ ] Capture the useful Apple TV Remote interaction set as a design reference:
   swipe or directional navigation, tap/OK, hold for context, Back/Home,
   Play/Pause, volume, mute, power, text entry/search and explicit voice search.
@@ -1732,6 +1797,7 @@ explicit user acceptance.
 | 2026-11-04 | Opened the Jen-only M6 Home/camera Stream A | Read-only audit found a strongly validated 63-entity schema-4 display export and a bounded localhost-only, five-minute camera viewer, but the v2 page still combines Home, camera and timer while the v3 profile gate grants Jason neither a Home mapping nor Home/camera entitlement. No household values or credentials were captured. | `SA-M6-JEN` permits a separate Home/Cameras overlay and distinct read-only `home_status`/`camera_view` authority on Jen only. It excludes Home Assistant writes, source/network/credential changes, continuous/background capture, door events, Family/Bedroom and M7. Next safe action is local candidate and denial/failure tests. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-readonly-audit-2026-11-04.md`. |
 | 2026-11-04 | Built the Jen M6 Home/Cameras candidate | Exact-hash transform removes the live viewer from Home while retaining the schema-4 list, freshness notice, summary cards and local timer. New window `11134` owns the unchanged five-minute/two-second camera lifecycle. Account authority now distinguishes `home_status` and `camera_view`; Jason gains neither `home_control` nor legacy `cameras`, and Guest/direct-window routes remain denied. | Seven M6, 30 account, 15 Aster-client and 37 shared v3 tests pass, including malformed identity, independent entitlement, closed focus graph and installer/rollback boundary checks. Candidate is local only; next safe action is idle Jen checkpoint/install and physical navigation/failure validation. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-candidate-2026-11-04.md`. |
 | 2026-11-04 | Completed the Jen M6 read-only Home/Cameras slice | Retained the separate Home and Cameras windows, distinct `home_status`/`camera_view` authority and unchanged restricted viewer path after exact rollback/reinstall. The approved Home Assistant restart loaded the reviewed three-target publisher; its first populated cycle delivered 63 schema-4 entities to Jen. A reboot audit found the inherited camera unit enabled without an open page, so an exact-hash correction now disables/stops it before Kodi. | Home → Cameras → Back, Guest direct-window denial, unavailable state, one bounded still, active-digest isolation and two reboots pass. Camera lifecycle rollback/reinstall restored and then removed the legacy enabled/active state exactly; after reboot it remains disabled/inactive, starts only from Live view and stops on Back. Final totals: 8 M6, 30 account, 15 Aster-client and 37 shared tests. Evidence: `docs/projects/evidence/AsterTV-v3-M6-Jen-candidate-2026-11-04.md`. |
+| 2026-11-04 | Built the credential-free M8 Jen Remote candidate | Added an installable `/remote/` shell, short-lived passkey/PKCE session, strict owner/room/origin/client gateway, expiring at-most-once semantic queue and outbound-only Jen service. The client exposes navigation, context, Home, Play/Pause, accepted Search and active-keyboard input only; M7 equipment controls remain visibly disabled. | Five protocol tests pass in Aster's pinned environment; 15 local static/client/wrapper tests and both JavaScript syntax checks pass. No live route, redirect, credential, service or client changed. Next gate is exact live checkpoint and additive Authentik/Aster/Jen installation under `SA-M8-JEN`. Evidence: `docs/projects/evidence/AsterTV-v3-M8-Jen-remote-candidate-2026-11-04.md`. |
 
 ## Close-out
 
