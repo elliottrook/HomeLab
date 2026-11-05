@@ -449,3 +449,13 @@ push, production model/backend replacement, new access grant or unrelated
 deployment. Product/sandbox escalations remain technical controls and should
 be requested through the execution mechanism rather than recast as project
 approval questions.
+
+**Release-pressure clarification, 2026-11-05:** the active Candidate-J booked
+run, reconciliation, blind review, quality decision, release-candidate
+assembly, evidence, commits and milestone pushes are autonomous Stream A work.
+Do not pause at those checkpoints. Pause only before an actual promotion or
+new production effect—routing, tool/repair authority, materially new
+deployment, model/backend replacement or an unrecorded restart—or at another
+non-waivable gate. M3 external custody and sealed-evaluation evidence are
+external dependencies rather than approval prompts and must not be
+self-certified.
