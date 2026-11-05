@@ -159,6 +159,14 @@
 > platform commit `1e953c1b`; candidate-j is installed but inert. Next is one
 > exact conflict-free booked public-development transaction.
 
+> **Candidate-j R1 NO-GO / R2 scheduled:** R1 claimed exactly at 21:00 but
+> failed restored before transport because its wrapper rejected expected inert
+> predecessor packets in the shared runtime root. No model request ran. The
+> corrected wrapper is installed on host/guest at `a883c144…5f2a` while the
+> 41-pin release preserves concurrent EPUB alignment. R2 is booked for the
+> first complete clear window, 23:00–23:45; AsterTV retains 22:15–23:00
+> including recovery. R1 is spent and will not be retried.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
