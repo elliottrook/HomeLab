@@ -12,7 +12,10 @@ from typing import Callable
 
 
 WORKLOAD_ID = "sa3-evidence-matrix-candidate-j-public-v1"
-FIXTURE_SHA256 = "40f7cfeeb3884887c32f5674afdb840d764214730a23e71c1df660a08953572f"
+FIXTURE_FILE_SHA256 = (
+    "40f7cfeeb3884887c32f5674afdb840d764214730a23e71c1df660a08953572f")
+FIXTURE_SEMANTIC_SHA256 = (
+    "cb94f6ea576aafa7710b72e8711510864eb0026f39f14d53f100f3c470ae8e85")
 CASE_COUNT = 6
 MODEL_REQUEST_COUNT = 2
 DEADLINE_SECONDS = 1800
@@ -38,7 +41,7 @@ def validate_result(value: object) -> dict[str, object]:
     if (value["schema"] != "aster-sa3-evidence-matrix-public-result.v1"
             or value["candidate_alias"] != "candidate-j"
             or not isinstance(value["model"], str) or not value["model"]
-            or value["fixture_sha256"] != FIXTURE_SHA256
+            or value["fixture_sha256"] != FIXTURE_SEMANTIC_SHA256
             or value["case_count"] != CASE_COUNT
             or value["model_request_count"] != MODEL_REQUEST_COUNT
             or value["retry_count"] != 0

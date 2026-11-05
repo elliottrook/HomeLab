@@ -11,8 +11,7 @@ def valid_result():
     return {
         "schema": "aster-sa3-evidence-matrix-public-result.v1",
         "candidate_alias": "candidate-j", "model": wrapper.MODEL,
-        "fixture_sha256": wrapper.PINS[
-            "sa3-evidence-matrix-candidate-j-public-v1.json"],
+        "fixture_sha256": wrapper.FIXTURE_SEMANTIC_SHA256,
         "case_count": 6, "model_request_count": 2, "retry_count": 0,
         "predictions": [{
             "effects": [], "authority": "none", "error_class": None,
@@ -34,6 +33,16 @@ class CandidateJGuestWrapperTests(unittest.TestCase):
         self.assertNotIn(
             "sa3-evidence-envelope-candidate-i-quality-v1.json", wrapper.PINS)
         self.assertFalse(any("candidate-i" in name for name in wrapper.PINS))
+
+    def test_file_custody_and_semantic_result_digests_are_distinct(self):
+        self.assertEqual(wrapper.FIXTURE_FILE_SHA256, wrapper.PINS[
+            "sa3-evidence-matrix-candidate-j-public-v1.json"])
+        self.assertNotEqual(wrapper.FIXTURE_FILE_SHA256,
+                            wrapper.FIXTURE_SEMANTIC_SHA256)
+        value = valid_result()
+        value["fixture_sha256"] = wrapper.FIXTURE_FILE_SHA256
+        with self.assertRaisesRegex(wrapper.GuestError, "identity or count"):
+            wrapper.validate_result(value)
 
     def test_valid_result_accepts_only_no_effect_zero_error_batch(self):
         wrapper.validate_result(valid_result())

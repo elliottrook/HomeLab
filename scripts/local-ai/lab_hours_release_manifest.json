@@ -36,10 +36,10 @@
     "sa3_evidence_envelope_listener_adapter.py": "e8c8cbcc875fe3f48035425f776a59f5ab81a6564f3f6acba38eb1dd63597a1b",
     "sa3_candidate_i_evidence_envelope_transaction.py": "c1d40abe685860ba6202ea5b18425a1ba8fbcc5e5aa7e820ae555ec08c922131",
     "sa3_candidate_i_evidence_envelope_listener_adapter.py": "80e7491b3d9bd3c457bf362baae97ba3377ac260dde1169933ddbdbc97cc1ee6",
-    "aster_llama_sa3_candidate_j_evidence_matrix_wrapper.py": "a883c144ead962dc5862c54005a90157db173e88667122a89a23496796f05f2a",
+    "aster_llama_sa3_candidate_j_evidence_matrix_wrapper.py": "fc283224e86319ebcc267be481f6a9cf4c9b27801bb822b0b3b0ad19d5c506f4",
     "sa3_candidate_j_evidence_matrix_listener_adapter.py": "bef9e8f4a8845847448691d8054b23321dfcf6ef177e5b7250b5bcadc435a4df",
-    "sa3_candidate_j_evidence_matrix_transaction.py": "a7a1ccc86308a6dc8991dbc666be464b0a7eb9746862c5842f829bcaa7be35ab"
+    "sa3_candidate_j_evidence_matrix_transaction.py": "c2fbcf6b81a934c5d043648142acb019c4b571d9ed2c3373a5c59b7438994108"
   },
-  "release": "sa3-candidate-j-runner-source-v14",
+  "release": "sa3-candidate-j-digest-contract-source-v15",
   "schema": "aster-lab-hours-release-manifest.v1"
 }

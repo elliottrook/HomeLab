@@ -57,6 +57,10 @@ PINS = {
     "sa3_evidence_matrix_candidate_j_batch.py":
         "856bc39083d078712dbf7289d2524dc0688e07ad5c645382d5dba9d99a75b388",
 }
+FIXTURE_FILE_SHA256 = PINS[
+    "sa3-evidence-matrix-candidate-j-public-v1.json"]
+FIXTURE_SEMANTIC_SHA256 = (
+    "cb94f6ea576aafa7710b72e8711510864eb0026f39f14d53f100f3c470ae8e85")
 EXCLUDED = (
     "sa3_evidence_envelope_blind_review_v1.py",
     "sa3_evidence_envelope_decision_v1.py",
@@ -230,8 +234,7 @@ def validate_result(value: object) -> None:
             or value.get("schema") != "aster-sa3-evidence-matrix-public-result.v1"
             or value.get("candidate_alias") != "candidate-j"
             or value.get("model") != MODEL
-            or value.get("fixture_sha256") != PINS[
-                "sa3-evidence-matrix-candidate-j-public-v1.json"]
+            or value.get("fixture_sha256") != FIXTURE_SEMANTIC_SHA256
             or value.get("case_count") != CASES
             or value.get("model_request_count") != MODEL_REQUESTS
             or value.get("retry_count") != 0

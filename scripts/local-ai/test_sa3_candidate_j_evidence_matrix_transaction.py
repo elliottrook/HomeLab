@@ -25,7 +25,7 @@ def valid_result():
     return {
         "schema": "aster-sa3-evidence-matrix-public-result.v1",
         "candidate_alias": "candidate-j", "model": "accepted-local-model",
-        "fixture_sha256": transaction.FIXTURE_SHA256,
+        "fixture_sha256": transaction.FIXTURE_SEMANTIC_SHA256,
         "case_count": 6, "model_request_count": 2, "retry_count": 0,
         "predictions": rows, "errors": [], "authority": "none",
         "automatic_routing": "off",
@@ -46,6 +46,14 @@ class Controller:
 
 
 class CandidateJEvidenceMatrixTransactionTests(unittest.TestCase):
+    def test_file_custody_and_semantic_result_digests_are_distinct(self):
+        self.assertNotEqual(transaction.FIXTURE_FILE_SHA256,
+                            transaction.FIXTURE_SEMANTIC_SHA256)
+        value = valid_result()
+        value["fixture_sha256"] = transaction.FIXTURE_FILE_SHA256
+        with self.assertRaisesRegex(transaction.TransactionError, "IDENTITY"):
+            transaction.validate_result(value)
+
     def test_valid_result_binds_two_requests_and_no_errors(self):
         metadata = transaction.validate_result(valid_result())
         self.assertEqual(2, metadata["model_request_count"])
