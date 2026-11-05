@@ -72,3 +72,15 @@ failures. Its output recommends only acceptance as the D4 investigation
 release candidate and names bounded SA4 repair-class design as the next
 milestone; owner decision remains required and deployment, authority, routing
 and promotion remain false. The full Candidate-J suite passes 49/49.
+
+## Intervening TTS transaction check
+
+The separate 08:30 TTS booking claimed exactly but ended `NO_GO` after 96
+seconds. Stream A did not retry, shorten or repair that other owner's workload.
+Its restoration boundary passed: the lease is ready, lease/state/operation
+locks are absent, Doctor and dispatcher last results are success, and
+`pvescheduler`/`pvestatd` are active. Aster Agent, accepted llama.cpp/SYCL and
+Speech are active. The installed combined release still reads as
+`aster-tts-dual-cpu-screen-plus-candidate-j-quality-v1` with 46/46 exact pins.
+Candidate-J therefore remains scheduled at its original 10:16 time; the
+earlier protected window and recovery reserve are not reused.
