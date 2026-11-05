@@ -1470,7 +1470,7 @@ Kodi restart, checkpoint failure or any target other than LXC 104 and
   install only the additive redirect, Aster router and idle Jen client.
 - [ ] SA-M8-JEN3: pass real iPhone passkey, Home Screen, touch/hold/swipe,
   search, text/symbol/paste/dictation, sleep/reconnect and denial tests.
-- [ ] SA-M8-JEN4: prove rollback/reinstall, add Doctor/backup/operator evidence
+- [x] SA-M8-JEN4: prove rollback/reinstall, add Doctor/backup/operator evidence
   and close the Jen pilot before any Family/Bedroom or M7 work.
 
 ##### SA-M8-JEN3 British-English Remote refinement
@@ -1839,6 +1839,7 @@ explicit user acceptance.
 | 2026-11-05 | Enrolled Family and Bedroom in the private Aster Remote | Preserved Jen and added separate mode-0600, independently revocable Family and Bedroom identities through the existing outbound-only TCP 9120 path. No equipment authority, inbound client port or infrastructure route was added. | Two harness-only gateway attempts restored Jen exactly; the corrected accepted checkpoint is `astertv-v3-m8-rooms-20261105-r3`. Both room add-ons are enabled, Kodi is idle, the gateway advertises all three authorized rooms and transient key handoffs are removed. Evidence: `docs/projects/evidence/AsterTV-v3-M8-room-enrollment-2026-11-05.md`. |
 | 2026-11-05 | Made Remote voice search editable and synchronized safe Kodi text | Voice recognition now populates a punctuation-normalized Search draft for correction or append before submission. Kodi's initial non-secret input value is mirrored in volatile owner/room state and updated as a whole field; password types expose neither title nor value. | Gateway and all three clients were independently checkpointed and restarted idle. All clients report the same service hash, established polls remain, no Remote traceback appeared and all transient staging is gone. Evidence: `docs/projects/evidence/AsterTV-v3-M8-input-sync-2026-11-05.md`. |
 | 2026-11-05 | Added Aster Remote Doctor and operator recovery coverage | The content-free probe checks route denial, exact room assignment, client/add-on health, mode-0600 custody and stable/live/manifest parity without reading key values or household content. The runbook records use, diagnosis, checkpoints and the revoke/reissue boundary for intentionally unbacked client keys. | Four fixture tests, shell syntax and a live three-room probe pass. Existing LXC 104 whole-guest backup protects the gateway; client code remains reconstructible from stable custody and Git. A deliberate client rollback/reinstall rehearsal remains open. Runbook: `docs/runbooks/Aster-Remote.md`. |
+| 2026-11-05 | Proved Aster Remote rollback and reinstall on Bedroom | With Kodi idle, restored the exact pre-input-sync client, restarted and verified the enabled add-on, then reinstalled the accepted client and rebuilt stable custody. The rehearsal's failure path restores the accepted version, not the predecessor. | Bedroom finished active with matching live/stable hash `1a4d52f3…fbce`; the full content-free three-room Doctor probe passed and staging was removed. SA-M8-JEN4 resilience evidence is complete; real iPhone input acceptance remains in SA-M8-JEN3. |
 
 ## Close-out
 

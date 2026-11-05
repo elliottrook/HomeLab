@@ -42,6 +42,17 @@ the client and rejected by the gateway model if supplied.
   current Kodi logs contained a Remote traceback.
 - All Proxmox, LXC and client staging was removed after acceptance.
 
+## Rollback/reinstall rehearsal
+
+After explicit approval, Bedroom was rechecked idle and its accepted input-sync
+client was restored to the exact checkpointed predecessor
+`22e06499…207a`. Kodi restarted with the predecessor add-on enabled. The same
+guarded operation then reinstalled `1a4d52f3…fbce` into live and stable custody,
+rebuilt the stable manifest and restarted Kodi. The post-rehearsal three-room
+Doctor probe passed and transient staging was removed. A rehearsal failure is
+designed to restore the accepted input-sync version rather than leave the room
+on its predecessor.
+
 ## Real-device acceptance still required
 
 On the iPhone Remote, refresh/reopen once for shell v4. Speak `Search for Dark`,

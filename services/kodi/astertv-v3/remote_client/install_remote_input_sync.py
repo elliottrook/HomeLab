@@ -24,6 +24,7 @@ OLD_SERVICES = {
     "AsterTV-Family": "22e06499cf045ac58a1f60117b7bcf51eea8de2687812ef0f2783716ea99207a",
     "AsterTV-Bedroom": "22e06499cf045ac58a1f60117b7bcf51eea8de2687812ef0f2783716ea99207a",
 }
+NEW_SERVICE = "1a4d52f37f73290c21456342543ab871311d14031656dedafa22793ee46cfbce"
 LIVE = Path("/storage/.kodi/addons/service.asterremote/service.py")
 CHECKPOINTS = Path("/storage/.aster-checkpoints")
 
@@ -52,6 +53,28 @@ def rpc(method, params=None):
     return result.get("result")
 
 
+def wait_kodi():
+    for _ in range(80):
+        try:
+            rpc("JSONRPC.Ping"); return
+        except Exception: time.sleep(0.25)
+    raise RuntimeError("kodi-not-ready")
+
+
+def validate_addon():
+    wait_kodi()
+    detail = rpc("Addons.GetAddonDetails", {"addonid": "service.asterremote",
+                                             "properties": ["enabled"]})
+    if not detail.get("addon", {}).get("enabled"): raise RuntimeError("addon-not-enabled")
+
+
+def apply_source(source, stable, manifest):
+    stable_service = stable / "service.asterremote/service.py"
+    shutil.copy2(source, LIVE); shutil.copy2(source, stable_service)
+    report = {"schema": 1, "addon_sha256": tree_sha(stable / "service.asterremote")}
+    manifest.write_text(json.dumps(report, sort_keys=True) + "\n"); os.chmod(manifest, 0o600)
+
+
 def install(source, identifier):
     host = socket.gethostname()
     if host not in ROOMS or os.getuid() != 0: raise RuntimeError("room-root-only")
@@ -67,16 +90,9 @@ def install(source, identifier):
         shutil.copy2(path, checkpoint / name)
     run("systemctl", "stop", "kodi")
     try:
-        shutil.copy2(source, LIVE); shutil.copy2(source, stable_service)
-        report = {"schema": 1, "addon_sha256": tree_sha(stable / "service.asterremote")}
-        manifest.write_text(json.dumps(report, sort_keys=True) + "\n"); os.chmod(manifest, 0o600)
+        apply_source(source, stable, manifest)
         run("systemctl", "start", "kodi")
-        for _ in range(40):
-            try: rpc("JSONRPC.Ping"); break
-            except Exception: time.sleep(0.25)
-        detail = rpc("Addons.GetAddonDetails", {"addonid": "service.asterremote",
-                                                 "properties": ["enabled"]})
-        if not detail.get("addon", {}).get("enabled"): raise RuntimeError("addon-not-enabled")
+        validate_addon()
     except Exception:
         run("systemctl", "stop", "kodi", check=False)
         shutil.copy2(checkpoint / "live.py", LIVE)
@@ -87,10 +103,48 @@ def install(source, identifier):
                       "checkpoint": str(checkpoint), "credential_output": False}))
 
 
+def rehearse(source, identifier):
+    host = socket.gethostname()
+    if host != "AsterTV-Bedroom" or os.getuid() != 0:
+        raise RuntimeError("bedroom-rehearsal-only")
+    stable = ROOMS[host]; stable_service = stable / "service.asterremote/service.py"
+    manifest = stable / "manifest.json"; checkpoint = CHECKPOINTS / identifier
+    if rpc("Player.GetActivePlayers"): raise RuntimeError("active-playback")
+    if sha(LIVE) != NEW_SERVICE or sha(stable_service) != NEW_SERVICE:
+        raise RuntimeError("accepted-input-sync-drift")
+    for name in ("live.py", "stable.py", "manifest.json"):
+        if not (checkpoint / name).is_file(): raise RuntimeError("checkpoint-incomplete")
+    accepted_manifest = manifest.read_bytes()
+    predecessor_verified = False
+    try:
+        run("systemctl", "stop", "kodi")
+        shutil.copy2(checkpoint / "live.py", LIVE)
+        shutil.copy2(checkpoint / "stable.py", stable_service)
+        shutil.copy2(checkpoint / "manifest.json", manifest)
+        if sha(LIVE) != OLD_SERVICES[host] or sha(stable_service) != OLD_SERVICES[host]:
+            raise RuntimeError("predecessor-restore-drift")
+        run("systemctl", "start", "kodi"); validate_addon(); predecessor_verified = True
+        if rpc("Player.GetActivePlayers"): raise RuntimeError("unexpected-playback")
+        run("systemctl", "stop", "kodi")
+        apply_source(source, stable, manifest)
+        run("systemctl", "start", "kodi"); validate_addon()
+        if sha(LIVE) != NEW_SERVICE or sha(stable_service) != NEW_SERVICE:
+            raise RuntimeError("reinstall-drift")
+    except Exception:
+        run("systemctl", "stop", "kodi", check=False)
+        shutil.copy2(source, LIVE); shutil.copy2(source, stable_service)
+        manifest.write_bytes(accepted_manifest); os.chmod(manifest, 0o600)
+        run("systemctl", "start", "kodi"); raise
+    print(json.dumps({"outcome": "rehearsed", "host": host,
+                      "predecessor_verified": predecessor_verified,
+                      "reinstalled_sha256": NEW_SERVICE, "credential_output": False}))
+
+
 def main():
-    parser = argparse.ArgumentParser(); parser.add_argument("--source", type=Path, required=True)
+    parser = argparse.ArgumentParser(); parser.add_argument("action", choices=("install", "rehearse"))
+    parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--checkpoint-id", required=True); args = parser.parse_args()
-    install(args.source, args.checkpoint_id)
+    install(args.source, args.checkpoint_id) if args.action == "install" else rehearse(args.source, args.checkpoint_id)
 
 
 if __name__ == "__main__": main()
