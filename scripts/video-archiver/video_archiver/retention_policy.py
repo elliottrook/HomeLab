@@ -165,7 +165,7 @@ def plan_retention(
     units: tuple[MediaUnit, ...], *, now: datetime,
     expected_user_ids: frozenset[str], pool_size_bytes: int,
     pool_allocated_bytes: int, movie_year_counts: Mapping[int, int] | None = None,
-    minimum_grace_days: int = 7,
+    minimum_grace_days: int = 3,
 ) -> RetentionPlan:
     """Select oldest eligible units until predicted raw pool use returns to 60%.
 

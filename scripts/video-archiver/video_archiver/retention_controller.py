@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import fcntl
 import os
+import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -99,15 +100,19 @@ def run_retention(
     execute: bool = False, max_units_per_run: int = 2,
     max_estimated_bytes_per_run: int = 20_000_000_000,
     min_reclaim_fraction: float = 0.25,
-    minimum_grace_days: int = 7,
+    minimum_grace_days: int = 3,
+    max_run_seconds: int = 1800,
 ) -> RunResult:
     """Run a capped, sequential batch or report a dry-run/safe-failure status."""
     if max_units_per_run <= 0 or max_estimated_bytes_per_run <= 0:
         raise ValueError("positive run caps are required")
     if not 0 < min_reclaim_fraction <= 1:
         raise ValueError("invalid reclaim threshold")
+    if type(max_run_seconds) is not int or max_run_seconds <= 0:
+        raise ValueError("positive run time cap is required")
     fd = _lock(lock_path)
     try:
+        deadline = time.monotonic() + max_run_seconds
         deleted: list[str] = []
         spent_estimate = 0
         while True:
@@ -137,6 +142,9 @@ def run_retention(
                                  snapshot.pool_allocated_bytes, plan.upper_guardrail_exceeded)
             if not execute:
                 return RunResult("dry_run", tuple(deleted), snapshot.pool_allocated_bytes,
+                                 plan.upper_guardrail_exceeded)
+            if time.monotonic() >= deadline:
+                return RunResult("time_cap", tuple(deleted), snapshot.pool_allocated_bytes,
                                  plan.upper_guardrail_exceeded)
             if len(deleted) >= max_units_per_run:
                 return RunResult("unit_cap", tuple(deleted), snapshot.pool_allocated_bytes,

@@ -54,7 +54,7 @@ class RetentionSafetyTests(TestCase):
     def test_missing_recent_or_unbound_household_notice_holds(self):
         units = (
             movie("missing", 1950, household_notice_at=None),
-            movie("recent", 1951, household_notice_at=NOW - timedelta(days=6)),
+            movie("recent", 1951, household_notice_at=NOW - timedelta(days=2)),
             movie("unbound", 1952, household_notice_identity_verified=False),
         )
         result = plan(*units)
@@ -63,6 +63,13 @@ class RetentionSafetyTests(TestCase):
             "household notice or file identity unverified",
             "household notice grace period active",
         })
+
+    def test_three_day_notice_boundary(self):
+        just_ready = plan(movie("ready", 1950, household_notice_at=NOW - timedelta(days=3)))
+        self.assertEqual(just_ready.selected_provider_ids, ("ready",))
+        too_early = plan(movie("early", 1950, household_notice_at=NOW - timedelta(days=3) + timedelta(seconds=1)))
+        self.assertEqual(too_early.selected_provider_ids, ())
+        self.assertEqual(too_early.held[0].reason, "household notice grace period active")
 
     def test_no_candidates_below_sixty_percent(self):
         result = plan(movie("film-a", 1950), allocated=59)

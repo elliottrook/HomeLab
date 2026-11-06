@@ -7,7 +7,7 @@ from urllib.parse import urlencode
 
 from .retention_playback import PlaybackLogEvidence, read_playback_log_evidence
 from .retention_policy import UserWatch
-from .retention_reconcile import CompleteUserView
+from .retention_reconcile import CompleteUserView, watch_for_item
 from .retention_years_live import FetchJson, _fetch_json, _item_id
 
 
@@ -79,3 +79,36 @@ def collect_user_views(
                 )
         views.append(CompleteUserView(user_id, True, observed))
     return tuple(views)
+
+
+def scope_watch_evidence(
+    item_ids: tuple[str, ...], views: tuple[CompleteUserView, ...],
+    expected_user_ids: frozenset[str], playback: PlaybackLogEvidence,
+) -> tuple[tuple[UserWatch, ...], bool] | None:
+    """Merge episode, season and series protection for one movie/season scope.
+
+    The caller supplies every relevant Jellyfin item ID, including ancestors.
+    A missing user/item or an absent playback scan holds the entire scope.
+    """
+    if not item_ids or playback.event_count <= 0:
+        return None
+    normalized = tuple(_item_id(value) for value in item_ids)
+    if any(not value or value == "none" for value in normalized) or len(set(normalized)) != len(normalized):
+        return None
+    per_item = [watch_for_item(item, views, expected_user_ids) for item in normalized]
+    if any(rows is None for rows in per_item):
+        return None
+    merged: list[UserWatch] = []
+    for index, user_id in enumerate(sorted(expected_user_ids)):
+        rows = [observed[index] for observed in per_item if observed is not None]
+        last_played = [row.last_played_at for row in rows if row.last_played_at is not None]
+        merged.append(UserWatch(
+            user_id=user_id,
+            played=any(row.played for row in rows),
+            play_count=max(row.play_count for row in rows),
+            last_played_at=max(last_played) if last_played else None,
+            progress_ticks=max(row.progress_ticks for row in rows),
+            favorite=any(row.favorite for row in rows),
+            keep=any(row.keep for row in rows),
+        ))
+    return tuple(merged), bool(set(normalized) & playback.item_ids)

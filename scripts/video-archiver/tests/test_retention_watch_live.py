@@ -6,8 +6,12 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from unittest import TestCase
 
-from video_archiver.retention_reconcile import watch_for_item
-from video_archiver.retention_watch_live import collect_user_views, read_playback_log_evidence
+from video_archiver.retention_policy import UserWatch
+from video_archiver.retention_reconcile import CompleteUserView, watch_for_item
+from video_archiver.retention_playback import PlaybackLogEvidence
+from video_archiver.retention_watch_live import (
+    collect_user_views, read_playback_log_evidence, scope_watch_evidence,
+)
 
 
 USERS = frozenset({'a', 'b'})
@@ -29,6 +33,38 @@ def fetch(url, _headers):
 
 
 class WatchLiveTests(TestCase):
+    def test_retained_ancestor_playback_protects_reset_userdata(self):
+        episode = '12345678123412341234123456789abc'
+        season = '12345678123412341234123456789abd'
+        views = tuple(CompleteUserView(user, True, {
+            episode: UserWatch(user), season: UserWatch(user),
+        }) for user in sorted(USERS))
+        playback = PlaybackLogEvidence(frozenset({season}), 1, None, None)
+        result = scope_watch_evidence((episode, season), views, USERS, playback)
+        self.assertIsNotNone(result)
+        self.assertFalse(any(row.protected for row in result[0]))
+        self.assertTrue(result[1])
+
+    def test_season_ancestor_watch_and_missing_item_hold_scope(self):
+        def ancestor_fetch(url, _headers):
+            user = url.split('/Users/')[1].split('/')[0]
+            requested = parse_qs(urlparse(url).query)['Ids'][0].split(',')
+            return 200, {'Items': [
+                {'Id': value, 'UserData': {
+                    'Played': user == 'a' and value == 'season',
+                    'PlayCount': 1 if user == 'a' and value == 'season' else 0,
+                    'PlaybackPositionTicks': 0, 'IsFavorite': False,
+                }} for value in requested if not (user == 'b' and value == 'hidden')
+            ]}
+        views = collect_user_views(('episode', 'season', 'series', 'hidden'),
+                                   user_ids=USERS, jellyfin_url='http://jellyfin.invalid',
+                                   jellyfin_api_key='fixture', fetch=ancestor_fetch)
+        playback = PlaybackLogEvidence(frozenset(), 1, None, None)
+        protected = scope_watch_evidence(('episode', 'season', 'series'), views, USERS, playback)
+        self.assertIsNotNone(protected)
+        self.assertTrue(protected[0][0].protected)
+        self.assertIsNone(scope_watch_evidence(('episode', 'season', 'hidden'), views, USERS, playback))
+
     def test_complete_user_state_and_hidden_item_hold(self):
         views = collect_user_views(('movie', 'hidden'), user_ids=USERS,
                                    jellyfin_url='http://jellyfin.invalid',

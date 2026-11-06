@@ -7,6 +7,7 @@ from dataclasses import replace
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from unittest import TestCase
+from unittest.mock import patch
 
 from video_archiver.retention_controller import (
     ActionResult, RetentionSnapshot, RollbackResult, run_retention,
@@ -102,6 +103,13 @@ class ControllerTests(TestCase):
         backend = Backend()
         result = self.run_it(backend, execute=True, max_estimated_bytes_per_run=14)
         self.assertEqual(result.status, 'byte_cap')
+        self.assertEqual(backend.deleted, [])
+
+    def test_time_cap_stops_before_action(self):
+        backend = Backend()
+        with patch('video_archiver.retention_controller.time.monotonic', side_effect=(0, 2)):
+            result = self.run_it(backend, execute=True, max_run_seconds=1)
+        self.assertEqual(result.status, 'time_cap')
         self.assertEqual(backend.deleted, [])
 
     def test_stale_post_delete_inventory_cannot_repeat_action(self):

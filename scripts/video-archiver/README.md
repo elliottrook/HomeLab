@@ -20,7 +20,8 @@ The separate `retention_controller` is an adapter-neutral prototype. It has no
 production ARR executor or schedule. Its movie-year count excludes ambiguous
 and absent files; its policy holds incomplete seven-user watch or retained
 playback evidence and snapshot-covered files that cannot release pool blocks
-immediately. Existing
+immediately. A household notice must be bound to the current file set and
+remain open for three full days before removal eligibility. Existing
 archiver/compactor cron jobs 4 and 6 remain disabled.
 
 The read-only audit is installed at `/mnt/Media/data/tools/media-retention-audit`
