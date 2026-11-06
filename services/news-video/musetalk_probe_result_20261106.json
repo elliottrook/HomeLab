@@ -1,0 +1,52 @@
+{
+  "schema": "aster.news-video-musetalk-capacity-result.v1",
+  "decision": "rejected-on-16gib-m4",
+  "host_memory_bytes": 17179869184,
+  "frames_generated": 0,
+  "crash_observed": false,
+  "speech_authority_restored_healthy": true,
+  "attempts": [
+    {
+      "loader": "upstream-all-at-once",
+      "initial_free_percent": 61,
+      "initial_swap_used_mb": 0.0,
+      "minimum_free_percent": 23,
+      "final_swap_used_mb": 392.44,
+      "peak_process_tree_rss_bytes": 1928544256,
+      "abort_reason": "swap use began",
+      "elapsed_seconds": 23.69
+    },
+    {
+      "loader": "upstream-all-at-once-baseline-relative-swap",
+      "initial_free_percent": 63,
+      "initial_swap_used_mb": 392.44,
+      "minimum_free_percent": 23,
+      "final_swap_used_mb": 550.12,
+      "peak_process_tree_rss_bytes": 1794883584,
+      "abort_reason": "swap grew beyond the starting baseline",
+      "elapsed_seconds": 4.87
+    },
+    {
+      "loader": "staged-whisper-vae-unet",
+      "initial_free_percent": 64,
+      "initial_swap_used_mb": 585.19,
+      "minimum_free_percent": 17,
+      "final_swap_used_mb": 715.62,
+      "peak_process_tree_rss_bytes": 683491328,
+      "abort_reason": "system free-memory floor crossed",
+      "elapsed_seconds": 3.82
+    }
+  ],
+  "runtime": {
+    "python": "3.11.16",
+    "mlx": "0.32.4",
+    "opencv_python": "5.0.0.93",
+    "numpy": "2.4.6"
+  },
+  "notes": [
+    "Qwen and Whisper were stopped before every model-load attempt and restored afterward.",
+    "Lightroom and supported browser processes were absent.",
+    "Process-tree RSS materially understated Metal/system memory pressure.",
+    "Do not retry this model on the 16 GiB M4 by weakening memory or swap guards."
+  ]
+}

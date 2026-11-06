@@ -262,10 +262,84 @@ and all production changes have their required authorization.
   or a five-minute deadline. The suite passes 25 tests.
 - Jason clarified that the authoritative Lab Hours ledger governs B60 work,
   not this Mac/MLX workload. No B60 registration or reservation was changed.
-  The local execution environment nevertheless refused model launch without a
-  booking, including after Qwen was safely unloaded and memory reached 60%.
-  Therefore no MuseTalk inference has yet occurred; current preparation-only
-  preflight passes at 41% free memory and zero swap.
+  The global Codex instruction was corrected with explicit owner approval so
+  independent Mac workloads use their reviewed Mac host controls while any
+  workflow that calls or competes with B60 remains governed by Lab Hours.
+- Built an isolated Python 3.11 renderer environment after the first worker
+  attempt proved macOS's Python 3.9 lacked OpenCV and MLX. All renderer imports
+  then passed with MLX 0.32.4, OpenCV 5.0.0 and NumPy 2.4.6; the generated build
+  directory was moved outside the pinned clean source checkout.
+- The first real one-frame model load began from 61% free memory and zero swap.
+  Tracked process RSS peaked at about 1.93 GiB, but system free memory fell to
+  29% at 23.1 seconds and then 23% with 392.44 MiB of swap at 23.7 seconds.
+  The supervisor terminated the process immediately on swap as designed. The
+  Mac did not crash, no generated frame was produced, and Qwen/Whisper were
+  restored healthy. The result proves Metal allocation is not captured fully
+  by process-tree RSS and must remain governed by system memory/swap gates.
+- A baseline-relative retry also aborted safely after swap grew from 392.44 to
+  550.12 MiB. A structurally different staged loader then encoded/loaded
+  Whisper before the VAE and quantized UNet; even this fell from 64% to 17%
+  free memory in 3.82 seconds and grew swap from 585.19 to 715.62 MiB. No frame
+  was generated and the Mac did not crash. Qwen and Whisper again restored
+  healthy.
+- MuseTalk 1.5 Q4/MLX is therefore rejected on this 16 GiB M4. The manifest is
+  fail-closed as `rejected-on-16gib-m4`, the three-attempt capacity result is
+  retained in `musetalk_probe_result_20261106.json`, and another attempt may
+  not be made by weakening the memory or swap guards. Renderer evaluation must
+  move to a materially lighter implementation or a host with more unified
+  memory.
+- Live B60 discovery found that its physical BAR has since reached the full
+  32 GiB aperture, removing the earlier Level Zero enumeration blocker. Staged
+  an isolated 30 GiB LXC 110 volume containing Python 3.12.12, PyTorch
+  2.14.1 XPU, Intel compute runtime 26.31, MuseTalk PR 429 commit
+  `3bd654938926af520ee30dfe945e4845ef476d94`, exact official model revisions
+  and the pinned synthetic studio/audio inputs. No accepted Qwen files or unit
+  configuration were changed.
+- Registered the hash-pinned workload
+  `aster-news-video-musetalk-xpu-smoke-v1` with the existing full-drain,
+  whole-host lease, shared-lock and recovery-guardian path. The authoritative
+  ledger accepted booking `aster-news-video-xpu-20261106-1430-r1` for
+  14:30–16:00 Pacific, with recovery protected through 16:15. The dispatcher,
+  workload pins, accepted Qwen service and empty output target passed preflight;
+  GPU inference has not yet run.
+- An independent sub-agent audited the live reservation-to-dispatch path and
+  found that the isolated Intel compiler directory was missing from the
+  transient unit's library path; the booking would have drained production but
+  failed before rendering. Corrected and re-pinned the adapter to include
+  `runtime/root/usr/local/lib`, then verified `libigc.so.2` and
+  `libze_intel_gpu.so.1` load under the exact planned environment.
+- The same audit identified three overstated controls. The transient renderer
+  now runs in a private loopback-only network namespace with a continuously
+  enforced 12 GiB memory ceiling and zero swap, and the post-run `xe`
+  fault/reset/error scan is case-insensitive. An inert transient-unit test
+  proved all three systemd controls, the registry and release-manifest pins
+  revalidated, and the 14:30 booking remains scheduled.
+- Activated Lab Hours Session Contract V2 for the booking. The 90-minute grant
+  now permits at most three independently evidenced 20-minute attempts. A
+  later attempt is admitted only after a failed attempt proves production
+  restored and enough booked time remains; an unrestored failure is terminal.
+  The booking stays claimed between attempts and can be surrendered early only
+  while idle and restored. Future bookings can opt into safe earlier promotion
+  without losing their original duration or crossing a recovery boundary.
+- V2 also requires a fresh independent read-only evaluation of the final live
+  registration and exact reservation before the first attempt. The evaluator
+  may not claim the booking, initialize XPU, or mutate B60; a deterministic
+  blocker or `WILL NOT RUN` verdict prevents execution until correction and
+  re-evaluation.
+- The first V2 evaluation found two deterministic session-contract defects:
+  the inner transaction/runtime still used the former 3,600-second deadline,
+  and a rejected concurrent retry could finalize the booking while another
+  retry remained active. Corrected every MuseTalk layer to the registered
+  1,200-second deadline, gave retries a deterministic per-attempt unit, and
+  made rejected duplicate admission state-neutral. The isolated live-controller
+  regression now proves the losing retry cannot shorten the active booking;
+  transaction and registry deadlines both report 1,200 seconds.
+- The required independent re-evaluation returned `LIKELY RUN`. It confirmed
+  both blockers are closed in the live release-pinned code, the booking remains
+  scheduled for 14:30–16:00 with a 900-second recovery reserve, and dispatcher,
+  lease, locks, attempt evidence, registry and release hashes are clean. The
+  only remaining uncertainty is first-use B60 XPU enumeration/model execution,
+  which was intentionally not initialized outside the booking.
 
 ## Close-out
 

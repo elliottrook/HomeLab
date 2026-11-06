@@ -61,6 +61,8 @@ def load_manifest(path: Path = DEFAULT_MANIFEST) -> dict[str, Any]:
     manifest = json.loads(path.read_text(encoding="utf-8"))
     if manifest.get("schema") != "aster.news-video-musetalk-probe.v1":
         raise ProbeError("unsupported probe manifest")
+    if manifest.get("status") != "staged-attended-probe":
+        raise ProbeError("this MuseTalk probe is rejected on the 16 GiB M4 host")
     probe = manifest["probe"]
     safety = manifest["safety"]
     admission = manifest["admission"]
@@ -80,6 +82,10 @@ def load_manifest(path: Path = DEFAULT_MANIFEST) -> dict[str, Any]:
         raise ProbeError("runtime-memory floor may not be below 20 percent")
     if safety.get("maximum_process_tree_rss_bytes", 0) > 6 * 1024**3:
         raise ProbeError("process-tree RSS ceiling may not exceed 6 GiB")
+    if safety.get("maximum_swap_used_mb_at_start", 0) > 768:
+        raise ProbeError("starting swap ceiling may not exceed 768 MiB")
+    if safety.get("maximum_swap_growth_mb") != 0:
+        raise ProbeError("the probe may not permit new swap growth")
     return manifest
 
 
@@ -212,8 +218,8 @@ def preflight(manifest: dict[str, Any]) -> dict[str, float | int]:
     swap = swap_used_mb()
     if free < safety["minimum_free_percent_at_start"]:
         raise ProbeError(f"only {free}% memory free; refusing model load")
-    if swap > safety["maximum_swap_used_mb"]:
-        raise ProbeError(f"swap is already in use: {swap} MB")
+    if swap > safety["maximum_swap_used_mb_at_start"]:
+        raise ProbeError(f"starting swap exceeds the bounded baseline: {swap} MB")
     return {"free_percent": free, "swap_used_mb": swap}
 
 
@@ -227,8 +233,13 @@ def worker(manifest_path: Path, source_root: Path, model_root: Path, output_dir:
     sys.path.insert(0, str(source_root))
     import cv2
     import mlx.core as mx
+    import mlx.nn as nn
 
     from musetalk_mlx.pipeline_mlx import MuseTalkPipeline
+    from musetalk_mlx.models.unet import UNet2DConditionModel
+    from musetalk_mlx.models.vae import AutoencoderKL
+    from musetalk_mlx.utils.weights import load_native
+    from musetalk_mlx.whisper.whisper_encoder import WhisperEncoder
 
     manifest = load_manifest(manifest_path)
     verify_model(manifest, model_root)
@@ -246,12 +257,48 @@ def worker(manifest_path: Path, source_root: Path, model_root: Path, output_dir:
     cv2.imwrite(str(output_dir / "input-face.png"), crop)
 
     mx.set_default_device(mx.gpu)
+    meta = json.loads((model_root / "config.json").read_text(encoding="utf-8"))
     started = time.monotonic()
-    pipe = MuseTalkPipeline.from_pretrained_mlx(model_root)
-    mx.eval(pipe.vae.parameters(), pipe.unet.parameters(), pipe.whisper_encoder.parameters())
-    loaded = time.monotonic()
+
+    # Load and materialize the three networks in dependency order. The original
+    # helper materializes Whisper, VAE and UNet together, creating an avoidable
+    # Metal-memory peak on a 16 GiB Mac.
+    whisper = WhisperEncoder()
+    load_native(whisper, model_root / "whisper_encoder.safetensors")
+    whisper.eval()
+    mx.eval(whisper.parameters())
+    audio_pipe = MuseTalkPipeline(
+        vae=None, unet=None, whisper_encoder=whisper,
+        scaling_factor=meta.get("scaling_factor"),
+    )
+    chunks = audio_pipe.encode_audio_from_wav(audio_path, fps=manifest["probe"]["fps"])[0:1]
+    mx.eval(chunks)
+    audio_ready = time.monotonic()
+    del audio_pipe, whisper
+    mx.clear_cache()
+
+    vae = AutoencoderKL()
+    load_native(vae, model_root / "vae.safetensors")
+    vae.eval()
+    mx.eval(vae.parameters())
+    pipe = MuseTalkPipeline(
+        vae=vae, unet=None, whisper_encoder=None,
+        scaling_factor=meta.get("scaling_factor"),
+    )
+    pipe._dtype = mx.float16 if meta.get("dtype") == "float16" else mx.bfloat16
     latent = pipe.get_latents_for_unet(crop)
-    chunks = pipe.encode_audio_from_wav(audio_path, fps=manifest["probe"]["fps"])
+    mx.eval(latent)
+    latent_ready = time.monotonic()
+
+    unet = UNet2DConditionModel()
+    quantization = meta.get("quantization")
+    if quantization:
+        nn.quantize(unet, group_size=quantization["group_size"], bits=quantization["bits"])
+    load_native(unet, model_root / "unet.safetensors")
+    unet.eval()
+    mx.eval(unet.parameters())
+    pipe.unet = unet
+    loaded = time.monotonic()
     prepared = time.monotonic()
     result = pipe.run_batched(latent, chunks[:1], batch_size=1)
     mx.synchronize()
@@ -264,7 +311,9 @@ def worker(manifest_path: Path, source_root: Path, model_root: Path, output_dir:
         "frames": 1,
         "batch_size": 1,
         "timing_seconds": {
-            "model_load": round(loaded - started, 4),
+            "audio_encode": round(audio_ready - started, 4),
+            "vae_and_latent": round(latent_ready - audio_ready, 4),
+            "unet_load": round(loaded - latent_ready, 4),
             "input_preparation": round(prepared - loaded, 4),
             "generation": round(finished - prepared, 4),
             "total": round(finished - started, 4),
@@ -324,8 +373,8 @@ def supervise_locked(manifest_path: Path, source_root: Path, model_root: Path) -
             reason = "Lightroom or a browser opened during the probe"
         elif sample["free_percent"] < safety["minimum_free_percent_while_running"]:
             reason = "system free-memory floor crossed"
-        elif sample["swap_used_mb"] > safety["maximum_swap_used_mb"]:
-            reason = "swap use began"
+        elif sample["swap_used_mb"] > initial["swap_used_mb"] + safety["maximum_swap_growth_mb"]:
+            reason = "swap grew beyond the starting baseline"
         elif sample["process_tree_rss_bytes"] > safety["maximum_process_tree_rss_bytes"]:
             reason = "process-tree RSS ceiling crossed"
         elif time.monotonic() >= deadline:

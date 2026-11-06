@@ -1,0 +1,74 @@
+{
+  "schema": "aster.news-video-musetalk-xpu-workload.v1",
+  "status": "scheduled-session-v2",
+  "production_enabled": false,
+  "workload_id": "aster-news-video-musetalk-xpu-smoke-v1",
+  "owner": "aster-news-video",
+  "booking": {
+    "booking_id": "aster-news-video-xpu-20261106-1430-r1",
+    "start": "2026-11-06T14:30:00-07:00",
+    "end": "2026-11-06T16:00:00-07:00",
+    "recovery_through": "2026-11-06T16:15:00-07:00"
+  },
+  "target": {
+    "proxmox_host": "192.168.50.10",
+    "lxc": 110,
+    "gpu": "Intel Arc Pro B60 24 GB",
+    "isolated_volume": "local-lvm:vm-110-news-video-xpu",
+    "mount": "/opt/aster-news-video-xpu"
+  },
+  "source": {
+    "repository": "https://github.com/TMElyralab/MuseTalk.git",
+    "pull_request": 429,
+    "commit": "3bd654938926af520ee30dfe945e4845ef476d94",
+    "tree": "0d61fc23223f0c54348c04dddbcb05a67f63c565"
+  },
+  "runtime": {
+    "python": "3.12.12",
+    "python_sha256": "3008abbb48c1e2b0fa3072ae72334b9b352e1346ea3a20d34126a455f0c7bc66",
+    "torch": "2.14.1+xpu",
+    "torch_init_sha256": "bd4a10ff16357ed78f45aaf4b46ce5b771fdc0e8549402206e324d0eb792c672",
+    "libtorch_xpu_sha256": "0dc51cd0e7478fc06e4f199eba4a2428a75101e80ca46ff02f977bf143b0b041",
+    "intel_compute_runtime": "26.31.39395.13",
+    "libze_intel_gpu_sha256": "b41a61e6da77e84b7557c90a67693f6b9f5f9d20a4bc8af301ad8bddbab6871e",
+    "requirements_lock_sha256": "3efa737c59dcd78753049a98930eaf38b22ece054c6a67c4cab11a5ce85cd48f"
+  },
+  "models": {
+    "musetalk_revision": "2bcb936e2fddb4d86db4c62fd45b387d0c061571",
+    "unet_sha256": "7ebf6c98c181e20838e4c0054e96e944ac60d5d692cc01db42839fe11b787007",
+    "unet_config_sha256": "5b6923aee04d71692e0e9846c471e0a4ea07a4f686d39545e472bd4ba17e1b47",
+    "vae_revision": "31f26fdeee1355a5c34592e401dd41e45d25a493",
+    "vae_sha256": "1b4889b6b1d4ce7ae320a02dedaeff1780ad77d415ea0d744b476155c6377ddc",
+    "whisper_revision": "169d4a4341b33bc18d8881c4b69c2e104e1cc0af",
+    "whisper_sha256": "9607f98a2b22d9e229ae43c52ecea79dcede9e0c5cfae67e8da6eda86d8aac1d"
+  },
+  "inputs": {
+    "studio_sha256": "fe85bb5cb3966661cc87827f42fb0a5672364873a6a818ece3a01da159a3bf64",
+    "audio_sha256": "f35338879433e2982fcffea358b2219a456cfa79cf607f1607989bd6bbf0934f",
+    "crop_xyxy": [360, 20, 720, 380],
+    "fps": 25,
+    "batch_size": 4
+  },
+  "controls": {
+    "whole_host_lease": true,
+    "shared_operation_lock": true,
+    "lab_hours_required": true,
+    "network_disabled_during_render": true,
+    "memory_max_bytes": 12884901888,
+    "memory_swap_max_bytes": 0,
+    "retryable_session": true,
+    "maximum_attempts": 3,
+    "attempt_deadline_seconds": 1200,
+    "recovery_reserve_seconds": 900,
+    "abort_on_xe_fault_or_reset": true,
+    "accepted_service_restoration_required": true
+  },
+  "preflight": {
+    "intel_igc_library_path_verified": true,
+    "private_network_verified_loopback_only": true,
+    "memory_cgroup_verified": true,
+    "swap_cgroup_verified": true,
+    "case_insensitive_xe_fault_check": true,
+    "registered_pins_verified": true
+  }
+}

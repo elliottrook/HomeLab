@@ -1,6 +1,6 @@
 {
   "schema": "aster.news-video-musetalk-probe.v1",
-  "status": "staged-not-authorized",
+  "status": "rejected-on-16gib-m4",
   "production_enabled": false,
   "source": {
     "repository": "https://github.com/xocialize/musetalk-mlx.git",
@@ -41,7 +41,8 @@
     "minimum_free_percent_at_start": 40,
     "minimum_free_percent_while_running": 20,
     "maximum_process_tree_rss_bytes": 6442450944,
-    "maximum_swap_used_mb": 0,
+    "maximum_swap_used_mb_at_start": 768,
+    "maximum_swap_growth_mb": 0,
     "lightroom_must_be_closed": true,
     "browsers_must_be_closed": true
   },

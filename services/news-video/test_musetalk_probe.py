@@ -14,8 +14,13 @@ LIGHTROOM_HELPER = (
 
 
 class MuseTalkProbeTests(unittest.TestCase):
+    def test_rejected_host_manifest_refuses_another_attempt(self):
+        with self.assertRaises(musetalk_probe.ProbeError):
+            musetalk_probe.load_manifest()
+
     def test_mac_attended_contract_keeps_the_first_step_tiny(self):
         manifest = json.loads(musetalk_probe.DEFAULT_MANIFEST.read_text())
+        manifest["status"] = "staged-attended-probe"
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "manifest.json"
             path.write_text(json.dumps(manifest))
@@ -24,6 +29,8 @@ class MuseTalkProbeTests(unittest.TestCase):
         self.assertEqual(loaded["probe"]["batch_size"], 1)
         self.assertEqual(loaded["safety"]["minimum_free_percent_at_start"], 40)
         self.assertEqual(loaded["safety"]["minimum_free_percent_while_running"], 20)
+        self.assertEqual(loaded["safety"]["maximum_swap_used_mb_at_start"], 768)
+        self.assertEqual(loaded["safety"]["maximum_swap_growth_mb"], 0)
 
     def test_forbidden_processes_are_narrow(self):
         rows = [
