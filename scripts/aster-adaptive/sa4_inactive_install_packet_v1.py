@@ -47,7 +47,7 @@ _PROGRAMS = (
     ("sa4_independent_postcheck_receipt_v1.py", "ab58b635d823a1c82f30d8d89f68c1ed25519914270c7e3d467228bf2452c355"),
     ("sa4_key_custody_slots_v1.py", "e1d9088a1725847a6b7f16460177e266e076fd987b01894daf4a69c5b2b8d0d0"),
     ("sa4_one_use_grant_ledger_v1.py", "4babcb5bd08d13788c4f0fb52447ad35e892fb2264b7b7bcadddabfd88e738b0"),
-    ("sa4_preflight_composition_v1.py", "a45335dcb6ab209433e71bd486345904d4e0748f5ae03bc85f24a7863926b569"),
+    ("sa4_preflight_composition_v1.py", "d96fcba0bda17ae48f2061a9c7977bbc70c67271a16d02ed11530b05d0a2ea06"),
     ("sa4_public_trust_candidate_v1.py", "3c1f02bba3985033157977d6810192888b09595ec3af0c55ef1e1c15e135195e"),
     ("sa4_receipt_ledger_reconciler_v1.py", "873fa76409bdf819bf9bfc32fa13aec4996929eed658c07d595baf1e464bd820"),
     ("sa4_single_file_repair_contract_v1.py", "c260e6d8f5ce0546bf4a2f3754bda02a55731bbb69a6c869917840cf3ebb9467"),

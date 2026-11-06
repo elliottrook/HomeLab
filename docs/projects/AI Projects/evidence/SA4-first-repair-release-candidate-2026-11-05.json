@@ -1,0 +1,18 @@
+{
+  "schema": "aster-sa4-first-repair-release-candidate.v1",
+  "release_id": "sa4-canary-first-repair-v1",
+  "source_commit": "de94195cbfb069c7ab5dd333384fc9388478037b",
+  "target_id": "sa4-lxc104-canary-adapter-v1",
+  "target_before_sha256": "19b4e02d7f4edd9b38d9a0c3e9e3b49c4209473694fab39db0494c5fe523df1a",
+  "target_after_sha256": "4529dee5c9b58b607a9025b62aa3a4871660de98c4bafbb7fd69d7bc2a1e1065",
+  "owner_public_key_sha256": "17738e78d92b3ba4fff496f4d51904b6c6dd18d4acf80b3ef2a34a27ea6de946",
+  "ai_pam_public_key_sha256": "f9ff0e192840dc0794e4adb65dad91a608e32e5d1d389bccbeac3612f54e9cb0",
+  "observer_public_key_sha256": "a8b5e876898ddcd7882a51c74d8b8388bb26160c96f87ab23dbeeecab9c0892b",
+  "repair_class": "single-file-configuration-drift",
+  "maximum_repairs": 1,
+  "automatic_retry": false,
+  "service_restart": false,
+  "automatic_routing": "off",
+  "effect_authorized": false,
+  "status": "candidate-pending-signed-zero-effect-ceremony"
+}

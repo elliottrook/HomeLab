@@ -15,6 +15,10 @@ from test_sa4_filesystem_evidence_v1 import evidence as filesystem_evidence
 
 
 class SA4PreflightCompositionTests(unittest.TestCase):
+    def test_real_target_registration_resolves_before_schema_fixture(self):
+        value = composition._registration("sa4-lxc104-canary-adapter-v1")
+        self.assertEqual("lxc104", value.host_id)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.store = ledger_module.OneUseLedger(

@@ -13,6 +13,13 @@ import sa4_single_file_repair_contract_v1 as contract
 import sa4_target_registry_v1 as target_registry
 
 
+def _registration(target_id: str):
+    try:
+        return target_registry.resolve_production(target_id)
+    except ValueError:
+        return target_registry.resolve_schema_fixture(target_id)
+
+
 def compose(plan_raw: bytes, approval_raw: bytes, approval_proof_raw: bytes,
             grant_raw: bytes, grant_proof_raw: bytes,
             filesystem_evidence_raw: bytes, ledger: object,
@@ -22,7 +29,7 @@ def compose(plan_raw: bytes, approval_raw: bytes, approval_proof_raw: bytes,
         raise ValueError("SA4 one-use ledger is not the frozen implementation")
     plan = contract.validate_plan(plan_raw)
     registration_sha256 = target_registry.registration_sha256(
-        target_registry.resolve_schema_fixture(plan["target_id"]))
+        _registration(plan["target_id"]))
     authenticated = authority.verify(
         plan_raw, approval_raw, approval_proof_raw,
         grant_raw, grant_proof_raw, now_epoch)
