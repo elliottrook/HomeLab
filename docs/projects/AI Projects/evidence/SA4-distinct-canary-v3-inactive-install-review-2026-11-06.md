@@ -7,8 +7,10 @@ only for a later reversible inactive installation. It does not authorize a
 repair, runner invocation, authority creation, signature, ledger claim,
 checkpoint, service action, route or promotion.
 
-The complete SA4 source suite passes **252/252**. Canonical plan SHA-256 is
+The complete SA4 source suite passes **255/255**. Canonical plan SHA-256 is
 `7fd29ff4d2d5315a9418aac954980a694e6eded053908eb4e09d0abc7fa8a385`.
+The independent result validator is
+`fa975f4017bf4364c533b0b68d93ce77d5fa0f5eecfcafe5af194e4468c4e9f2`.
 
 ## Fresh target facts
 
@@ -37,7 +39,9 @@ The plan may create only these absent root-owned mode-0644 files:
 Postcheck is limited to exact metadata/hash checks, isolated imports, v1 target
 rejection, v2 target resolution, absent transaction state, unchanged target
 and healthy production. Rollback removes only exact after-hash files in reverse
-order. Any drift or uncertainty retains state and stops.
+order. The strict canonical result validator rejects row/metadata drift,
+duplicate keys, runner invocation, transaction state, target change or any
+service action. Any drift or uncertainty retains state and stops.
 
 ## Next gate
 

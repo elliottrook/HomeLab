@@ -615,8 +615,10 @@
 > now binds fresh LXC 104 absence, all seven exact installed dependencies, the
 > unchanged drifted v2 target and absent transaction/control state. The
 > create-exclusive two-file plan has canonical digest `7fd29ff4…a385`, exact
-> reverse removal and inert postchecks only; the complete SA4 suite passes
-> 252/252. The reversible inactive installation is the next operational gate.
+> reverse removal and inert postchecks only. Its strict canonical result
+> validator rejects metadata, target, state or service-action drift; the
+> complete SA4 suite passes 255/255. The reversible inactive installation is
+> the next operational gate.
 > No repair is included.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
