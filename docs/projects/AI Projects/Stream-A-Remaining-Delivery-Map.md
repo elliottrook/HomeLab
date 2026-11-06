@@ -668,6 +668,18 @@
 > 286/286. Its two-file create-exclusive inactive-install plan is
 > `134ef9c6…6543`. Installing it is the next operational gate; any later live
 > attempt requires wholly fresh authority and remains separately gated.
+>
+> Jason approved the two-file v5 inactive install. The strict
+> [installed result and v6 review](evidence/SA4-v5-install-and-v6-fresh-path-review-2026-11-06.md)
+> confirms exact root custody, fail-before-input behavior, unchanged retained
+> v2 attempt evidence, absent ledger/runtime controls, unchanged canary and
+> healthy production. Release review then caught that v5 still names the
+> retained v2 input/evidence paths. A source-only v6 runner now binds the real
+> predecessor to disjoint `transaction-*-v3` paths and restores all globals;
+> it also uses a new operation identity and the unsigned successor authority
+> uses a new grant identity. The complete SA4 suite passes 294/294. The
+> one-file create-exclusive v6 inactive-install plan is `02565c96…f49f` and
+> is the next operational gate. No new live repair is authorized.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
