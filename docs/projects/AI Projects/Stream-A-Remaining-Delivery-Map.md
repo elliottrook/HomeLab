@@ -27,7 +27,11 @@
 > exact command, output schema and individually named return file in the prompt
 > itself; executing downloaded instructions and broad transfers are forbidden.
 > Both revision-4 archives pass all 26 manifest hashes, isolated imports and the
-> exact 11/1 input split. Fresh fully bounded revision-4 sessions are next.
+> exact 11/1 input split. The independently returned revision-3
+> [corpus custody result](evidence/M3-J2-corpus-custody-r3-result-2026-11-06.md)
+> then passed exact receipt and RSA signature verification and is accepted; it
+> must not be repeated. Only one fresh fully bounded revision-4 evaluation
+> session remains external.
 
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped

@@ -77,8 +77,10 @@ The external evaluation session's automatic approval review rejected the
 revision-3 wrapper before archive access. It correctly treated “execute
 `PROMPT.md`” as an unknown downloaded instruction and the directory-wide
 `export/` upload as unspecified. No custody command ran and no archive or
-private input was accessed. Revision 3 is therefore closed as `NO-GO` for the
-external workflow.
+private input was accessed. That rejection closes the revision-3 evaluation
+attempt only. The separately completed revision-3 corpus evidence subsequently
+passed exact receipt and signature verification and is accepted in the
+[corpus custody result](M3-J2-corpus-custody-r3-result-2026-11-06.md).
 
 Revision 4 removes both ambiguities. Its self-contained wrappers disclose the
 archive purpose, every permitted action, exact keygen/custody command, exact
@@ -93,9 +95,8 @@ manifest hashes, isolated imports and the exact 11/1 input split.
 - evaluation archive SHA-256:
   `faea67bba0fbb72bbea724bf9ea9d4140abd431eb2f46ceeeefd86448a963565`.
 
-The controlling wrappers are the
-[fully bounded corpus revision-4 prompt](M3-J2-CORPUS-CUSTODIAN-REMOTE-R4-PROMPT-2026-11-06.md)
-and the
+The corpus revision-4 wrapper is retained but not needed. The only controlling
+external wrapper is now the
 [fully bounded evaluation revision-4 prompt](M3-J2-EVALUATION-CUSTODIAN-REMOTE-R4-PROMPT-2026-11-06.md).
 
 ## Authority and exclusions
