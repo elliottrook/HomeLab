@@ -45,8 +45,9 @@ class SA4InactiveMeasurementOwnerTests(unittest.TestCase):
                 patch.object(owner, "LOCAL_HOST_ID", self.target.host_id):
             return owner.measure(self.plan_raw, measurement_epoch=100)
 
-    def test_committed_source_has_no_measurable_production_target(self):
+    def test_committed_source_is_bound_only_to_lxc104_production_target(self):
         self.assertEqual(1, len(registry.PRODUCTION_TARGETS))
+        self.assertEqual("lxc104", owner.LOCAL_HOST_ID)
         with self.assertRaises(ValueError):
             owner.measure(contract.canonical(plan()), measurement_epoch=100)
 

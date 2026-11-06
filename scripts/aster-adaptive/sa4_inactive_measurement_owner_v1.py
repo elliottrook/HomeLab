@@ -1,8 +1,8 @@
-"""Inactive read-only SA4 target measurement owner.
+"""Read-only SA4 target measurement owner for the compiled LXC 104 canary.
 
-The sole production target path is absent and LOCAL_HOST_ID is unconfigured,
-so this source cannot measure a live target as committed.  It never creates a
-checkpoint, temporary replacement, receipt, grant claim, or repair effect.
+It opens only the compiled production target through a no-follow descriptor.
+It never creates a checkpoint, temporary replacement, receipt, grant claim,
+or repair effect, and its output remains preflight-ineligible by itself.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import sa4_target_registry_v1 as registry
 
 EXPECTED_UID = 0
 EXPECTED_GID = 0
-LOCAL_HOST_ID = "unconfigured"
+LOCAL_HOST_ID = "lxc104"
 OPEN_FLAGS = os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0)
 
 

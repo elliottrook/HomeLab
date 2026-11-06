@@ -61,8 +61,9 @@ class SA4InactiveCheckpointOwnerTests(unittest.TestCase):
                 self.plan_raw, contract.canonical(measurement),
                 checkpoint_epoch=101)
 
-    def test_committed_source_cannot_create_live_checkpoint(self):
+    def test_committed_source_is_bound_only_to_lxc104_production_target(self):
         self.assertEqual(1, len(registry.PRODUCTION_TARGETS))
+        self.assertEqual("lxc104", checkpoint_owner.LOCAL_HOST_ID)
         with self.assertRaises(ValueError):
             checkpoint_owner.create(
                 contract.canonical(plan()), b"{}\n", checkpoint_epoch=101)

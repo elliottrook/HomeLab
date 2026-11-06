@@ -1,9 +1,8 @@
-"""Inactive exclusive SA4 checkpoint owner.
+"""Exclusive SA4 checkpoint owner for the compiled LXC 104 canary.
 
-The sole production target path is absent and LOCAL_HOST_ID is unconfigured,
-so this source cannot create a live checkpoint.  It can only copy an already
-measured, unchanged compiled target into its compiled checkpoint directory.
-It never claims a grant, changes the target, or performs a repair effect.
+It can only copy an already measured, unchanged compiled target into its
+compiled checkpoint directory. It never claims a grant, changes the target,
+or performs a repair effect, and invocation remains a later exact gate.
 """
 from __future__ import annotations
 
@@ -21,7 +20,7 @@ from nlu_threshold_policy import decode_unique_json
 
 EXPECTED_UID = 0
 EXPECTED_GID = 0
-LOCAL_HOST_ID = "unconfigured"
+LOCAL_HOST_ID = "lxc104"
 MAX_MEASUREMENT_AGE_SECONDS = 300
 OPEN_READ = os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0)
 
