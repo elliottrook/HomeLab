@@ -85,6 +85,19 @@
 > proves resource/runtime controls and decides the required Lab Hours booking;
 > only that later exact gate may authorize the costly training effect.
 
+> **M3 J2 Mac host-control candidate, 2026-11-06:** the independent Mac-local
+> [runtime owner](evidence/M3-J2-Mac-host-control-source-boundary-2026-11-06.md)
+> pins transaction source `e9f8821b…35c8`, all four retained inputs, two
+> no-follow exclusion locks, competing-process admission, a 2 GiB available
+> memory floor, zero starting-swap drift after lock, at most 256 MiB swap
+> growth, five-second supervision and a two-hour hard deadline. A fresh
+> read-only Mac mini preflight found 3,016,982,528 available bytes, zero swap
+> used and no competing process. One exact gradient benchmark took 0.049 s;
+> the bounded estimate is roughly 35–55 minutes. The full J2 suite passes
+> 117/117. This CPU-only job neither uses nor competes with B60, so the Aster
+> Lab Hours ledger does not govern it. The next gate is the exact owner
+> training-effect decision; no worker has started.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.
