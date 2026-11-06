@@ -1,0 +1,457 @@
+From 1e5c9b4a19216e459c7bc3c6796d962cfefbbfee Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 5 Nov 2026 17:41:07 -0700
+Subject: [PATCH 1/3] Add fixed owner-loss and bounded resource qualification
+ cards
+
+---
+ .../local-ai/b60_recovery_qualification.py    | 211 ++++++++++++++++++
+ scripts/local-ai/b60_resource_probe.py        |  22 ++
+ .../install_b60_recovery_qualification.py     |  47 ++++
+ .../test_b60_recovery_qualification.py        |  27 +++
+ 4 files changed, 307 insertions(+)
+ create mode 100644 scripts/local-ai/b60_recovery_qualification.py
+ create mode 100644 scripts/local-ai/b60_resource_probe.py
+ create mode 100644 scripts/local-ai/install_b60_recovery_qualification.py
+ create mode 100644 scripts/local-ai/test_b60_recovery_qualification.py
+
+diff --git a/scripts/local-ai/b60_recovery_qualification.py b/scripts/local-ai/b60_recovery_qualification.py
+new file mode 100644
+index 0000000..65237ae
+--- /dev/null
++++ b/scripts/local-ai/b60_recovery_qualification.py
+@@ -0,0 +1,211 @@
++"""Two fixed booked recovery qualifications; no model/backend extension.
++
++Uses the accepted installed entry controller, not a generic command profile.
++R4 deliberately loses its owner after independent guardian arming/isolation.
++R5 exercises bounded memory/private tmpfs, exact candidate-scope fencing and
++checkpointed inactive-worker resource limits, conditional on R4's live proof.
++"""
++import argparse,hashlib,json,os,sys,time,subprocess
++from pathlib import Path
++SOURCE_MAP='e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2'
++PACKAGE=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
++ROOT=Path('/var/lib/local-ai-lab')
++BINDINGS={'owner-loss':('b60-exclusive-20261105-day-r4',1793927700,1793930400),
++          'resource':('b60-exclusive-20261105-day-r5',1793931300,1793934000)}
++RESOURCE_PROBE_SHA='4405832c82593e8beaaf941a4b6f6ca74f7fabb45acafa2bc934ec296087ba5d'
++SCRIPT_PATH=Path('/usr/local/libexec/local-ai-lease/recovery-qualification-20261105/b60_recovery_qualification.py')
++GUEST_PROBE='/usr/local/libexec/local-ai-lease/recovery-qualification-20261105/b60_resource_probe.py'
++
++def canonical(v):return json.dumps(v,sort_keys=True,separators=(',',':')).encode()
++
++def validate_binding(mode,booking,now,*,launch=False):
++    if mode not in BINDINGS:raise ValueError('QUALIFICATION_MODE')
++    b,start,end=BINDINGS[mode]
++    if (booking.get('booking_id')!=b or booking.get('owner')!='b60-stream-a'
++            or booking.get('kind')!='exclusive-stack' or booking.get('start_epoch')!=start
++            or booking.get('end_epoch')!=end or booking.get('state')!='reserved'
++            or (launch and not start<=now<=start+120)):
++        raise ValueError('EXACT_QUALIFICATION_BOOKING_REQUIRED')
++
++def owner_loss_verdict(intent,loss,fence,state,booking):
++    return (intent.get('owner_loss_requested') is True and intent.get('phase')=='isolated'
++        and loss.get('owner_empty') is True and loss.get('phase')=='isolated'
++        and loss.get('observed_epoch',10**20)<intent.get('trial_deadline',0)
++        and fence.get('owner_fenced') is True and state.get('phase')=='released'
++        and state.get('production_restored') is True and state.get('trial_failed') is True
++        and state.get('deadline_missed') is False and not state.get('manual_assistance_required',False)
++        and booking.get('state')=='failed' and booking.get('result_code')=='FAILED_RESTORED')
++
++def call(command,timeout=30):
++    p=subprocess.run(command,capture_output=True,text=True,timeout=timeout)
++    if p.returncode:raise RuntimeError('FIXED_QUALIFICATION_COMMAND_FAILED')
++    return p.stdout
++
++def initialize():
++    if os.geteuid()!=0 or os.uname().nodename!='proxmox':raise RuntimeError('PROXMOX_ROOT_REQUIRED')
++    sys.path.insert(0,str(PACKAGE))
++    from lab_hours_exclusive_profile import protected_bytes
++    pins={p.name:hashlib.sha256(protected_bytes(p,executable=True,maximum=262144)).hexdigest() for p in PACKAGE.glob('*.py')}
++    if len(pins)!=30 or hashlib.sha256(canonical(pins)).hexdigest()!=SOURCE_MAP:
++        raise RuntimeError('INSTALLED_SOURCE_MAP_DRIFT')
++    # The whole supplementary package is pinned, including this entry point.
++    manifest=json.loads(protected_bytes(SCRIPT_PATH.parent/'manifest.json'))
++    if set(manifest)!={'b60_recovery_qualification.py','b60_resource_probe.py'}:raise RuntimeError('QUALIFICATION_CLOSURE')
++    for n,h in manifest.items():
++        if hashlib.sha256(protected_bytes(SCRIPT_PATH.parent/n,executable=True)).hexdigest()!=h:
++            raise RuntimeError('QUALIFICATION_SOURCE_DRIFT')
++
++def context(mode):
++    from lab_hours_exclusive_cli import context as base
++    result=base(BINDINGS[mode][0])
++    if mode=='resource':
++        adapter=result[-1];original=adapter.restore
++        def restore(entry,deadline):
++            resource_namespace_cleanup(adapter,result[1],deadline)
++            return original(entry,deadline)
++        adapter.restore=restore
++    return result
++
++def arm(mode,scopes,state,store):
++    remaining=int(state['restore_deadline']-time.time())
++    if remaining<=900:raise RuntimeError('GUARDIAN_MARGIN')
++    call(['systemd-run','--quiet','--unit='+scopes.guardian,'--property=Type=exec',
++          '--property=KillMode=control-group','--property=Restart=no','--property=TimeoutStopSec=30',
++          '--property=RuntimeMaxSec='+str(remaining+600),'/usr/bin/python3','-B',str(SCRIPT_PATH),'watch','--mode',mode],15)
++    fields=dict(l.split('=',1) for l in call(['systemctl','show',scopes.guardian,'--property=ActiveState,MainPID,KillMode,Restart']).splitlines())
++    ok=fields.get('ActiveState')=='active' and int(fields.get('MainPID','0'))>0 and fields.get('KillMode')=='control-group' and fields.get('Restart')=='no'
++    if ok:store.write('qualification-guardian-arm.json',{'independent_guardian_armed':True,'guardian_pid':int(fields['MainPID']),'observed_epoch':int(time.time()),'mode':mode},immutable=True)
++    return ok
++
++def launch(mode):
++    profile,store,bookings,scopes,adapter=context(mode)
++    row=bookings.get(BINDINGS[mode][0]);validate_binding(mode,row,int(time.time()),launch=True)
++    call(['systemd-run','--quiet','--unit='+scopes.owner,'--property=Type=exec',
++          '--property=KillMode=control-group','--property=Restart=no','--property=TimeoutStopSec=30',
++          '--property=RuntimeMaxSec='+str(row['end_epoch']-int(time.time())+300),
++          '/usr/bin/python3','-B',str(SCRIPT_PATH),'run','--mode',mode],15)
++    return {'state':'owner-launched','mode':mode,'booking_id':row['booking_id']}
++
++def watch(mode):
++    from lab_hours_exclusive_guardian import guard
++    profile,store,bookings,scopes,adapter=context(mode)
++    def alive(state):
++        fields=scopes._show();present=(fields.get('LoadState')=='loaded' and fields.get('ActiveState') in {'active','activating'} and fields.get('MainPID','').isdigit() and int(fields['MainPID'])>0 and fields.get('TasksCurrent','').isdigit() and int(fields['TasksCurrent'])>0)
++        if not present and not (store.root/'qualification-loss-observed.json').exists():
++            empty=fields.get('ActiveState') in {'inactive','failed'} and fields.get('MainPID')=='0' and fields.get('TasksCurrent') in {'0','','[not set]'}
++            store.write('qualification-loss-observed.json',{'owner_empty':empty,'phase':state['phase'],'observed_epoch':int(time.time())},immutable=True)
++        return present
++    def fence(state):
++        ok=scopes.fence(state)
++        if not (store.root/'qualification-fence.json').exists():store.write('qualification-fence.json',{'owner_fenced':ok,'observed_epoch':int(time.time())},immutable=True)
++        return ok
++    try:
++        result=guard(store,adapter,owner=profile['owner'],owner_alive=alive,fence_owner=fence)
++        state=store.read('session.json');row=bookings.get(profile['booking_id'])
++        passed=(mode=='owner-loss' and result.get('state')=='rescued' and
++            owner_loss_verdict(store.read('qualification-intent.json'),store.read('qualification-loss-observed.json'),store.read('qualification-fence.json'),state,row))
++        if mode=='owner-loss':
++            store.write('qualification-terminal.json',{'schema':'b60-recovery-qualification-result.v1','mode':mode,'booking_id':profile['booking_id'],'qualified':passed,'guardian_result':result,'finished_epoch':int(time.time()),'no_model_experiment':True,'source_map_sha256':SOURCE_MAP},immutable=True)
++        return result
++    finally:adapter.boundary.close()
++
++def resource_baseline(adapter,store,deadline):
++    parent='/var/lib/local-ai-lab-entry/'+adapter.profile['booking_id']
++    code="import json,sys;from pathlib import Path;p=json.loads((Path(sys.argv[1])/'plan.json').read_text());required={'/run/systemd/system.control/epub-narration-worker.service.d/50-CPUQuota.conf','/run/systemd/system.control/epub-narration-worker.service.d/50-MemoryMax.conf'};assert required<=set(p['files']);print('resource-files-covered')"
++    adapter._call(('pct','exec','116','--','python3','-B','-c',code,parent),deadline,10)
++    raw=adapter._call(('pct','exec','116','--','systemctl','show','epub-narration-worker.service','--property=CPUQuotaPerSecUSec,MemoryMax,ActiveState,MainPID'),deadline,10)
++    fields=dict(l.split('=',1) for l in raw.splitlines())
++    if fields.get('ActiveState') not in {'inactive','failed'} or fields.get('MainPID')!='0':raise RuntimeError('RESOURCE_WORKER_NOT_QUIESCENT')
++    if fields.get('CPUQuotaPerSecUSec')=='100ms' or fields.get('MemoryMax')=='268435456':raise RuntimeError('RESOURCE_TEST_NO_DELTA')
++    check="from pathlib import Path;p=Path('/run/b60-qualification');q=Path('/var/lib/b60-resource-b60-exclusive-20261105-day-r5');assert not p.exists() and not p.is_symlink() and not q.exists();print('resource-namespace-entry-absent')"
++    adapter._call(('pct','exec','110','--','python3','-B','-c',check),deadline,10)
++    store.write('resource-baseline.json',{'properties':fields,'resource_files_covered':True,'global_probe_mount_absent':True},immutable=True)
++    adapter._call(('pct','exec','116','--','systemctl','set-property','--runtime','epub-narration-worker.service','CPUQuota=10%','MemoryMax=256M'),deadline,15)
++    after=adapter._call(('pct','exec','116','--','systemctl','show','epub-narration-worker.service','--property=CPUQuotaPerSecUSec,MemoryMax'),deadline,10)
++    values=dict(l.split('=',1) for l in after.splitlines())
++    if values!={'CPUQuotaPerSecUSec':'100ms','MemoryMax':'268435456'}:raise RuntimeError('RESOURCE_LIMIT_EFFECT_UNVERIFIED')
++    store.write('resource-limit-effect.json',{'properties':values,'observed_epoch':int(time.time()),'workload_started':False},immutable=True)
++
++def resource_namespace_cleanup(adapter,store,deadline):
++    # Called by owner AND guardian after the standard exact trial-scope fence,
++    # before any production service restoration. Never unmount a global path.
++    if not (store.root/'resource-baseline.json').exists():return
++    baseline=store.read('resource-baseline.json')
++    if baseline.get('global_probe_mount_absent') is not True:raise RuntimeError('RESOURCE_BASELINE_UNKNOWN')
++    code="from pathlib import Path;import os,json,stat;p=Path('/run/b60-qualification');assert not any(l.split()[4]==str(p) for l in Path('/proc/self/mountinfo').read_text().splitlines());\nif p.exists():\n s=p.lstat();assert stat.S_ISDIR(s.st_mode) and s.st_uid==0 and not p.is_symlink() and not list(p.iterdir());p.rmdir()\nassert not p.exists();print(json.dumps({'global_probe_mount_absent':True,'global_probe_directory_absent':True}))"
++    value=json.loads(adapter._call(('pct','exec','110','--','python3','-B','-c',code),deadline,10))
++    store.write('resource-namespace-restored.json',value)
++
++def resource_trial(adapter,store,state):
++    deadline=state['trial_deadline'];b=state['booking_id'];unit='b60-exclusive-trial-'+b+'.service'
++    expected=adapter._call(('pct','exec','110','--','sha256sum',GUEST_PROBE),deadline,10).split()[0]
++    if expected!=RESOURCE_PROBE_SHA:raise RuntimeError('RESOURCE_PROBE_SOURCE_DRIFT')
++    resource_baseline(adapter,store,deadline)
++    adapter._call(('pct','exec','110','--','systemd-run','--quiet','--unit='+unit,
++        '--property=Type=exec','--property=KillMode=control-group','--property=Restart=no',
++        '--property=RuntimeMaxSec=120','--property=TimeoutStopSec=5','--property=MemoryMax=384M',
++        '--property=MemorySwapMax=0','--property=CPUQuota=25%','--property=TasksMax=16',
++        '--property=NoNewPrivileges=yes','--property=PrivateNetwork=yes','--property=PrivateMounts=yes',
++        '--property=ProtectSystem=strict','--property=ProtectHome=yes','--property=PrivateTmp=yes',
++        '--property=TemporaryFileSystem=/run/b60-qualification:rw,size=16M,mode=0700',
++        '--property=StateDirectory=b60-resource-'+b,'--property=StateDirectoryMode=0700',
++        '/usr/bin/python3','-B',GUEST_PROBE,'--booking-id',b),deadline,20)
++    probe='/var/lib/b60-resource-'+b+'/probe.json'
++    for _ in range(20):
++        code,raw=adapter.runner(('pct','exec','110','--','python3','-B','-c',
++            "import pathlib,sys;print(pathlib.Path(sys.argv[1]).read_text())",probe),min(10,max(1,deadline-time.time())))
++        if code==0:break
++        if time.time()+15>=deadline:raise RuntimeError('RESOURCE_PROBE_DEADLINE')
++        time.sleep(.5)
++    else:raise RuntimeError('RESOURCE_PROBE_RECEIPT_ABSENT')
++    receipt=json.loads(raw)
++    if receipt.get('bytes_touched')!=134217728 or receipt.get('tmpfs_bytes')!=8388608 or receipt.get('tmpfs_verified') is not True or receipt.get('booking_id')!=b:
++        raise RuntimeError('RESOURCE_PROBE_RECEIPT_INVALID')
++    raw=adapter._call(('pct','exec','110','--','systemctl','show',unit,'--property=ActiveState,MainPID,MemoryPeak,MemoryMax,CPUQuotaPerSecUSec,TasksMax'),deadline,10)
++    fields=dict(l.split('=',1) for l in raw.splitlines())
++    if (fields.get('ActiveState')!='active' or int(fields.get('MainPID','0'))<1
++        or fields.get('MemoryMax')!='402653184' or fields.get('CPUQuotaPerSecUSec')!='250ms'
++        or fields.get('TasksMax')!='16' or not 134217728<=int(fields.get('MemoryPeak','0'))<=402653184):
++        raise RuntimeError('RESOURCE_CGROUP_LIMITS_UNVERIFIED')
++    store.write('resource-trial.json',{'probe':receipt,'cgroup':fields,'observed_epoch':int(time.time()),'no_model_experiment':True},immutable=True)
++
++def run(mode):
++    from lab_hours_exclusive_session import ExclusiveSession
++    profile,store,bookings,scopes,adapter=context(mode)
++    if scopes._show().get('MainPID')!=str(os.getpid()) or not scopes.alive({}):raise RuntimeError('EXACT_OWNER_SCOPE_REQUIRED')
++    if mode=='resource':
++        from lab_hours_exclusive_session import SessionStore
++        prior=SessionStore(ROOT/'exclusive-sessions'/BINDINGS['owner-loss'][0],expected_uid=0).read('qualification-terminal.json')
++        if prior.get('qualified') is not True or prior.get('source_map_sha256')!=SOURCE_MAP:raise RuntimeError('OWNER_LOSS_QUALIFICATION_REQUIRED')
++    adapter.arm=lambda state,profile:arm(mode,scopes,state,store)
++    session=ExclusiveSession(store,adapter)
++    try:
++        state=session.begin(bookings.get(profile['booking_id']),owner=profile['owner'],trial_seconds=300)
++        if mode=='owner-loss':
++            store.write('qualification-intent.json',{'mode':mode,'phase':'isolated','owner_loss_requested':True,'observed_epoch':int(time.time()),'trial_deadline':state['trial_deadline'],'no_model_experiment':True},immutable=True)
++            os._exit(86) # Abrupt loss: no finally/recovery in the owner process.
++        resource_trial(adapter,store,state)
++        result=session.run_trial(owner=profile['owner'])
++        baseline=store.read('resource-baseline.json')['properties']
++        raw=call(['pct','exec','116','--','systemctl','show','epub-narration-worker.service','--property=CPUQuotaPerSecUSec,MemoryMax'])
++        observed=dict(l.split('=',1) for l in raw.splitlines())
++        restored=observed=={k:baseline[k] for k in ('CPUQuotaPerSecUSec','MemoryMax')}
++        raw=call(['pct','exec','110','--','systemctl','show','b60-exclusive-trial-'+profile['booking_id']+'.service','--property=ActiveState,MainPID,TasksCurrent'])
++        fields=dict(l.split('=',1) for l in raw.splitlines());empty=fields.get('MainPID')=='0' and fields.get('TasksCurrent') in {'0','','[not set]'} and fields.get('ActiveState') in {'inactive','failed'}
++        passed=result['outcome']=='complete-restored' and restored and empty
++        store.write('qualification-terminal.json',{'schema':'b60-recovery-qualification-result.v1','mode':mode,'booking_id':profile['booking_id'],'qualified':passed,'resource_limits_restored':restored,'trial_scope_empty':empty,'finished_epoch':int(time.time()),'source_map_sha256':SOURCE_MAP,'no_model_experiment':True},immutable=True)
++        return {'qualified':passed,'mode':mode}
++    except Exception:
++        if (store.root/'session.json').exists():session.recover(owner=profile['owner'])
++        raise
++    finally:adapter.boundary.close()
++
++def main():
++    p=argparse.ArgumentParser();p.add_argument('action',choices=('launch','run','watch'));p.add_argument('--mode',choices=tuple(BINDINGS),required=True);a=p.parse_args()
++    try:
++        initialize()
++        result={'launch':launch,'run':run,'watch':watch}[a.action](a.mode)
++        print(json.dumps(result,sort_keys=True))
++    except Exception as error:
++        print(json.dumps({'state':'no_go','mode':a.mode,'failure_type':type(error).__name__},sort_keys=True));raise SystemExit(1)
++if __name__=='__main__':main()
+diff --git a/scripts/local-ai/b60_resource_probe.py b/scripts/local-ai/b60_resource_probe.py
+new file mode 100644
+index 0000000..6ad8aba
+--- /dev/null
++++ b/scripts/local-ai/b60_resource_probe.py
+@@ -0,0 +1,22 @@
++"""Fixed synthetic memory/tmpfs probe; no network, GPU, model or private input."""
++import argparse,hashlib,json,os,time
++from pathlib import Path
++B='b60-exclusive-20261105-day-r5'
++def main():
++ p=argparse.ArgumentParser();p.add_argument('--booking-id',choices=(B,),required=True);a=p.parse_args()
++ root=Path('/var/lib/b60-resource-'+B);assert root.is_dir() and root.stat().st_uid==0 and root.stat().st_mode&0o777==0o700
++ mount=Path('/run/b60-qualification');matches=[l for l in Path('/proc/self/mountinfo').read_text().splitlines() if l.split()[4]==str(mount)]
++ assert len(matches)==1 and ' - tmpfs ' in matches[0] and 'rw' in matches[0].split()[5].split(',')
++ block=bytearray(134217728)
++ for i in range(0,len(block),4096):block[i]=37
++ data=b'B60 synthetic recovery qualification\n';target=mount/'fixture'
++ with target.open('xb') as f:
++  for _ in range(8388608//len(data)):f.write(data)
++  remaining=8388608-f.tell()
++  f.write(b'x'*remaining);f.flush();os.fsync(f.fileno())
++ assert target.stat().st_size==8388608
++ receipt={'schema':'b60-bounded-resource-probe.v1','booking_id':B,'bytes_touched':len(block),'tmpfs_bytes':target.stat().st_size,'tmpfs_verified':True,'model_called':False,'pid':os.getpid()}
++ path=root/'probe.json';fd=os.open(path,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++ with os.fdopen(fd,'w') as f:json.dump(receipt,f,sort_keys=True);f.flush();os.fsync(f.fileno())
++ time.sleep(100) # Owner recovery must fence this still-live candidate cgroup.
++if __name__=='__main__':main()
+diff --git a/scripts/local-ai/install_b60_recovery_qualification.py b/scripts/local-ai/install_b60_recovery_qualification.py
+new file mode 100644
+index 0000000..178f914
+--- /dev/null
++++ b/scripts/local-ai/install_b60_recovery_qualification.py
+@@ -0,0 +1,47 @@
++"""Arm exactly the two reviewed fixed recovery cards; no immediate transaction."""
++import hashlib,json,os,time
++from pathlib import Path
++from datetime import datetime
++from zoneinfo import ZoneInfo
++from host_exclusion import host_exclusion
++from lab_hours_exclusive_profile import load_profile,protected_bytes
++from lab_hours_exclusive_session import SessionError
++from lab_hours_reservations import ReservationStore
++from retained_archive_integrity import load_root_owned,verify,fixed_proxmox_inventory,fixed_resolve
++from install_b60_daytime_qualification import ROOT,PACKAGE,UNITS,call,unit_files,day_window_invalid
++from b60_recovery_qualification import BINDINGS,SCRIPT_PATH,validate_binding,initialize
++
++def recovery_files(mode,booking):
++    prefix='b60-exclusive-qualification-'+booking['booking_id']
++    files={n:v for n,v in unit_files(booking,'unused').items() if n.startswith(prefix+'.')}
++    old=str(PACKAGE/'lab_hours_exclusive_cli.py')+' launch --booking-id '+booking['booking_id']
++    new=str(SCRIPT_PATH)+' launch --mode '+mode
++    service=prefix+'.service'
++    if old not in files[service]:raise SessionError('RECOVERY_CLOCK_SOURCE_SHAPE')
++    files[service]=files[service].replace(old,new)
++    return files
++
++def install(mode):
++    initialize();booking_id=BINDINGS[mode][0]
++    with host_exclusion(ROOT):
++        if any(p.exists() or p.is_symlink() for p in [ROOT/'lease.json',ROOT/'lease.lock',ROOT/'full-inference-drain.json',ROOT/'full-inference-drain.lock',Path('/run/local-ai-lab-operation.lock')]):raise SessionError('SHARED_HOST_NOT_READY')
++        if json.loads(call(('/usr/local/sbin/local-ai-lease','status')))!={'state':'ready'}:raise SessionError('SHARED_HOST_NOT_READY')
++        booking=ReservationStore(ROOT/'reservations',expected_uid=0).get(booking_id)
++        validate_binding(mode,booking,int(time.time()))
++        if booking['start_epoch']<time.time()+300 or day_window_invalid(booking):raise SessionError('FUTURE_WINDOW_REQUIRED')
++        profile=load_profile(ROOT/'exclusive-activations'/(booking_id+'.json'),PACKAGE)
++        if profile['qualification_only'] is not True or profile['experiment'] is not None:raise SessionError('NO_MODEL_PROFILE_REQUIRED')
++        terminal=ROOT/'exclusive-integrity'/booking_id/'terminal.json';t=json.loads(protected_bytes(terminal));receipt=load_root_owned();items=fixed_proxmox_inventory()
++        cycle=datetime.fromtimestamp(time.time(),ZoneInfo('America/Vancouver')).strftime('%Y_%m_%d')
++        proof=verify(receipt,items,date=cycle,now_epoch=int(time.time()),resolve=fixed_resolve,lstat=os.lstat)
++        verify(receipt,items,date=cycle,now_epoch=booking['start_epoch']+120,resolve=fixed_resolve,lstat=os.lstat)
++        if t.get('booking_id')!=booking_id or t.get('state')!='complete' or t.get('ai_stack_effects') is not False or t.get('archive_receipt')!=proof:raise SessionError('FRESH_COMPLETED_INTEGRITY_REQUIRED')
++        files=recovery_files(mode,booking)
++        if any((UNITS/n).exists() or (UNITS/n).is_symlink() for n in files):raise SessionError('CLOCK_ALREADY_EXISTS')
++        for n,body in files.items():
++            fd=os.open(UNITS/n,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o644)
++            with os.fdopen(fd,'w') as f:f.write(body);f.flush();os.fsync(f.fileno())
++        call(('systemd-analyze','verify',*(str(UNITS/n) for n in files)))
++        call(('systemctl','daemon-reload'));timers=[n for n in files if n.endswith('.timer')]
++        call(('systemctl','enable','--now',*timers))
++        return {'state':'armed','booking_id':booking_id,'mode':mode,'preparation_timer_created':False,'unit_sha256':{n:hashlib.sha256(v.encode()).hexdigest() for n,v in files.items()},'integrity_terminal_sha256':hashlib.sha256(protected_bytes(terminal)).hexdigest(),'model_experiment_scheduled':False}
+diff --git a/scripts/local-ai/test_b60_recovery_qualification.py b/scripts/local-ai/test_b60_recovery_qualification.py
+new file mode 100644
+index 0000000..e4a9fc1
+--- /dev/null
++++ b/scripts/local-ai/test_b60_recovery_qualification.py
+@@ -0,0 +1,27 @@
++import unittest
++from b60_recovery_qualification import validate_binding,owner_loss_verdict,BINDINGS
++class RecoveryCardTests(unittest.TestCase):
++ def booking(self,mode):
++  b,s,e=BINDINGS[mode];return dict(booking_id=b,start_epoch=s,end_epoch=e,owner='b60-stream-a',kind='exclusive-stack',state='reserved')
++ def test_exact_distinct_reserved_windows_and_early_stale_refusal(self):
++  for mode in BINDINGS:
++   b=self.booking(mode);s=b['start_epoch'];validate_binding(mode,b,s,launch=True)
++   for now in (s-1,s+121):
++    with self.assertRaises(ValueError):validate_binding(mode,b,now,launch=True)
++   for key,value in [('state','claimed'),('owner','another-owner'),('end_epoch',b['end_epoch']+1),('kind','workload')]:
++    with self.assertRaises(ValueError):validate_binding(mode,dict(b,**{key:value}),s,launch=True)
++ def args(self):
++  return [dict(owner_loss_requested=True,phase='isolated',trial_deadline=300),dict(owner_empty=True,phase='isolated',observed_epoch=200),dict(owner_fenced=True),dict(phase='released',production_restored=True,trial_failed=True,deadline_missed=False),dict(state='failed',result_code='FAILED_RESTORED')]
++ def test_expected_loss_is_not_relabelled_as_normal_or_model_success(self):
++  self.assertTrue(owner_loss_verdict(*self.args()))
++  for index,key,value in [(0,'owner_loss_requested',False),(1,'owner_empty',False),(1,'phase','restoring'),(1,'observed_epoch',301),(2,'owner_fenced',False),(3,'production_restored',False),(3,'deadline_missed',True),(3,'manual_assistance_required',True),(3,'trial_failed',False),(4,'state','complete')]:
++   args=self.args();args[index][key]=value;self.assertFalse(owner_loss_verdict(*args))
++ def test_clock_uses_fixed_reviewed_entrypoint_no_extra_prep_or_model(self):
++  from install_b60_recovery_qualification import recovery_files
++  for mode in BINDINGS:
++   files=recovery_files(mode,self.booking(mode));self.assertEqual(len(files),2)
++   self.assertFalse(any('integrity' in n for n in files))
++   service=next(v for k,v in files.items() if k.endswith('.service'))
++   self.assertIn('launch --mode '+mode,service)
++   self.assertNotIn('lab_hours_exclusive_cli.py launch',service)
++   self.assertIn('Persistent=false',next(v for k,v in files.items() if k.endswith('.timer')))
+-- 
+2.50.1 (Apple Git-155)
+
+
+From 6ac4df954594bfe8d86ada0d04bd3c882020d401 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 5 Nov 2026 17:41:43 -0700
+Subject: [PATCH 2/3] Bind the resource prerequisite to the exact live
+ owner-loss card
+
+---
+ scripts/local-ai/b60_recovery_qualification.py | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/scripts/local-ai/b60_recovery_qualification.py b/scripts/local-ai/b60_recovery_qualification.py
+index 65237ae..34e28b6 100644
+--- a/scripts/local-ai/b60_recovery_qualification.py
++++ b/scripts/local-ai/b60_recovery_qualification.py
+@@ -105,7 +105,7 @@ def watch(mode):
+         passed=(mode=='owner-loss' and result.get('state')=='rescued' and
+             owner_loss_verdict(store.read('qualification-intent.json'),store.read('qualification-loss-observed.json'),store.read('qualification-fence.json'),state,row))
+         if mode=='owner-loss':
+-            store.write('qualification-terminal.json',{'schema':'b60-recovery-qualification-result.v1','mode':mode,'booking_id':profile['booking_id'],'qualified':passed,'guardian_result':result,'finished_epoch':int(time.time()),'no_model_experiment':True,'source_map_sha256':SOURCE_MAP},immutable=True)
++            store.write('qualification-terminal.json',{'schema':'b60-recovery-qualification-result.v1','mode':mode,'booking_id':profile['booking_id'],'qualified':passed,'guardian_result':result,'finished_epoch':int(time.time()),'no_model_experiment':True,'source_map_sha256':SOURCE_MAP,'qualification_source_sha256':hashlib.sha256(SCRIPT_PATH.read_bytes()).hexdigest()},immutable=True)
+         return result
+     finally:adapter.boundary.close()
+ 
+@@ -176,7 +176,11 @@ def run(mode):
+     if mode=='resource':
+         from lab_hours_exclusive_session import SessionStore
+         prior=SessionStore(ROOT/'exclusive-sessions'/BINDINGS['owner-loss'][0],expected_uid=0).read('qualification-terminal.json')
+-        if prior.get('qualified') is not True or prior.get('source_map_sha256')!=SOURCE_MAP:raise RuntimeError('OWNER_LOSS_QUALIFICATION_REQUIRED')
++        if (prior.get('qualified') is not True or prior.get('source_map_sha256')!=SOURCE_MAP
++                or prior.get('mode')!='owner-loss' or prior.get('booking_id')!=BINDINGS['owner-loss'][0]
++                or prior.get('qualification_source_sha256')!=hashlib.sha256(SCRIPT_PATH.read_bytes()).hexdigest()):raise RuntimeError('OWNER_LOSS_QUALIFICATION_REQUIRED')
++        prior_row=bookings.get(BINDINGS['owner-loss'][0])
++        if prior_row.get('state')!='failed' or prior_row.get('result_code')!='FAILED_RESTORED':raise RuntimeError('OWNER_LOSS_LEDGER_MISMATCH')
+     adapter.arm=lambda state,profile:arm(mode,scopes,state,store)
+     session=ExclusiveSession(store,adapter)
+     try:
+-- 
+2.50.1 (Apple Git-155)
+
+
+From bb0b8ad8ea28eb7264d1e45eb83de8663f1e759d Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 5 Nov 2026 17:56:44 -0700
+Subject: [PATCH 3/3] Require fresh guest headroom before resource
+ qualification claim
+
+---
+ .../local-ai/b60_recovery_qualification.py    | 20 ++++++++++++++++++-
+ .../test_b60_recovery_qualification.py        |  5 +++++
+ 2 files changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/scripts/local-ai/b60_recovery_qualification.py b/scripts/local-ai/b60_recovery_qualification.py
+index 34e28b6..2540403 100644
+--- a/scripts/local-ai/b60_recovery_qualification.py
++++ b/scripts/local-ai/b60_recovery_qualification.py
+@@ -59,7 +59,12 @@ def context(mode):
+     from lab_hours_exclusive_cli import context as base
+     result=base(BINDINGS[mode][0])
+     if mode=='resource':
+-        adapter=result[-1];original=adapter.restore
++        adapter=result[-1];admission=adapter.admission
++        def admit(booking,profile):
++            resource_headroom(adapter,result[1],booking['end_epoch']-900)
++            return admission(booking,profile)
++        adapter.admission=admit
++        original=adapter.restore
+         def restore(entry,deadline):
+             resource_namespace_cleanup(adapter,result[1],deadline)
+             return original(entry,deadline)
+@@ -109,6 +114,19 @@ def watch(mode):
+         return result
+     finally:adapter.boundary.close()
+ 
++def headroom_valid(memory_bytes,disk_bytes):
++    return type(memory_bytes) is int and type(disk_bytes) is int and memory_bytes>=2*1024**3 and disk_bytes>=1024**3
++
++def resource_headroom(adapter,store,deadline):
++    memory=adapter._call(('pct','exec','110','--','awk','/MemAvailable:/ {print $2}','/proc/meminfo'),deadline,10).strip()
++    disk=adapter._call(('pct','exec','110','--','df','--output=avail','-B1','/var/lib'),deadline,10).split()[-1]
++    if not memory.isdigit() or not disk.isdigit() or not headroom_valid(int(memory)*1024,int(disk)):
++        raise RuntimeError('RESOURCE_GUEST_HEADROOM_INSUFFICIENT')
++    store.write('resource-headroom.json',{'observed_epoch':int(time.time()),'guest':'110',
++        'memory_available_bytes':int(memory)*1024,'disk_available_bytes':int(disk),
++        'minimum_memory_bytes':2*1024**3,'minimum_disk_bytes':1024**3,
++        'before_claim':True,'no_model_experiment':True},immutable=True)
++
+ def resource_baseline(adapter,store,deadline):
+     parent='/var/lib/local-ai-lab-entry/'+adapter.profile['booking_id']
+     code="import json,sys;from pathlib import Path;p=json.loads((Path(sys.argv[1])/'plan.json').read_text());required={'/run/systemd/system.control/epub-narration-worker.service.d/50-CPUQuota.conf','/run/systemd/system.control/epub-narration-worker.service.d/50-MemoryMax.conf'};assert required<=set(p['files']);print('resource-files-covered')"
+diff --git a/scripts/local-ai/test_b60_recovery_qualification.py b/scripts/local-ai/test_b60_recovery_qualification.py
+index e4a9fc1..26e1fc1 100644
+--- a/scripts/local-ai/test_b60_recovery_qualification.py
++++ b/scripts/local-ai/test_b60_recovery_qualification.py
+@@ -25,3 +25,8 @@ class RecoveryCardTests(unittest.TestCase):
+    self.assertIn('launch --mode '+mode,service)
+    self.assertNotIn('lab_hours_exclusive_cli.py launch',service)
+    self.assertIn('Persistent=false',next(v for k,v in files.items() if k.endswith('.timer')))
++
++ def test_guest_headroom_refuses_low_or_malformed_values(self):
++  from b60_recovery_qualification import headroom_valid
++  self.assertTrue(headroom_valid(2*1024**3,1024**3))
++  for memory,disk in [(2*1024**3-1,1024**3),(2*1024**3,1024**3-1),('2147483648',1024**3),(True,1024**3)]:self.assertFalse(headroom_valid(memory,disk))
+-- 
+2.50.1 (Apple Git-155)
+

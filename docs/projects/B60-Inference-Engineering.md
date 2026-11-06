@@ -1,6 +1,6 @@
 # B60 inference engineering
 
-> Current operational result (2026-11-05): R3 completed one normal restore-only pass and restored/released17:22:51 before deadline, with independent checkpoint/unit/schedule postchecks. See [exact evidence and next action](B60-Inference-Engineering/daytime-r3-normal-restore-pass-20261105.md). R1/R2 remain failed-assisted attempts. Independent owner-loss/resource and27B+ reasoning-on capability/latency gates remain open. Historical windows/approval statements below are superseded by Jason’s exclusive-booking Stream A amendments.
+> Current operational continuation (2026-11-05): R3 normal restore-only pass is retained. Independent owner-loss18:15 and conditional resource19:15 attempts are booked and verified armed under Jason’s explicit Stream A instruction. See [fixed cards, exact pins and live next action](B60-Inference-Engineering/owner-resource-qualification-20261105.md). These gates and27B+ capability/latency are not yet claimed passed.
 
 > Status: Active — Stream A (bounded)
 >
