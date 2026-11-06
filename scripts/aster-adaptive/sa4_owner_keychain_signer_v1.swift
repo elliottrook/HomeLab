@@ -15,6 +15,8 @@ enum SignerError: Error, CustomStringConvertible {
 }
 
 let keyTag = Data("com.elliottrook.aster.sa4.owner-approval.v1".utf8)
+let acceptedSignerID = "jason-owner"
+let acceptedKeyDigest = "17738e78d92b3ba4fff496f4d51904b6c6dd18d4acf80b3ef2a34a27ea6de946"
 let proofFields: Set<String> = [
     "schema", "proof_scope", "signer_id", "signer_key_sha256",
     "payload_sha256", "signature_algorithm", "authority",
@@ -81,10 +83,8 @@ func canonicalProof(_ raw: Data) throws -> Data {
           value["proof_scope"] as? String == "owner-approval",
           value["signature_algorithm"] as? String == "rsa-pkcs1v1_5-sha256",
           value["authority"] as? String == "signature-only-no-effect",
-          let signer = value["signer_id"] as? String,
-          signer.range(of: "^[a-z0-9][a-z0-9._-]{2,127}$", options: .regularExpression) != nil,
-          let keyDigest = value["signer_key_sha256"] as? String,
-          keyDigest.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
+          value["signer_id"] as? String == acceptedSignerID,
+          value["signer_key_sha256"] as? String == acceptedKeyDigest,
           let payloadDigest = value["payload_sha256"] as? String,
           payloadDigest.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil else {
         throw SignerError.invalid("owner proof statement changed")
@@ -181,8 +181,8 @@ func selfTest() throws {
     }
     let value: [String: Any] = [
         "schema": "aster-sa4-detached-proof.v1",
-        "proof_scope": "owner-approval", "signer_id": "jason-owner",
-        "signer_key_sha256": String(repeating: "a", count: 64),
+        "proof_scope": "owner-approval", "signer_id": acceptedSignerID,
+        "signer_key_sha256": acceptedKeyDigest,
         "payload_sha256": String(repeating: "b", count: 64),
         "signature_algorithm": "rsa-pkcs1v1_5-sha256",
         "authority": "signature-only-no-effect",

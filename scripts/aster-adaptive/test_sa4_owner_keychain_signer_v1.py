@@ -35,6 +35,10 @@ class SA4OwnerKeychainSignerTests(unittest.TestCase):
         self.assertIn("kSecAttrIsSensitive: true", source)
         self.assertNotIn("kSecUseDataProtectionKeychain", source)
         self.assertIn("raw.count <= 4096", source)
+        self.assertIn('acceptedSignerID = "jason-owner"', source)
+        self.assertIn(
+            'acceptedKeyDigest = "17738e78d92b3ba4fff496f4d51904b6c6dd18d4acf80b3ef2a34a27ea6de946"',
+            source)
 
 
 if __name__ == "__main__":
