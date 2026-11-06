@@ -1738,22 +1738,24 @@ candidate and a separate promotion decision is required.
 
 ### M10 — Integrated validation, recovery and efficiency review
 
-The repository-local half is now a single fail-closed gate. It runs 49 test
+The repository-local half is now a single fail-closed gate. It runs 50 test
 files, scans 93 candidate inputs, verifies immutable v2, audits 15 pages/127
 focus controls and double-builds M9. It reports connected/environment work as
 open rather than converting absence into a pass. Evidence:
 `docs/projects/evidence/AsterTV-v3-M10-local-integrated-gate-2026-11-05.md`.
 
-#### Proposed SA-M10-C1 — pinned Aster gateway test environment
+#### Completed SA-M10-C1 — pinned Aster gateway test environment
 
-This envelope is **proposed, not authorized**. It targets only Aster LXC 104
-and may stage a secret-scanned, hash-manifested copy of the repository's Aster
-Remote/gateway source and tests under one unique `/tmp` directory, run only the
-Remote/gateway unit and installer tests with `/opt/aster-agent/venv/bin/python`,
-compare content-free service health before/after, and remove only that temporary
-directory. It may not load `/etc/aster/aster.env`, run inference, submit media
-requests, issue television/equipment commands, restart or reconfigure the
-Aster service, alter credentials/network policy, or touch any AsterTV client.
+Jason authorized this bounded envelope on 2026-11-05. A deterministic,
+secret-scanned and hash-manifested 28-file bundle was staged only under a
+unique `/tmp` directory in Aster LXC 104. All 52 Remote, gateway and installer
+tests passed under `/opt/aster-agent/venv/bin/python` without loading
+`/etc/aster/aster.env`. `aster-agent` retained its PID, start timestamp,
+active/running state and zero-restart count. The LXC staging directory and
+Proxmox transfer archive were removed and their absence verified. No inference,
+media request, equipment command, service restart/reconfiguration, credential,
+network-policy or AsterTV-client change occurred. Evidence:
+`docs/projects/evidence/AsterTV-v3-M10-gateway-environment-2026-11-05.md`.
 
 The connected Jen HEVC gate is explicitly excluded because its retained
 privacy-safe fixture is absent. Recreating a fixture and exercising Jen media
@@ -2040,7 +2042,8 @@ explicit user acceptance.
 | 2026-11-05 | Installed the authorized M9 page-aware idle canary on Jen | Exact v2 hashes and idle state were rechecked; the host-bound installer checkpointed settings/database/log, installed the five-file non-release candidate side-by-side and selected it after Kodi-only restart. | Media, Music and neutral activation/wake passed; a synthetic Home-timer state suppressed activation; guard result is successful; deployed hashes match; no Kodi errors appeared; RSS was 529–550 MiB. Checkpoint `astertv-v3-m9-jen-20261106T030453Z` retains exact rollback. Owner visual and real playback/missing-art checks remain; Family/Bedroom unchanged. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
 | 2026-11-05 | Corrected the M9 canary to section-aware Aster branding | Owner rejected the generic Media mark on Music. The coarse dispatcher now selects only approved Media, Books, Music, News, Home or plain-compass assets; no page title/account/state enters the saver. | Twelve tests pass; deterministic 4,129-byte archive `254ac8bd…45bc16` installed atomically under checkpoint `astertv-v3-m9-branding-20261106T031300Z`. Kodi retained v3 selection and loaded the Music candidate without error. A hash-pinned 15-second silent fixture proved playback suppression (`1 → 1` loads), then stopped; black/logo missing-art behavior is pinned. Owner visual acceptance remains open; Family/Bedroom unchanged. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
 | 2026-11-05 | Accepted the M9 Jen page-aware idle canary | Owner confirmed the corrected Music logo, centred artwork, 18-second changes, corner movement and wake return. | M9's five checks are complete on Jen: Media/Music/neutral routing, section branding, black fallback, playback/timer suppression, privacy, guard integrity and 529–550 MiB observed RSS all pass. Both rollback checkpoints remain. This is not Family/Bedroom promotion authority. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
-| 2026-11-05 | Established the M10 local integrated gate | Recursive v3, design and fleet tests now run from one fail-closed command; candidate secret scanning includes M9; immutable v2, page conformance and deterministic idle packaging are verified together. | Two runs produced identical JSON `852eb49f…12a61`: 49 test files pass, 93 files scan clean, 15 pages/127 controls have zero failures and M9 double-builds identically. One connected HEVC test and five environment/operational gates remain explicit. No live system changed. Evidence: `docs/projects/evidence/AsterTV-v3-M10-local-integrated-gate-2026-11-05.md`. |
+| 2026-11-05 | Established and extended the M10 local integrated gate | Recursive v3, design and fleet tests now run from one fail-closed command; candidate secret scanning includes M9; immutable v2, page conformance, deterministic idle packaging and the bounded gateway-bundle builder are verified together. | Two clean-tree runs at `51e7b01c…ccd4` produced identical JSON `b4b7ee47…8a55`: 50 test files pass, 93 files scan clean, 15 pages/127 controls have zero failures and M9 double-builds identically. One connected HEVC test and the remaining environment/operational gates stay explicit. Evidence: `docs/projects/evidence/AsterTV-v3-M10-local-integrated-gate-2026-11-05.md`. |
+| 2026-11-05 | Completed authorized SA-M10-C1 gateway validation | Built and transferred a deterministic 28-file, secret-scanned gateway test bundle to a unique temporary directory in Aster LXC 104; environment files, inference and live commands remained excluded. | All 52 tests passed in the pinned venv. Aster Agent remained active/running with identical PID/start timestamp and zero restarts. All transient state was removed. Evidence: `docs/projects/evidence/AsterTV-v3-M10-gateway-environment-2026-11-05.md`. |
 
 ## Close-out
 

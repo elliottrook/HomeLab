@@ -2,7 +2,7 @@
 
 Date: 2026-11-05
 
-Status: local half passed; connected M10 gates remain open
+Status: local half passed; gateway environment passed; other connected M10 gates remain open
 
 ## Gate
 
@@ -20,11 +20,13 @@ closed instead of silently shrinking the inventory.
 
 ## Result
 
-Two consecutive executions emitted byte-identical JSON with SHA-256
-`852eb49ff2e243be51d521fd0b075d94c750609b7d3a6e29d473f02d15b12a61`:
+After the gateway-bundle test was added, two consecutive clean-tree executions
+at commit `51e7b01c9e18ed870fbff7b62a830b6fc7bbccd4` emitted byte-identical JSON
+with SHA-256
+`b4b7ee4705eca2fd989abd23c430d4e562b6e4b889f20cb8977d19c5270d8a55`:
 
 - outcome: `pass-with-connected-gates-open`;
-- 49 local test files passed;
+- 50 local test files passed;
 - 93 candidate files passed the existing private-key/credential-assignment
   scan;
 - immutable v2 release remained
@@ -38,15 +40,19 @@ candidate gate, preventing a later release build from omitting it silently.
 
 ## Explicitly open connected gates
 
-1. run the Aster Remote/gateway suite in LXC 104's pinned environment;
-2. run the connected Jen HEVC decoder test under its existing client-specific
+1. run the connected Jen HEVC decoder test under its existing client-specific
    1080p/stereo policy;
-3. prove interrupted install, corrupt package, dependency outage, reboot and
+2. prove interrupted install, corrupt package, dependency outage, reboot and
    full v2 rollback on a named canary;
-4. collect page/art/network/speech/idle resource evidence;
-5. reconcile Doctor, Beszel, backup/restore, NetBox, wiki, reference and mirror;
-6. complete a non-author physical walkthrough.
+3. collect page/art/network/speech/idle resource evidence;
+4. reconcile Doctor, Beszel, backup/restore, NetBox, wiki, reference and mirror;
+5. complete a non-author physical walkthrough.
+
+The former gateway item passed under the separately authorized SA-M10-C1
+envelope. See
+`docs/projects/evidence/AsterTV-v3-M10-gateway-environment-2026-11-05.md`.
 
 No appliance, service, account, network rule or remote system changed while
-building or running this local gate.
+building or running this local gate. The separate gateway run staged and then
+removed only a transient `/tmp` test bundle; it made no persistent change.
 
