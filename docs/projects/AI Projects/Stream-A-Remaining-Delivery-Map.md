@@ -374,6 +374,13 @@
 > `sa4-canary-first-grant-v5-20261106`, refuses prior release drift and creates
 > only short-lived statements. No signer ran; the suite passes 194/194. The
 > only next SA4 action is a new exact approval for this one canary repair.
+> Jason approved v5, but fresh dynamic review issued a
+> [fixed-entry runner NO-GO](evidence/SA4-v5-fixed-entry-runner-preflight-no-go-2026-11-06.md)
+> before signing. The installed reviewed libraries still lack a reviewed
+> no-argument entry point that owns fixed inputs, ledger initialization, phase
+> epochs and terminal/uncertain evidence. No authority or effect occurred; the
+> approval is spent. Next is that fixed runner, joined branch tests and its
+> inactive installation before a fresh release.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
