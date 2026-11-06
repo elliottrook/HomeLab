@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import socket
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -20,7 +21,7 @@ def sha(path: Path) -> str:
 
 def collect(contract: dict, hostname: str, root: Path = Path("/"),
             dependencies: dict | None = None,
-            assertions: dict | None = None) -> dict:
+            assertions: dict | None = None, observed_at: str | None = None) -> dict:
     if contract.get("kind") != "composition-guard-contract" or contract.get("schema_version") != 1:
         raise ValueError("guard-contract-schema")
     if hostname != contract.get("hostname"):
@@ -47,6 +48,7 @@ def collect(contract: dict, hostname: str, root: Path = Path("/"),
         "kind": "composition-observation",
         "device_id": contract["device_id"],
         "composition_sha256": contract["composition_sha256"],
+        "observed_at": observed_at or datetime.now(timezone.utc).isoformat(),
         "resources": list(contract.get("expected_resources", [])),
         "payloads": payloads,
         "dependencies": dependency_states,
@@ -71,10 +73,11 @@ def main(argv=None) -> int:
     parser.add_argument("--hostname", default=socket.gethostname())
     parser.add_argument("--dependency", action="append", default=[])
     parser.add_argument("--assertion", action="append", default=[])
+    parser.add_argument("--observed-at")
     args = parser.parse_args(argv)
     contract = json.loads(args.contract.read_text())
     result = collect(contract, args.hostname, args.root,
-                     key_values(args.dependency), key_values(args.assertion))
+                     key_values(args.dependency), key_values(args.assertion), args.observed_at)
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0
 

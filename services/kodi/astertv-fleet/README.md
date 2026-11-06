@@ -47,8 +47,10 @@ first materialize and hash their final outputs; external configuration and
 mutable/private state must be represented as assertions or exclusions rather
 than copied into the bundle.
 
-The composition guard now accepts exact payload observations and required
-dependency states. Missing, unknown or changed payloads, unavailable required
+The composition guard accepts exact payload observations, typed assertions and
+required dependency states. `doctor_fleet.py` evaluates only deployed devices
+and fails closed on missing, stale, future, malformed or composition-mismatched
+observations. Missing, unknown or changed payloads, unavailable required
 dependencies, identity mismatch and composition mismatch all produce drift.
 
 Current bundle-build status (2026-11-05): Bedroom is the first composition with
@@ -68,5 +70,5 @@ deployment instruction.
 
 Generated composition hashes deliberately exclude observations and timestamps.
 They remain stable for identical source manifests. Live state belongs in a
-future `observed/` Doctor surface and can never become desired state implicitly.
+the `observed/` Doctor surface and can never become desired state implicitly.
 

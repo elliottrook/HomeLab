@@ -19,6 +19,7 @@ PLANS = module("astertv_release_plans", ROOT / "build_release_plans.py")
 GUARD = module("astertv_composition_guard", ROOT / "composition_guard.py")
 TRANSACTION = module("astertv_transaction", ROOT / "transaction.py")
 COLLECTOR = module("astertv_observation_collector", ROOT / "collect_composition_observation.py")
+DOCTOR = module("astertv_fleet_doctor", ROOT / "doctor_fleet.py")
 
 
 class ReleasePipelineTests(unittest.TestCase):
@@ -93,6 +94,30 @@ class ReleasePipelineTests(unittest.TestCase):
             GUARD.inspect(contract, wrong)
         mismatch = dict(wrong, device_id="box", composition_sha256="def")
         self.assertTrue(GUARD.inspect(contract, mismatch)["composition_mismatch"])
+
+    def test_doctor_fails_closed_on_missing_stale_and_drifted_observations(self):
+        from datetime import datetime, timezone, timedelta
+        with tempfile.TemporaryDirectory() as temporary:
+            observed = Path(temporary)
+            now = datetime(2026, 11, 5, 20, 0, tzinfo=timezone.utc)
+            missing = DOCTOR.report(ROOT, observed, now, timedelta(hours=24))
+            self.assertEqual(missing["outcome"], "attention")
+            self.assertEqual(missing["counts"]["unobserved"], 3)
+            guard = json.loads((ROOT / "generated-release-plans/guards/astertv-jen.json").read_text())
+            observation = {
+                "schema_version": 1, "kind": "composition-observation",
+                "device_id": "astertv-jen", "composition_sha256": "0" * 64,
+                "observed_at": (now - timedelta(hours=25)).isoformat(),
+                "resources": guard["expected_resources"], "payloads": [],
+                "dependencies": {}, "assertions": {},
+            }
+            (observed / "astertv-jen.json").write_text(json.dumps(observation))
+            stale = DOCTOR.report(ROOT, observed, now, timedelta(hours=24))
+            self.assertEqual(stale["counts"]["stale"], 1)
+            observation["observed_at"] = now.isoformat()
+            (observed / "astertv-jen.json").write_text(json.dumps(observation))
+            drift = DOCTOR.report(ROOT, observed, now, timedelta(hours=24))
+            self.assertEqual(drift["counts"]["drift"], 1)
 
     def test_real_artifact_builds_hash_bound_bundles_and_only_complete_device_promotes(self):
         artifact_root = ROOT.parent / "dist"

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AsterTV sanitized composition observation",
+  "type": "object",
+  "required": ["schema_version", "kind", "device_id", "composition_sha256", "observed_at", "resources", "payloads", "dependencies", "assertions"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "composition-observation"},
+    "device_id": {"type": "string"},
+    "composition_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "resources": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "payloads": {"type": "array", "items": {"type": "object"}},
+    "dependencies": {"type": "object", "additionalProperties": {"enum": ["available", "unavailable"]}},
+    "assertions": {"type": "object"}
+  },
+  "additionalProperties": false
+}

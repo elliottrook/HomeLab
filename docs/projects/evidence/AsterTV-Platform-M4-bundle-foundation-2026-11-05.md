@@ -18,7 +18,7 @@ News icon overlay, Jen's podcast-request surface, and Jen's Guest catalogue
 adapter, Jen's composed Home/Cameras surface, and its composed Movie/YouTube
 surface, and the Jen low-spec runtime.
 All overlay definitions name their exact current inputs and explicit blockers.
-Plans build successfully; Bedroom is now the first composition eligible for a
+All three deployed-device plans build successfully and are eligible for a
 future promotion transaction. No promotion was performed.
 
 ## Audit findings preserved as blockers
@@ -37,8 +37,8 @@ future promotion transaction. No promotion was performed.
 
 ## Verification
 
-- Fleet/release suite: 39/39 passing, including typed assertion drift and
-  target isolation.
+- Fleet/release suite: 40/40 passing, including typed assertion drift, target
+  isolation and fail-closed missing/stale/drifted observation handling.
 - Four deterministic bundles build from the locally verified immutable release.
   The current composition hashes are Bedroom `e1cdac8a...d632`, Family
   `17536fc3...13e7`, Guest candidate `54a585dd...7864`, and Jen
@@ -102,11 +102,16 @@ future promotion transaction. No promotion was performed.
   three deployable bundle-build plans. Guest remains a
   non-deployed candidate.
 - Payload and dependency drift tests fail closed.
+- The timestamped observation collector and fleet Doctor are complete. Doctor
+  checks only deployed devices and reports missing, stale, future, malformed or
+  composition-mismatched evidence as attention. Its first repository run
+  correctly reports Bedroom, Family and Jen as unobserved; observations are
+  runtime evidence and cannot alter desired state.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 
 ## Next
 
-Build and locally verify all three appliance composition artifacts, then finish
-Doctor observation and promotion gates. Eligibility does not authorize
+Run the bounded Jen migration/recovery rehearsal, collect its first fresh
+observation and prove reboot/playback/rollback. Eligibility does not authorize
 deployment; Bedroom, Family and Jen must still pass observation and recovery
 rehearsal before promotion.
