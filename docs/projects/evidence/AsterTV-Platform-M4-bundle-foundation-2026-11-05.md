@@ -40,13 +40,13 @@ future promotion transaction. No promotion was performed.
 
 ## Verification
 
-- Fleet/release suite: 41/41 passing, including typed assertion drift, target
-  isolation, install-path containment and fail-closed missing/stale/drifted
-  observation handling.
+- Fleet/release suite: 42/42 passing, including typed assertion drift, target
+  isolation, install-path containment, offline checkpoint/apply/rollback and
+  fail-closed missing/stale/drifted observation handling.
 - Four deterministic bundles build from the locally verified immutable release.
   With normalized install trees, the current artifact hashes are Bedroom
-  `0fa9c015...c253`, Family `bd20c352...5cbd`, Guest candidate
-  `4d79b20a...1e0`, and Jen `893dd189...9ff5`; only Bedroom, Family and Jen are
+  `95154184...2dbe`, Family `71423e21...3027`, Guest candidate
+  `4d79b20a...1e0`, and Jen `5e39bbc5...d187`; only Bedroom, Family and Jen are
   deployable plans.
 - Repeated builds are byte-identical.
 - Guest stays non-deployable.
@@ -112,6 +112,10 @@ future promotion transaction. No promotion was performed.
   composition-mismatched evidence as attention. Its first repository run
   correctly reports Bedroom, Family and Jen as unobserved; observations are
   runtime evidence and cannot alter desired state.
+- The transaction runner validates bundle identity/hash, checkpoints every
+  existing destination and predecessor accepted state, stages/re-hashes every
+  payload, applies only declared files, preserves an exact rollback path and
+  keeps the old boot guard runtime-masked until explicit acceptance.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 
 ## Next

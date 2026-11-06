@@ -103,7 +103,9 @@ def deterministic_bundle(checkout: Path, artifact_path: Path, release: dict,
             "payloads": desired["payloads"][overlay_id],
         } for overlay_id in desired["overlays"]],
         "install_payloads": [
-            dict(row, overlay=overlay_id, archive_path="install" + row["destination"])
+            {"overlay": overlay_id, "path": row["destination"],
+             "sha256": row["sha256"], "bytes": row["bytes"], "mode": row["mode"],
+             "archive_path": "install" + row["destination"]}
             for overlay_id in desired["overlays"]
             for row in installed[overlay_id]
         ],

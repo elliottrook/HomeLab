@@ -39,10 +39,16 @@ overlay ownership and is not unexplained drift.
 
 The verified deterministic Jen artifact is
 `astertv-jen-0da4c6be132e.tar.gz`, SHA-256
-`893dd189988a63ddf9939ce5647192d191b6c56f6c923b989b597a727c099ff5`.
+`5e39bbc51920d8dc7e24c7dbe38601ff3274d31870dca98fc40810e52730d187`.
 An independent repeat build was byte-identical. The bundle includes 124
 hash-bound `install/storage/...` members and rejects path escape or duplicate
 destinations. Generated binary bundles remain outside Git.
+
+The bounded transaction runner has an offline checkpoint/apply/rollback
+fixture. Candidate startup runtime-masks the predecessor boot guard so it
+cannot silently revert the candidate; acceptance snapshots the new guarded
+state before unmasking. Any failed apply restores the checkpoint and restarts
+Kodi.
 
 ## Authorized rehearsal sequence when approved
 

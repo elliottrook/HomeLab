@@ -20,6 +20,7 @@ GUARD = module("astertv_composition_guard", ROOT / "composition_guard.py")
 TRANSACTION = module("astertv_transaction", ROOT / "transaction.py")
 COLLECTOR = module("astertv_observation_collector", ROOT / "collect_composition_observation.py")
 DOCTOR = module("astertv_fleet_doctor", ROOT / "doctor_fleet.py")
+APPLY = module("astertv_bundle_apply", ROOT / "apply_composition_bundle.py")
 
 
 class ReleasePipelineTests(unittest.TestCase):
@@ -175,6 +176,46 @@ class ReleasePipelineTests(unittest.TestCase):
         }]}
         with self.assertRaisesRegex(PLANS.FLEET.FleetError, "install-destination"):
             PLANS.resolve_install_members(ROOT, desired, installed)
+
+    def test_bundle_runner_checkpoints_applies_and_rolls_back_offline(self):
+        import gzip
+        import hashlib
+        import io
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            root = base / "root"
+            live = root / "storage/app/value"
+            live.parent.mkdir(parents=True)
+            live.write_bytes(b"old")
+            payload = b"new"
+            row = {"overlay": "test", "path": "/storage/app/value",
+                   "sha256": hashlib.sha256(payload).hexdigest(), "bytes": len(payload),
+                   "mode": "0644", "archive_path": "install/storage/app/value"}
+            guard = {"schema_version": 1, "kind": "composition-guard-contract",
+                     "device_id": "astertv-test", "hostname": "AsterTV-Test",
+                     "composition_sha256": "a" * 64,
+                     "expected_payloads": [{key: row[key] for key in
+                                            ("overlay", "path", "sha256", "bytes", "mode")}]}
+            manifest = {"schema_version": 1, "kind": "astertv-composition-bundle",
+                        "device_id": "astertv-test", "composition_sha256": "a" * 64,
+                        "install_payloads": [row]}
+            bundle = base / "bundle.tar.gz"
+            with bundle.open("wb") as output:
+                with gzip.GzipFile(fileobj=output, mode="wb", filename="", mtime=0) as zipped:
+                    with tarfile.open(fileobj=zipped, mode="w") as archive:
+                        for name, data in (("manifest.json", PLANS.canonical(manifest)),
+                                           ("guard-contract.json", PLANS.canonical(guard)),
+                                           (row["archive_path"], payload)):
+                            info = tarfile.TarInfo(name); info.size = len(data); info.mode = 0o644
+                            archive.addfile(info, io.BytesIO(data))
+            loaded, _, payloads = APPLY.load_bundle(bundle, PLANS.file_sha256(bundle))
+            self.assertEqual(APPLY.plan(root, loaded)["replace"], 1)
+            checkpoint = APPLY.checkpoint(root, loaded, base / "checkpoints", "test-1")
+            staged = APPLY.stage(root, loaded, payloads, base / "stages", "test-1")
+            self.assertEqual(APPLY.install(root, loaded, staged), ["/storage/app/value"])
+            self.assertEqual(live.read_bytes(), b"new")
+            self.assertEqual(APPLY.restore(root, checkpoint)["outcome"], "rolled-back")
+            self.assertEqual(live.read_bytes(), b"old")
 
     def test_guard_detects_payload_and_required_dependency_drift(self):
         contract = {
