@@ -228,6 +228,25 @@ def evaluation_outputs(args: argparse.Namespace) -> dict[str, object]:
             "content_returned": False, "authority": "not-granted"}
 
 
+def evaluation_check(corpus: Path, evaluation: Path) -> dict[str, object]:
+    """Validate a sealed evaluation without creating a key or signed output."""
+    summary = evaluation_boundary.validate(evaluation.read_bytes(),
+                                           corpus.read_bytes())
+    return {
+        "status": "valid",
+        "evaluation_sha256": summary["evaluation_sha256"],
+        "normalized_text_set_sha256": summary["normalized_text_set_sha256"],
+        "cases": summary["cases"],
+        "labels": summary["labels"],
+        "cases_per_label": summary["cases_per_label"],
+        "intersection_count": summary["intersection_count"],
+        "sealed_before_training": summary["sealed_before_training"],
+        "trainer_access": summary["trainer_access"],
+        "content_returned": False,
+        "authority": "not-granted",
+    }
+
+
 def parser() -> argparse.ArgumentParser:
     value = argparse.ArgumentParser()
     sub = value.add_subparsers(dest="command", required=True)
@@ -242,6 +261,9 @@ def parser() -> argparse.ArgumentParser:
     evaluation = sub.add_parser("evaluation")
     evaluation.add_argument("--corpus", type=Path, required=True)
     evaluation.add_argument("--evaluation", type=Path, required=True)
+    check = sub.add_parser("evaluation-check")
+    check.add_argument("--corpus", type=Path, required=True)
+    check.add_argument("--evaluation", type=Path, required=True)
     for command in (corpus, evaluation):
         command.add_argument("--private-key", type=Path, required=True)
         command.add_argument("--public-key", type=Path, required=True)
@@ -253,6 +275,8 @@ def main() -> int:
     args = parser().parse_args()
     if args.command == "keygen":
         result = create_key(args.private_key, args.public_key)
+    elif args.command == "evaluation-check":
+        result = evaluation_check(args.corpus, args.evaluation)
     elif args.command == "corpus":
         result = corpus_outputs(args)
     else:

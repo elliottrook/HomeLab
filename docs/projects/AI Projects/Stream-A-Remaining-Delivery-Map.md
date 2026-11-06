@@ -33,6 +33,15 @@
 > must not be repeated. Only one fresh fully bounded revision-4 evaluation
 > session remains external.
 
+> **M3 J2 evaluation identity correction, 2026-11-06:** revision 4 failed
+> closed with `J2 evaluation case identity or label changed`; no export reached
+> the Mac mini. The [revision-5 correction](evidence/M3-J2-evaluation-r4-no-go-and-r5-correction-2026-11-06.md)
+> fixes all 32 valid case IDs, enumerates the exact sixteen label IDs and adds a
+> content-free evaluation preflight before key generation. Focused tests pass
+> 8/8 and the isolated revision-5 archive passes all thirteen manifest hashes.
+> The accepted corpus evidence remains valid; only one fresh revision-5
+> evaluation session is next.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.
