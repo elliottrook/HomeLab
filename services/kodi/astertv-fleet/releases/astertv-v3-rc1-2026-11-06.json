@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-release-candidate-freeze",
+  "id": "astertv-v3-rc1-2026-11-06",
+  "status": "repository-frozen-owner-acceptance-open",
+  "source_commit": "762628afac45ece9646cffb3a1a346840ca42892",
+  "base_release": {
+    "id": "astertv-v2.0.7-2026-10-31",
+    "artifact": "astertv-v2.0.7-release-2026-10-31.tar.gz",
+    "sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7"
+  },
+  "material_assets": [
+    {
+      "consumer": "aster-remote-180",
+      "approved_svg_sha256": "7effb1ffe3ba828de63059235c976f26e0d7fb869e0856d0fb52cea86a775ada",
+      "installed_sha256": "36eb73e019be374fbf4cb2fdf2e16de14b30e0dc470cbc5b19fae63bc4ba8379"
+    },
+    {
+      "consumer": "aster-remote-512",
+      "approved_svg_sha256": "7effb1ffe3ba828de63059235c976f26e0d7fb869e0856d0fb52cea86a775ada",
+      "installed_sha256": "07880f3fb4e791b6383cabfe3c77a5218c184e84073c8cb89037e9b9c5a16074"
+    },
+    {
+      "consumer": "astertv-splash-1920x1080",
+      "approved_svg_sha256": "747aab438334afc9b1e2a0dafa8608bd8b8d4aa5ed29af5697f22972b714d2e8",
+      "installed_sha256": "3658771b8ab771591839713cd497cc79a5a781d67463145fe2f23c3d541d4626"
+    }
+  ],
+  "devices": {
+    "astertv-bedroom": {
+      "composition_sha256": "9be4b045d076268360b26e9cc2ffe5ea0507d753ec9d90b8392a821e2bb8e829",
+      "bundle_sha256": "0f3817aa5b4a51819695fa4657c6c1e2fdaf8dfd437ac2b95fecdf43e0d42164",
+      "plan_sha256": "0bc85a965385bebd986149dc4086c9730d3e73c38a3f52cc5aa5b118b5d4e2a1",
+      "guard_sha256": "63435248ba5dfd32acc9d6dfa22741cd7a334c6ba2e3bcbb0424c5ae1b1f1f72",
+      "sbom_sha256": "d13248ff81cd1c3d0cf15a5aef1c45cd980a661fa63eb1c8ad13fc1190cc06e0",
+      "promotion": "owner-soak-required"
+    },
+    "astertv-family": {
+      "composition_sha256": "8341abe70fec4482f4581042b0cee7e5c10b767caa74f68b4a6220d71bb12f1b",
+      "bundle_sha256": "5ed4768aefbf91b8f97a0175fca07ca03c514c5bf6c5c77c7c8ef4a864f0e6e6",
+      "plan_sha256": "37e3c9e8506a559d121fd4b0f8a6f22e85269ad1a4220b66bc56e47f9173ffa2",
+      "guard_sha256": "9ed6b8c4da2d8d5d2fa0d643bf38a27eebc529546f0fdf67999da289232bafae",
+      "sbom_sha256": "70618c1906a8106e721b9d5243ee7c259bf97e69dcb1db557a4a8916ada5b766",
+      "promotion": "bedroom-acceptance-and-explicit-owner-approval-required"
+    },
+    "astertv-guest": {
+      "composition_sha256": "5ca63262bb495013757c2422d26ef2356f3251221c36b272ca34b5caec82339e",
+      "bundle_sha256": "4d79b20a782b8767b8008403c8932eeaed8296489634ec563a100506735201e0",
+      "plan_sha256": "012d2e3df147ee8c44f29db24e04c5fe65a36a3fa9d8e8b8aa58bd4582787ce3",
+      "guard_sha256": "4810da8f3b45fe50763c20e8b8f937b3e9802796a44509cb1c37df2364bb1286",
+      "sbom_sha256": "0a9b86d3b597f58c1c74cb7fe8f6fcfe9b208e149171bd23dc3c3cf370f5513c",
+      "promotion": "candidate-not-deployable"
+    },
+    "astertv-jen": {
+      "composition_sha256": "8fb73ef40c669e41ae7fb43a2526dd2dcd65e0b26cf67c6bdda41b7fbb6b5601",
+      "bundle_sha256": "d6032f215ef6a11b196a29ec5d7c3291c1fef1a1e5d2746df1be7030b4b5fc40",
+      "plan_sha256": "1ca23688f79eee6c2f01f43c548db8b8192977103e713f18a09346be547141f8",
+      "guard_sha256": "d9a391b3589fa960507ed429061bbbc656b03d5b077448d9d79fc06e6d4d0a16",
+      "sbom_sha256": "09d8446ae54ea3ec1df25acd482df60c358942d9e394145c5390bbdb9008717f",
+      "promotion": "standing-canary"
+    }
+  },
+  "media_lifecycle": {
+    "mode": "immutable-v2-fallback",
+    "external_replacement_handoff": "open",
+    "playlists": {
+      "archive-film.xsp": "3cd56cdf45782cbc2a2cac87c18747802efddcbf21754274a67d705cbafc5d3d",
+      "archive-tv.xsp": "769501ff18bdf64b79f0d47cbbd74351298f67a53999717081003b9c3912e069",
+      "movies.xsp": "db53469dd147c0078467a3f2e55defdb7c98a7bf28160f19a3ab9bfd4dd4028f",
+      "tv-shows.xsp": "098e7e05a83c1120e6cc72f1ddacc6551da07c498f1e60430c1b8c9f543e4248"
+    }
+  },
+  "validation": {
+    "local_test_files": 72,
+    "page_conformance": {
+      "pages": 15,
+      "focus_controls": 127,
+      "failures": 0
+    },
+    "connected_hevc": "pass",
+    "operations_readiness_gaps": 0,
+    "secret_scan_files": 93,
+    "owner_assisted_acceptance": "open"
+  }
+}

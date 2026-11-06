@@ -21,6 +21,10 @@ TRANSACTION = module("astertv_transaction", ROOT / "transaction.py")
 COLLECTOR = module("astertv_observation_collector", ROOT / "collect_composition_observation.py")
 DOCTOR = module("astertv_fleet_doctor", ROOT / "doctor_fleet.py")
 APPLY = module("astertv_bundle_apply", ROOT / "apply_composition_bundle.py")
+FULL_V2 = module(
+    "astertv_full_v2_rollback",
+    ROOT.parent / "astertv-v3/m10/rehearse_full_v2_rollback.py",
+)
 
 
 class ReleasePipelineTests(unittest.TestCase):
@@ -165,6 +169,7 @@ class ReleasePipelineTests(unittest.TestCase):
         artifact_root = ROOT.parent / "dist"
         with tempfile.TemporaryDirectory() as destination:
             result = PLANS.build(ROOT, Path(destination), artifact_root)
+            freeze = json.loads((ROOT / "releases/astertv-v3-rc1-2026-11-06.json").read_text())
             self.assertEqual(result["verified_artifacts"], 4)
             self.assertEqual(result["built_bundles"], 4)
             self.assertEqual(result["deployable_devices"], 3)
@@ -194,6 +199,31 @@ class ReleasePipelineTests(unittest.TestCase):
             self.assertEqual(bedroom["promotion_blockers"], [])
             self.assertTrue(jen["deployable"])
             self.assertEqual(jen["promotion_blockers"], [])
+            for device in ("astertv-bedroom", "astertv-family", "astertv-guest", "astertv-jen"):
+                plan = json.loads((Path(destination) / "plans" / f"{device}.json").read_text())
+                self.assertEqual(freeze["devices"][device]["composition_sha256"],
+                                 plan["composition_sha256"])
+                self.assertEqual(freeze["devices"][device]["bundle_sha256"],
+                                 plan["bundle"]["sha256"])
+                for key, relative in (
+                    ("plan_sha256", f"plans/{device}.json"),
+                    ("guard_sha256", f"guards/{device}.json"),
+                    ("sbom_sha256", f"sbom/{device}.cdx.json"),
+                ):
+                    self.assertEqual(freeze["devices"][device][key],
+                                     PLANS.file_sha256(Path(destination) / relative))
+            self.assertEqual(freeze["base_release"]["sha256"],
+                             family["artifact"]["expected_sha256"])
+            jen_bundle = Path(destination) / "bundles" / jen["bundle"]["name"]
+            rollback = FULL_V2.rehearse(
+                jen_bundle,
+                jen["bundle"]["sha256"],
+                artifact_root / freeze["base_release"]["artifact"],
+            )
+            self.assertEqual(rollback["outcome"], "pass")
+            self.assertEqual(rollback["device_id"], "astertv-jen")
+            self.assertEqual(rollback["accepted_states_restored"], 2)
+            self.assertGreater(rollback["v2_files"], 500)
 
     def test_verified_bundle_build_is_byte_deterministic(self):
         artifact_root = ROOT.parent / "dist"

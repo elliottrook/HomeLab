@@ -1,12 +1,13 @@
 # AsterTV v3
 
-> Status: Active — M0–M9 have accepted bounded slices and M10 operations
-> readiness is complete for Family, Bedroom and Jen. The final booked M5 eBook
+> Status: Active — M0–M9 have accepted bounded slices and M10 automated,
+> performance, operations and recovery work is complete for Family, Bedroom
+> and Jen. The final booked M5 eBook
 > word-alignment benchmark completed as a valid negative result; exact
 > alignment rejected the measured words and no reader timing was promoted.
-> M10 performance budgets and a non-author
-> walkthrough remain open. M11 release freeze, Bedroom soak and Family
-> promotion have not begun.
+> The M11 repository candidate is frozen; physical walkthrough, room-volume
+> choices, Bedroom soak, explicit Family promotion and the external Media
+> Lifecycle replacement-view handoff remain open.
 >
 > Project owner: Jason
 >
@@ -1909,9 +1910,9 @@ Owner acceptance/pinning of that public key plus fresh display-idle confirmation
 now gates the coordinated rollout. Evidence:
 `docs/projects/evidence/AsterTV-v3-M7-content-rollout-preflight-2026-11-06.md`.
 
-- [ ] Run functional, account-isolation, failure, security, focus/navigation,
+- [x] Run functional, account-isolation, failure, security, focus/navigation,
   playback, audio/video and secret-pattern suites on the low-spec client.
-- [ ] Prove interrupted install, corrupt package, dependency outage, reboot and
+- [x] Prove interrupted install, corrupt package, dependency outage, reboot and
   full v2 rollback.
 - [x] Measure CPU, GPU, RAM, storage, page latency, artwork latency, network
   traffic, camera stream cost, speech latency and idle overhead. Idle,
@@ -1966,8 +1967,14 @@ of those observation or promotion boundaries.
   The replacement-view half remains blocked on that external artifact/identity
   handoff. Evidence:
   `docs/projects/evidence/AsterTV-v3-M11-media-lifecycle-fallback-2026-11-06.md`.
-- [ ] Freeze v3 as an identified commit plus reproducible manifest containing
+- [x] Freeze v3 as an identified commit plus reproducible manifest containing
   code, dependencies, schemas and material asset hashes.
+  Repository candidate `astertv-v3-rc1-2026-11-06` pins source commit
+  `762628af…2892`, all four compositions and byte-deterministic bundle hashes;
+  Guest remains deliberately non-deployable. The real composition runner also
+  restored all 577 immutable v2 add-on files, 127 composition paths and both
+  accepted-state directories in the disposable full-v2 rehearsal. Evidence:
+  `docs/projects/evidence/AsterTV-v3-M10-automated-closure-and-M11-freeze-2026-11-06.md`.
 - [ ] Deploy independently to Bedroom, preserving its v2 recovery checkpoint,
   credentials and stereo configuration; soak through reboot and normal use.
 - [ ] Obtain explicit Family promotion approval after Bedroom acceptance and
@@ -2248,6 +2255,7 @@ explicit user acceptance.
 | 2026-11-06 | Measured repeatable low-spec page and data readiness | A target-bound, content-free harness activated Books, News, Home, Music and Cameras twice on the released Jen display, emitted only aggregate timings/traffic and restored Media Home. It starts no content or camera feed and fails on any active player. | All activations took 33.5–85.9 ms; declared data readiness remained below 1.02 s; per-route receive traffic stayed below 74 KiB; no player appeared and exact Home restoration passed. Artwork visibility, camera-stream cost, speech, playback and the non-author walkthrough remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Jen-page-latency-2026-11-06.md`. |
 | 2026-11-06 | Made Jen the standing V3 canary and closed the camera-cost gate | Owner made Jen continuously available for bounded V3 navigation/restart/testing until production. The camera harness exposed a raw-JSON identity hash mismatch, not a camera defect; semantic canonicalization now preserves the same authority across approved serializers while invalid markers still fail closed. | Checkpointed repair installed reviewed resolver `6c7f1ae4…700900ef` to live and boot-stable custody, profile state resolved, and the 12-second camera test passed at 4 frames, 4.44% CPU, 116,388.75 B/s receive, 26,848 KiB RSS growth and 27.8°C. The service stopped and Home restored with no player. Kodi's 25-second stop fallback remains an open lifecycle observation. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Jen-camera-and-identity-2026-11-06.md`. |
 | 2026-11-06 | Closed automated artwork-binding latency on Jen | Added a content-free boolean harness for Media, Books, News, Music and YouTube Recommendations. A transient News refresh exposed the need for 250 ms binding stability and a final binding-count assertion before accepting a result. | Two passes completed in 284.6–820.9 ms with at most 82,727 received bytes per route, no player and exact Home restoration. Pixel rendering remains a physical-walkthrough concern. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Jen-artwork-readiness-2026-11-06.md`. |
+| 2026-11-06 | Closed autonomous M10 and froze the repository-side M11 candidate | Reconciled the full Jen functional/account/failure/navigation/playback evidence, Bedroom/Family corruption and interruption recovery, two Jen reboots and dependency-denial evidence. A new disposable-root proof installed the complete Jen composition over the immutable v2 snapshot and restored all 577 v2 add-on files, 127 composition paths and both accepted-state directories. | The 72-file integrated gate passes; `astertv-v3-rc1-2026-11-06` pins source commit `762628af…2892` and deterministic per-device compositions/bundles. Only owner-assisted physical checks, volume choices, Bedroom soak/Family promotion and the external Media Lifecycle replacement handoff remain. Evidence: `docs/projects/evidence/AsterTV-v3-M10-automated-closure-and-M11-freeze-2026-11-06.md`. |
 
 ## Close-out
 

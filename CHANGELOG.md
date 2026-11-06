@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-11-06 — Freeze the AsterTV v3 repository candidate
+
+- Reconciled the functional, account-isolation, failure, navigation, playback,
+  audio/video, reboot and recovery evidence that closes autonomous M10.
+- Added a disposable full-v2 rollback proof using the real composition runner;
+  the Jen rehearsal restored all 577 immutable v2 add-on files, 127
+  composition paths and both accepted-state directories.
+- Froze `astertv-v3-rc1-2026-11-06` at source commit `762628af…2892` with exact
+  per-device compositions, deterministic bundle/plan/guard/SBOM hashes and
+  approved SVG-source-to-placement asset hashes.
+- Kept Guest non-deployable and left physical equipment observation,
+  owner-selected volume targets, Bedroom soak, Family promotion and the
+  external Media Lifecycle replacement handoff explicitly open.
+
 ## 2026-11-05 — Build AsterTV design, release, onboarding and skill foundations
 
 - Added a deterministic AsterTV design authority with six schemas, accepted
