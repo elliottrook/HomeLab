@@ -23,11 +23,26 @@ CONNECTED_ONLY = {
         "requires AsterTV-Jen, retained HEVC fixture, idle player and local JSON-RPC",
 }
 EXTERNAL_ENVIRONMENT = {
-    "aster-gateway": "run the Aster Remote/gateway suite in LXC 104 pinned environment",
-    "live-recovery": "prove interrupted install, corrupt package, reboot and v2 rollback on named canary",
-    "performance": "collect page/art/network/speech/idle envelope on named canary",
-    "operations": "reconcile Doctor, Beszel, backup, NetBox, wiki, reference and mirror",
-    "walkthrough": "complete non-author physical remote walkthrough",
+    "aster-gateway": {
+        "status": "pass",
+        "evidence": "docs/projects/evidence/AsterTV-v3-M10-gateway-environment-2026-11-05.md",
+    },
+    "live-recovery": {
+        "status": "pass",
+        "evidence": "docs/projects/evidence/AsterTV-v3-M10-Family-operations-and-restore-2026-11-05.md",
+    },
+    "operations": {
+        "status": "pass",
+        "evidence": "docs/projects/evidence/AsterTV-v3-M10-operations-readiness-2026-11-05.md",
+    },
+    "performance": {
+        "status": "partial",
+        "reason": "low-spec HEVC and idle envelopes pass; page/art/network/speech budgets remain",
+    },
+    "walkthrough": {
+        "status": "open",
+        "reason": "requires non-author physical-remote acceptance",
+    },
 }
 
 

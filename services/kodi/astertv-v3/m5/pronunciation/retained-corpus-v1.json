@@ -1,0 +1,18 @@
+{
+  "cases": [
+    {"expected": "United States policy", "id": "us-positive", "input": "U.S. policy"},
+    {"expected": "United States.", "id": "us-terminal", "input": "U.S."},
+    {"expected": "BUS.A stop", "id": "us-false-positive", "input": "BUS.A stop"},
+    {"expected": "British Columbia's coast", "id": "bc-positive", "input": "B.C.'s coast"},
+    {"expected": "British Columbia.", "id": "bc-terminal", "input": "B.C."},
+    {"expected": "ABC.C. Ltd", "id": "bc-false-positive", "input": "ABC.C. Ltd"},
+    {"expected": "Saint Petersburg station", "id": "saint-positive", "input": "St. Petersburg station"},
+    {"expected": "St. Paul station", "id": "saint-false-positive", "input": "St. Paul station"},
+    {"expected": "Call nine one one emergency services", "id": "911-positive", "input": "Call 911 emergency services"},
+    {"expected": "There are 911 pages", "id": "911-false-positive", "input": "There are 911 pages"},
+    {"expected": "Lutron Caseta bridge", "id": "caseta-positive", "input": "Lutron Caséta bridge"},
+    {"expected": "Caseta bridge", "id": "caseta-false-positive", "input": "Caseta bridge"}
+  ],
+  "lexicon_id": "aster-en-ca-pronunciation-v1",
+  "schema": "aster-pronunciation-corpus.v1"
+}

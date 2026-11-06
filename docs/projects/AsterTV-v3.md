@@ -1,33 +1,23 @@
 # AsterTV v3
 
-> Status: Active — Jen-only M6 Home/Cameras is complete and reboot-stable;
-> the M5 eBook
-> word-alignment benchmark is registered and booked, with reader promotion
-> still gated.
-> M9 page-aware idle presentation is accepted on the Jen canary with
-> section-specific branding; Family/Bedroom promotion remains excluded.
-> The completed r8 Guest adapter remains retained on AsterTV-Jen.
-> The earlier page-design pilot is accepted and closed; no PA3
-> synthetic surface is promoted. TV-series presentation remains deployed
-> through the existing fail-closed v2 episode engine on Bedroom and Family.
+> Status: Active — M0–M9 have accepted bounded slices and M10 operations
+> readiness is complete for Family, Bedroom and Jen. The two M5 eBook
+> word-alignment attempts failed closed before inference; a second
+> custody-correction candidate is local only and cannot promote reader timing.
+> M10 performance budgets and a non-author
+> walkthrough remain open. M11 release freeze, Bedroom soak and Family
+> promotion have not begun.
 >
 > Project owner: Jason
 >
 > Proposed: 2026-10-31
 >
-> Current live-change authorization: the bounded Stream A envelope
-> `SA-M6-JEN` below. Jason's subsequent continuation authorizes the common
-> read-only/local-planning work used for the M5 eBook audit. Jason then
-> authorized `SA-M5B` on 2026-11-04, including the scheduler safety correction,
-> fixed workload registration and one booked alignment benchmark. Jason then
-> authorized `SA-M5P-JEN` on 2026-11-04 using the recommended owner-approved
-> podcast request queue. Family, Bedroom, reader/catalogue promotion, podcast
-> subscription execution, release promotion and every later live milestone
-> remain excluded. The separately booked SA-M5B benchmark may run only through
-> its registered Lab Hours runner and remains isolated from SA-M6-JEN.
-> The M6 candidate is retained on Jen after exact rollback/reinstall and two
-> reboot checks. The approved Home Assistant restart loaded the reviewed
-> three-target publisher; Jen now receives 63 fresh allow-listed readings.
+> Live-change authority is milestone-scoped, not global. The accepted
+> `SA-M5B`, `SA-M5P-JEN`, `SA-M6-JEN`, `SA-M7-ROOMS`, M8, M9 and M10 envelopes
+> are recorded beside their implementations below and authorize only their
+> named effects. There is no pending scheduled AI effect. No envelope authorizes reader
+> or catalogue promotion, recurring AI work, unfinished M7 automation,
+> production v3 release promotion or M11 deployment by inference.
 
 ## Purpose and desired outcome
 
@@ -1033,13 +1023,23 @@ The authoritative ledger reported 22:15–22:45 MST (`-07:00`) clear. Booking
 must still fail closed unless fresh admission, whole-host lease, shared lock,
 deadline guardian and restoration gates all pass.
 
+The eventual dispatched attempts both failed closed before inference and
+restored production. The first exposed Hugging Face snapshot-link custody; the
+bounded correction retained every model hash and limited resolution to the
+pinned cache. The replacement then exposed the virtual environment's normal
+interpreter symlink. The local follow-up candidate accepts that link only when
+it resolves to the exact already pinned `/usr/bin/python3.13`. No alignment
+result exists and no reader timing can be promoted. Installing the follow-up
+or booking another run requires a new authorization. Evidence:
+`docs/projects/evidence/AsterTV-v3-M5B-word-alignment-benchmark-2026-11-05.md`.
+
 - [x] SA-M5B1: checkpoint and retire the noncompliant scheduler; prove worker
   inactive and monitor retained.
 - [x] SA-M5B2: install the inert hash-pinned workload and reconcile the
   full-drain baseline with all platform tests passing.
-- [ ] SA-M5B3: run the booked benchmark and retain content-free pass/no-go plus
+- [x] SA-M5B3: run the booked benchmark and retain content-free pass/no-go plus
   restoration evidence.
-- [ ] SA-M5B4: reconcile milestone evidence, commit locally, request push
+- [x] SA-M5B4: reconcile milestone evidence, commit locally, request push
   approval and stop before any reader/catalogue promotion.
 
 ### SA-M5P-JEN — owner-approved podcast request queue
@@ -1119,8 +1119,10 @@ Evidence is in
 - [x] Inventory existing Aster AI, account, YouTube, Seerr, Audiobookshelf,
   eBook narration, Home Assistant and camera contracts without reading secrets.
 - [x] Capture v2 user workflows and focus graphs as regression fixtures.
-- [ ] Decide the account authority, profile data matrix, podcast request
-  authority, YouTube guest feasibility and camera event source.
+- [x] Decide the account authority, profile data matrix, podcast request
+  authority and YouTube guest feasibility.
+- [ ] Decide the camera event source, privacy-disable authority, quiet-hours
+  policy and non-interruption contract before the remaining M6 event slice.
 - [x] Refresh this risk assessment and record unresolved owner decisions.
 
 Gate: no v3 live mutation; an evidence-backed architecture and decision register
@@ -1237,7 +1239,7 @@ broaden the television client. Evidence is in
 - [x] Restyle YouTube with consistent artwork, pills, focus and return paths.
 - [x] Preserve recommendations, thumbnails, Subscriptions, Watch Later and
   search, then implement guest access only if M0/M2 isolation is proven.
-- [ ] Run physical G20 focus/Back/playback tests from every entry route.
+- [x] Run physical G20 focus/Back/playback tests from every entry route.
 
 The Jen M4 Movie candidate and M4Y YouTube/lifecycle overlay are installed
 through deterministic post-guard, pre-Kodi units. Real Movie-row, cast,
@@ -1261,7 +1263,7 @@ primary-account leak or loss of existing YouTube functions.
   reject drift and retain sentence fallback.
 - [x] Add Aster icons to News pills without changing digest selection, reading,
   playback or shared chrome.
-- [ ] Extend Requests to podcasts through the selected authority with stable
+- [x] Extend Requests to podcasts through the selected authority with stable
   IDs, preview, duplicates, status and explicit submission.
 - [ ] Book every exclusive local-AI/TTS run through Lab Hours and retain
   workload/lease/lock evidence without secrets.
@@ -1274,6 +1276,12 @@ existing behavior into a versioned data contract and broaden synthetic
 regression coverage; representative listening and any synthesis remain a
 separate booked live gate. Evidence is in
 `docs/projects/evidence/AsterTV-v3-M5-pronunciation-readonly-audit-2026-11-04.md`.
+
+The retained five pronunciation rules now also have a strict data-only v1
+candidate and twelve-case synthetic compatibility corpus. All outputs are
+byte-identical to the exact pinned canonical cleanup; no new pronunciation or
+live speech path is included. Evidence is in
+`docs/projects/evidence/AsterTV-v3-M5-pronunciation-candidate-2026-11-05.md`.
 
 The same day's read-only podcast audit confirms Audiobookshelf 2.36.0 as the
 correct discovery/catalogue authority, but not as a direct AsterTV write
@@ -1479,7 +1487,7 @@ was registered as a background task. Evidence:
   from the presence of Bluetooth. Bedroom's currently verified HDMI/EDID
   identity is `LG TV SSCR2`; record the consumer model before selecting an LG
   network integration or claiming standby control.
-- [ ] Validate the Family TCL QM8L through Home Assistant's Android TV Remote
+- [x] Validate the Family TCL QM8L through Home Assistant's Android TV Remote
   path with Screenless/network standby enabled, and the Onkyo TX-RZ30 through
   the native local Onkyo integration with Network Standby enabled. Use direct
   receiver control for volume/mute and explicit on/off actions rather than a
@@ -1493,7 +1501,7 @@ was registered as a background task. Evidence:
 - [ ] Define useful room entities and events: playing/paused/idle, media class,
   current Aster page, screensaver state, availability and explicit remote
   actions, without exporting viewing history into long-lived logs.
-- [ ] Evaluate equipment control in this order: official local network
+- [x] Evaluate equipment control in this order: official local network
   integration, Wake-on-LAN where the model supports it, learned local IR,
   verified Bluetooth HID/AVRCP, then a CEC adapter only for requirements still
   uncovered. Record the capability and cost matrix.
@@ -1600,7 +1608,7 @@ Kodi restart, checkpoint failure or any target other than LXC 104 and
   contracts.
 - [x] SA-M8-JEN2: checkpoint the existing Authentik/Aster/Jen boundaries and
   install only the additive redirect, Aster router and idle Jen client.
-- [ ] SA-M8-JEN3: pass real iPhone passkey, Home Screen, touch/hold/swipe,
+- [x] SA-M8-JEN3: pass real iPhone passkey, Home Screen, touch/hold/swipe,
   search, text/symbol/paste/dictation, sleep/reconnect and denial tests.
 - [x] SA-M8-JEN4: prove rollback/reinstall, add Doctor/backup/operator evidence
   and close the Jen pilot before any Family/Bedroom or M7 work.
@@ -1645,41 +1653,48 @@ browser-policy headers, Companion remains HTTP 200, unauthenticated sessions
 remain 401 and Jen holds an established outbound poll while Kodi is idle. The
 first Authentik save and Jen directory-create attempts failed before acceptance
 and proved their transaction/exact-restore paths; the corrected retries passed.
-All transient client-key copies were removed. Real iPhone/passkey and input
-acceptance remains SA-M8-JEN3, not inferred from the live transport.
-Evidence: `docs/projects/evidence/AsterTV-v3-M8-Jen-install-2026-11-04.md`.
+All transient client-key copies were removed. That installation record alone
+did not establish iPhone acceptance; the subsequent owner walkthrough did.
+Its touch, voice, native-keyboard synchronization, reconnect and denial
+results are retained in
+`docs/projects/evidence/AsterTV-v3-M8-Jen-iPhone-acceptance-2026-11-04.md`,
+`docs/projects/evidence/AsterTV-v3-M8-input-sync-2026-11-05.md` and
+`docs/projects/evidence/AsterTV-v3-M8-network-remote-2026-11-05.md`.
+The original install transaction remains in
+`docs/projects/evidence/AsterTV-v3-M8-Jen-install-2026-11-04.md`.
 
-- [ ] Capture the useful Apple TV Remote interaction set as a design reference:
+- [x] Capture the useful Apple TV Remote interaction set as a design reference:
   swipe or directional navigation, tap/OK, hold for context, Back/Home,
   Play/Pause, volume, mute, power, text entry/search and explicit voice search.
-- [ ] Build a responsive installable PWA with an Aster icon, manifest, service
+- [x] Build a responsive installable PWA with an Aster icon, manifest, service
   worker and offline shell. Safari's **Add to Home Screen → Open as Web App** is
   the supported free installation path; no App Store package is required.
-- [ ] Provide Family/Bedroom selection, connection and playback state, a large
+- [x] Provide Family/Bedroom selection, connection and playback state, a large
   touchpad plus accessible directional-button mode, OK/Back/Home, Play/Pause,
   on-screen volume/mute/power, search keyboard, voice-search gesture and
   allowlisted Aster page shortcuts.
-- [ ] Provide two keyboard paths: a direct Aster unified-search field that does
+- [x] Provide two keyboard paths: a direct Aster unified-search field that does
   not require opening Kodi's television keyboard, and an explicit Kodi text-
   entry mode for the currently focused field with Send, Backspace, Clear,
   Cancel and Enter.
-- [ ] Use the native iPhone keyboard for symbols, paste and optional iOS
+- [x] Use the native iPhone keyboard for symbols, paste and optional iOS
   dictation. Submit completed text as one bounded action where possible rather
   than streaming every key; mask credential fields and never retain entered
   text, clipboard content or partial passwords in gateway logs or caches.
-- [ ] Route every command through the authenticated remote gateway and semantic
+- [x] Route every command through the authorized remote gateway and semantic
   bridge allowlist. Keep Kodi, Home Assistant and equipment credentials out of
   browser storage, JavaScript and logs.
-- [ ] Use private trusted HTTPS/WSS, short-lived sessions, account/room
-  authorization, CSRF/origin checks, command rate limits, revocation and a
-  visible disconnected/read-only state.
-- [ ] Make foreground reconnect fast and deterministic. Cache only the static
+- [x] Use private trusted HTTPS, exact trusted-network/room authorization,
+  CSRF/origin checks, independently revocable backend room keys, command rate
+  limits and a visible disconnected/read-only state. No public route or
+  browser-held service credential is accepted.
+- [x] Make foreground reconnect fast and deterministic. Cache only the static
   shell and non-sensitive preferences; never cache titles, history, household
   state, camera images or tokens as offline content.
-- [ ] Document that iPhone physical volume/side buttons, native Siri Remote,
+- [x] Document that iPhone physical volume/side buttons, native Siri Remote,
   Control Centre placement, guaranteed background operation, native haptics
   and lock-screen media controls are outside the PWA acceptance contract.
-- [ ] Test touch/hold/swipe/rapid-repeat, direct search, active-field text,
+- [x] Test touch/hold/swipe/rapid-repeat, direct search, active-field text,
   symbols, paste, dictation, masked input, keyboard and microphone permission,
   rotation/safe areas, sleep/wake, background/foreground, expired session,
   bridge/HA/Kodi outage, wrong account/room and command-flood denial on a real
@@ -1738,11 +1753,11 @@ candidate and a separate promotion decision is required.
 
 ### M10 — Integrated validation, recovery and efficiency review
 
-The repository-local half is now a single fail-closed gate. It runs 52 test
+The repository-local half is now a single fail-closed gate. It runs 58 test
 files, scans 93 candidate inputs, verifies immutable v2, audits 15 pages/127
-focus controls, double-builds M9 and carries an 11-gap operational-readiness
-projection. It reports connected/environment work as open rather than
-converting absence into a pass. Evidence:
+focus controls, double-builds M9 and reports zero operational-readiness gaps
+across Family, Bedroom and Jen. It reports unfinished performance and physical
+walkthrough work as open rather than converting absence into a pass. Evidence:
 `docs/projects/evidence/AsterTV-v3-M10-local-integrated-gate-2026-11-05.md`.
 
 #### Completed SA-M10-C1 — pinned Aster gateway test environment
@@ -2053,6 +2068,8 @@ explicit user acceptance.
 | 2026-11-05 | Published the AsterTV knowledge surfaces through the established LXC 113 path | Synchronized the human wiki/reference commits, checkpointed live state, published 25 byte-identical AsterTV pages without replacing the 31-source corpus, accepted the exact reviewed reference and atomically rebuilt the derived mirror. | Collector verification passes for 32 sources; 1,823 mirror entries verify at `8c9d4446…62ee5`, including 12 provenance-linked AsterTV entries. Corpus health has zero broken links or drift; only two pre-existing stale Synology guides warn. M10 gaps fall from 8 to 5. Evidence: `docs/projects/evidence/AsterTV-v3-M10-knowledge-publication-2026-11-05.md`. |
 | 2026-11-05 | Closed the M10 operations and recovery gate | Independently pinned Family identity, registered it idempotently in NetBox and Beszel, reconciled its declared composition and collected a clean observation. The first transaction failed on an unsupported masked-unit assertion and automatically restored all predecessor state; the corrected runner now checkpoints, applies and restores masked units. Bedroom and Family bundles also passed isolated corruption/interruption restore rehearsals. | Doctor reports all three deployed appliances clean; Beszel reports all three up; NetBox identity is complete; the operations audit has zero gaps. Family's guard is enabled and clean with Kodi active. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Family-operations-and-restore-2026-11-05.md`. |
 | 2026-11-05 | Completed a sustained 1080p HEVC low-spec soak | Played the highest-bitrate 1080p HEVC movie available to Jen's test identity, 1920×1080 at 9.309 Mb/s, for 716 seconds. Jellyfin stayed `DirectStream` with no FFmpeg process; Kodi advanced continuously with no player/decode error, stabilized at 667–669 MiB RSS and about 104–106% of one logical CPU, and peaked at 57 °C without kernel OOM/throttle/hang/reset evidence. | Jen passes the accepted 1080p/stereo envelope with comfortable client and server headroom. The real catalogue candidate did not exercise the full 18 Mb/s client ceiling. Playback was stopped deliberately; Kodi returned idle at Home, the Jen-only policy watcher remained active and the accepted-release guard remained successful. Evidence: `services/kodi/astertv-v3/low-spec/EVIDENCE-2026-11-04.md`. |
+| 2026-11-05 | Extracted the retained narration pronunciation contract | Represented the five embedded pronunciation rules as a strict ordered `en-CA` data lexicon and added a synthetic positive/boundary/false-positive corpus. | Twelve outputs are byte-identical to canonical cleanup hash `0476a393…350b9` and idempotent. This is repository-only compatibility groundwork: no private text, new pronunciation, synthesis, reader or generation changed. Evidence: `docs/projects/evidence/AsterTV-v3-M5-pronunciation-candidate-2026-11-05.md`. |
+| 2026-11-05 | Closed the authorized M5B attempts without promoting timing | Two authoritative bookings failed closed before inference: first on immutable Hugging Face snapshot symlinks and then on the fixed virtual-environment interpreter symlink. Both restored production with the worker inactive and Aster Speech active. | The model-cache correction is live and hash-pinned; the interpreter-custody correction is repository-only. There is no measured alignment result. A further install or booking requires new authorization. Evidence: `docs/projects/evidence/AsterTV-v3-M5B-word-alignment-benchmark-2026-11-05.md`. |
 
 ## Close-out
 

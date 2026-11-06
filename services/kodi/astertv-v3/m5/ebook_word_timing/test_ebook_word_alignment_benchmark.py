@@ -41,6 +41,45 @@ class BenchmarkContractTests(unittest.TestCase):
             expected = hashlib.sha256(b"fixed").hexdigest()
             MODULE.require_hash(path, expected)
 
+    def test_model_cache_link_must_resolve_inside_cache(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cache = root / "hub"
+            cache.mkdir()
+            blob = cache / "blob"
+            blob.write_bytes(b"model")
+            snapshot = cache / "snapshot"
+            snapshot.mkdir()
+            link = snapshot / "model.bin"
+            link.symlink_to(blob)
+            expected = hashlib.sha256(b"model").hexdigest()
+            with mock.patch.object(MODULE, "MODEL_CACHE", cache):
+                MODULE.require_model_hash(link, expected, limit=32)
+                outside = root / "outside"
+                outside.write_bytes(b"model")
+                link.unlink()
+                link.symlink_to(outside)
+                with self.assertRaisesRegex(MODULE.BenchmarkError,
+                                            "PINNED_MODEL_CUSTODY"):
+                    MODULE.require_model_hash(link, expected, limit=32)
+
+    def test_runtime_link_must_resolve_to_exact_pinned_target(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "python3"
+            target.write_bytes(b"runtime")
+            link = root / "python"
+            link.symlink_to(target)
+            expected = hashlib.sha256(b"runtime").hexdigest()
+            MODULE.require_runtime_hash(link, target, expected, limit=32)
+            other = root / "other"
+            other.write_bytes(b"runtime")
+            link.unlink()
+            link.symlink_to(other)
+            with self.assertRaisesRegex(MODULE.BenchmarkError,
+                                        "PINNED_RUNTIME_CUSTODY"):
+                MODULE.require_runtime_hash(link, target, expected, limit=32)
+
     def test_lease_identity_is_fixed(self):
         with mock.patch.object(MODULE, "require_runtime"), \
                 mock.patch.object(MODULE, "load_inputs", return_value=("hello", 1.0)), \

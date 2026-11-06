@@ -1,0 +1,48 @@
+{
+  "canonical_cleanup_sha256": "0476a393afd237833835b8e5499f64250bfc5e382a1603b94803cb99e7a350b9",
+  "id": "aster-en-ca-pronunciation-v1",
+  "locale": "en-CA",
+  "rules": [
+    {
+      "flags": ["IGNORECASE"],
+      "id": "dotted-united-states",
+      "order": 10,
+      "pattern": "\\bU\\.S(?:\\.A)?\\.(?=(?:['’]s)?(?:\\s|$|[-–—,;:!?]))",
+      "preserve_terminal_period": true,
+      "replacement": "United States"
+    },
+    {
+      "flags": ["IGNORECASE"],
+      "id": "dotted-british-columbia",
+      "order": 20,
+      "pattern": "\\bB\\.C\\.(?=(?:['’]s)?(?:\\s|$|[-–—,;:!?]))",
+      "preserve_terminal_period": true,
+      "replacement": "British Columbia"
+    },
+    {
+      "flags": ["IGNORECASE"],
+      "id": "saint-petersburg",
+      "order": 30,
+      "pattern": "\\bSt\\.\\s+Petersburg\\b",
+      "preserve_terminal_period": false,
+      "replacement": "Saint Petersburg"
+    },
+    {
+      "flags": ["IGNORECASE"],
+      "id": "emergency-nine-one-one",
+      "order": 40,
+      "pattern": "\\b911\\b(?=\\s+(?:call|calls|caller|callers|dispatch|dispatcher|dispatchers|operator|operators|service|services|emergency|centre|center)\\b)",
+      "preserve_terminal_period": false,
+      "replacement": "nine one one"
+    },
+    {
+      "flags": ["IGNORECASE"],
+      "id": "lutron-caseta",
+      "order": 50,
+      "pattern": "\\bLutron Cas[eé]ta\\b",
+      "preserve_terminal_period": false,
+      "replacement": "Lutron Caseta"
+    }
+  ],
+  "schema": "aster-pronunciation-lexicon.v1"
+}

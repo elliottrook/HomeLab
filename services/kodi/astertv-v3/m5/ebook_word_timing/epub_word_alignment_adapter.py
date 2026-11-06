@@ -19,7 +19,7 @@ from epub_word_alignment_transaction import (DEADLINE_SECONDS, RESULT_MAX_BYTES,
 
 WORKLOAD_ID = "astertv-v3-ebook-word-alignment-v1"
 GUEST_SCRIPT = "/opt/epub-narration/tools/ebook_word_alignment_benchmark.py"
-GUEST_SCRIPT_SHA256 = "b0197a4566536df599bc772dc50483d78468c5ffa91de4aec6a12a0d37e41127"
+GUEST_SCRIPT_SHA256 = "04fb4971b13cf803957c1cce501035be2583607ab7727e095d2fbf8130d5b04e"
 LEASE_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{1,127}")
 
 

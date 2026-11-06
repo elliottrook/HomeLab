@@ -9,6 +9,10 @@ ROOT = HERE.parents[3]
 SPEC = importlib.util.spec_from_file_location("astertv_m10_operations", HERE / "audit_operations.py")
 AUDIT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(AUDIT)
+VALIDATE_SPEC = importlib.util.spec_from_file_location(
+    "astertv_m10_validate", HERE / "validate_local.py")
+VALIDATE = importlib.util.module_from_spec(VALIDATE_SPEC)
+VALIDATE_SPEC.loader.exec_module(VALIDATE)
 OBSERVATION = ROOT / "docs/projects/evidence/AsterTV-v3-M10-operations-observation-2026-11-05.json"
 
 
@@ -41,6 +45,18 @@ class OperationsAuditTests(unittest.TestCase):
     def test_unknown_schema_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "operations-observation-schema"):
             AUDIT.audit({"schema_version": 2})
+
+    def test_completed_connected_gates_name_retained_evidence(self):
+        gates = VALIDATE.EXTERNAL_ENVIRONMENT
+        self.assertEqual(
+            {name for name, row in gates.items() if row["status"] == "pass"},
+            {"aster-gateway", "live-recovery", "operations"},
+        )
+        for row in gates.values():
+            if row["status"] == "pass":
+                self.assertTrue((ROOT / row["evidence"]).is_file())
+        self.assertEqual(gates["performance"]["status"], "partial")
+        self.assertEqual(gates["walkthrough"]["status"], "open")
 
 
 if __name__ == "__main__":

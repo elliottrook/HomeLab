@@ -50,6 +50,7 @@ INPUT_PINS = {
 ALIGNMENT = Path("/var/lib/aster-speech/word-alignment-harness-20261026/word_alignment.py")
 ALIGNMENT_SHA256 = "4a2b040ebbd459eee6e5b7f59dca2398f574a51766028e75369cdace2f96b5d4"
 MODEL = Path("/root/.cache/huggingface/hub/models--Systran--faster-whisper-small.en/snapshots/d1d751a5f8271d482d14ca55d9e2deeebbae577f")
+MODEL_CACHE = Path("/root/.cache/huggingface/hub")
 MODEL_PINS = {
     "config.json": "666a9605530ac1f61fa8177f3702b4dacec9966749e42610839fcc32661d5fae",
     "model.bin": "62b2a45b05ee59acb4a5341b33ee35e041395d378d418a18acfe4c9e768ee37a",
@@ -57,6 +58,7 @@ MODEL_PINS = {
     "vocabulary.txt": "ff77588746d3a2595d32ab5b69ffd7b95ce2441ac57533cb66fc3eb575a115cf",
 }
 PYTHON_SHA256 = "889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9"
+PYTHON_TARGET = Path("/usr/bin/python3.13")
 FFMPEG = Path("/usr/bin/ffmpeg")
 FFMPEG_SHA256 = "e8a8d46f5225f3062cec7c07fb145d58ae73c603cb740dcd5bad34bfb54e455a"
 RESULT_ROOT = Path("/var/lib/aster-speech/word-alignment-benchmarks")
@@ -81,6 +83,38 @@ def sha256(path: Path, *, limit: int | None = None) -> str:
 def require_hash(path: Path, expected: str, *, limit: int | None = None) -> None:
     if not SHA.fullmatch(expected) or sha256(path, limit=limit) != expected:
         raise BenchmarkError("PINNED_FILE_DRIFT")
+
+
+def require_model_hash(path: Path, expected: str, *, limit: int) -> None:
+    """Accept snapshot links only when they resolve inside the pinned cache."""
+    try:
+        resolved = path.resolve(strict=True)
+        cache = MODEL_CACHE.resolve(strict=True)
+        resolved.relative_to(cache)
+    except (OSError, ValueError):
+        raise BenchmarkError("PINNED_MODEL_CUSTODY") from None
+    info = resolved.lstat()
+    if (not stat.S_ISREG(info.st_mode) or resolved.is_symlink() or info.st_nlink != 1
+            or info.st_size > limit):
+        raise BenchmarkError("PINNED_MODEL_CUSTODY")
+    digest = hashlib.sha256()
+    with resolved.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    if not SHA.fullmatch(expected) or digest.hexdigest() != expected:
+        raise BenchmarkError("PINNED_FILE_DRIFT")
+
+
+def require_runtime_hash(path: Path, target: Path, expected: str, *, limit: int) -> None:
+    """Accept the fixed venv interpreter link only at its pinned system target."""
+    try:
+        resolved = path.resolve(strict=True)
+        pinned = target.resolve(strict=True)
+    except OSError:
+        raise BenchmarkError("PINNED_RUNTIME_CUSTODY") from None
+    if resolved != pinned:
+        raise BenchmarkError("PINNED_RUNTIME_CUSTODY")
+    require_hash(pinned, expected, limit=limit)
 
 
 def load_inputs() -> tuple[str, float]:
@@ -143,10 +177,11 @@ def load_alignment():
 
 
 def require_runtime() -> None:
-    require_hash(Path(sys.executable), PYTHON_SHA256, limit=32 * 1024 * 1024)
+    require_runtime_hash(Path(sys.executable), PYTHON_TARGET, PYTHON_SHA256,
+                         limit=32 * 1024 * 1024)
     require_hash(FFMPEG, FFMPEG_SHA256, limit=128 * 1024 * 1024)
     for name, expected in MODEL_PINS.items():
-        require_hash(MODEL / name, expected, limit=600 * 1024 * 1024)
+        require_model_hash(MODEL / name, expected, limit=600 * 1024 * 1024)
 
 
 def atomic_json(path: Path, value: object) -> None:
