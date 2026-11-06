@@ -1702,6 +1702,37 @@ fails safely without exposing a service credential or creating a public route.
 Gate: page-aware behaviour is deterministic, private and reversible, with a
 black branded fallback on missing or malformed artwork.
 
+### Proposed SA-M9-JEN — page-aware idle canary
+
+This envelope is **proposed, not authorized**. It becomes active only if Jason
+explicitly approves `SA-M9-JEN` after confirming playback is stopped and the
+Jen display is free.
+
+Target is only AsterTV-Jen (`192.168.1.180`). The bounded canary may:
+
+- recheck hostname, Kodi/guard health, selected screensaver, available storage
+  and human-confirmed playback idle immediately before effects;
+- build the exact repository candidate twice, require byte identity and retain
+  its embedded `release=false` manifest as deployment evidence;
+- checkpoint the current v2 screensaver directory, relevant add-on database,
+  `guisettings.xml`, accepted release-guard state and Kodi log before adding
+  `screensaver.asterhome.v3` side-by-side;
+- install only the five manifested candidate files, register/select the v3
+  screensaver, and restart only Kodi if add-on discovery requires it;
+- exercise Media, Music and neutral pages, missing artwork, four-corner mark
+  movement, wake/Back, playback suppression and Home-timer suppression while
+  recording content-free timing/RSS evidence; and
+- automatically restore the v2 selection and exact checkpointed files on any
+  identity, hash, discovery, activation, wake, suppression, resource or guard
+  failure. The v3 directory must be removed on rollback only if it was absent
+  before the canary.
+
+This envelope excludes Family, Bedroom, source libraries, credentials,
+profiles, network/firewall changes, camera/HA data, new schedules, release-
+guard baseline refresh, production promotion and deletion of the v2
+screensaver. Even after a successful canary, v3 remains a non-release test
+candidate and a separate promotion decision is required.
+
 ### M10 — Integrated validation, recovery and efficiency review
 
 - [ ] Run functional, account-isolation, failure, security, focus/navigation,
