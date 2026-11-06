@@ -35,7 +35,7 @@ requests fail closed.
 
 Six focused policy tests, eleven client tests, five component source tests and
 eleven pinned gateway tests pass. The M10 integrated gate includes all three
-Home Assistant room-bridge test files and passes 62 test files with zero
+Home Assistant room-bridge test files and passes 63 test files with zero
 operations-readiness gaps. Fleet materialization pins the new Kodi client,
 gateway, component and policy-module hashes so a later release cannot silently
 substitute an older lineage.

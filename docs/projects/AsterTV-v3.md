@@ -1774,7 +1774,7 @@ candidate and a separate promotion decision is required.
 
 ### M10 — Integrated validation, recovery and efficiency review
 
-The repository-local half is now a single fail-closed gate. It runs 62 test
+The repository-local half is now a single fail-closed gate. It runs 63 test
 files, scans 93 candidate inputs, verifies immutable v2, audits 15 pages/127
 focus controls, double-builds M9 and reports zero operational-readiness gaps
 across Family, Bedroom and Jen. It reports unfinished performance and physical
@@ -1797,6 +1797,21 @@ network-policy or AsterTV-client change occurred. Evidence:
 The connected Jen HEVC gate is explicitly excluded because its retained
 privacy-safe fixture is absent. Recreating a fixture and exercising Jen media
 playback requires a later named authorization and idle-display confirmation.
+
+A read-only 2026-11-06 Jen snapshot now records the first bounded low-spec idle
+evidence: no active player, 97.6% whole-host idle CPU at the sampled interval,
+27.8°C, 6,558 MiB available memory, about 737 MiB Kodi RSS, 1% storage use and
+zero Kodi service restarts. It is a single point sample rather than an accepted
+budget; page/art/network/speech/playback measurements and repeatability remain
+open. Evidence:
+`docs/projects/evidence/AsterTV-v3-M10-Jen-idle-snapshot-2026-11-06.md`.
+
+The new target-bound sampler then completed one non-installed 10-second Jen run
+with no active player before or after: 3.93% aggregate CPU used, 6.42 GiB
+available memory, about 737 MiB Kodi RSS, 27.8°C, idle 200 MHz GPU clock, zero
+swap and approximately 3.25 KiB/s receive traffic. The sampler and three tests
+are now part of the 63-file local gate. Interactive and sustained budgets remain
+open.
 
 - [ ] Run functional, account-isolation, failure, security, focus/navigation,
   playback, audio/video and secret-pattern suites on the low-spec client.
