@@ -16,6 +16,22 @@ class DigestTextTests(unittest.TestCase):
             "United States suspect connected to United States school shooting.",
         )
 
+    def test_speech_uses_compact_calendar_years(self):
+        self.assertEqual(
+            speech_text("The 1986 law was revised in 2011."),
+            "The nineteen eighty-six law was revised in twenty eleven.",
+        )
+        self.assertEqual(
+            speech_text("The records cover 1900, 1905, 2000, and 2007."),
+            "The records cover nineteen hundred, nineteen oh five, two thousand, and two thousand seven.",
+        )
+
+    def test_speech_does_not_treat_structured_numbers_as_years(self):
+        self.assertEqual(
+            speech_text("The date is 2026-11-06, value 1986.5, model X1986, and price $1986."),
+            "The date is 2026-11-06, value 1986.5, model X1986, and price 1986 dollars.",
+        )
+
     def test_cross_briefing_repeat_match(self):
         self.assertTrue(repeat_story(
             "Yemen's government announces all-out war to reclaim land from Houthis",

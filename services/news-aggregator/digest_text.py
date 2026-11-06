@@ -53,6 +53,49 @@ def dedupe_titles(records: list, title_key: str = "title", text_key: Optional[st
 
 _DOLLAR_AMOUNT = re.compile(r"(?<!\w)(?:(US|CA|AU)\s*)?\$(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?:\s+(million|billion|trillion))?\b", re.IGNORECASE)
 _US_ABBREVIATION = re.compile(r"\bU\.S(?:\.A)?\.(?=\s|$|[,;:!?])", re.IGNORECASE)
+_CALENDAR_YEAR = re.compile(r"\b(?:1\d{3}|20\d{2})\b")
+
+_ONES = (
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+    "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+    "sixteen", "seventeen", "eighteen", "nineteen",
+)
+_TENS = ("", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety")
+
+
+def _under_hundred(n: int) -> str:
+    if n < 20:
+        return _ONES[n]
+    tens, ones = divmod(n, 10)
+    return _TENS[tens] + (f"-{_ONES[ones]}" if ones else "")
+
+
+def _spoken_calendar_year(match: re.Match) -> str:
+    """Use compact English year forms without rewriting structured numbers."""
+    text = match.string
+    start, end = match.span()
+    before = text[start - 1] if start else ""
+    after = text[end] if end < len(text) else ""
+    if before in "$£€¥#@.:/–—-" or after in "/–—-":
+        return match.group(0)
+    if after == "." and end + 1 < len(text) and text[end + 1].isdigit():
+        return match.group(0)
+    if after == "," and text[end + 1:end + 4].isdigit():
+        return match.group(0)
+
+    year = int(match.group(0))
+    if year == 1000:
+        return "one thousand"
+    if year == 2000:
+        return "two thousand"
+    if 2001 <= year <= 2009:
+        return f"two thousand {_ONES[year - 2000]}"
+    century, remainder = divmod(year, 100)
+    if not remainder:
+        return f"{_under_hundred(century)} hundred"
+    if remainder < 10:
+        return f"{_under_hundred(century)} oh {_ONES[remainder]}"
+    return f"{_under_hundred(century)} {_under_hundred(remainder)}"
 
 def speech_text(text: str) -> str:
     """Turn LLM/Markdown prose into text Piper should read aloud."""
@@ -62,6 +105,7 @@ def speech_text(text: str) -> str:
     # Kokoro inserts a long pause when it sees dotted initials. Expand these
     # to the spoken name so headlines such as "U.S. suspect" flow naturally.
     text = _US_ABBREVIATION.sub("United States", text)
+    text = _CALENDAR_YEAR.sub(_spoken_calendar_year, text)
     text = _DOLLAR_AMOUNT.sub(lambda m: f"{m.group(2)}{'.' + m.group(3) if m.group(3) else ''} {m.group(4) + ' ' if m.group(4) else ''}{m.group(1) + ' ' if m.group(1) else ''}dollars", text)
     text = text.replace("(", ", ").replace(")", ", ")
     text = re.sub(r"\s*,\s*", ", ", text)
