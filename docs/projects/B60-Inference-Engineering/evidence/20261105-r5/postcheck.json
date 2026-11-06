@@ -1,0 +1,121 @@
+{
+  "booking": {
+    "claimed_epoch": 1793931417,
+    "end_epoch": 1793934000,
+    "finished_epoch": 1793931766,
+    "result_code": "RESTORED",
+    "start_epoch": 1793931300,
+    "state": "complete"
+  },
+  "booking_id": "b60-exclusive-20261105-day-r5",
+  "entry_sha256": "9d43a0d2b0217201b1d274adcf8fbc33c4fcf9866fcc1b98119ace43c807d551",
+  "guest_checkpoints_verify": {
+    "104": true,
+    "110": true,
+    "114": true,
+    "115": true,
+    "116": true
+  },
+  "manual_assistance_required": false,
+  "mode": "resource",
+  "mount_identity_matches": true,
+  "new_model_or_health_probe_executed": false,
+  "observed_epoch": 1793932128,
+  "qualification_source_sha256": "4a60b0e50b1f8bc58033fd33a005ec5ee173baaae2cffe3423f179ecfdd7a003",
+  "qualification_terminal": {
+    "booking_id": "b60-exclusive-20261105-day-r5",
+    "finished_epoch": 1793931767,
+    "mode": "resource",
+    "no_model_experiment": true,
+    "qualified": true,
+    "resource_limits_restored": true,
+    "schema": "b60-recovery-qualification-result.v1",
+    "source_map_sha256": "e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2",
+    "trial_scope_empty": true
+  },
+  "qualified": true,
+  "record_sha256": {
+    "arming-receipts/b60-exclusive-20261105-day-r5-revision2.json": "bcdbf7bb708e73d20299aac01ee14d8e0d2f7dcf2c6bb23adafb7b13a3bad41b",
+    "exclusive-integrity/b60-exclusive-20261105-day-r5/terminal.json": "733f428bd6d558558d419cb241d7f3d4546f708dd501ab4e2e85bfa137d1dea9",
+    "exclusive-releases/b60-exclusive-20261105-day-r5.json": "713415be8e1e094f83e2e9bfeecb232830a721934ffd239901320e4c4eda00e1",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/adapter.json": "c0b179c028eaad661290934badf34e6929c06f3816ce187b97308c4ce35c0c7c",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/admission.json": "12de7f329127f9b7f498292e905ab68cccb3689a51449e0229f07cc85c919ac6",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/entry.json": "9d43a0d2b0217201b1d274adcf8fbc33c4fcf9866fcc1b98119ace43c807d551",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/qualification-guardian-arm.json": "fc353f12a60f228c29bb3ace5909328811f53d9c97a108a2cb3c86806e6f37eb",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/qualification-terminal.json": "d6f95bd27723084c49ee620f3c54157e05b7e05e72684eb00c179c7ea72c2396",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/resource-baseline.json": "c4eb1cddb02049565221f9e8262e1b979f2ae75689097eb700a1597678a485ad",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/resource-headroom.json": "98efb359cee221740c63a6490e3fcb7e50b1b9da8711fbd70a2f7ddf9d475ed0",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/resource-limit-effect.json": "3372ae3b0ddf0e229acd7f00d0dd26281a5c2b702e0ff419ed6fd35d93724b9b",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/resource-namespace-restored.json": "254f0aa8a021e2212aa6bcbfdeabe023fbe1e61039c5c77ea233df204143bc92",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/resource-trial.json": "90ce10fe755cee4cfaeea6e7fba84d582abad7d2eef4abdb3a0c3b7611378413",
+    "exclusive-sessions/b60-exclusive-20261105-day-r5/session.json": "e0fa980d3953cad06a0e1c511052aeffbc4021e26929beeb5ed2c58608db948e",
+    "reservations/records/b60-exclusive-20261105-day-r5.json": "6ddc63b6dbf92d5465d9cfb2fa3af7d90c65d451080ec2e3d1cb920f8b427d1e"
+  },
+  "resource_evidence": {
+    "resource-baseline.json": {
+      "global_probe_mount_absent": true,
+      "properties": {
+        "ActiveState": "inactive",
+        "CPUQuotaPerSecUSec": "4s",
+        "MainPID": "0",
+        "MemoryMax": "4294967296"
+      },
+      "resource_files_covered": true
+    },
+    "resource-headroom.json": {
+      "before_claim": true,
+      "disk_available_bytes": 13048393728,
+      "guest": "110",
+      "memory_available_bytes": 16496396288,
+      "minimum_disk_bytes": 1073741824,
+      "minimum_memory_bytes": 2147483648,
+      "no_model_experiment": true,
+      "observed_epoch": 1793931303
+    },
+    "resource-limit-effect.json": {
+      "observed_epoch": 1793931479,
+      "properties": {
+        "CPUQuotaPerSecUSec": "100ms",
+        "MemoryMax": "268435456"
+      },
+      "workload_started": false
+    },
+    "resource-namespace-restored.json": {
+      "global_probe_directory_absent": true,
+      "global_probe_mount_absent": true
+    },
+    "resource-trial.json": {
+      "cgroup": {
+        "ActiveState": "active",
+        "CPUQuotaPerSecUSec": "250ms",
+        "MainPID": "33215",
+        "MemoryMax": "402653184",
+        "MemoryPeak": "149929984",
+        "TasksMax": "16"
+      },
+      "no_model_experiment": true,
+      "observed_epoch": 1793931482,
+      "probe": {
+        "booking_id": "b60-exclusive-20261105-day-r5",
+        "bytes_touched": 134217728,
+        "model_called": false,
+        "pid": 33215,
+        "schema": "b60-bounded-resource-probe.v1",
+        "tmpfs_bytes": 8388608,
+        "tmpfs_verified": true
+      }
+    }
+  },
+  "runtime_masks_present": false,
+  "schema": "b60-owner-resource-postcheck.v1",
+  "session": {
+    "deadline_missed": false,
+    "phase": "released",
+    "production_restored": true,
+    "trial_failed": false,
+    "updated_epoch": 1793931766
+  },
+  "source_map_sha256": "e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2",
+  "temporary_gate_count": 0,
+  "unit_states_match_entry": true
+}

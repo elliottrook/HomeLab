@@ -1,0 +1,17 @@
+[
+  {
+    "commit": "70832267c59b1e9a6b809ec08ff1af1157c0c8e1",
+    "path": "docs/projects/AI Projects/evidence/SA4-measurement-checkpoint-inactive-install-result-2026-11-05.md",
+    "sha256": "38fa6b9748984712dfceeb7f09fadf98a3bd63fe8efeea6fa0d5b2978ad04bac"
+  },
+  {
+    "commit": "6fb0207fec5190e0c34ed3bc72ea38e128f06127",
+    "path": "docs/runbooks/Local-AI-Lease.md",
+    "sha256": "064b56ee8fca8aad37e9ae627cf119c581c3f8d8ad7d9782ccfeb0fa23b31d4c"
+  },
+  {
+    "commit": "539e3860afac591bf353a15cc920b2dcee71f879",
+    "path": "docs/projects/B60-Inference-Engineering/owner-loss-pass-resource-pending-20261105.md",
+    "sha256": "970d026f3b0d8c4754f86322d48b36a27c86fd4144a3487467797b2857e86d66"
+  }
+]

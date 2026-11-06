@@ -1,6 +1,6 @@
 # B60 inference engineering
 
-> Current operational result (2026-11-05): R3 normal restore-only and R4 independent owner-loss gates have passed with verified restoration/release. R5 resource qualification remains independently armed19:15. See [live evidence and next action](B60-Inference-Engineering/owner-loss-pass-resource-pending-20261105.md). Resource and27B+ capability/latency results are not yet claimed passed.
+> Current operational result (2026-11-05): normal restore-only, independent owner-loss and bounded resource/private-mount recovery gates have live passes with verified restoration/release. See [exact results and programme next action](B60-Inference-Engineering/owner-resource-gates-completed-20261105.md). The27B+ reasoning-on capability/complete-answer latency programme remains active and no model promotion is claimed.
 
 > Status: Active — Stream A (bounded)
 >

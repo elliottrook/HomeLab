@@ -1,0 +1,10 @@
+{
+  "original_output": {
+    "state": "postcheck-not-complete",
+    "error_type": "AssertionError"
+  },
+  "assertion_location_retained": false,
+  "cause": "not-established",
+  "same_source_diagnostic_rerun": "passed-all-independent-checks",
+  "production_or_qualification_changed_by_reconciliation": false
+}

@@ -1,0 +1,15 @@
+{
+  "admission": {
+    "archive_receipt": "retained-archive-integrity-sha256:afb2176edf99ed709bcfd80eb28d91749eec10907f069bfb98a3b51b80fbf8b6",
+    "entry_gpu_holder_count": 1,
+    "observed_epoch": 1793931303,
+    "qualification_only": true,
+    "whole_backup_job_verified": true
+  },
+  "current_llama_unit_sha256": "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3",
+  "entry": {
+    "configuration_sha256": "df3f54ff31fd8eb247fb7fc8c8369160d5b17b05b704409a066f25c99dd21ec6",
+    "model_sha256": "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13",
+    "runtime_sha256": "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5"
+  }
+}
