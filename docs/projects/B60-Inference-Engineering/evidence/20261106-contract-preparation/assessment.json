@@ -1,0 +1,54 @@
+{
+  "schema": "b60-benchmark-contract-preparation.v1",
+  "peer_contract_sha256": "023939fd25e61e47af9418387ee6fe82163fac394511472a8bf64eaaab40382c",
+  "peer_validator_sha256": "757dd3631f68555773446c23eea25d288a8d47e55ac916d08714097f87aa47f5",
+  "owner_frozen_contract_verified": true,
+  "authority": "not-granted",
+  "model_roles": {
+    "baseline": {
+      "identity_sha256": "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13",
+      "mode": "reasoning-off",
+      "runtime_sha256": "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5"
+    },
+    "challenger": {
+      "identity_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+      "mode": "reasoning-on-27b-plus",
+      "runtime_sha256": "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5"
+    }
+  },
+  "heldout_packet_sha256": "7545d1a5d36f35b84dacef496a32c671910d75f29bc6214ebba3580fcbdce2f9",
+  "case_contents_read": false,
+  "baseline_measurements_read": false,
+  "nominal_cases_per_role": 24,
+  "nominal_two_role_case_captures": 48,
+  "cases_per_family_per_role": {
+    "ambiguity_and_safety": 4,
+    "frozen_web_research": 4,
+    "homelab_readonly_diagnosis": 4,
+    "stable_public_fact": 4,
+    "synthetic_private_context": 4,
+    "synthetic_public_private_join": 4
+  },
+  "owner_model_calls_max_unchanged": 48,
+  "owner_quality_and_latency_bars_unchanged": true,
+  "acceptance_sampling_requirements": {
+    "observations_per_acceptance_class_across_sessions_min": 100,
+    "independent_sessions_min": 2,
+    "latency_class_mapping": "not specified in this contract",
+    "family_as_latency_class_projection": {
+      "accepted": false,
+      "assumption": "each of the six families is an acceptance latency class",
+      "two_role_complete_answer_observations_min": 1200,
+      "model_call_budget_derived": false
+    }
+  },
+  "open_dependencies": [
+    "fresh measured reasoning-off baseline per accepted latency class",
+    "owner-defined acceptance latency-class mapping and repeat/session allocation",
+    "owner-reviewed sampling/budget extension beyond the nominal matched run",
+    "reviewed fixed candidate model/runtime/mount adapter and actual fresh admission"
+  ],
+  "ready_for_live_execution": false,
+  "milestone_accepted": false,
+  "recovery_qualification_inferred_from_document": false
+}

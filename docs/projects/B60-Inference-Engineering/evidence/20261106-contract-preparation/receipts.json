@@ -1,0 +1,22 @@
+[
+  {
+    "commit": "70832267c59b1e9a6b809ec08ff1af1157c0c8e1",
+    "path": "docs/projects/AI Projects/evidence/Full-Aster-owner-freeze-result-2026-10-26.md",
+    "sha256": "34274bdbf01dbc4b0c9a7274a3b201a4418b0988f607e0e4d491a988beea14b6"
+  },
+  {
+    "commit": "70832267c59b1e9a6b809ec08ff1af1157c0c8e1",
+    "path": "docs/projects/AI Projects/benchmarks/full-aster-benchmark-contract-v1.json",
+    "sha256": "023939fd25e61e47af9418387ee6fe82163fac394511472a8bf64eaaab40382c"
+  },
+  {
+    "commit": "103d81598c4bbdfb562555b82fce7e795f938e6e",
+    "path": "docs/projects/B60-Inference-Engineering/owner-resource-gates-completed-20261105.md",
+    "sha256": "8bfdeae632938915b5e8af97e09eb3d43c40b1157faa43abe1455177f7e6cbb6"
+  },
+  {
+    "commit": "6fb0207fec5190e0c34ed3bc72ea38e128f06127",
+    "path": "docs/runbooks/Local-AI-Lease.md",
+    "sha256": "064b56ee8fca8aad37e9ae627cf119c581c3f8d8ad7d9782ccfeb0fa23b31d4c"
+  }
+]

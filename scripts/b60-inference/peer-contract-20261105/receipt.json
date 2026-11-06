@@ -1,0 +1,14 @@
+[
+  {
+    "commit": "70832267c59b1e9a6b809ec08ff1af1157c0c8e1",
+    "path": "scripts/aster-adaptive/full_aster_benchmark_contract_v1.py",
+    "local_file": "full_aster_benchmark_contract_v1.py",
+    "sha256": "757dd3631f68555773446c23eea25d288a8d47e55ac916d08714097f87aa47f5"
+  },
+  {
+    "commit": "70832267c59b1e9a6b809ec08ff1af1157c0c8e1",
+    "path": "docs/projects/AI Projects/benchmarks/full-aster-benchmark-contract-v1.json",
+    "local_file": "contract.json",
+    "sha256": "023939fd25e61e47af9418387ee6fe82163fac394511472a8bf64eaaab40382c"
+  }
+]

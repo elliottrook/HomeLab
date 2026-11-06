@@ -12,7 +12,17 @@
 >
 > Completed: not applicable
 
-## Current coordination status — supersedes the historical snapshot below
+## Current coordination status
+
+[The actual normal/owner-loss/resource gates passed](B60-Inference-Engineering/owner-resource-gates-completed-20261105.md).
+[The owner-frozen benchmark contract is integrated offline](B60-Inference-Engineering/benchmark-contract-integration-20261106.md):
+exact peer validator/contract pins,119focused tests, no model run or live authority
+inferred. Candidate adapter/baseline work remains active; acceptance class and
+repeat/session allocation need the owner-format extension described in that
+owned response. Earlier R1/R2 arming and unqualified-recovery paragraphs below
+are historical and do not describe current state.
+
+## Historical coordination snapshots — superseded by the current result above
 
 [R2 fresh integrity completed at14:12](B60-Inference-Engineering/r2-integrity-receipt-20261105.md).
 The final15:00 qualification clock is still waiting/untriggered; no duplicate
