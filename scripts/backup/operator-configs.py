@@ -5,6 +5,10 @@ home=pathlib.Path.home();os.umask(0o077)
 root=home/'lab/private-backups/operator-configs';root.mkdir(parents=True,exist_ok=True);root.chmod(0o700)
 sources=[home/'.ssh',home/'lab/homelab/configs']
 sources += [home/'Library/Application Support/AsterLab'/n for n in ['worker.json','guest_ed25519','guest_ed25519.pub']]
+speech=home/'Library/Application Support/Aster Speech Authority'
+sources += [speech/'credentials'/n for n in ['tunnel_ed25519','tunnel_ed25519.pub']]
+sources += [speech/'current'/n for n in ['artifacts.sha256','build-provenance.json','run-authority.sh']]
+sources += list((speech/'current'/'scripts').glob('*.py'))
 sources += list((home/'Library/LaunchAgents').glob('*homelab*.plist'))+list((home/'Library/LaunchAgents').glob('*aster*.plist'))
 files=[]
 for source in sources:
