@@ -381,6 +381,12 @@
 > epochs and terminal/uncertain evidence. No authority or effect occurred; the
 > approval is spent. Next is that fixed runner, joined branch tests and its
 > inactive installation before a fresh release.
+> The missing [fixed transaction runner](evidence/SA4-fixed-transaction-runner-source-2026-11-06.md)
+> is now source-complete at `d48e26d5…b74e`: no arguments, six fixed
+> root-custodied inputs, exact authority/ledger initialization, bounded epochs,
+> one/two observer exchanges, no retry and retained uncertainty. Terminal
+> success hashes exchange evidence and removes runtime exchange state. The
+> suite passes 198/198. It is source-only; next is exact inactive-install review.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
