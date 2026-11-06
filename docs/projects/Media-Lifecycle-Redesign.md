@@ -48,6 +48,11 @@ genuine upgrade exists.
 - Preserve genuine HDR and a usable 5.1 track when compressing. Preserve 4K if it remains visually sound under the limit; if it cannot, a good 1080p version is authorized. Never upscale or upmix an older source.
 - Retain every English subtitle track, including forced and SDH variants, and any external English subtitle sidecar. Preserve language, forced and hearing-impaired flags. If a subtitle cannot be retained in the output container, fail the encode and report it; do not silently retry without subtitles or delete the source.
 - Treat 5,000,000,000 bytes per file as an Archive ceiling, not an encoding target. Do not recompress a compliant file just to make it smaller. With virtual views, oversized files stay in Current even after four months.
+- Existing files already over 5 GB in the physical Archive are a mandatory
+  optimization backlog. Attempt quality-led compression for every such file;
+  if an acceptable output cannot fit, keep the original playable and classify
+  it as a Current exception until the source can be handled safely. Never
+  silently grandfather an over-ceiling file as Archive.
 - Keep an archive-eligible file registered in Radarr/Sonarr and monitored. The preferred virtual-view design needs no archive move. If physical folders are retained, a move must update the application's own path or root folder rather than deleting the file record and unmonitoring the title.
 
 ## Current state and evidence
@@ -110,7 +115,9 @@ separate verified quarantine because arr cannot infer corruption.
    persisted first-seen import date, not filesystem modification time. The
    existing physical Archive roots seed a separate, one-time legacy Archive
    flag because ARR's migration `dateAdded` does not preserve their original
-   age. For TV, the youngest new episode in a season must be at least four
+   age. For future transfers, persist ARR's new file `dateAdded` at first
+   sight so an optimization cannot reset the view clock. For TV, the youngest
+   new episode in a season must be at least four
    calendar months old before that season can be called Archive; a later
    episode resets only its own season. If exact rolling views are needed
    inside Jellyfin, pilot API-managed collections or tags and verify their
@@ -251,6 +258,29 @@ or physical archive roots.
 
 ## Evidence log
 
+- **2026-11-06 — User correction and oversized Archive inventory:** Jason
+  directed that every file already over 5 GB in Archive be evaluated for
+  transcoding/compression; ARR dates can govern future transfers. The 19
+  oversized Archive movies total 749,956,862,257 bytes and reach 93.4 GB
+  individually. Aggregate formats: six MKV, six M2TS and seven ISO. The ISO
+  files cannot be probed by ffprobe as video containers and require verified
+  main-feature extraction before any encode. Of the 12 directly probeable
+  files, four are HDR, six have English surround audio and six have English
+  embedded subtitles; the probe found five English PGS and four English
+  SubRip streams. The existing 1.9 GB compactor caps at 1080p and
+  verifies neither complete English subtitle retention nor ARR continuity,
+  so it remains disabled. No file was transcoded or moved. A fresh recovery
+  checkpoint and single-file pilot are required before replacement.
+- **2026-11-06 — Undeployed optimizer acceptance contract:** added a pure
+  manifest comparison that rejects outputs over the exact 5 GB ceiling,
+  unnecessary recompression of compliant sources, an unacceptable resolution
+  or aspect change, HDR loss or invention, English 5.1 downmix, English audio
+  loss, missing English/unknown subtitle tracks or flags, and changed sidecars.
+  Dolby Vision profile 5 is held for a separate colour-safe path. Ten new
+  synthetic tests pass, bringing the local media-lifecycle test count to 24.
+  Decode spot checks, visual quality on AsterTV, subtitle content verification,
+  ARR file-record continuity and fresh recovery checkpoints remain necessary
+  before any source replacement. This contract has not been deployed.
 - **2026-11-06 — M0 synchronized and M1 lab probe:** Jason approved the
   specific M0 evidence push. Forgejo had first advanced to unrelated brand
   documentation commit `d9fe346`; the media-only commit was rebased without
@@ -421,6 +451,11 @@ or physical archive roots.
   must resolve ARR's disabled upgrades;
   the three unmonitored movies are missing files, not playable archive files.
   No media file or ARR profile has been changed yet.
+- Nineteen existing Archive movie files exceed 5 GB and are now an explicit
+  optimization backlog, including seven ISO disc images requiring main-feature
+  extraction. The old compactor cannot meet the new quality and subtitle
+  safeguards. A single-file optimizer pilot and a fresh checkpoint precede
+  any bulk processing; failures remain playable as Current exceptions.
 - M0 evidence is synchronized to Forgejo and its GitHub mirror at `00fc34d`.
   The later M1 pilot evidence is local only. Repository instructions require
   immediate authorization for each further Forgejo push; the M0 approval
