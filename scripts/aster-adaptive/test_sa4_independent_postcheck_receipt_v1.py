@@ -13,6 +13,12 @@ D = "9363d1448f97f059dc76c40ab7c341e896b26fb905833c3475aaa9bbdd7ba25f4cc6f98140c
 KEY = {"kty": "RSA", "n": N, "e": 65537}
 
 
+class SA4ObserverProductionResolutionTests(unittest.TestCase):
+    def test_production_target_resolves_before_schema_fixture(self):
+        target = receipt_module._registration("sa4-lxc104-canary-adapter-v1")
+        self.assertEqual("lxc104", target.host_id)
+
+
 def sign(message: bytes) -> str:
     digest_info = rsa.DER_SHA256 + hashlib.sha256(message).digest()
     encoded = (b"\x00\x01" + b"\xff" * (256 - len(digest_info) - 3)

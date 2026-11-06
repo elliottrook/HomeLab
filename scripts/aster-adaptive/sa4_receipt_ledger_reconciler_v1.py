@@ -28,6 +28,13 @@ def _digest(value: object) -> bool:
     return isinstance(value, str) and bool(HEX64.fullmatch(value))
 
 
+def _registration(target_id: str):
+    try:
+        return registry.resolve_production(target_id)
+    except ValueError:
+        return registry.resolve_schema_fixture(target_id)
+
+
 def _admission(raw: bytes, plan_raw: bytes,
                registration_sha256: str) -> dict[str, object]:
     value = decode_unique_json(raw)
@@ -138,7 +145,7 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
     if not isinstance(ledger, ledger_module.OneUseLedger):
         raise ValueError("SA4 ledger is not the frozen implementation")
     plan = contract.validate_plan(plan_raw)
-    target = registry.resolve_schema_fixture(plan["target_id"])
+    target = _registration(plan["target_id"])
     registration_sha256 = registry.registration_sha256(target)
     admission = _admission(admission_raw, plan_raw, registration_sha256)
     checkpoint = _checkpoint(

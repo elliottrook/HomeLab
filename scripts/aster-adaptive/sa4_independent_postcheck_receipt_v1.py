@@ -37,6 +37,13 @@ def _digest(value: object) -> bool:
     return isinstance(value, str) and bool(HEX64.fullmatch(value))
 
 
+def _registration(target_id: str):
+    try:
+        return registry.resolve_production(target_id)
+    except ValueError:
+        return registry.resolve_schema_fixture(target_id)
+
+
 def _snapshot(value: object, *, mode: str = "0644") -> bool:
     fields = {"device", "inode", "uid", "gid", "mode", "link_count",
               "size", "regular_file", "symlink", "bytes_sha256",
@@ -107,7 +114,7 @@ def validate(receipt_raw: bytes, proof_raw: bytes, *, not_before_epoch: int,
             or not _snapshot(receipt["target_snapshot"])):
         raise ValueError("SA4 independent postcheck receipt changed")
 
-    target = registry.resolve_schema_fixture(receipt["target_id"])
+    target = _registration(receipt["target_id"])
     if receipt["target_registration_sha256"] != registry.registration_sha256(target):
         raise ValueError("SA4 postcheck target registration changed")
     expected_checks = tuple(zip(target.postcheck_ids,
@@ -184,7 +191,7 @@ def validate_rollback(receipt_raw: bytes, proof_raw: bytes, *,
             or not _snapshot(value["final_target_snapshot"])
             or not _snapshot(value["checkpoint_snapshot"], mode="0600")):
         raise ValueError("SA4 independent rollback receipt changed")
-    target = registry.resolve_schema_fixture(value["target_id"])
+    target = _registration(value["target_id"])
     if (value["target_registration_sha256"]
             != registry.registration_sha256(target)
             or value["rollback_program_sha256"]

@@ -141,6 +141,11 @@
 > performs one same-filesystem atomic replacement in disposable tests and
 > emits an observer-pending terminal record without accepting its own outcome.
 > The suite passes 103/103. It is not installed and cannot touch LXC 104.
+> The [production observer/reconciler correction](evidence/SA4-production-observer-reconciliation-source-2026-11-05.md)
+> now resolves the compiled canary before synthetic fixtures while preserving
+> signed-receipt validation, zero accepted effects and fail-closed ledger burn.
+> The suite passes 105/105. These changes are source-only; next is the inactive
+> receipt producer and rollback owner.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)

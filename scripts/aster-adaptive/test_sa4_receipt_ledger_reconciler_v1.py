@@ -17,6 +17,10 @@ from test_sa4_single_file_repair_contract_v1 import plan
 
 
 class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
+    def test_production_target_resolves_before_schema_fixture(self):
+        target = reconciler._registration("sa4-lxc104-canary-adapter-v1")
+        self.assertEqual("lxc104", target.host_id)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.ledger = ledger_module.OneUseLedger(
