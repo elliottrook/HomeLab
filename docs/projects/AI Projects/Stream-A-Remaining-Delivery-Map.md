@@ -364,6 +364,16 @@
 > control or ledger state. No controller/signer ran, the canary is unchanged
 > and the lease remains ready. Next is a fresh post-controller release packet
 > and a new exact repair approval; prior approval and authority are not reused.
+> The fresh [post-controller v5 release](evidence/SA4-post-controller-first-repair-release-candidate-2026-11-06.md)
+> now binds both installed results and all eight exact sources at canonical
+> digest `8b9ad5ce…beff`. It requires fresh unique authority and runtime gates,
+> permits one/two observer signatures only for success/rollback, and retains
+> one repair, at most one rollback, zero retry and no restart. The packet is
+> effect-ineligible; the full suite passes 191/191.
+> Its fresh unsigned authority builder uses unique grant ID
+> `sa4-canary-first-grant-v5-20261106`, refuses prior release drift and creates
+> only short-lived statements. No signer ran; the suite passes 194/194. The
+> only next SA4 action is a new exact approval for this one canary repair.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
