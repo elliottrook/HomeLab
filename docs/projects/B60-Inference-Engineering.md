@@ -14,18 +14,18 @@
 
 ## Current coordination status
 
-[Distinct R2 is installed, source-checked and armed](B60-Inference-Engineering/model-r2-armed-20261106.md)
-for November6 11:36–12:21 Vancouver, reserve12:36. Actual backup-only source
-rehearsal passed; exact source/card/timer pins are independently verified.
-[R1 stopped before claim or model](B60-Inference-Engineering/model-r1-backup-no-go-r2-plan-20261106.md)
-after a late redundant TrueNAS pull replaced the latest-job cache. R2 proves
-the genuine ordered historical chain and separately requires exact fresh
-current metadata/mirror/archive gates. No backup jobs/schedules/credentials
-changed. Continue through actual R2 result and independent restoration check.
+[An actual guarded35B reasoning-on trial ran](B60-Inference-Engineering/actual-35b-model-result-20261106.md).
+All41layers offloaded with19.14GiB GPU residency; the two-request workload
+failed, with the second generation reaching1024tokens. Automatic restoration
+and shared release completed11:46:06 without assistance or deadline miss.
+Five guest entry checks and candidate/custody cleanup were independently
+reverified. No capability/latency win or model promotion is claimed.
 
-[The base normal/owner-loss/resource gates passed](B60-Inference-Engineering/owner-resource-gates-completed-20261105.md).
-[The candidate mount belongs only to its private service namespace](B60-Inference-Engineering/model-trial-final-integration-20261106.md).
-The final capability/latency milestone and fresh accepted9B baseline remain open.
+A separate News-XPU mp0 appeared after release, with11:48:06 config mtime.
+It was preserved and reported separately; current full-entry acceptance stays
+false. Reconcile its owner/consumer/schedule receipt before the next full-stack
+trial. Next fix bounded failure capture, then freeze fresh9B baseline and held-
+out acceptance before tuning. The expanded programme remains active.
 
 ## Historical coordination snapshots — superseded by the current result above
 

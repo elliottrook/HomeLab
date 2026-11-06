@@ -1,0 +1,115 @@
+{
+  "schema": "b60-actual-model-trial-outcome.v1",
+  "booking_id": "b60-exclusive-20261106-day-r2",
+  "result": "FAILED_RESTORED",
+  "actual_model_loaded": true,
+  "candidate_model_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+  "reasoning_mode_flag": "on",
+  "all_layers_offloaded": true,
+  "offloaded_layers": 41,
+  "vram_resident_kib": 20065232,
+  "process_rss_kib": 736200,
+  "gtt_resident_kib": 65512,
+  "cgroup": {
+    "CPUQuotaPerSecUSec": "4s",
+    "MemoryCurrent": "966000640",
+    "MemoryMax": "15032385536",
+    "MemoryPeak": "1249427456",
+    "TasksCurrent": "12",
+    "TasksMax": "256"
+  },
+  "server_generation_timings": [
+    {
+      "kind": "prompt eval",
+      "milliseconds": 464.06,
+      "tokens": 32
+    },
+    {
+      "kind": "eval",
+      "milliseconds": 11511.8,
+      "tokens": 514
+    },
+    {
+      "kind": "prompt eval",
+      "milliseconds": 458.93,
+      "tokens": 47
+    },
+    {
+      "kind": "eval",
+      "milliseconds": 20093.1,
+      "tokens": 1024
+    }
+  ],
+  "request_workload_exit_nonzero": true,
+  "exact_request_finish_reason_not_retained": true,
+  "kernel_hazards": 0,
+  "device_errors": 0,
+  "oom_errors": 0,
+  "released_epoch": 1793990766,
+  "restored_without_assistance": true,
+  "deadline_missed": false,
+  "all_five_entry_file_checks_pass": true,
+  "candidate_scope_empty": true,
+  "source_custody_restored": true,
+  "initial_reconciliation_unit_state_match": false,
+  "later_unit_snapshot_mismatches": [],
+  "later_core_production": {
+    "aster-agent.service": "active",
+    "aster-llama.service": "active",
+    "aster-speech.service": "active"
+  },
+  "postrelease_delta": {
+    "config_mtime_epoch": 1793990886.0,
+    "current_without_added_mp0_matches_entry": true,
+    "key": "mp0",
+    "line_sha256": "640906303474d1a7f7ed527bb8ea5bcba74390af8c8dfcb105fdc12f7642825e",
+    "original_trial_made_no_pct_mount_change": true,
+    "owner_publication_not_received": true,
+    "release_epoch": 1793990766,
+    "removed_or_modified_by_observer": false,
+    "source_basename": "local-lvm:vm-110-news-video-xpu",
+    "target": "/opt/aster-news-video-xpu"
+  },
+  "current_full_entry_accepted": false,
+  "capability_latency_milestone_accepted": false,
+  "model_promoted": false,
+  "source_effect_manifest": {
+    "backup_chain_history.py": "0ac13cfd6fe1565e6e4421cbf2ad862d52c14dd444d365e5491530e822a389d2",
+    "fixed_command.py": "9fd4e5746363e7cbdcac0d121d15cdac4ce990c24a1e988bc8b98faad8bcf260",
+    "guest_requests.py": "dbc596c5b77a8ea9359868798d621ff951c331754b2b4968c177b80d079e3dca",
+    "guest_supervisor.py": "ca23df9ec859044cee61737be476a8eab53f4b30a30efbf3b1421863e8fe0449",
+    "model_trial.py": "1a0419d47f1ec2054b4628d66a2ad473305cdbfeb05dbb53aae24ff5b85f1e18",
+    "namespace_mount.py": "031df2fb964c264c168cfd313de816391cb49d735701b17821edae2077a72566"
+  },
+  "root_record_sha256": {
+    "arming-receipts/b60-exclusive-20261106-day-r2-model.json": "90d309526c3ec84a171025acfddf2311da1536e7eaf7d5f0bfde183297576d8f",
+    "backup-chain-history/b60-exclusive-20261106-day-r2.json": "d52d58ba411df6bcc32ab4cdbf35e2f91511372a808d54182a717a8eac24a96c",
+    "exclusive-integrity/b60-exclusive-20261106-day-r2/terminal.json": "892175b12b11ad896e1848a1dbd775aa682e6b012089cf3aff396217393de0f2",
+    "exclusive-releases/b60-exclusive-20261106-day-r2.json": "3322ced1b9a805cb825c7c9050281115f4a80451293f247c5e4d3138613e8a7c",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/adapter.json": "4204a5f2eed69b6a96da065cbec198b8020ca3e996175ff3f15802cdda23a263",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/admission.json": "82771db3849928deb1d31018c2888f636c797fa5f179e5be84e67e89beed7e08",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/backup-history-admission.json": "e9a0bb7b07da4f5075211bfd0b591227ab8ef273692f0776c1a811dd982ba5bd",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/entry.json": "1a87558a66644a71205b21302ab286b3a6a5534cf9212a341d9c2bf59c2bd0c4",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/model-cleanup.json": "bff35c8ad5457936197dd8c85a4720b615b377421691ce44acc45383c4296409",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/model-failure.json": "14aad685f34f64c6faf7bdde21ddf83089c383365525491490b0d70e8533c08c",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/model-guardian.json": "5a278627d4723347cba5f131c1ed3f0979afaa83f6a1cdd2e60ccbbc59abe32b",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/model-intent.json": "d2a05f9e8c0f5743dcdf969703f69f453cfede7a69988168d805c3df8a4cb004",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/model-kernel-before.json": "fcac9e63d67d4631bb85adcfdb9a4c8a614d3ae2e0c9097995281066279f6f08",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/model-namespace-intent.json": "c3d0b073b397942ee0efe79fc112b4760f96cfd436d8615f8f50c0f5f75b8f6b",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/model-preflight.json": "81a9df85f498c1db2525d0e233927f991bb959170a17e99a65244a20057bf5c7",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/model-residency.json": "b494824399807e946d3dfb738e095870fe61152b50b0a1dfc38c3d1730347e04",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/model-start-intent.json": "f18227feb0edc212aa563a6c340676c7c02e91f2872fd9299c99c60029119b8f",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/model-terminal.json": "425ce9d83a8ecb4aa91f025196def2d4ce5066c791ea8d9bb5f936d85da0a3fe",
+    "exclusive-sessions/b60-exclusive-20261106-day-r2/session.json": "8ed38683c5b0ce7a66e726d1e2d04cfb7e1829c27bd444bf6ee2cbd523d5205b",
+    "model-trial-cards/b60-exclusive-20261106-day-r2.json": "5fe3ec5bc61fb53d3899608b3c2b52aab347289312ce83f96b9eb7bed6958afb",
+    "reservations/records/b60-exclusive-20261106-day-r2.json": "108edab496d4cdecf69969c6cd61f23cc943f6e8204348f4e5c21484ab735b52"
+  },
+  "evidence_sha256": {
+    "r2-reconciliation.json": "0c2c60186841d3cc3697403460459eb5945b665983593eaefd232fbfd90565a4",
+    "r2-failure-summary.json": "29fb95d9c85ad6ebed4bddd92783a23496716161c533bf5e9fecdd121536e353",
+    "r2-postrelease-unit-snapshot.json": "7e5c614f262fd83da86409d604bc3eeb9c3bab46b729ef03db7058649cfd52a9",
+    "r2-initial-postcheck-failure.json": "0cb3c72a97ec0f0d04d365efe6a08bea77dd5682e5081611795489d67c9b19b5",
+    "r2-postcheck-diagnostic.json": "b39d6014f8be04ab990ea7df6e87a38b3e40b9e9dac95d82cca5c186cb021bc4",
+    "r2-initial-delta-reconciliation-no-go.json": "8d2920ff7b23f215e6af1f3071e6677cff99d9a92f4a461db7efe136eddae043"
+  }
+}

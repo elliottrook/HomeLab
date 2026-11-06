@@ -52,7 +52,7 @@ def postcheck():
   pre=store.read('model-preflight.json');observed=target_observation(adapter,deadline)
   assert observed==pre['target_entry'] and source_metadata()==pre['source']
   from full_inference_lab_runtime import _gpu_users
-  holders=_gpu_users();assert len(holders)==1 and holders[0].cgroup.endswith('/lxc/110/ns/system.slice/aster-llama.service')
+  holders=_gpu_users();assert len(holders)==1 and next(iter(holders)).cgroup.endswith('/lxc/110/ns/system.slice/aster-llama.service')
   # Production probe checks the restored endpoint's health/identity; no generation.
   command(['pct','exec','110','--','/usr/local/sbin/aster-llama-production-auth-probe'])
   names=('admission.json','backup-history-admission.json','entry.json','adapter.json','session.json','model-preflight.json','model-intent.json','model-start-intent.json','model-guardian.json','model-namespace-intent.json','model-owner-failure.json','model-residency.json','model-result.json','model-failure.json','model-cleanup.json','model-terminal.json','model-kernel-before.json','model-kernel-after.json','unit-state-recovery.json')
@@ -64,4 +64,7 @@ def postcheck():
   return result
 if __name__=='__main__':
  try:print(json.dumps(postcheck(),sort_keys=True))
- except Exception as e:print(json.dumps({'state':'postcheck-no-go','failure_type':type(e).__name__}));raise SystemExit(1)
+ except Exception as e:
+  import traceback
+  frames=[{'source_file':Path(f.filename).name,'line':f.lineno,'function':f.name} for f in traceback.extract_tb(e.__traceback__)]
+  print(json.dumps({'state':'postcheck-no-go','failure_type':type(e).__name__,'source_frames':frames}));raise SystemExit(1)

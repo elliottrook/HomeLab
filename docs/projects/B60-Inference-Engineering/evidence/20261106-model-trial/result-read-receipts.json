@@ -1,0 +1,17 @@
+[
+  {
+    "commit": "1f1489554e1d70688c6f777ee0ef68e19600cffc",
+    "path": "docs/projects/AI Projects/evidence/Stream-A-24-hour-progress-report-2026-11-06.md",
+    "sha256": "7946d0cfbf83072ff347d5c08abfaa7cbf2853ae1286f79bb49be1a924b8500e"
+  },
+  {
+    "commit": "9e2ba22a792532e0cc81e6bcc182627a515be2b3",
+    "path": "docs/projects/B60-Inference-Engineering/model-r2-armed-20261106.md",
+    "sha256": "bb1f876d84a2ad3ae80003319c763d6cd43121fe224e8ae1a15ec92623e9247f"
+  },
+  {
+    "commit": "6fb0207fec5190e0c34ed3bc72ea38e128f06127",
+    "path": "docs/runbooks/Local-AI-Lease.md",
+    "sha256": "064b56ee8fca8aad37e9ae627cf119c581c3f8d8ad7d9782ccfeb0fa23b31d4c"
+  }
+]

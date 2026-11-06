@@ -50,7 +50,7 @@ def postcheck():
   pre=store.read('model-preflight.json');observed=target_observation(adapter,deadline)
   assert observed==pre['target_entry'] and source_metadata()==pre['source']
   from full_inference_lab_runtime import _gpu_users
-  holders=_gpu_users();assert len(holders)==1 and holders[0].cgroup.endswith('/lxc/110/ns/system.slice/aster-llama.service')
+  holders=_gpu_users();assert len(holders)==1 and next(iter(holders)).cgroup.endswith('/lxc/110/ns/system.slice/aster-llama.service')
   # Production probe checks the restored endpoint's health/identity; no generation.
   command(['pct','exec','110','--','/usr/local/sbin/aster-llama-production-auth-probe'])
   names=('admission.json','entry.json','adapter.json','session.json','model-preflight.json','model-intent.json','model-start-intent.json','model-guardian.json','model-namespace-intent.json','model-owner-failure.json','model-residency.json','model-result.json','model-failure.json','model-cleanup.json','model-terminal.json','model-kernel-before.json','model-kernel-after.json','unit-state-recovery.json')
