@@ -31,6 +31,23 @@ def _pool_usage() -> tuple[int, int, int]:
     return size, allocated, cap
 
 
+def _container_db(container: str, relative: str) -> Path:
+    if container not in ("radarr", "jellyfin"):
+        raise ValueError("unexpected container")
+    result = subprocess.run(
+        ["docker", "inspect", "--format", "{{json .Mounts}}", container],
+        capture_output=True, text=True, timeout=30, check=True,
+    )
+    mounts = json.loads(result.stdout)
+    roots = [Path(row["Source"]) for row in mounts if row.get("Destination") == "/config"]
+    if len(roots) != 1:
+        raise RuntimeError("expected one private app config mount")
+    path = roots[0] / relative
+    if not path.is_file():
+        raise RuntimeError("app database unavailable")
+    return path
+
+
 def audit(radarr_db: Path, jellyfin_db: Path, data_root: Path,
           jellyfin_url: str, jellyfin_key: str) -> dict:
     size, allocated, cap = _pool_usage()
@@ -77,15 +94,25 @@ def audit(radarr_db: Path, jellyfin_db: Path, data_root: Path,
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--radarr-db", type=Path, required=True)
-    parser.add_argument("--jellyfin-db", type=Path, required=True)
+    parser.add_argument("--radarr-db", type=Path)
+    parser.add_argument("--jellyfin-db", type=Path)
+    parser.add_argument("--discover-docker", action="store_true")
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--jellyfin-url", required=True)
     args = parser.parse_args()
     key = os.environ.get("JELLYFIN_API_KEY")
     if not key:
         raise SystemExit("JELLYFIN_API_KEY is required")
-    print(json.dumps(audit(args.radarr_db, args.jellyfin_db,
+    if args.discover_docker:
+        if args.radarr_db or args.jellyfin_db:
+            raise SystemExit("use explicit DB paths or --discover-docker, not both")
+        radarr_db = _container_db("radarr", "radarr.db")
+        jellyfin_db = _container_db("jellyfin", "data/data/jellyfin.db")
+    elif args.radarr_db and args.jellyfin_db:
+        radarr_db, jellyfin_db = args.radarr_db, args.jellyfin_db
+    else:
+        raise SystemExit("both DB paths or --discover-docker are required")
+    print(json.dumps(audit(radarr_db, jellyfin_db,
                            args.data_root, args.jellyfin_url, key), sort_keys=True))
 
 

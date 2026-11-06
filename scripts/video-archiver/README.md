@@ -5,13 +5,13 @@
 `video_archiver.retention_audit` inspects the raw `Media` pool, all seven
 user-scoped Jellyfin movie views, exact Radarr/Jellyfin movie identity and
 `Media/data` snapshot coverage. It prints only aggregate JSON. Run it on
-TrueNAS with the existing `JELLYFIN_API_KEY` environment variable and explicit
-source-local database paths:
+TrueNAS with the existing `JELLYFIN_API_KEY` environment variable. The
+`--discover-docker` option resolves the current private database mounts
+without saving volume IDs or a credential in the repository:
 
 ```bash
 python3 -m video_archiver.retention_audit \
-  --radarr-db /path/to/radarr.db \
-  --jellyfin-db /path/to/jellyfin.db \
+  --discover-docker \
   --data-root /mnt/Media/data \
   --jellyfin-url http://127.0.0.1:8096
 ```

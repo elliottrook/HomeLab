@@ -1,7 +1,10 @@
 """Bounded controller stops on source holds and stalled real pool reclaim."""
 
+import fcntl
+import os
 import tempfile
-from datetime import date, datetime, timezone
+from dataclasses import replace
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from unittest import TestCase
 
@@ -131,6 +134,22 @@ class ControllerTests(TestCase):
         result = self.run_it(backend, execute=True)
         self.assertEqual(result.status, 'action_error_rolled_back')
         self.assertEqual(backend.rolled_back, ['old'])
+
+    def test_second_run_cannot_take_existing_lock(self):
+        descriptor = os.open(self.lock, os.O_CREAT | os.O_RDWR, 0o600)
+        self.addCleanup(os.close, descriptor)
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        with self.assertRaisesRegex(RuntimeError, 'holds the lock'):
+            self.run_it(Backend(), execute=True)
+
+    def test_stale_source_snapshot_cannot_act(self):
+        class StaleBackend(Backend):
+            def snapshot(self):
+                original = super().snapshot()
+                return replace(original, observed_at=NOW - timedelta(minutes=6))
+        backend = StaleBackend()
+        self.assertEqual(self.run_it(backend, execute=True).status, 'stale_source_snapshot')
+        self.assertEqual(backend.deleted, [])
 
     def test_failed_post_action_pool_read_uses_checkpoint_rollback(self):
         class FailedBackend(Backend):

@@ -10,7 +10,7 @@ from __future__ import annotations
 import fcntl
 import os
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Protocol
 
@@ -111,6 +111,11 @@ def run_retention(
         spent_estimate = 0
         while True:
             snapshot = backend.snapshot()
+            if (snapshot.observed_at.tzinfo is None
+                    or snapshot.observed_at.utcoffset() is None
+                    or abs(now - snapshot.observed_at) > timedelta(minutes=5)):
+                return RunResult("stale_source_snapshot", tuple(deleted),
+                                 snapshot.pool_allocated_bytes, False)
             plan = plan_retention(
                 snapshot.units, now=now,
                 expected_user_ids=snapshot.expected_user_ids,
