@@ -4,6 +4,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent / "static/remote"
+AGENT = (ROOT.parent.parent / "aster_remote.py").read_text()
 HTML = (ROOT / "index.html").read_text()
 JS = (ROOT / "app.js").read_text()
 CSS = (ROOT / "styles.css").read_text()
@@ -123,6 +124,13 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertNotIn("Authorization", JS)
         self.assertIn("$('#search').value = heard", JS)
         self.assertNotIn("send('voice.search', heard)", JS)
+
+    def test_voice_defaults_to_canonical_mac_authority(self):
+        self.assertIn(
+            'CANONICAL_VOICE_URL = "https://aster.elliottrook.com/voice/v3/v1/stt"',
+            AGENT,
+        )
+        self.assertNotIn("192.168.70.14:9130", AGENT)
 
     def test_search_and_kodi_text_are_editable_not_blind_send(self):
         self.assertIn("replace(/[.!?,;:]+$/u, '')", JS)

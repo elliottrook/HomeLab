@@ -1512,6 +1512,23 @@ Evidence:
 - [ ] Implement an allowlisted Aster action surface for safe page opens,
   searches and household scenes; reject arbitrary shell, unrestricted JSON-RPC
   and commands outside the active profile's authority.
+- [ ] Map the physical AsterTV remote's Volume Up, Volume Down, Mute and Power
+  inputs through the same room-scoped equipment bridge used by Aster Remote.
+  Record the exact Linux/Kodi input codes on each hardware profile; Family must
+  address Onkyo volume/mute and derive explicit TCL/receiver power on or off
+  from fresh state rather than issue a blind toggle. Bedroom power, volume and
+  mute shall use the accepted LG webOS entity; volume and mute are expected to
+  traverse the existing HDMI ARC/eARC SIMPLINK/CEC chain to the attached audio
+  device instead of requiring a second receiver integration. Enable those two
+  actions only after the LG entity advertises the matching capabilities and a
+  bounded live test proves one command produces one audible/state transition,
+  the attached audio device follows it, and no duplicate CEC step occurs. The
+  exact soundbar/receiver model remains an inventory requirement and recovery
+  fact, but is no longer a prerequisite for testing the TV-mediated route.
+  Preserve normal navigation/playback keys, passthrough audio and the original
+  equipment remotes as recovery controls; prove duplicate-key, CEC fan-out,
+  standby, reconnect and Home Assistant-outage behaviour on both production
+  boxes.
 - [x] Define a content-free current-state contract for playing/paused/idle,
   media class,
   current Aster page, screensaver state, availability and explicit remote
@@ -1774,7 +1791,7 @@ candidate and a separate promotion decision is required.
 
 ### M10 — Integrated validation, recovery and efficiency review
 
-The repository-local half is now a single fail-closed gate. It runs 63 test
+The repository-local half is now a single fail-closed gate. It runs 69 test
 files, scans 93 candidate inputs, verifies immutable v2, audits 15 pages/127
 focus controls, double-builds M9 and reports zero operational-readiness gaps
 across Family, Bedroom and Jen. It reports unfinished performance and physical
@@ -1861,6 +1878,18 @@ binding latency; pixel-level crop/render/design acceptance remains with the
 non-author physical walkthrough. Evidence:
 `docs/projects/evidence/AsterTV-v3-M10-Jen-artwork-readiness-2026-11-06.md`.
 
+Speech discovery then reconciled a newer cross-project authority that the V3
+notes had not yet absorbed: canonical Aster Voice compute is Qwen/whisper.cpp
+on the M4 Mac mini behind LXC 128, not legacy LXC 116. Six fixed synthetic STT
+runs through LXC 128 were exact in 202.1–239.1 ms with no retained or emitted
+audio/transcript. Live Aster Remote nevertheless still targets LXC 116. A
+direct LXC 104 → LXC 128 candidate failed its connectivity preflight before any
+mutation, correctly exposing the absent VLAN path. The staged correction adds
+an independent `/voice/v3/` HTTPS location for Remote STT, preserving legacy
+`/voice/` and streaming `/voice/v2/`; NPM apply and the checkpointed Remote URL
+change remain gated. Evidence:
+`docs/projects/evidence/AsterTV-v3-M10-Mac-speech-authority-2026-11-06.md`.
+
 The M7 content rollout read-only preflight also confirms the accepted
 predecessor hashes and healthy services on Aster Agent, Home Assistant and idle
 Bedroom. Family's recorded MAC still matches `192.168.1.157`, but its presented
@@ -1877,7 +1906,7 @@ now gates the coordinated rollout. Evidence:
 - [ ] Measure CPU, GPU, RAM, storage, page latency, artwork latency, network
   traffic, camera stream cost, speech latency and idle overhead. Idle,
   page/network, camera-stream and artwork-binding measurements now pass;
-  speech remains open.
+  canonical core speech passes, while the end-to-end Remote route remains open.
 - [x] Complete Doctor, Beszel, backup/restore, NetBox, wiki, reference, mirror
   and AI-administration integration work.
 - [ ] Complete a non-author walkthrough and correct avoidable friction.

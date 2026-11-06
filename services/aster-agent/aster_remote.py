@@ -27,6 +27,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 REMOTE_ORIGIN = "https://aster.elliottrook.com"
+CANONICAL_VOICE_URL = "https://aster.elliottrook.com/voice/v3/v1/stt"
 COMMAND_LIFETIME_SECONDS = 15
 CONNECTED_SECONDS = 35
 MAX_QUEUE = 32
@@ -222,7 +223,7 @@ class AsterRemoteGateway:
         subject_rooms: dict[str, set[str]],
         network_rooms: dict[ipaddress.IPv4Network, set[str]] | None = None,
         trusted_proxies: set[ipaddress.IPv4Address] | None = None,
-        voice_url: str = "http://192.168.70.14:9130/v1/stt",
+        voice_url: str = CANONICAL_VOICE_URL,
         voice_key: str = "",
         origin: str = REMOTE_ORIGIN,
         clock: Callable[[], float] = time.time,
@@ -697,7 +698,7 @@ def from_environment(claims, static_root: Path) -> AsterRemoteGateway:
         network_rooms=_environment_network_rooms(),
         trusted_proxies=_environment_trusted_proxies(),
         voice_url=os.environ.get(
-            "ASTER_REMOTE_VOICE_URL", "http://192.168.70.14:9130/v1/stt"
+            "ASTER_REMOTE_VOICE_URL", CANONICAL_VOICE_URL
         ),
         voice_key=os.environ.get("ASTER_REMOTE_SPEECH_API_KEY", ""),
         origin=os.environ.get("ASTER_REMOTE_ORIGIN", REMOTE_ORIGIN),

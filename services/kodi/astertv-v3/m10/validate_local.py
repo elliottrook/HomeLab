@@ -38,7 +38,7 @@ EXTERNAL_ENVIRONMENT = {
     },
     "performance": {
         "status": "partial",
-        "reason": "low-spec HEVC, idle, page/network, camera-stream and artwork-binding envelopes pass; speech remains",
+        "reason": "idle, page/network, camera-stream, artwork-binding and canonical core speech envelopes pass; low-spec HEVC and end-to-end Remote speech remain",
     },
     "walkthrough": {
         "status": "open",
