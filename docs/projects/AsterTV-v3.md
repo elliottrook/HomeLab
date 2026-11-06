@@ -1813,6 +1813,15 @@ swap and approximately 3.25 KiB/s receive traffic. The sampler and three tests
 are now part of the 63-file local gate. Interactive and sustained budgets remain
 open.
 
+The M7 content rollout read-only preflight also confirms the accepted
+predecessor hashes and healthy services on Aster Agent, Home Assistant and idle
+Bedroom. Family's recorded MAC still matches `192.168.1.157`, but its presented
+Ed25519 fingerprint is absent from current and retained known-hosts custody.
+Strict verification stopped before login; no bypass or live change occurred.
+Owner acceptance/pinning of that public key plus fresh display-idle confirmation
+now gates the coordinated rollout. Evidence:
+`docs/projects/evidence/AsterTV-v3-M7-content-rollout-preflight-2026-11-06.md`.
+
 - [ ] Run functional, account-isolation, failure, security, focus/navigation,
   playback, audio/video and secret-pattern suites on the low-spec client.
 - [ ] Prove interrupted install, corrupt package, dependency outage, reboot and
