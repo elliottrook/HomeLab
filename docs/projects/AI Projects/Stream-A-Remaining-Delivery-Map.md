@@ -392,6 +392,9 @@
 > create-exclusive custody and hash-guarded removal. Postchecks cannot invoke
 > anything. The full suite passes 201/201. The one-file inactive installation
 > is the next explicit deployment gate; no repair is authorized.
+> Its independent result verifier rejects invocation, authority, target and
+> metadata drift; the suite passes 204/204. Offline preparation is exhausted
+> before the inactive one-file installation gate.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)

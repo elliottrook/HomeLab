@@ -9,3 +9,7 @@ Postchecks hash, inspect and import only; they cannot create inputs, ledger or
 runtime state, invoke the runner or signer, or touch the target/services. Three
 focused tests and the full 201-test SA4 suite pass. Installation is the next
 explicit deployment gate; no repair is authorized.
+
+The independent result verifier is also source-complete and rejects runner,
+authority, target or metadata drift. The expanded suite passes 204/204. Offline
+preparation for this deployment gate is exhausted.
