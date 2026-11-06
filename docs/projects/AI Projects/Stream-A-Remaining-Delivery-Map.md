@@ -135,6 +135,12 @@
 > digest. It created no checkpoint, claim, receipt or repair effect, and
 > production remains healthy. Next is controlled full-transaction rehearsal
 > design; the first live repair is still an exact immediate approval gate.
+> The missing [inactive atomic repair owner](evidence/SA4-inactive-atomic-repair-owner-source-2026-11-05.md)
+> is now source-complete with an intentionally unconfigured host binding. It
+> accepts only cross-bound plan/admission/checkpoint/claimed-grant evidence,
+> performs one same-filesystem atomic replacement in disposable tests and
+> emits an observer-pending terminal record without accepting its own outcome.
+> The suite passes 103/103. It is not installed and cannot touch LXC 104.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
