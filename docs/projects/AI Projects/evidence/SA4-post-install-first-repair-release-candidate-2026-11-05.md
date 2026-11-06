@@ -24,4 +24,8 @@ automatic routing off and no automatic promotion.
 
 The packet is effect-ineligible and does not sign, claim, checkpoint, repair or
 invoke the installed owner. Its five focused tests and the complete 163-test
-SA4 suite pass. It is ready to be presented for the new exact repair gate.
+SA4 suite pass. A separate unsigned authority builder now creates only fresh
+short-lived exact-plan statements under unique grant ID
+`sa4-canary-first-grant-v4-20261105`; it neither signs nor grants authority.
+The expanded suite passes 167/167. The release is ready to be presented for the
+new exact repair gate.
