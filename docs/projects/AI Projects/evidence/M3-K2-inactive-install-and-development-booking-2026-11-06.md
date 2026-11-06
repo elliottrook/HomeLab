@@ -44,3 +44,12 @@ The authoritative dispatcher timer is enabled and active. The scheduled run
 still fails closed unless the fresh installed-pin, reservation, whole-host
 lease, operation-lock, production-health and restoration gates pass. Sealed
 evaluation, tools, routing and promotion remain off.
+
+## Observation readiness
+
+A separate content-free reconciler now checks the authoritative booking,
+root-custodied terminal, bounded owner receipt and retained-result digest as
+one transaction. Its focused transaction, reconciliation and admission suite
+passes 11/11. A one-time same-thread observation is scheduled for 21:05
+America/Vancouver, after the booked recovery reserve. It cannot invoke, retry,
+reschedule or promote K2.
