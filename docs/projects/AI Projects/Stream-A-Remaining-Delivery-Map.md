@@ -181,6 +181,14 @@
 > no temporary file remains. The suite passes 120/120. Next is an exact
 > reversible inactive-install packet plus live zero-effect dry preflight; the
 > first real repair remains separately and immediately approval-gated.
+> The [transaction inactive-install packet](evidence/SA4-transaction-inactive-install-packet-2026-11-05.md)
+> now pins seven exact files against fresh LXC 104 and Proxmox facts: four new
+> inactive LXC components, two checkpointed LXC replacements and one new
+> Proxmox observer signer. Its postchecks cannot sign, claim, checkpoint,
+> observe or change the target; rollback is exact and retained. The suite
+> passes 123/123. Next is the reversible inactive installation, then a live
+> zero-effect dry preflight. The first repair effect remains a separate exact
+> immediate approval gate.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
