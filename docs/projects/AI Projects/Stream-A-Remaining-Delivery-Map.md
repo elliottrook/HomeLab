@@ -737,6 +737,13 @@
 > only that exact empty runtime directory; v9 uses fresh v6 paths, a third
 > unique checkpoint identity and fifth fresh authority identity. The suite
 > passes 327/327.
+>
+> v9 reached checkpoint creation but failed before claim because the core
+> runner's ledger initialization retained an unbound registry-v2 alias while
+> measurement used registry v3. The [v9 NO-GO and v10 correction](evidence/SA4-v9-registry-mismatch-no-go-and-v10-correction-2026-11-06.md)
+> proves target/checkpoint unchanged, ledger ready/use-zero and zero observer
+> requests or repairs. v10 closes that exact alias binding, uses fresh v7 paths
+> and a sixth fresh authority identity. The suite passes 330/330.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
