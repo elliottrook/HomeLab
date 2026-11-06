@@ -172,6 +172,14 @@ and exclusions recorded in the project document.
   them as follow-up projects or recommendations.
 - Pause on a non-waivable stop condition below, a newly discovered material risk,
   or a required action outside the recorded scope.
+- When Jason explicitly authorizes Forgejo pushes **at the end of every
+  milestone for a named Stream A project**, record that project-specific
+  authorization in its document. It covers one ordinary push of each completed,
+  validated and locally committed milestone for that project without a new
+  conversational confirmation. It does not authorize an early, unrelated,
+  force, tag, release, workflow or direct-GitHub write. A one-time request to
+  push a pending commit covers only that push unless Jason also grants this
+  continuing milestone authorization.
 
 Autonomous project approval does not grant general administrator authority. The
 project must enumerate expected change classes, systems and exclusions well
@@ -212,12 +220,14 @@ Every completed milestone must end with:
    followed by read-only verification that Forgejo's automatic mirror advanced
    the GitHub protection remote to the same commit.
 
-Remote Git writes are externally visible mutations. The project document may
-require them, but their execution must still follow the active repository and
-platform approval rule. Under the current repository rule, obtain Jason's
-explicit confirmation immediately before each push unless that exact push was
-specifically authorized. If a push cannot occur, retain the local commit, record
-the pending remote synchronization and continue only when doing so does not
+Remote Git writes are externally visible mutations. Their execution must
+follow the active repository and platform approval rule. Obtain Jason's
+explicit confirmation immediately before a push unless the current request
+authorizes that push or a recorded, project-specific Stream A authorization
+covers the push at a completed milestone. In the latter case, verify the gate,
+scope, target and branch immediately before pushing; stop if any differs from
+the authorization. If a push cannot occur, retain the local commit, record the
+pending remote synchronization and continue only when doing so does not
 compromise recovery or collaboration.
 
 Do not routinely push milestones directly to the configured `github` remote.

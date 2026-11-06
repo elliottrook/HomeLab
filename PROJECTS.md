@@ -25,6 +25,13 @@ record; elective work belongs to the enhancement portfolio.
 
 # Project Rules
 
+For new enhancement projects, the [HomeLab Project Creation Standard](docs/Project-Creation-Standard.md)
+defines Stream A. A named Stream A project may make one ordinary Forgejo push
+at the end of each completed milestone without a new conversational confirmation
+**only when Jason has explicitly granted and the project document records that
+continuing authorization**. The rule does not authorize early or unrelated
+remote writes; repository and platform controls still apply.
+
 - Check an item only after it has been implemented, validated, documented, and backed up where applicable.
 - Update the date and change log whenever milestones are completed.
 - Do not add elective platforms, services, VLANs, or major infrastructure projects until the completion gates pass.

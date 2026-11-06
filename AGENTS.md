@@ -63,7 +63,12 @@ operation that modifies Forgejo or another remote, including:
 - deleting remote branches or other remote data
 
 Local commits do not authorize a later push. Approval must be obtained for each
-push operation unless the user explicitly authorizes that specific push.
+push operation unless the user explicitly authorizes that specific push or
+explicitly grants a named Stream A project recurring authorization for one
+ordinary Forgejo push at the end of each completed milestone. Record the latter
+in that project's document and apply the verification and scope limits in
+`docs/Project-Creation-Standard.md`. It never covers unrelated or direct-GitHub
+writes, force pushes, tags, releases or workflow mutations.
 
 ## Confirmed Paperless IP correction — 2026-09-23
 
