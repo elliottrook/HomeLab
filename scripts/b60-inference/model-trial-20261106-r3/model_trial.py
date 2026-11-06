@@ -91,6 +91,30 @@ def context(b):
   except Exception as error:
    store.write('model-failure.json',{'failure_type':type(error).__name__,'failure_code':str(error) if type(error) is RuntimeError and str(error).replace('_','').isalnum() else 'UNCLASSIFIED','observed_epoch':int(time.time())},immutable=True)
    raise
+ original_runner=adapter.runner
+ def runner(command,timeout):
+  # Both the outer adapter and its unit adapter pass the same durable latch.
+  if tuple(command)==('pct','exec','110','--','systemctl','start','aster-llama.service'):
+   p=store.root/'entry-backend-start-intent.json'
+   if p.exists():
+    code,raw=original_runner(('pct','exec','110','--','systemctl','is-active','aster-llama.service'),min(5,timeout))
+    require(code==0 and raw.strip()=='active','ENTRY_BACKEND_RESTART_ALREADY_ATTEMPTED');return 0,''
+   store.write(p.name,{'booking_id':b,'observed_epoch':int(time.time()),'maximum_start_attempts':1},immutable=True)
+  return original_runner(command,timeout)
+ adapter.runner=runner;adapter.units.runner=runner
+ original_fence=adapter.fence_experiments
+ def fence(state):
+  deadline=max(state['restore_deadline'],time.time()+300)
+  unit='b60-exclusive-client-'+state['booking_id']+'.service'
+  adapter.runner(('pct','exec','110','--','systemctl','stop',unit),min(30,deadline-time.time()))
+  code,raw=adapter.runner(('pct','exec','110','--','systemctl','show',unit,'--property=LoadState,MainPID,TasksCurrent'),min(10,deadline-time.time()))
+  require(len(raw)<=4096,'CLIENT_SCOPE_OBSERVATION')
+  fields=dict(l.split('=',1) for l in raw.splitlines() if '=' in l)
+  absent=code in {0,1} and fields.get('LoadState')=='not-found'
+  empty=code==0 and fields.get('MainPID')=='0' and fields.get('TasksCurrent') in {'','0','[not set]'}
+  require(absent or empty,'CLIENT_SCOPE_NOT_FENCED')
+  return original_fence(state)
+ adapter.fence_experiments=fence
  adapter.execute=execute
  return result
 
@@ -108,8 +132,9 @@ def source_metadata():
  return out
 
 def kernel_check(adapter,deadline,since):
- raw=adapter._call(('journalctl','-k','--since','@'+str(int(since)),'--no-pager','-o','cat'),deadline,10)
- bad=[l for l in raw.lower().splitlines() if ('out of memory' in l or 'oom-kill' in l or ('xe ' in l and any(t in l for t in ('reset','hang','wedged','device lost','fault'))))]
+ raw=adapter._call(('journalctl','-k','--since','@'+str(int(since)),'--no-pager','-o','cat'),deadline,3)
+ from news_xpu_boundary import hazards
+ bad=hazards(raw)
  require(not bad,'KERNEL_DEVICE_OR_OOM_HAZARD')
  return {'new_kernel_hazard_count':0,'since_epoch':int(since),'observed_epoch':int(time.time())}
 
@@ -249,7 +274,9 @@ def trial(adapter,store,state):
  require(bool(layers) and int(layers[-1][0])==int(layers[-1][1])>0 and ('sycl' in logs.lower()),'FULL_GPU_OFFLOAD_UNPROVEN')
  resident['all_layers_offloaded']=True;resident['offloaded_layers']=int(layers[-1][0]);resident['reasoning_mode_flag']='on'
  store.write('model-residency.json',resident,immutable=True)
- raw=adapter._call(('pct','exec','110','--','python3','-B',GUEST_REQUEST,'--run-authorized'),deadline,130)
+ client='b60-exclusive-client-'+b+'.service'
+ store.write('model-client-intent.json',{'booking_id':b,'unit':client,'memory_max_bytes':128*1024**2,'runtime_seconds':130,'observed_epoch':int(time.time())},immutable=True)
+ raw=adapter._call(('pct','exec','110','--','systemd-run','--quiet','--wait','--pipe','--collect','--unit='+client,'--property=Type=exec','--property=Restart=no','--property=KillMode=control-group','--property=MemoryMax=128M','--property=MemorySwapMax=0','--property=CPUQuota=25%','--property=TasksMax=16','--property=RuntimeMaxSec=130','--property=TimeoutStopSec=5','python3','-B',GUEST_REQUEST,'--run-authorized'),deadline,130)
  result=retain_request_packet(raw,store)
  store.write('model-kernel-after.json',kernel_check(adapter,deadline,pre['observed_epoch']),immutable=True)
  require(result.get('state')=='complete_unscored' and result.get('attempted_requests')==2 and result.get('retries')==0,'MODEL_REQUEST_FAILED')
@@ -281,7 +308,15 @@ def operate(action,b):
    require(row['state']=='reserved' and row['start_epoch']<=now<=row['start_epoch']+120,'LAUNCH_WINDOW')
    call(['systemd-run','--quiet','--unit='+scopes.owner,'--property=Type=exec','--property=KillMode=control-group','--property=Restart=no','--property=TimeoutStopSec=30','--property=RuntimeMaxSec='+str(row['end_epoch']-now+300),'/usr/bin/python3','-B',str(HERE/'model_trial.py'),'run','--booking-id',b],15)
    return {'state':'owner-launched','booking_id':b}
-  if action=='watch':return guard(store,adapter,owner=profile['owner'],owner_alive=scopes.alive,fence_owner=scopes.fence)
+  if action=='watch':
+   def alive(state):
+    p=store.root/'model-intent.json'
+    if p.exists() and state['phase'] not in {'restoring','restored','released','released-late'}:
+     try:kernel_check(adapter,time.time()+4,store.read(p.name)['observed_epoch'])
+     except Exception:
+      store.write('model-guardian-stop.json',{'new_fault_or_monitor_failure':True,'observed_epoch':int(time.time())});return False
+    return scopes.alive(state)
+   return guard(store,adapter,owner=profile['owner'],owner_alive=alive,fence_owner=scopes.fence)
   require(action=='run' and scopes._show().get('MainPID')==str(os.getpid()) and scopes.alive({}),'OWNER_SCOPE')
   session=ExclusiveSession(store,adapter)
   try:
@@ -290,10 +325,10 @@ def operate(action,b):
    store.write('model-terminal.json',{'schema':'b60-model-compatibility-terminal.v1','booking_id':b,'outcome':result['outcome'],'finished_epoch':int(time.time()),'restored':True,'model_result_present':(store.root/'model-result.json').exists(),'candidate_sha256':MODEL_SHA,'source_map_sha256':BASE_SHA,'capability_latency_milestone_accepted':False},immutable=True)
    return result
   except BaseException as error:
-   # Do not auto-retry a model/device failure. Attempt one bounded restoration;
-   # independent guardian remains available if this owner also fails.
+   # Do not auto-retry a model/device failure or repeat a failed restoration.
+   # Independent guardian owns unfinished recovery under the once-only latch.
    store.write('model-owner-failure.json',{'failure_type':type(error).__name__,'failure_code':str(error) if type(error) is RuntimeError and str(error).replace('_','').isalnum() else 'UNCLASSIFIED','observed_epoch':int(time.time())})
-   if (store.root/'session.json').exists():session.recover(owner=profile['owner'])
+   # No duplicate outer recovery/start. Independent guardian owns unfinished rescue.
    raise
  finally:adapter.boundary.close()
 

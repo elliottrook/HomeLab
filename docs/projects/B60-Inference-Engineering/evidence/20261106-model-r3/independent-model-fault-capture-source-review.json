@@ -1,0 +1,38 @@
+{
+  "checks": [
+    "Once-only entry backend-start intent gates both adapter.runner and units.runner",
+    "No duplicate outerrecover",
+    "Independent guardian checks newkernel faults/OOM during blocking requests",
+    "Fixed clientcgroup130sec/128MiB/swap0/25percentCPU/16tasks/5secstop",
+    "Client stop and emptytask proof precede base candidate/consumer fencing",
+    "Original3historicalfault events accepted only after actualsource-boundclosure; newfaults refused",
+    "Both OpenVINO sessions require actual terminal restored release before admission"
+  ],
+  "hashes": {
+    "b60_exclusive_card_bridge.py": "9b56ca0111f3584dea8796b80ba780186a67f0194bf4c8532b6bffe1de78e3a4",
+    "guest_requests.py": "468e401675479a5581bdd5b99e86af02da72f9e7ec17e1202c65558ae32cdd53",
+    "model_trial.py": "408ac6ffbe2a6ebcb1d403fd9fe9fc2e4987b71b2101be7f7027bfe9867478c7",
+    "news_xpu_boundary.py": "35910ce2e250e2c46c9f20b6770e9aece84cb186f18acb7350c01a64256915d3",
+    "request_failure_capture.py": "83e90abf36ed008ad921072e66005cfded3a2aa00b90b24cced42f1eef261bca"
+  },
+  "no_live_mutations": true,
+  "no_model_gpu_calls": true,
+  "observed_epoch": 1794005971,
+  "remaining": [
+    "Final News17:25actualrelease and protected-source receipt",
+    "Regenerate stillstale peer/globalPINS using exact current sources",
+    "Actualclosure acceptance before normal35Broute can run",
+    "Distinct named B4registeredcard/profile/clock finalinstalledreadiness"
+  ],
+  "schema": "b60-independent-model-fault-capture-source-review.v1",
+  "stage": "offline-source-only",
+  "tests": {
+    "actual_nested_function_fake_checks": [
+      "failedbaselinefirststartnotretried",
+      "clientstopthenemptyproofbeforebasefence"
+    ],
+    "focused_unittest_passed": 42,
+    "required_pythonpath": "scripts/b60-inference/model-trial-20261106-r3"
+  },
+  "verdict": "No new deterministic logic blocker found; staged exact News pins still require final regeneration and final installed audit"
+}

@@ -1,0 +1,85 @@
+{
+  "actual": {
+    "accepted_binary_unit_model_hashes_match": true,
+    "active_owner_guardian_scopes": [],
+    "all_five_shared_markers_absent": true,
+    "base30_sha256": "e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2",
+    "booking_end_epoch": 1794009900,
+    "booking_kind": "exclusive-stack",
+    "booking_start_epoch": 1794007200,
+    "booking_state": "reserved",
+    "booking_workload": "b60-accepted-sycl-post-xe-qualification-v1",
+    "card_sha256": "d247629c23390a96f6111721d9bf34fa453835999418af534b013e060c87dc18",
+    "dispatch_intent_exists": false,
+    "full_window_collision": false,
+    "global_hashes": {
+      "b60_post_xe_card_bridge.py": "2c2f57a9d42d248456deb1d354d12bfd08e5e56ee3fa4ff7c92bebcac9934600",
+      "lab_hours_release_manifest.json": "f697e2e085052e5b3b179d74882ebcc3e3bd1f5ce928ed469c23a17a509ac0ee",
+      "lab_hours_reserved_runner.py": "e7da5a1bdefb02e8611398ea4a6b4f0a3ab30d666a5ca2c867bb01185aded51e",
+      "lab_hours_workloads.py": "24ebdcacb4f1a950985360cf400c97742346568b280e30f83c36c12dbb7adf1e"
+    },
+    "global_manifest_pin_count": 53,
+    "guest_available_kib": 16485051,
+    "guest_plan_sha256": {
+      "104": "7a8f1f81476b59b193d6fe6e601b4eb55ef71cecf2b06806149fc26c5368fc34",
+      "110": "71aa5f835b90f6ce2e506882e14837ad583b7c905e10ef3b2e78f5424ca0f122",
+      "114": "a96363f469cdf25ed50067cd90e4ab37722f83f19d04a56e6fa5d7178a157413",
+      "115": "8b1aed9f7feba2d537fb48253a508f2004950c03258b2b0db9e69cfeea303a86",
+      "116": "37e50e5ea0a7803473f14777ce5322407dd385657bda304a8d7fac3721251d0e"
+    },
+    "health_status": "ok",
+    "history_age_at_start_seconds": 6934,
+    "host_available_kib": 55018688,
+    "incident_evidence_exact": true,
+    "integration_receipt_sha256": "8f4faef69a9444b7e3b4a5f4fa9587ef659ed91a936482445c7e8816fb148b00",
+    "new_kernel_hazards_since_1794002064": 0,
+    "next_peer_start_epoch": 1794011100,
+    "production_NRestarts": 0,
+    "production_active": true,
+    "profile_sha256": "aaf4680c545e25f8958bdf8f31dbdbff3e9348899e21214c07f2a5092562c45b",
+    "profile_trial_seconds": 900,
+    "profile_unit_count": 15,
+    "qualification_source": {
+      "backup_chain_history.py": "a157601e557b80e7ff1ba2d81e786f0742c0f8b289596c33cc8fa33af36c81e3",
+      "fixed_command.py": "16a74cf21a53a5c9ec7e5bec3fe9eeb1dc58e37da0f31fb25e038f7f4d9a388c",
+      "known_answer_requests.py": "d0d305405222fe8dd301fc4216f8cfd1a00d04b539d0d300be282d9d1e5604de",
+      "qualification.py": "433f3c86411c5947e53457fde687615c8755ea9f11dbb79b946f5fcecfd96dbe"
+    },
+    "recovery_end_epoch": 1794010800,
+    "session_exists": false,
+    "shared_ready": true,
+    "timer": {
+      "ActiveState": "inactive",
+      "LastTriggerUSec": "",
+      "NextElapseUSecRealtime": "",
+      "OnCalendar": "2026-11-06 16:20:00 America/Vancouver",
+      "Persistent": false,
+      "SubState": "dead",
+      "enabled": false,
+      "sha256": "b301c307c9d1bf50e13c022ee82dded2e1da21fc4bd43acaa3fb26f84adcfd56"
+    },
+    "timer_service": {
+      "ActiveState": "inactive",
+      "MainPID": 0,
+      "sha256": "3b19c57e0f6b09038ca5e0eb37b07af2de6d1e7301bca747b1a0dc7cefb2973b"
+    }
+  },
+  "authority": "Verified newer standing owner reservation-autonomy instructions; no additional conversational approval missing",
+  "booking_id": "b60-exclusive-20261106-day-r3",
+  "no_credentials_or_raw_logs_exported": true,
+  "no_live_mutations": true,
+  "no_model_gpu_calls": true,
+  "observed_epoch": 1794005278,
+  "postcheck_review": "Checks exact source/card/arming binding, actual terminal restored state, all5checkpoints, original mount, all15unit states, candidate scope empty, no deny gate, sole accepted DRM holder and metadata health; kernel from1794002064 through actual completed restoration. Do not call before owner release. Check concrete future timer dates/no catchup independently as well.",
+  "postcheck_source_sha256": "43a14495df7c698683065cb19a15745e14e66e706855cf8ce68431e0f26977fb",
+  "recommendation": "Arm existing fixed16:20 date-specific clock; never direct launch or duplicate claim",
+  "residual_risks": [
+    "Post-reset first actual accepted-SYCL startup and known-answer behavior remain experimental; metadata health is not correctness proof.",
+    "History receipt admission limit7200sec is close:6934sec atstart,7054sec atstart+120; fail closed if real admission epoch exceeds limit.",
+    "Runtime300sec is unit bound plus possible fencing/stop delay, not absolute device-quiescence guarantee.",
+    "Original incident remains immutable OPEN; separate actual source-bound acceptance needed before normal35B route can resume."
+  ],
+  "schema": "b60-independent-installed-readiness.v1",
+  "stage": "installed-inactive-live-audit",
+  "verdict": "LIKELY RUN after exact future clock arming and read-only date/state verification"
+}

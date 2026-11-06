@@ -6,15 +6,23 @@ mount, reset, lease or timer operation exists here. Raw checkpoints stay local.
 import hashlib,json,sys,time,subprocess
 from pathlib import Path
 BASE=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
-EXTRA=BASE.parent/'model-trial-20261106-r3';ROOT=Path('/var/lib/local-ai-lab');B='b60-exclusive-20261106-day-r3'
+EXTRA=BASE.parent/'model-trial-20261106-r3';ROOT=Path('/var/lib/local-ai-lab');B='b60-exclusive-20261106-day-r4'
 sys.path[:0]=[str(EXTRA),str(BASE)]
-from model_trial import initialize,context,source_metadata,target_observation,card_for,MODEL_SHA
+from model_trial import initialize,context,source_metadata,target_observation,card_for,MODEL_SHA,kernel_check
 from host_exclusion import host_exclusion
 from lab_hours_exclusive_profile import protected_bytes
 from lab_hours_exclusive_session import canonical
 
 def command(a):
  p=subprocess.run(a,capture_output=True,text=True,timeout=30);assert p.returncode==0;return p.stdout.strip()
+
+def empty_unit(args):
+ p=subprocess.run(args,capture_output=True,text=True,timeout=30);assert len(p.stdout)<=4096
+ fields=dict(l.split('=',1) for l in p.stdout.splitlines())
+ absent=p.returncode in {0,1} and fields.get('LoadState')=='not-found' and fields.get('ActiveState') in {None,'inactive','failed'} and fields.get('MainPID')=='0' and fields.get('TasksCurrent') in {None,'0','','[not set]'}
+ empty=p.returncode==0 and fields.get('ActiveState') in {'inactive','failed'} and fields.get('MainPID')=='0' and fields.get('TasksCurrent') in {'0','','[not set]'}
+ assert absent or empty
+ return fields
 
 def postcheck():
  with host_exclusion(ROOT):
@@ -27,8 +35,7 @@ def postcheck():
   assert current_arm['source_sha256']==manifest and current_arm['model_card_sha256']==hashlib.sha256(protected_bytes(ROOT/'model-trial-cards'/(B+'.json'))).hexdigest()
   profile,store,bookings,scopes,adapter=context(B)
   for kind in ('owner','guardian'):
-   fields=dict(l.split('=',1) for l in command(['systemctl','show','b60-exclusive-'+kind+'-'+B+'.service','--property=ActiveState,MainPID,TasksCurrent']).splitlines())
-   assert fields['ActiveState'] in {'inactive','failed'} and fields['MainPID']=='0' and fields['TasksCurrent'] in {'0','','[not set]'}
+   fields=empty_unit(['systemctl','show','b60-exclusive-'+kind+'-'+B+'.service','--property=LoadState,ActiveState,MainPID,TasksCurrent'])
   state=store.read('session.json');entry=store.read('entry.json');adapter.private=store.read('adapter.json');row=bookings.get(B)
   assert state['phase']=='released' and state['production_restored'] is True and state['deadline_missed'] is False and not state.get('manual_assistance_required',False)
   assert state['entry_sha256']==row['entry_sha256']==hashlib.sha256(canonical(entry)).hexdigest()
@@ -49,20 +56,29 @@ def postcheck():
    if r['unit'].endswith('.timer'):
     raw=command(['pct','exec',r['guest'],'--','systemctl','show',r['unit'],'--property=ActiveState,SubState,NextElapseUSecRealtime,NextElapseUSecMonotonic,LastTriggerUSec'])
     v=dict(l.split('=',1) for l in raw.splitlines());timers[r['guest']+'/'+r['unit']]=v
-    if r['active']=='active':assert v['ActiveState']=='active' and v['SubState']=='waiting'
+    if r['active']=='active':
+     assert v['ActiveState']=='active' and v['SubState']=='waiting'
+     object_path='/org/freedesktop/systemd1/unit/'+''.join(c if c.isalnum() else '_'+format(ord(c),'02x') for c in r['unit'])
+     numeric={}
+     for prop in ('NextElapseUSecRealtime','NextElapseUSecMonotonic'):
+      kind,val=command(['pct','exec',r['guest'],'--','busctl','get-property','org.freedesktop.systemd1',object_path,'org.freedesktop.systemd1.Timer',prop]).split();assert kind=='t';numeric[prop]=int(val)
+     guest_clock=json.loads(command(['pct','exec',r['guest'],'--','python3','-B','-c','import time,json;print(json.dumps({"realtime":time.time(),"monotonic":time.monotonic()}))']))
+     assert (0<numeric['NextElapseUSecRealtime']<18446744073709551615 and numeric['NextElapseUSecRealtime']/1e6>guest_clock['realtime']) or (0<numeric['NextElapseUSecMonotonic']<18446744073709551615 and numeric['NextElapseUSecMonotonic']/1e6>guest_clock['monotonic'])
+     v['numeric_next_elapse_usec']=numeric;v['guest_clock']=guest_clock
   count=command(['pct','exec','115','--','python3','-B','-c',"from pathlib import Path;print(len(list(Path('/run/systemd/system/paperless-summary.service.d').glob('90-b60-no-replay-*.conf'))))"]);assert count=='0'
-  raw=command(['pct','exec','110','--','systemctl','show','b60-exclusive-trial-'+B+'.service','--property=LoadState,ActiveState,MainPID,TasksCurrent'])
-  candidate=dict(l.split('=',1) for l in raw.splitlines());assert candidate.get('MainPID')=='0' and candidate.get('TasksCurrent') in {'0','','[not set]'}
+  candidate=empty_unit(['pct','exec','110','--','systemctl','show','b60-exclusive-trial-'+B+'.service','--property=LoadState,ActiveState,MainPID,TasksCurrent'])
+  client=empty_unit(['pct','exec','110','--','systemctl','show','b60-exclusive-client-'+B+'.service','--property=LoadState,ActiveState,MainPID,TasksCurrent'])
   pre=store.read('model-preflight.json');observed=target_observation(adapter,deadline)
   assert observed==pre['target_entry'] and source_metadata()==pre['source']
   from full_inference_lab_runtime import _gpu_users
   holders=_gpu_users();assert len(holders)==1 and next(iter(holders)).cgroup.endswith('/lxc/110/ns/system.slice/aster-llama.service')
   # Production probe checks the restored endpoint's health/identity; no generation.
   command(['pct','exec','110','--','/usr/local/sbin/aster-llama-production-auth-probe'])
-  names=('admission.json','backup-history-admission.json','entry.json','adapter.json','session.json','model-preflight.json','model-intent.json','model-start-intent.json','model-guardian.json','model-namespace-intent.json','model-owner-failure.json','model-residency.json','model-result.json','model-failure.json','model-cleanup.json','model-terminal.json','model-kernel-before.json','model-kernel-after.json','unit-state-recovery.json','news-xpu-admission.json')
+  kernel_after_restore=kernel_check(adapter,deadline,store.read('model-intent.json')['observed_epoch'])
+  names=('admission.json','backup-history-admission.json','entry.json','adapter.json','session.json','model-preflight.json','model-intent.json','model-client-intent.json','entry-backend-start-intent.json','model-guardian-stop.json','model-start-intent.json','model-guardian.json','model-namespace-intent.json','model-owner-failure.json','model-residency.json','model-result.json','model-failure.json','model-cleanup.json','model-terminal.json','model-kernel-before.json','model-kernel-after.json','unit-state-recovery.json','news-xpu-admission.json')
   paths=[store.root/n for n in names]+[ROOT/'exclusive-releases'/(B+'.json'),ROOT/'reservations/records'/(B+'.json'),ROOT/'exclusive-integrity'/B/'terminal.json',ROOT/'arming-receipts'/(B+'-model.json'),ROOT/'model-trial-cards'/(B+'.json'),ROOT/'backup-chain-history'/(B+'.json')]
   hashes={str(p.relative_to(ROOT)):hashlib.sha256(protected_bytes(p,maximum=262144)).hexdigest() for p in paths if p.exists()}
-  result={'schema':'b60-model-trial-independent-postcheck.v1','booking_id':B,'observed_epoch':int(time.time()),'entry_sha256':state['entry_sha256'],'production_restored':True,'manual_assistance_required':False,'deadline_missed':False,'trial_failed':state['trial_failed'],'booking_state':row['state'],'booking_result_code':row['result_code'],'finished_epoch':row['finished_epoch'],'all_five_checkpoint_verifications':guests,'unit_states_match_entry':units,'persistent_mount_identity_matches':mount,'candidate_namespace_target_matches_entry':True,'candidate_scope_empty':True,'source_custody_restored':True,'temporary_deny_gates':0,'news_mount_preserved':True,'news_admission':news,'scheduled_work_restored':timers,'source_sha256':manifest,'record_sha256':hashes,'capability_latency_milestone_accepted':False}
+  result={'schema':'b60-model-trial-independent-postcheck.v1','booking_id':B,'observed_epoch':int(time.time()),'entry_sha256':state['entry_sha256'],'production_restored':True,'manual_assistance_required':False,'deadline_missed':False,'trial_failed':state['trial_failed'],'booking_state':row['state'],'booking_result_code':row['result_code'],'finished_epoch':row['finished_epoch'],'all_five_checkpoint_verifications':guests,'unit_states_match_entry':units,'persistent_mount_identity_matches':mount,'candidate_namespace_target_matches_entry':True,'candidate_scope_empty':True,'client_scope_empty':True,'kernel_after_restoration':kernel_after_restore,'source_custody_restored':True,'temporary_deny_gates':0,'news_mount_preserved':True,'news_admission':news,'scheduled_work_restored':timers,'source_sha256':manifest,'record_sha256':hashes,'capability_latency_milestone_accepted':False}
   for n in ('model-result.json','model-failure.json','model-residency.json','model-terminal.json','model-kernel-after.json'):
    if (store.root/n).exists():result[n]=store.read(n)
   return result

@@ -14,39 +14,45 @@
 
 ## Current coordination status
 
-The [named-workload bridge and capture integration](B60-Inference-Engineering/model-r3-capture-and-news-plan-20261106.md)
-now pass184 offline tests. Independent source review found and corrected the
-registration-ID snapshot ordering defect; final live audit follows actual
-activation. News's14:30–16:00 session remains its exclusive reservation even
-after a restored attempt. B60's16:20 R3 is reserved, **unarmed**, and waits for
-actual final peer release, not another owner approval. The operational task
-continues through installation, arming, an actual model result and restoration.
+[The accepted-SYCL post-Xe qualification is actually armed](B60-Inference-Engineering/post-xe-qualification-plan-20261106.md)
+for November6 **16:20–17:05 Vancouver UTC−07**, recovery through17:20.
+Independent installed and armed reviews confirm the named registered route,
+exact53 global pins/base30/four fixed qualification sources, protected card,
+five entry plans,900second profile, accepted recovery artifacts and clean shared
+exclusion. The timer is enabled/waiting, numeric next trigger1794007200000000,
+LastTrigger0 and launcher inactive. No qualification is inferred before execution.
 
+News-XPU attempt2 produced three real Xe reset/fault events14:54:23 before
+restoring/releasing14:56:48. Original OPEN evidence remains immutable; HTTP
+health and accepted bytes do not close correctness. Jason’s newer explicit
+reservation-autonomy messages authorize related bounded fixes and continued
+work without a three-attempt ceiling or repeated approval. Independent review
+accepts that existing authority for a structurally different accepted9B/SYCL
+known-answer test, without reset/reboot/driver changes. Only actual fixed
+answers, complete restoration, source-bound evidence and an independent
+postcheck can produce a separate incident closure. The normal35B route stays
+blocked until that closure verifies.
 
-[Operational R3 capture/News reconciliation is continuing](B60-Inference-Engineering/model-r3-capture-and-news-plan-20261106.md).
-The failure-preserving transport/host persistence path passes171 offline tests.
-A distinct actual16:20–17:05 November6 booking, reserve17:20 UTC−07, follows
-News-XPU's separate14:30–16:00 booking and reserve. Source/card/clock arming
-and actual model/result/restoration checks remain mandatory; no result is
-inferred from this preparation. The current continuation must follow through.
+News’s first OpenVINO session released failed. Its next17:25–17:50 reservation,
+recovery through18:05, is preserved. B60’s next actual guarded35B reservation is
+**18:10–18:55, recovery through19:10**, `b60-exclusive-20261106-day-r4`.
+Fresh retained archive integrity completed15:58:33. Source-only failure capture
+now includes a bounded/fenced HTTP client, independent new-fault monitor and
+once-only entry-backend restoration start;193 offline tests pass. Exact current
+post-News source reconciliation, fresh TrueNAS metadata, installation, final
+live review, arming, real model result and restored entry remain operational
+work to complete under existing Stream A approval.
 
+[An earlier actual35B reasoning-on trial ran](B60-Inference-Engineering/actual-35b-model-result-20261106.md).
+All41 layers offloaded with19.14GiB GPU residency; the two-request workload
+failed and the old request script lost partial failure metadata. Automatic
+restoration/release completed11:46:06 without assistance or deadline miss.
+The subsequent News mp0 is preserved in fresh entry plans rather than removed.
+The new capture fixes have not yet demonstrated a real model packet.
 
-[Failure-preserving capture is prepared offline](B60-Inference-Engineering/failure-capture-preparation-20261106.md):
-nine focused tests and160 B60 tests pass. Deployed R2 and its actual failure
-evidence remain unchanged; transport/durable-runner integration remains next.
-
-[An actual guarded35B reasoning-on trial ran](B60-Inference-Engineering/actual-35b-model-result-20261106.md).
-All41layers offloaded with19.14GiB GPU residency; the two-request workload
-failed, with the second generation reaching1024tokens. Automatic restoration
-and shared release completed11:46:06 without assistance or deadline miss.
-Five guest entry checks and candidate/custody cleanup were independently
-reverified. No capability/latency win or model promotion is claimed.
-
-A separate News-XPU mp0 appeared after release, with11:48:06 config mtime.
-It was preserved and reported separately; current full-entry acceptance stays
-false. Reconcile its owner/consumer/schedule receipt before the next full-stack
-trial. Next fix bounded failure capture, then freeze fresh9B baseline and held-
-out acceptance before tuning. The expanded programme remains active.
+No model promotion,27B+ capability/latency acceptance, frozen fresh9B baseline,
+or harder held-out contract is claimed. The programme remains active; this
+operational continuation must follow through to actual results.
 
 ## Historical coordination snapshots — superseded by the current result above
 

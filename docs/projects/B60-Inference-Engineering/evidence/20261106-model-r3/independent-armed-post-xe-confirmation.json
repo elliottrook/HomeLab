@@ -1,0 +1,50 @@
+{
+  "LastTriggerUSec": 0,
+  "NextElapseUSecRealtime": 1794007200000000,
+  "active_scopes": [],
+  "arming_receipt_sha256": "f4a356cf056641be9b612b604cbc4eec1bb844cdf286749528e74936f6c27fa4",
+  "booking": {
+    "booking_id": "b60-exclusive-20261106-day-r3",
+    "created_epoch": 1793998504,
+    "end_epoch": 1794009900,
+    "kind": "exclusive-stack",
+    "owner": "b60-stream-a",
+    "restore_buffer_seconds": 900,
+    "schema": "aster-lab-hours-reservation.v1",
+    "start_epoch": 1794007200,
+    "state": "reserved",
+    "workload": "b60-accepted-sycl-post-xe-qualification-v1"
+  },
+  "claimed_bookings": [],
+  "effects": "read-only-no-inference",
+  "global_manifest_sha": "f697e2e085052e5b3b179d74882ebcc3e3bd1f5ce928ed469c23a17a509ac0ee",
+  "launcher": {
+    "ActiveState": "inactive",
+    "MainPID": "0"
+  },
+  "markers": {
+    "full-inference-drain.json": false,
+    "full-inference-drain.lock": false,
+    "lease.json": false,
+    "lease.lock": false
+  },
+  "observed_epoch": 1794006050,
+  "operation_marker": false,
+  "pin_count": 53,
+  "qualification_passed": false,
+  "ready": {
+    "state": "ready"
+  },
+  "source_hashes": {
+    "backup_chain_history.py": "a157601e557b80e7ff1ba2d81e786f0742c0f8b289596c33cc8fa33af36c81e3",
+    "fixed_command.py": "16a74cf21a53a5c9ec7e5bec3fe9eeb1dc58e37da0f31fb25e038f7f4d9a388c",
+    "known_answer_requests.py": "d0d305405222fe8dd301fc4216f8cfd1a00d04b539d0d300be282d9d1e5604de",
+    "qualification.py": "433f3c86411c5947e53457fde687615c8755ea9f11dbb79b946f5fcecfd96dbe"
+  },
+  "timer": {
+    "ActiveState": "active",
+    "SubState": "waiting",
+    "UnitFileState": "enabled"
+  },
+  "verdict": "LIKELY RUN"
+}

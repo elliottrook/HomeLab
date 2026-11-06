@@ -8,7 +8,7 @@ from lab_hours_exclusive_profile import protected_bytes,load_profile
 from lab_hours_exclusive_session import canonical,SessionStore
 from lab_hours_reservations import ReservationStore
 from retained_archive_integrity import load_root_owned,verify,fixed_proxmox_inventory,fixed_resolve
-ROOT=Path('/var/lib/local-ai-lab');DEST=BASE.parent/'model-trial-20261106-r3';B='b60-exclusive-20261106-day-r3'
+ROOT=Path('/var/lib/local-ai-lab');DEST=BASE.parent/'model-trial-20261106-r3';B='b60-exclusive-20261106-day-r4'
 def call(c,timeout=30):
  p=subprocess.run(c,capture_output=True,text=True,timeout=timeout);assert p.returncode==0;return p.stdout.strip()
 def create(p,data,mode=0o600):
@@ -27,8 +27,10 @@ with host_exclusion(ROOT):
   fields=dict(l.split('=',1) for l in p.stdout.splitlines())
   assert p.returncode==0 or fields.get('LoadState')=='not-found'
   assert fields.get('ActiveState') in {'inactive','failed'} and fields.get('MainPID','0')=='0' and fields.get('TasksCurrent','0') in {'0','','[not set]'}
+ scopes=call(['systemctl','list-units','--all','--no-legend','--plain','aster-local-ai-pilot-owner-*','aster-local-ai-pilot-guardian-*','b60-exclusive-owner-*','b60-exclusive-guardian-*']);assert not any(len(l.split())>3 and l.split()[2] in {'active','activating','deactivating'} for l in scopes.splitlines())
+ assert not any(v.get('state')=='claimed' for v in bookings.list())
  assert row['state']=='reserved' and row['owner']=='b60-stream-a' and row['kind']=='exclusive-stack'
- start=row['start_epoch'];end=row['end_epoch'];assert (start,end)==(1794007200,1794009900)
+ start=row['start_epoch'];end=row['end_epoch'];assert (start,end)==(1794013800,1794016500)
  assert time.time()+600<start and not (ROOT/'exclusive-sessions'/B).exists()
  # Every gate that can be checked without this new release is checked before
  # any installation. A spent trial is never reset or rebound.
@@ -50,6 +52,7 @@ with host_exclusion(ROOT):
  assert not DEST.exists()
  assert not any((ROOT/parent/(B+'.json')).exists() for parent in ('exclusive-activations','model-trial-cards','arming-receipts'))
  assert not (ROOT/'arming-receipts'/(B+'-model.json')).exists()
+ bridge_namespace={'__name__':'reviewed_inactive_incident_gate'};exec(compile(base64.b64decode(REG_FILES['b60_exclusive_card_bridge.py']),'b60_exclusive_card_bridge.py','exec'),bridge_namespace);closure=bridge_namespace['require_incident_closed']()
  registration_receipt=install_registration(bookings,row);row=bookings.get(B)
  assert row['workload']=='b60-qwen36-35b-failure-capture-v1' and row['state']=='reserved'
  for n,sha in NEWS['PINS'].items():assert hashlib.sha256(protected_bytes(BASE.parent/'full-inference-pilot'/n,executable=True,maximum=262144)).hexdigest()==sha
@@ -83,7 +86,7 @@ with host_exclusion(ROOT):
   result=backup(a,prestore,card,date_prefix='2026_11_06',lease_issued_epoch=int(time.time()));assert result.source_observed and result.integrity_verified
  finally:os.close(fd)
  # No model, health generation, claim, isolation or current service stop has
- # occurred. Only a disabled future date-specific clock is installed here. No clock is armed while the protected device incident is OPEN.
+ # occurred. Only a disabled future date-specific clock is installed here. The original OPEN evidence stays immutable; a separate accepted closure is required.
  units=Path('/etc/systemd/system');name='b60-model-trial-'+B;day=datetime.fromtimestamp(start,ZoneInfo('America/Vancouver'))
  files={name+'.service':'[Unit]\nDescription=B60 R3 fixed failure-preserving model trial\n\n[Service]\nType=oneshot\nUser=root\nRestart=no\nKillMode=control-group\nTimeoutStartSec=30\nExecStart=/usr/bin/python3 -B '+str(BASE.parent/'full-inference-pilot/lab_hours_reserved_runner.py')+' --booking-id '+B+'\n',name+'.timer':'[Unit]\nDescription=B60 R3 exact booked model clock\n\n[Timer]\nOnCalendar='+day.strftime('%Y-%m-%d %H:%M:%S')+' America/Vancouver\nPersistent=false\nAccuracySec=1s\nRandomizedDelaySec=0\nUnit='+name+'.service\n\n[Install]\nWantedBy=timers.target\n'}
  assert time.time()+120<start and not any((units/n).exists() or (units/n).is_symlink() for n in files)
@@ -97,7 +100,7 @@ with host_exclusion(ROOT):
  incident_raw=protected_bytes(ROOT/'device-incidents/b60-xe-20261106-1794002063/open.json')
  assert hashlib.sha256(incident_raw).hexdigest()=='7c1355adec390764cd970036233c1a70325d224b387e751dff4ef06db0e5cc6e' and json.loads(incident_raw)['state']=='OPEN'
 
- receipt={'schema':'b60-model-trial-integration.v1','state':'installed-inactive-device-incident-open','model_clock_armed':False,'device_incident_sha256':'7c1355adec390764cd970036233c1a70325d224b387e751dff4ef06db0e5cc6e','booking_id':B,'start_epoch':start,'end_epoch':end,'recovery_reserve_until_epoch':end+900,'source_sha256':MANIFEST,'guest_plan_sha256':plans,'backup_history_sha256':HISTORY_SHA,'retained_scan_finished_epoch':retained['finished_epoch'],'archive_receipt':proof,'model_card_sha256':hashlib.sha256(canonical(card)).hexdigest(),'activation_sha256':hashlib.sha256(canonical(profile)).hexdigest(),'unit_sha256':{n:hashlib.sha256(v.encode()).hexdigest() for n,v in files.items()},'prepared_epoch':int(time.time()),'model_run_claimed':False,'peer_release_rechecked_at_admission':True,'registered_workload':'b60-qwen36-35b-failure-capture-v1','global_registration_file_sha256':REG_SHA,'registration_receipt_sha256':hashlib.sha256(canonical(registration_receipt)).hexdigest()}
+ receipt={'schema':'b60-model-trial-integration.v1','state':'installed-inactive-device-closure-accepted','model_clock_armed':False,'source_bound_incident_closure':closure,'device_incident_sha256':'7c1355adec390764cd970036233c1a70325d224b387e751dff4ef06db0e5cc6e','booking_id':B,'start_epoch':start,'end_epoch':end,'recovery_reserve_until_epoch':end+900,'source_sha256':MANIFEST,'guest_plan_sha256':plans,'backup_history_sha256':HISTORY_SHA,'retained_scan_finished_epoch':retained['finished_epoch'],'archive_receipt':proof,'model_card_sha256':hashlib.sha256(canonical(card)).hexdigest(),'activation_sha256':hashlib.sha256(canonical(profile)).hexdigest(),'unit_sha256':{n:hashlib.sha256(v.encode()).hexdigest() for n,v in files.items()},'prepared_epoch':int(time.time()),'model_run_claimed':False,'peer_release_rechecked_at_admission':True,'registered_workload':'b60-qwen36-35b-failure-capture-v1','global_registration_file_sha256':REG_SHA,'registration_receipt_sha256':hashlib.sha256(canonical(registration_receipt)).hexdigest()}
  integration=ROOT/'integration-receipts';integration.mkdir(mode=0o700,exist_ok=True)
  assert integration.stat().st_uid==0 and integration.stat().st_mode&0o777==0o700 and not integration.is_symlink()
  create(integration/(B+'-model-inactive.json'),canonical(receipt))

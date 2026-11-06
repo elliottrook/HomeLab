@@ -16,6 +16,14 @@ from lab_hours_exclusive_session import canonical
 def command(a):
  p=subprocess.run(a,capture_output=True,text=True,timeout=30);assert p.returncode==0;return p.stdout.strip()
 
+def empty_unit(args):
+ p=subprocess.run(args,capture_output=True,text=True,timeout=30);assert len(p.stdout)<=4096
+ fields=dict(l.split('=',1) for l in p.stdout.splitlines())
+ absent=p.returncode in {0,1} and fields.get('LoadState')=='not-found' and fields.get('ActiveState') in {None,'inactive','failed'} and fields.get('MainPID')=='0' and fields.get('TasksCurrent') in {None,'0','','[not set]'}
+ empty=p.returncode==0 and fields.get('ActiveState') in {'inactive','failed'} and fields.get('MainPID')=='0' and fields.get('TasksCurrent') in {'0','','[not set]'}
+ assert absent or empty
+ return fields
+
 def postcheck():
  with host_exclusion(ROOT):
   assert not any(p.exists() or p.is_symlink() for p in [ROOT/'lease.json',ROOT/'lease.lock',ROOT/'full-inference-drain.json',ROOT/'full-inference-drain.lock',Path('/run/local-ai-lab-operation.lock')])
@@ -27,8 +35,7 @@ def postcheck():
   assert current_arm['source_sha256']==manifest and current_arm['card_sha256']==hashlib.sha256(protected_bytes(ROOT/'post-xe-cards'/(B+'.json'))).hexdigest()
   profile,store,bookings,scopes,adapter=context(B)
   for kind in ('owner','guardian'):
-   fields=dict(l.split('=',1) for l in command(['systemctl','show','b60-exclusive-'+kind+'-'+B+'.service','--property=ActiveState,MainPID,TasksCurrent']).splitlines())
-   assert fields['ActiveState'] in {'inactive','failed'} and fields['MainPID']=='0' and fields['TasksCurrent'] in {'0','','[not set]'}
+   fields=empty_unit(['systemctl','show','b60-exclusive-'+kind+'-'+B+'.service','--property=LoadState,ActiveState,MainPID,TasksCurrent'])
   state=store.read('session.json');entry=store.read('entry.json');adapter.private=store.read('adapter.json');row=bookings.get(B)
   assert state['phase']=='released' and state['production_restored'] is True and state['deadline_missed'] is False and not state.get('manual_assistance_required',False)
   assert state['entry_sha256']==row['entry_sha256']==hashlib.sha256(canonical(entry)).hexdigest()
@@ -48,10 +55,17 @@ def postcheck():
    if r['unit'].endswith('.timer'):
     raw=command(['pct','exec',r['guest'],'--','systemctl','show',r['unit'],'--property=ActiveState,SubState,NextElapseUSecRealtime,NextElapseUSecMonotonic,LastTriggerUSec'])
     v=dict(l.split('=',1) for l in raw.splitlines());timers[r['guest']+'/'+r['unit']]=v
-    if r['active']=='active':assert v['ActiveState']=='active' and v['SubState']=='waiting'
+    if r['active']=='active':
+     assert v['ActiveState']=='active' and v['SubState']=='waiting'
+     object_path='/org/freedesktop/systemd1/unit/'+''.join(c if c.isalnum() else '_'+format(ord(c),'02x') for c in r['unit'])
+     numeric={}
+     for prop in ('NextElapseUSecRealtime','NextElapseUSecMonotonic'):
+      kind,val=command(['pct','exec',r['guest'],'--','busctl','get-property','org.freedesktop.systemd1',object_path,'org.freedesktop.systemd1.Timer',prop]).split();assert kind=='t';numeric[prop]=int(val)
+     guest_clock=json.loads(command(['pct','exec',r['guest'],'--','python3','-B','-c','import time,json;print(json.dumps({"realtime":time.time(),"monotonic":time.monotonic()}))']))
+     assert (0<numeric['NextElapseUSecRealtime']<18446744073709551615 and numeric['NextElapseUSecRealtime']/1e6>guest_clock['realtime']) or (0<numeric['NextElapseUSecMonotonic']<18446744073709551615 and numeric['NextElapseUSecMonotonic']/1e6>guest_clock['monotonic'])
+     v['numeric_next_elapse_usec']=numeric;v['guest_clock']=guest_clock
   count=command(['pct','exec','115','--','python3','-B','-c',"from pathlib import Path;print(len(list(Path('/run/systemd/system/paperless-summary.service.d').glob('90-b60-no-replay-*.conf'))))"]);assert count=='0'
-  raw=command(['pct','exec','110','--','systemctl','show','b60-exclusive-trial-'+B+'.service','--property=LoadState,ActiveState,MainPID,TasksCurrent'])
-  candidate=dict(l.split('=',1) for l in raw.splitlines());assert candidate.get('MainPID')=='0' and candidate.get('TasksCurrent') in {'0','','[not set]'}
+  candidate=empty_unit(['pct','exec','110','--','systemctl','show','b60-exclusive-trial-'+B+'.service','--property=LoadState,ActiveState,MainPID,TasksCurrent'])
   terminal=store.read('post-xe-terminal.json');answers=validate_packet(store.read('qualification-answers.json'))
   assert terminal['qualified'] is True and terminal['source_sha256']==manifest and terminal['incident_sha256']==card['incident_sha256']
   assert terminal['answers_sha256']==hashlib.sha256(canonical(answers)).hexdigest() and answers['state']=='passed'

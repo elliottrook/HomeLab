@@ -23,6 +23,8 @@ BASE_SHA = 'e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2'
 MODEL_SHA = '671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7'
 INCIDENT = 'b60-xe-20261106-1794002063'
 INCIDENT_SHA = '7c1355adec390764cd970036233c1a70325d224b387e751dff4ef06db0e5cc6e'
+QUALIFICATION_SOURCE = {'backup_chain_history.py': 'a157601e557b80e7ff1ba2d81e786f0742c0f8b289596c33cc8fa33af36c81e3', 'fixed_command.py': '16a74cf21a53a5c9ec7e5bec3fe9eeb1dc58e37da0f31fb25e038f7f4d9a388c', 'known_answer_requests.py': 'd0d305405222fe8dd301fc4216f8cfd1a00d04b539d0d300be282d9d1e5604de', 'qualification.py': '433f3c86411c5947e53457fde687615c8755ea9f11dbb79b946f5fcecfd96dbe'}
+ACCEPTANCE_SOURCE_SHA = '3825ae8d34db463d59ccac8197e69af687994bc185034506ef60c483edb742f4'
 FILES = {'model_trial.py', 'namespace_mount.py', 'fixed_command.py',
          'guest_requests.py', 'guest_supervisor.py', 'backup_chain_history.py',
          'legacy_requests.py', 'request_failure_capture.py', 'news_xpu_boundary.py'}
@@ -99,17 +101,47 @@ def validate_card(row, *, root=ROOT, package=PACKAGE, base=BASE, expected_uid=0)
     return hashlib.sha256(raw).hexdigest()
 
 
+def validate_incident_closure(closure, post):
+    require(set(closure)=={'schema','state','incident_id','original_open_sha256','qualification_booking_id','postcheck_sha256','accepted_epoch','acceptance_source_sha256'},'INCIDENT_CLOSURE_SCHEMA')
+    require(closure['schema']=='b60-device-incident-closure.v1' and closure['state']=='CLOSED_FOR_ACCEPTED_SYCL_CONTINUATION' and closure['incident_id']==INCIDENT and closure['original_open_sha256']==INCIDENT_SHA and closure['qualification_booking_id']=='b60-exclusive-20261106-day-r3','INCIDENT_CLOSURE_IDENTITY')
+    require(post.get('schema')=='b60-post-xe-independent-postcheck.v1' and post.get('booking_id')==closure['qualification_booking_id'] and post.get('original_incident_sha256')==INCIDENT_SHA,'INCIDENT_POSTCHECK_IDENTITY')
+    for k in ('production_restored','unit_states_match_entry','persistent_mount_identity_matches','candidate_scope_empty','news_mount_preserved'):require(post.get(k) is True,'INCIDENT_RESTORATION_UNPROVEN')
+    for k in ('manual_assistance_required','deadline_missed','trial_failed'):require(post.get(k) is False,'INCIDENT_RESTORATION_UNPROVEN')
+    require(post.get('temporary_deny_gates')==0 and post.get('booking_state')=='complete' and post.get('booking_result_code')=='RESTORED','INCIDENT_RELEASE_UNPROVEN')
+    require(post.get('all_five_checkpoint_verifications')=={g:True for g in ('104','110','114','115','116')},'INCIDENT_GUEST_RESTORATION_UNPROVEN')
+    packet=post.get('answers',{});rows=packet.get('records',[])
+    require(packet.get('schema')=='b60-post-xe-known-answer-packet.v1' and packet.get('state')=='passed' and packet.get('attempted_requests')==3 and packet.get('retries')==0 and len(rows)==3,'INCIDENT_CORRECTNESS_UNPROVEN')
+    for i,row in enumerate(rows):require(row.get('request')==i+1 and row.get('predicate_passed') is True and row.get('outcome')=='passed' and row.get('http_status')==200 and row.get('finish_reason')=='stop','INCIDENT_CORRECTNESS_UNPROVEN')
+    terminal=post.get('qualification_terminal',{})
+    require(terminal.get('qualified') is True and terminal.get('session_outcome')=='complete-restored' and terminal.get('incident_sha256')==INCIDENT_SHA and terminal.get('answers_sha256')==hashlib.sha256(canonical(packet)).hexdigest(),'INCIDENT_TERMINAL_UNPROVEN')
+    require(terminal.get('source_sha256')==post.get('source_sha256')==QUALIFICATION_SOURCE,'INCIDENT_QUALIFICATION_SOURCE')
+    require(post.get('kernel',{}).get('new_hazards')==0 and post['kernel'].get('since_epoch')==1794002064 and post['kernel'].get('observed_epoch',0)>=post.get('finished_epoch',0),'INCIDENT_POST_RESTORATION_KERNEL')
+    return True
+
+
 def require_incident_closed():
-    # Immutable OPEN evidence cannot age out with the journal, disappear on a
-    # new booking, or be cleared by deletion. This release deliberately has NO
-    # incident override. A separately reviewed post-incident qualification and
-    # source-bound closure route are required before GPU dispatch can resume.
-    raw = protected(ROOT/'device-incidents'/INCIDENT/'open.json')
-    require(hashlib.sha256(raw).hexdigest() == INCIDENT_SHA, 'DEVICE_INCIDENT_EVIDENCE_DRIFT')
-    incident = json.loads(raw)
-    require(incident.get('incident_id') == INCIDENT and incident.get('state') == 'OPEN',
-            'DEVICE_INCIDENT_EVIDENCE_INVALID')
-    raise RuntimeError('DEVICE_INCIDENT_OPEN')
+    # Original evidence is never erased, modified or aged out. The separate
+    # closure route requires actual fixed known answers AND exact restoration.
+    parent=ROOT/'device-incidents'/INCIDENT
+    raw=protected(parent/'open.json')
+    require(hashlib.sha256(raw).hexdigest()==INCIDENT_SHA,'DEVICE_INCIDENT_EVIDENCE_DRIFT')
+    original=json.loads(raw);require(original.get('incident_id')==INCIDENT and original.get('state')=='OPEN','DEVICE_INCIDENT_EVIDENCE_INVALID')
+    require((parent/'closure.json').exists(),'DEVICE_INCIDENT_OPEN')
+    closure=json.loads(protected(parent/'closure.json'))
+    postraw=protected(parent/'postcheck.json',maximum=65536)
+    require(hashlib.sha256(postraw).hexdigest()==closure.get('postcheck_sha256'),'INCIDENT_POSTCHECK_DRIFT')
+    require(closure.get('acceptance_source_sha256')==ACCEPTANCE_SOURCE_SHA and hashlib.sha256(protected(parent/'acceptance-source.py',source=True)).hexdigest()==ACCEPTANCE_SOURCE_SHA,'INCIDENT_ACCEPTANCE_SOURCE_DRIFT')
+    require(closure.get('acceptance_source_sha256')==ACCEPTANCE_SOURCE_SHA and hashlib.sha256(protected(parent/'acceptance-source.py',source=True)).hexdigest()==ACCEPTANCE_SOURCE_SHA,'INCIDENT_ACCEPTANCE_SOURCE_DRIFT')
+    post=json.loads(postraw);validate_incident_closure(closure,post)
+    required={'exclusive-sessions/b60-exclusive-20261106-day-r3/'+n for n in ('session.json','entry.json','qualification-answers.json','post-xe-terminal.json','qualification-residency.json','qualification-offload.json','qualification-effective-limits.json','qualification-kernel-after.json')}
+    required|={'exclusive-releases/b60-exclusive-20261106-day-r3.json','reservations/records/b60-exclusive-20261106-day-r3.json','post-xe-cards/b60-exclusive-20261106-day-r3.json','arming-receipts/b60-exclusive-20261106-day-r3-post-xe.json'}
+    hashes=post.get('record_sha256',{});require(required<=set(hashes),'INCIDENT_PROOF_CLOSURE')
+    for name,sha in hashes.items():
+        require(isinstance(name,str) and not name.startswith('/') and '..' not in Path(name).parts,'INCIDENT_RECORD_PATH')
+        require(hashlib.sha256(protected(ROOT/name,maximum=262144)).hexdigest()==sha,'INCIDENT_PROOF_DRIFT')
+    package=BASE.parent/'post-xe-qualification-20261106'
+    for name,sha in post['source_sha256'].items():require(hashlib.sha256(protected(package/name,source=True)).hexdigest()==sha,'INCIDENT_SOURCE_DRIFT')
+    return {'closure_sha256':hashlib.sha256(protected(parent/'closure.json')).hexdigest(),'qualified_booking_id':closure['qualification_booking_id'],'postcheck_sha256':closure['postcheck_sha256']}
 
 
 def dispatch(row, spec, *, clock=time.time, runner=subprocess.run):

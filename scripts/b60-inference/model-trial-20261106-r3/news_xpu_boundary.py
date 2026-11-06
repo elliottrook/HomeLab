@@ -45,7 +45,7 @@ def observe(adapter, store, booking):
     for name, sha in PINS.items():
         assert hashlib.sha256(protected_bytes(HOST/name, executable=True, maximum=262144)).hexdigest() == sha, 'NEWS_SOURCE_DRIFT'
     attempt=peer.get('current_attempt',1)
-    assert type(attempt) is int and 1<=attempt<=3, 'NEWS_ATTEMPT_IDENTITY'
+    assert type(attempt) is int and 1<=attempt<=256, 'NEWS_ATTEMPT_IDENTITY'
     terminal_path = Path('/var/lib/local-ai-lab/lab-hours-attempts') / ('reservation-' + NEWS + '-attempt-'+str(attempt)) / 'terminal.json'
     terminal_raw = protected_bytes(terminal_path, maximum=65536)
     terminal = json.loads(terminal_raw)
@@ -54,9 +54,31 @@ def observe(adapter, store, booking):
     deadline = booking['end_epoch'] - 900
     # Include the whole peer trial, even if it ended more than ten minutes
     # ago. A peer device failure must not age out of our preflight window.
-    raw_kernel = adapter._call(('journalctl', '-k', '--since', '@'+str(peer['start_epoch']),
-                               '--no-pager', '-o', 'cat'), deadline, 10)
-    assert hazards(raw_kernel) == 0, 'NEWS_INTERVAL_DEVICE_OR_OOM_HAZARD'
+    # Immutable first incident is accepted only by a separate actual fixed
+    # correctness/restoration closure. Every later Xe/OOM event still refuses.
+    import importlib.util
+    spec=importlib.util.spec_from_file_location('fixed_b60_incident_bridge',HOST/'b60_exclusive_card_bridge.py')
+    bridge=importlib.util.module_from_spec(spec);spec.loader.exec_module(bridge)
+    closure=bridge.require_incident_closed()
+    incident=json.loads(protected_bytes(Path('/var/lib/local-ai-lab/device-incidents/b60-xe-20261106-1794002063/open.json')))
+    accepted_events={v['epoch_microseconds'] for v in incident['events']}
+    raw_kernel=adapter._call(('journalctl','-k','--since','@'+str(peer['start_epoch']),'--no-pager','-o','json'),deadline,10)
+    historical=0
+    for line in raw_kernel.splitlines():
+        value=json.loads(line);message=value.get('MESSAGE','')
+        if hazards(message):
+            assert int(value['__REALTIME_TIMESTAMP']) in accepted_events and 'xe' in message.lower(), 'NEW_NEWS_INTERVAL_DEVICE_OR_OOM_HAZARD'
+            historical+=1
+    assert historical==len(accepted_events), 'INCIDENT_JOURNAL_LINEAGE_MISSING'
+    peer_rows=[]
+    for peer_id in ('aster-news-video-ov-20261106-1525-r1','aster-news-video-ov-20261106-1725-r2'):
+        extra=ReservationStore(Path('/var/lib/local-ai-lab/reservations'),expected_uid=0).get(peer_id)
+        assert extra['owner']=='aster-news-video' and extra['state'] in {'complete','failed'} and type(extra.get('finished_epoch')) is int and extra['finished_epoch']+900<=booking['start_epoch'],'NEWS_FOLLOWUP_NOT_RELEASED'
+        number=extra.get('current_attempt',1);assert type(number) is int and 1<=number<=256
+        path=Path('/var/lib/local-ai-lab/lab-hours-attempts')/('reservation-'+peer_id+'-attempt-'+str(number))/'terminal.json'
+        extra_raw=protected_bytes(path,maximum=65536);extra_terminal=json.loads(extra_raw)
+        assert extra_terminal.get('booking_id')==peer_id and extra_terminal.get('production_restored') is True,'NEWS_FOLLOWUP_RESTORATION'
+        peer_rows.append({'booking_id':peer_id,'finished_epoch':extra['finished_epoch'],'state':extra['state'],'terminal_sha256':hashlib.sha256(extra_raw).hexdigest()})
     raw = adapter._call(('pct', 'config', '110', '--current'), deadline, 10)
     rows = [line for line in raw.splitlines() if line.startswith('mp0:')]
     assert len(rows) == 1 and hashlib.sha256(rows[0].encode()).hexdigest() == MOUNT_SHA, 'NEWS_MOUNT_DRIFT'
@@ -71,7 +93,8 @@ def observe(adapter, store, booking):
         'peer_booking_id': NEWS, 'peer_state': peer['state'], 'peer_terminal_attempt':attempt,
         'peer_finished_epoch': peer['finished_epoch'], 'peer_terminal_sha256': hashlib.sha256(terminal_raw).hexdigest(),
         'peer_production_restored': True, 'mount_line_sha256': MOUNT_SHA,
-        'kernel_hazards_since_peer_start': 0,
+        'kernel_hazards_since_peer_start': historical,
+        'unresolved_kernel_hazards':0,'source_bound_incident_closure':closure,'later_news_releases':peer_rows,
         'host_source_sha256': PINS, 'guest_script_sha256': GUEST_SHA,
         'news_process_count': 0, 'news_volume_modified': False,
         'owner_publication_received': False,
