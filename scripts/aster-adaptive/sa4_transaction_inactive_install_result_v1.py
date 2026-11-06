@@ -15,7 +15,7 @@ HOST_BINDINGS = {
     "sa4_independent_rollback_receipt_producer_v1.py": "unconfigured",
 }
 HEALTH = ("lxc104", "lxc110", "lxc116", "aster-agent",
-          "accepted-llama-sycl", "speech", "news-timers", "epub-worker",
+          "accepted-llama-sycl", "speech", "news-timers", "epub-baseline",
           "dispatcher", "doctor", "pvescheduler", "pvestatd")
 
 
@@ -34,7 +34,8 @@ def validate(raw: bytes) -> dict[str, object]:
               "private_key_accessed", "signer_invoked", "grant_touched",
               "checkpoint_owner_invoked", "target_touched", "service_actions",
               "production_health", "rollback_ready", "automatic_routing"}
-    if (not isinstance(value, dict) or set(value) != fields
+    if (not isinstance(value, dict) or contract.canonical(value) != raw
+            or set(value) != fields
             or value["schema"]
             != "aster-sa4-transaction-inactive-install-result.v1"
             or value["plan_sha256"] != plan_sha256()

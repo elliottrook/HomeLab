@@ -195,6 +195,15 @@
 > health checks pass with zero key, signer, grant, checkpoint, target or
 > service effects. The suite passes 126/126. Offline work for this gate is
 > exhausted; next is the separately approved reversible inactive installation.
+> That approved [inactive installation](evidence/SA4-transaction-inactive-install-result-2026-11-05.md)
+> completed and independently validates all seven exact rows. Both replaced
+> predecessors remain root-only for rollback, all new files are exact, the
+> effect-capable host bindings remain unconfigured and the signer ran only
+> against a fake runner. The live canary stayed at `19b4e02d…df1a`; no key,
+> signature, ledger, grant, checkpoint, receipt, target or service action
+> occurred, and production plus the accepted EPUB baseline remained unchanged.
+> The suite passes 126/126. Next is live zero-effect dry-preflight design and
+> review; the first repair effect remains an exact immediate approval gate.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
