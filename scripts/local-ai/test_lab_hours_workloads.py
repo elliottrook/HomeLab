@@ -8,6 +8,19 @@ from lab_hours_workloads import (REGISTERED_WORKLOADS, validate_inactive_target,
 
 
 class WorkloadRegistryTests(unittest.TestCase):
+    def test_k2_development_is_fixed_and_registered(self):
+        spec = workload("m3-k2-shortlist-arbitration-development-v1")
+        self.assertEqual("aster-stream-a", spec.owner)
+        self.assertEqual(192, spec.request_count)
+        self.assertEqual(45, spec.per_request_timeout_seconds)
+        self.assertEqual(1800, spec.deadline_seconds)
+        self.assertEqual(3600, spec.minimum_booking_seconds)
+        self.assertEqual(900, spec.recovery_reserve_seconds)
+        self.assertEqual("m3-k2-shortlist-arbitration-development",
+                         spec.runner_kind)
+        self.assertEqual(12, len(spec.runtime_pins))
+        self.assertEqual(1048576, spec.result_max_bytes)
+
     def test_third_registration_is_distinct_and_fixed(self):
         self.assertIn("sa3-expanded-source-quality-v1", REGISTERED_WORKLOADS)
         spec = workload("sa3-expanded-source-quality-v1")

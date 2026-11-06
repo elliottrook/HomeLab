@@ -9,7 +9,7 @@
     "full_aster_first_screen_recovery.py": "992e7d4bbf8b0f62cc72546dae9ad2ab9622830deef78d096afc028c2b5eb3f4",
     "full_inference_lab_deadline_guardian.py": "688d995dafd33b7b905fb7351bf365a0d0fdcc20766e5c497551d2cc0846cc35",
     "full_inference_lab_install_preflight.py": "5a8586c9e6002ba6ce1a479a2b8fd1de3085e463d171abc11189c2b0ceb81f05",
-    "full_inference_lab_runtime.py": "cddae0e3da7ad3c6c6b11b5fb2503f54dec916815e3eb336e13bed74c16b2f61",
+    "full_inference_lab_runtime.py": "c52870b880270511495189f4adcb7dd89e34fc199449fe4beb237a754f34be22",
     "full_inference_lab_session.py": "02fe37d6ee0d6a88133b2998dcf1badeaa086fb6f0f36114a3c2fe3321857b40",
     "full_inference_lab_sources.py": "790fcefbda03adf0f6839aae654dd0846c4bb1cf4e53d4fcc14e0807e4db2dd1",
     "full_inference_lab_supervisor.py": "da5ac76fb48541a2661caa1cb4fe7f21d84334abb9ab935fb1aaaf72c4faba55",
@@ -20,8 +20,11 @@
     "lab_hours_doctor.py": "32fbe1d9e63fdab78a00496c36ca4b3da7a81809e14cf930a209a32ec9649d76",
     "lab_hours_inactive_target.py": "a99c1f8669836513a8dcc51d9a80182be4ad08b6db3be1c09b48ea727a831e47",
     "lab_hours_reservations.py": "f61c6b496fd6e378b6e144a2b13170c85392274e86127a29b03d0cf8f16415d2",
-    "lab_hours_reserved_runner.py": "4d28ccc44db8a343aa0a1e4baea87d4964bced7db53154f627b5904f7270b11b",
-    "lab_hours_workloads.py": "a6a6acb58de8ca8fee2246522aa8e2aa3ebb7d57db2348d694238e4cffbcdfec",
+    "lab_hours_reserved_runner.py": "9619982232a85c77307f56223b4a5e775882e65dc1886d2aa8a52a23b7eb0849",
+    "lab_hours_workloads.py": "ca793b300bd4cb48d5003cbeb3f30a94e981d1c3557472408110e411332167be",
+    "aster_llama_m3_k2_development_wrapper.py": "12f86fdf694866a08cc0dbd31341d26cb0bec352901bda0241167afe746dd531",
+    "m3_k2_development_listener_adapter.py": "772415ba38454d3b876f999be404ff6c8aff70cf8e69b3689f5ea45ce4b39fae",
+    "m3_k2_development_transaction.py": "67409aa431d2cc6b2ea4dd01d67a0f049b7f2b84e4866f4901285c3739212ec3",
     "m3_joint_semantic_35b_guardian.py": "a485c2cde71447a8a4feda0c25f7e22d26fe0e9ace2da7b524e698a96275113b",
     "m3_joint_semantic_35b_guest_workload.py": "91fa17ad55177b5d2c53fefb8569c13c48e1bfeec8332b97726e8d30bab0d85b",
     "m3_joint_semantic_35b_transaction.py": "dc92e35ee11ed12cd5d842282027adbcbf4c24611ba6b4be64a820fa951f0677",
@@ -47,6 +50,6 @@
     "sa3_candidate_j_quality_listener_adapter.py": "f69d67963cbceffdd467708e91a4cbb4fa2f74386b86f8c0f57767fe2ab9f66c",
     "sa3_candidate_j_quality_transaction.py": "81ef7c4c41262ed0fb53ae46b10db05892bc7cf8fb39e732eb905ab86f46de46"
   },
-  "release": "aster-tts-dual-cpu-screen-plus-candidate-j-quality-v1",
+  "release": "m3-k2-development-inactive-v1",
   "schema": "aster-lab-hours-release-manifest.v1"
 }

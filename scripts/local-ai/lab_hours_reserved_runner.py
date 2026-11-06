@@ -29,7 +29,7 @@ UNIT_SHA = "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"
 PROCESS_MARKERS = ("vzdump", "zstd -t", "f2_preflight", "f3_from_f2",
                    "stream_a_evaluation_evidence", "full_aster_first_screen",
                    "m3_joint_semantic_35b", "sa3_candidate_i",
-                   "sa3_candidate_j", "aster_tts_dual_cpu")
+                   "sa3_candidate_j", "m3_k2", "aster_tts_dual_cpu")
 REGISTERED_RUNNER_KINDS = frozenset({
     "full-inference-pilot",
     "owner-loss-exercise",
@@ -38,6 +38,7 @@ REGISTERED_RUNNER_KINDS = frozenset({
     "sa3-evidence-envelope-candidate-i-quality",
     "sa3-evidence-matrix-candidate-j-public",
     "sa3-evidence-matrix-candidate-j-quality",
+    "m3-k2-shortlist-arbitration-development",
     "m3-joint-semantic-35b",
     "ebook-word-alignment",
     "aster-tts-dual-cpu-screen",
@@ -219,7 +220,8 @@ def run(booking_id: str) -> int:
         spec = workload(str(booking.get("workload")))
         if spec.runner_kind not in REGISTERED_RUNNER_KINDS:
             raise RunError("WORKLOAD_RUNNER_NOT_REGISTERED")
-        if spec.runner_kind in {"ebook-word-alignment", "aster-tts-dual-cpu-screen"}:
+        if spec.runner_kind in {"ebook-word-alignment", "aster-tts-dual-cpu-screen",
+                                "m3-k2-shortlist-arbitration-development"}:
             if booking.get("owner") != spec.owner:
                 raise RunError("WORKLOAD_OWNER_MISMATCH")
             if int(booking["end_epoch"]) - int(booking["start_epoch"]) < spec.minimum_booking_seconds:
@@ -280,6 +282,8 @@ def run(booking_id: str) -> int:
                 "sa3-evidence-matrix-candidate-j-public-complete",
             "sa3-evidence-matrix-candidate-j-quality":
                 "sa3-evidence-matrix-candidate-j-quality-complete",
+            "m3-k2-shortlist-arbitration-development":
+                "m3-k2-development-complete",
             "m3-joint-semantic-35b": "m3-joint-semantic-public-complete",
             "ebook-word-alignment": "ebook-word-alignment-benchmark-complete",
             "aster-tts-dual-cpu-screen": "aster-tts-dual-cpu-screen-complete",
@@ -313,6 +317,25 @@ def run(booking_id: str) -> int:
                 and receipt_body.get("model_request_count")==14
                 and receipt_body.get("case_count")==20
                 and receipt_body.get("error_count")==0
+                and isinstance(receipt_body.get("prediction_sha256"),str)
+                and len(receipt_body["prediction_sha256"])==64
+                and all(c in "0123456789abcdef"
+                        for c in receipt_body["prediction_sha256"]))
+        elif spec.runner_kind=="m3-k2-shortlist-arbitration-development":
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "model_request_count","case_count",
+                                        "prediction_sha256","development_gate_passed",
+                                        "status","error_count"}
+                and receipt.get("production_restored") is True
+                and receipt_body.get("model_request_count")==192
+                and receipt_body.get("case_count")==192
+                and receipt_body.get("error_count")==0
+                and type(receipt_body.get("development_gate_passed")) is bool
+                and receipt_body.get("status") in {"pass","reject"}
+                and (receipt_body["status"] == "pass")
+                    is receipt_body["development_gate_passed"]
                 and isinstance(receipt_body.get("prediction_sha256"),str)
                 and len(receipt_body["prediction_sha256"])==64
                 and all(c in "0123456789abcdef"

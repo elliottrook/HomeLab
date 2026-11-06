@@ -193,6 +193,30 @@ WORKLOADS = {
         packet_sha256="53cfd6a5a8b09ada122c64c60af3264b0ebda595bf1f2d5d53da2710e0141132",
         result_max_bytes=524288,
     ),
+    "m3-k2-shortlist-arbitration-development-v1": WorkloadSpec(
+        workload_id="m3-k2-shortlist-arbitration-development-v1",
+        owner="aster-stream-a",
+        request_count=192, per_request_timeout_seconds=45,
+        deadline_seconds=1800, minimum_booking_seconds=3600,
+        recovery_reserve_seconds=900,
+        runner_kind="m3-k2-shortlist-arbitration-development",
+        runtime_pins=(
+            ("nlu_deterministic_guard_v1.py", "d7d62d19008519ae50aa9b46799ab1f277a51904f2e80e65c30517abca8a7135"),
+            ("nlu_k2_consensus_policy_v1.py", "9027abbcc446d9c63100178e3ce9add60275a1f134bde9d7beeb30aa4a4d504e"),
+            ("nlu_k2_development_runner_v1.py", "d5c9ef87bd49185466a12e7b53eab741d0f0dc40ce92c2977389dd2b0e5e3785"),
+            ("nlu_k2_development_scorer_v1.py", "c43f3894ba65251b6fadbda1012bd2aead44c3357323b09f491f590ffd6e8558"),
+            ("nlu_k2_shortlist_arbitration_preregistration_v1.py", "f3e633ac81d32bd63fb53e5a51339787cab1e66ee65f56874c012132a32f4f6a"),
+            ("nlu_k2_shortlist_arbitrator_v1.py", "7c81894da9adbd1c3ee22b97d1487fcf2feadc1e4bc1e321a7c715479c517962"),
+            ("nlu_local_model_adapter.py", "3a3b09f12bcd2088f0d604363a5bc0e69190c177eced50dc5a14eb582749aed0"),
+            ("nlu_threshold_policy.py", "984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d"),
+            ("nlu_whole_label_choice_v1.py", "6e7ee332ce74a44a5bb19877f9f8f0c90f814687279b3c4993fbb93fbd58948a"),
+            ("nlu-k2-runtime-manifest-v1.json", "619450ce1eca89d3c21c5007d23c2f27c85e67f80e3b0709d0ebccb17ec86c88"),
+            ("nlu-k2-development-corpus-v1.json", "9e2dd321c6660ad4bd09e9824c24b9727a30eba60a8df37e09f17d436ccce90a"),
+            ("nlu-k2-shortlist-v1.json", "620f5b5badce1c3ee70b5718a0d05ff4ad6261308360cc5c5dad588e4b977f6e"),
+        ),
+        packet_sha256="619450ce1eca89d3c21c5007d23c2f27c85e67f80e3b0709d0ebccb17ec86c88",
+        result_max_bytes=1048576,
+    ),
 }
 
 
@@ -319,6 +343,19 @@ def validate_registry() -> None:
     if any("keys" in name or "review" in name or "scorer" in name
            for name, _ in candidate_j_quality.runtime_pins):
         raise ValueError("SA3 candidate-j quality excluded material entered registration")
+
+    k2 = workload("m3-k2-shortlist-arbitration-development-v1")
+    if (k2.owner != "aster-stream-a" or k2.request_count != 192
+            or k2.per_request_timeout_seconds != 45
+            or k2.deadline_seconds != 1800
+            or k2.minimum_booking_seconds != 3600
+            or k2.recovery_reserve_seconds != 900
+            or k2.runner_kind != "m3-k2-shortlist-arbitration-development"
+            or len(k2.runtime_pins) != 12
+            or k2.packet_sha256 !=
+                "619450ce1eca89d3c21c5007d23c2f27c85e67f80e3b0709d0ebccb17ec86c88"
+            or k2.result_max_bytes != 1048576):
+        raise ValueError("M3 K2 registration drift")
 
 
 def _local_imports(path: Path) -> set[str]:

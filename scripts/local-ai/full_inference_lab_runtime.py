@@ -192,6 +192,9 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
     elif args.workload_profile == "sa3-evidence-matrix-candidate-j-quality-v1":
         from sa3_candidate_j_quality_transaction import execute
         from sa3_candidate_j_quality_listener_adapter import run as run_sa3_listener
+    elif args.workload_profile == "m3-k2-shortlist-arbitration-development-v1":
+        from m3_k2_development_transaction import execute
+        from m3_k2_development_listener_adapter import run as run_sa3_listener
     else:
         raise SupervisorError("SA3 workload profile is not registered")
 
@@ -199,14 +202,16 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
     producer = LocalProxmoxFullDrainSourceProducer(
         runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence),
         wall_clock=wall_clock)
-    lab_seconds = (2700 if args.workload_profile ==
+    lab_seconds = (1800 if args.workload_profile ==
+                   "m3-k2-shortlist-arbitration-development-v1" else
+                   (2700 if args.workload_profile ==
                    "sa3-evidence-matrix-candidate-j-quality-v1" else
                    (4500 if args.workload_profile ==
                    "aster-tts-dual-cpu-screen-v1" else
                    (900 if args.workload_profile ==
                    "astertv-v3-ebook-word-alignment-v1" else
                    (1800 if args.workload_profile ==
-                    "sa3-evidence-matrix-candidate-j-public-v1" else 2700))))
+                    "sa3-evidence-matrix-candidate-j-public-v1" else 2700)))))
     preflight = producer.collect(cycle=args.cycle, session_start_epoch=args.session_start_epoch,
                                  lab_seconds=lab_seconds)
     now = int(wall_clock()); lead = args.session_start_epoch - now
@@ -364,7 +369,8 @@ def _parser() -> argparse.ArgumentParser:
         "m3-joint-semantic-35b-public-v1",
         "astertv-v3-ebook-word-alignment-v1",
         "aster-tts-dual-cpu-screen-v1",
-        "sa3-evidence-matrix-candidate-j-quality-v1"),
+        "sa3-evidence-matrix-candidate-j-quality-v1",
+        "m3-k2-shortlist-arbitration-development-v1"),
         default="accepted-9b-direct-control-smoke-v1")
     parser.add_argument("--retain-root", default="/var/lib/local-ai-lab/lab-hours-attempts")
     return parser
@@ -402,7 +408,8 @@ def main(argv: list[str] | None = None) -> int:
                 "sa3-evidence-matrix-candidate-j-public-v1",
                 "astertv-v3-ebook-word-alignment-v1",
                 "aster-tts-dual-cpu-screen-v1",
-                "sa3-evidence-matrix-candidate-j-quality-v1"}:
+                "sa3-evidence-matrix-candidate-j-quality-v1",
+                "m3-k2-shortlist-arbitration-development-v1"}:
             return _run_sa3(args, paths, runner=runner)
         if args.workload_profile == "m3-joint-semantic-35b-public-v1":
             return _run_m3(args, paths, runner=runner)
