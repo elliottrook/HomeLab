@@ -53,3 +53,28 @@ reported 3.93% aggregate CPU used, 6,726,496 KiB available memory, 754,292 KiB
 Kodi RSS, 27.8°C, 200 MHz actual GPU clock, zero swap, 3,253.8 B/s received and
 71.9 B/s transmitted. No active player appeared during the interval. This is a
 repeatable idle datum, but sustained and interactive workloads remain open.
+
+## Screensaver-window clarification
+
+A 2026-11-06 repeatability preflight initially appeared to find Jen in the
+`Immediate HDD spindown` settings page. A bounded full idle cycle proved that
+Kodi reports window ID `13001` with that misleading localized label exactly
+when the selected Aster screensaver activates. The underlying page remained
+Home: one wake action restored the same focused Home tile, with no Kodi restart,
+navigation change or active player. This is the established Aster screensaver
+window already recorded during low-spec qualification, not a settings-page
+regression.
+
+The sampler now classifies only content-free window IDs: `10000` as Home and
+`13001` as the Aster screensaver. It requests neither the focused control nor
+media metadata, fails closed on any other page, and records the start/end idle
+context so future performance checks cannot confuse the screensaver label with
+an unexpected settings page.
+
+Two subsequent non-installed 10-second runs both began and ended on Home with
+zero active players. They measured 2.78% and 2.61% aggregate CPU, an unchanged
+556,324 KiB Kodi RSS, 27.8°C, 200 MHz idle GPU clock, zero swap, and 6,940,392 /
+6,943,336 KiB available memory. The integrated gate passes 64 test files, 15
+pages and 127 focus controls with no conformance or operations-readiness gaps.
+These repeatable idle results close the screensaver-label ambiguity; they do
+not replace the remaining page, artwork, speech or playback budgets.

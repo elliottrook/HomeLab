@@ -1813,6 +1813,16 @@ swap and approximately 3.25 KiB/s receive traffic. The sampler and three tests
 are now part of the 63-file local gate. Interactive and sustained budgets remain
 open.
 
+A later full idle cycle established that Kodi window ID `13001`, misleadingly
+localized as `Immediate HDD spindown`, is the active Aster screensaver window
+rather than navigation into Settings. One wake action restored the unchanged
+Home focus with no restart or active player. The sampler now permits only Home
+or that screensaver window, records the content-free start/end classification,
+and fails closed elsewhere. Four focused tests and the 64-file integrated gate
+pass. Two further 10-second Jen runs remained on Home with zero players, 2.78% /
+2.61% CPU, stable 556,324 KiB Kodi RSS, 27.8°C and zero swap. Evidence:
+`docs/projects/evidence/AsterTV-v3-M10-Jen-idle-snapshot-2026-11-06.md`.
+
 The M7 content rollout read-only preflight also confirms the accepted
 predecessor hashes and healthy services on Aster Agent, Home Assistant and idle
 Bedroom. Family's recorded MAC still matches `192.168.1.157`, but its presented

@@ -13,6 +13,7 @@ import time
 
 HOST = "AsterTV-Jen"
 RPC = ("127.0.0.1", 9090)
+IDLE_WINDOWS = {10000: "home", 13001: "aster-screensaver"}
 
 
 def cpu_counts(text: str) -> tuple[int, int]:
@@ -62,16 +63,40 @@ def kodi_pid(proc: Path) -> int:
     return values[0]
 
 
-def active_players(address=RPC) -> list:
-    request = {"jsonrpc": "2.0", "id": 1,
-               "method": "Player.GetActivePlayers"}
+def rpc(method: str, params: dict | None = None, address=RPC):
+    request = {"jsonrpc": "2.0", "id": 1, "method": method,
+               "params": params or {}}
     with socket.create_connection(address, timeout=3) as client:
         client.settimeout(5)
         client.sendall((json.dumps(request) + "\n").encode())
         response = json.loads(client.recv(65536))
-    if response.get("error") or not isinstance(response.get("result"), list):
+    if response.get("error") or "result" not in response:
         raise RuntimeError("idle-kodi-rpc")
     return response["result"]
+
+
+def active_players(address=RPC) -> list:
+    result = rpc("Player.GetActivePlayers", address=address)
+    if not isinstance(result, list):
+        raise RuntimeError("idle-kodi-rpc")
+    return result
+
+
+def classify_window(window_id: int) -> str:
+    return IDLE_WINDOWS.get(window_id, "other")
+
+
+def idle_ui_context(address=RPC) -> dict[str, int | str]:
+    result = rpc("GUI.GetProperties", {"properties": ["currentwindow"]},
+                 address)
+    try:
+        window_id = int(result["currentwindow"]["id"])
+    except (KeyError, TypeError, ValueError):
+        raise RuntimeError("idle-ui-format") from None
+    context = classify_window(window_id)
+    if context == "other":
+        raise RuntimeError("idle-ui-context")
+    return {"window_id": window_id, "context": context}
 
 
 def number(path: Path) -> int | None:
@@ -87,6 +112,7 @@ def sample(duration: float, *, proc: Path = Path("/proc"),
         raise RuntimeError("idle-target")
     if active_players():
         raise RuntimeError("idle-player-busy")
+    before_ui = idle_ui_context()
     pid = kodi_pid(proc)
     before_cpu = cpu_counts((proc / "stat").read_text())
     before_rx = number(sys / "class/net/eth0/statistics/rx_bytes")
@@ -94,6 +120,7 @@ def sample(duration: float, *, proc: Path = Path("/proc"),
     time.sleep(duration)
     if active_players():
         raise RuntimeError("idle-player-started")
+    after_ui = idle_ui_context()
     after_cpu = cpu_counts((proc / "stat").read_text())
     after_rx = number(sys / "class/net/eth0/statistics/rx_bytes")
     after_tx = number(sys / "class/net/eth0/statistics/tx_bytes")
@@ -116,6 +143,8 @@ def sample(duration: float, *, proc: Path = Path("/proc"),
         "network_tx_bytes_per_second": None if None in {before_tx, after_tx}
             else round((after_tx - before_tx) / duration, 2),
         "active_players": 0,
+        "ui_context_start": before_ui,
+        "ui_context_end": after_ui,
     }
 
 

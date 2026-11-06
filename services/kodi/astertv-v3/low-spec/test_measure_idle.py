@@ -22,12 +22,20 @@ class IdleMeasurementTests(unittest.TestCase):
 
     def test_output_contract_is_content_free_and_idle_only(self):
         source = PATH.read_text()
-        self.assertIn('"method": "Player.GetActivePlayers"', source)
+        self.assertIn('rpc("Player.GetActivePlayers"', source)
+        self.assertIn('rpc("GUI.GetProperties"', source)
+        self.assertIn('{10000: "home", 13001: "aster-screensaver"}', source)
         self.assertIn('raise RuntimeError("idle-player-busy")', source)
         self.assertIn('raise RuntimeError("idle-player-started")', source)
+        self.assertNotIn('"currentcontrol"', source)
         for forbidden in ("Player.GetItem", "title", "filename", "plot",
                           "VideoLibrary", "Player.Open", "Input."):
             self.assertNotIn(forbidden, source)
+
+    def test_idle_window_classification_distinguishes_kodi_screensaver(self):
+        self.assertEqual(MODULE.classify_window(10000), "home")
+        self.assertEqual(MODULE.classify_window(13001), "aster-screensaver")
+        self.assertEqual(MODULE.classify_window(10004), "other")
 
     def test_target_and_duration_fail_closed(self):
         with patch.object(MODULE.os, "uname") as uname:
