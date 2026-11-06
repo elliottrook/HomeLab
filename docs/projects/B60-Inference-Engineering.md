@@ -14,6 +14,11 @@
 
 ## Current coordination status
 
+[The fixed candidate command adapter is prepared](B60-Inference-Engineering/fixed-candidate-command-preparation-20261106.md):
+124offline tests pass, exact candidate scope matches the qualified fence, and
+trial/restoration deadlines are explicit. No live candidate profile or effect
+is enabled; mount/resource/result/guardian integration remains next.
+
 [The actual normal/owner-loss/resource gates passed](B60-Inference-Engineering/owner-resource-gates-completed-20261105.md).
 [The owner-frozen benchmark contract is integrated offline](B60-Inference-Engineering/benchmark-contract-integration-20261106.md):
 exact peer validator/contract pins,119focused tests, no model run or live authority

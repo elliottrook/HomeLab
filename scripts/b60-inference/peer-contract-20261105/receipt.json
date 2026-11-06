@@ -10,5 +10,11 @@
     "path": "docs/projects/AI Projects/benchmarks/full-aster-benchmark-contract-v1.json",
     "local_file": "contract.json",
     "sha256": "023939fd25e61e47af9418387ee6fe82163fac394511472a8bf64eaaab40382c"
+  },
+  {
+    "commit": "b6dc186eef865924294b4e5cb1ef72d73c149733",
+    "path": "scripts/local-ai/full_aster_first_screen_candidate.py",
+    "local_file": "full_aster_first_screen_candidate.py",
+    "sha256": "9fd4e5746363e7cbdcac0d121d15cdac4ce990c24a1e988bc8b98faad8bcf260"
   }
 ]
