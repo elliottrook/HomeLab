@@ -53,6 +53,15 @@
 > fingerprints; acceptance would authorize source pinning and admission replay,
 > not training or any runtime effect.
 
+> **M3 J2 training admission reached, 2026-11-06:** Jason accepted the two exact
+> custody fingerprints. The [compiled pinning and real replay](evidence/M3-J2-owner-trust-pinning-and-admission-result-2026-11-06.md)
+> pass with the complete J2 suite at 109/109 and status
+> `eligible-for-owner-training-effect-review`. Signatures, distinct roles/keys
+> and zero intersection are verified; sealed-evaluation access, training
+> authorization, authority, routing and deployment remain false. External
+> custody is complete. Next is the source-only training-effect review packet,
+> not a booking or training run.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.

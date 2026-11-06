@@ -14,8 +14,15 @@ from nlu_threshold_policy import decode_unique_json
 LABEL_REVIEW_SHA256 = "896ff54b31718b7dfbe91b479c4a6fbcfe5b428ca62528f07a2f8993072b0028"
 QUALITY_REVIEW_SHA256 = "f934ee6780c3f9a4b87b7c530a4345080dd98ff534e7d5a3093822aed1d3fe3f"
 OWNER_ACCEPTANCE_FILE_SHA256 = "9e7eb6f76396088b5650647d0c7970b5659711ff94fd3c0c16fd504619bf393b"
-# Real signer fingerprints are added only after exact owner trust review.
-TRUSTED_KEYS: dict[str, str] = {}
+# Exact public-key fingerprints accepted by Jason on 2026-11-06. These trust
+# custody evidence only; they grant no training, routing, tool or deployment
+# authority.
+TRUSTED_KEYS: dict[str, str] = {
+    "independent-j2-corpus-custodian":
+        "47feec850ae4dc67443249edcbc5c134c767e293c6dcc4bbede5a31c2749574c",
+    "independent-j2-evaluation-custodian":
+        "46685b0ebd4e1bcf65bfae35df4858373b2f928fe3f81ab267bfa58cedfa9498",
+}
 
 
 def _release(raw: bytes, custody_raw: bytes) -> dict[str, object]:

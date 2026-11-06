@@ -88,6 +88,14 @@ def invoke(values):
 
 
 class J2TrainingAdmissionTests(unittest.TestCase):
+    def test_compiled_owner_trust_registry_is_exact(self):
+        self.assertEqual(admission.TRUSTED_KEYS, {
+            "independent-j2-corpus-custodian":
+                "47feec850ae4dc67443249edcbc5c134c767e293c6dcc4bbede5a31c2749574c",
+            "independent-j2-evaluation-custodian":
+                "46685b0ebd4e1bcf65bfae35df4858373b2f928fe3f81ab267bfa58cedfa9498",
+        })
+
     @patch("nlu_j2_training_admission_v1.disjointness.verify")
     @patch("nlu_j2_training_admission_v1.external.verify")
     def test_complete_chain_reaches_owner_review_without_authority(self, ext, dis):

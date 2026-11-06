@@ -66,3 +66,7 @@ a Lab Hours reservation, model execution, sealed-evaluation disclosure,
 deployment, routing, tools, service changes or automatic promotion.
 
 Rejection leaves the compiled registry empty and J2 training admission closed.
+
+Jason subsequently accepted both exact bindings. The compiled result and real
+admission replay are recorded in the
+[owner trust pinning and admission result](M3-J2-owner-trust-pinning-and-admission-result-2026-11-06.md).
