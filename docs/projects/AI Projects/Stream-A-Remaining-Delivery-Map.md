@@ -189,6 +189,12 @@
 > passes 123/123. Next is the reversible inactive installation, then a live
 > zero-effect dry preflight. The first repair effect remains a separate exact
 > immediate approval gate.
+> The [inactive-install result verifier](evidence/SA4-inactive-install-result-verifier-source-2026-11-05.md)
+> now fails closed unless all seven exact hashes, predecessor states, retained
+> rollback files, isolated imports, inactive host bindings and production
+> health checks pass with zero key, signer, grant, checkpoint, target or
+> service effects. The suite passes 126/126. Offline work for this gate is
+> exhausted; next is the separately approved reversible inactive installation.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
