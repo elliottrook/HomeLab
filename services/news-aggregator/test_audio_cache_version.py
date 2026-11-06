@@ -22,6 +22,16 @@ class AudioCacheVersionTests(unittest.TestCase):
         self.assertIn("latest.mp3?v={{ audio.media_version|urlencode }}", app.TEMPLATE_DIGEST)
         self.assertIn("latest.vtt?v={{ audio.media_version|urlencode }}", app.TEMPLATE_DIGEST)
 
+    def test_digest_updated_timestamp_uses_24_hour_clock(self):
+        connection = mock.Mock()
+        connection.execute.return_value.fetchone.return_value = (
+            "2026-11-06T23:17:00+00:00",
+        )
+        with mock.patch.object(app.sqlite3, "connect", return_value=connection):
+            updated = app.get_digest_updated_at()
+        self.assertEqual(updated, "Updated Nov 6, 2026 at 16:17")
+        connection.close.assert_called_once_with()
+
 
 if __name__ == "__main__":
     unittest.main()

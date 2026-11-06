@@ -576,7 +576,7 @@ def get_digest_updated_at() -> str:
         return "Waiting for the first digest run"
     try:
         generated = datetime.fromisoformat(row[0].replace("Z", "+00:00")) + BC_OFFSET
-        return f"Updated {generated.strftime('%b %-d, %Y at %-I:%M %p')}"
+        return f"Updated {generated.strftime('%b %-d, %Y at %H:%M')}"
     except ValueError:
         return "Updated from the latest digest run"
 
