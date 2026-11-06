@@ -1,0 +1,134 @@
+{
+  "exclusion_markers_absent": true,
+  "observed_epoch": 1793929155,
+  "paperless_future_interval": {
+    "future_interval_seconds": 244.2112365490757
+  },
+  "units": [
+    {
+      "ActiveState": "active",
+      "MainPID": "94226",
+      "Result": "success",
+      "UnitFileState": "enabled",
+      "guest": "104",
+      "unit": "aster-agent.service"
+    },
+    {
+      "ActiveState": "active",
+      "MainPID": "33045",
+      "Result": "success",
+      "UnitFileState": "enabled",
+      "guest": "110",
+      "unit": "aster-llama.service"
+    },
+    {
+      "ActiveState": "inactive",
+      "MainPID": "0",
+      "Result": "success",
+      "UnitFileState": "static",
+      "guest": "114",
+      "unit": "news-aggregator-digest.service"
+    },
+    {
+      "ActiveState": "active",
+      "NextElapseUSecMonotonic": "0",
+      "NextElapseUSecRealtime": "Fri 2026-11-06 13:16:51 UTC",
+      "Result": "success",
+      "UnitFileState": "enabled",
+      "guest": "114",
+      "unit": "news-aggregator-digest.timer"
+    },
+    {
+      "ActiveState": "inactive",
+      "MainPID": "0",
+      "Result": "success",
+      "UnitFileState": "static",
+      "guest": "114",
+      "unit": "news-aggregator-ingest.service"
+    },
+    {
+      "ActiveState": "active",
+      "NextElapseUSecMonotonic": "0",
+      "NextElapseUSecRealtime": "Fri 2026-11-06 02:04:22 UTC",
+      "Result": "success",
+      "UnitFileState": "enabled",
+      "guest": "114",
+      "unit": "news-aggregator-ingest.timer"
+    },
+    {
+      "ActiveState": "active",
+      "MainPID": "92870",
+      "Result": "success",
+      "UnitFileState": "enabled",
+      "guest": "114",
+      "unit": "news-aggregator-ui.service"
+    },
+    {
+      "ActiveState": "active",
+      "MainPID": "1864341",
+      "Result": "success",
+      "UnitFileState": "enabled",
+      "guest": "115",
+      "unit": "paperless-summary-broker.service"
+    },
+    {
+      "ActiveState": "inactive",
+      "MainPID": "0",
+      "Result": "success",
+      "UnitFileState": "static",
+      "guest": "115",
+      "unit": "paperless-summary.service"
+    },
+    {
+      "ActiveState": "active",
+      "NextElapseUSecMonotonic": "3w 4d 21h 15min 29.118135s",
+      "NextElapseUSecRealtime": "",
+      "Result": "success",
+      "UnitFileState": "enabled",
+      "guest": "115",
+      "unit": "paperless-summary.timer"
+    },
+    {
+      "ActiveState": "active",
+      "MainPID": "56417",
+      "Result": "success",
+      "UnitFileState": "enabled",
+      "guest": "116",
+      "unit": "aster-speech.service"
+    },
+    {
+      "ActiveState": "inactive",
+      "MainPID": "0",
+      "Result": "success",
+      "UnitFileState": "static",
+      "guest": "116",
+      "unit": "epub-narration-monitor.service"
+    },
+    {
+      "ActiveState": "active",
+      "NextElapseUSecMonotonic": "0",
+      "NextElapseUSecRealtime": "Fri 2026-11-06 03:42:23 MST",
+      "Result": "success",
+      "UnitFileState": "enabled",
+      "guest": "116",
+      "unit": "epub-narration-monitor.timer"
+    },
+    {
+      "ActiveState": "inactive",
+      "MainPID": "0",
+      "Result": "success",
+      "UnitFileState": "static",
+      "guest": "116",
+      "unit": "epub-narration-worker.service"
+    },
+    {
+      "ActiveState": "inactive",
+      "NextElapseUSecMonotonic": "infinity",
+      "NextElapseUSecRealtime": "",
+      "Result": "success",
+      "UnitFileState": "disabled",
+      "guest": "116",
+      "unit": "epub-narration-worker.timer"
+    }
+  ]
+}

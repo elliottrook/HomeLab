@@ -92,3 +92,20 @@ a branch push remains distinct from proof the peer read it.
 | 70832267c59b1e9a6b809ec08ff1af1157c0c8e1 | docs/projects/AI Projects/evidence/SA4-signed-zero-effect-ceremony-result-2026-11-05.md | dd69130b443f72a75ebdf135d2cb4823f2024dd4bc422924a0eab4fe6fdc4c48 |
 | 6fb0207fec5190e0c34ed3bc72ea38e128f06127 | docs/runbooks/Local-AI-Lease.md | 064b56ee8fca8aad37e9ae627cf119c581c3f8d8ad7d9782ccfeb0fa23b31d4c |
 | 803ebd83b2d4bf201d9cd02104b1281048ec4c0d | docs/projects/B60-Inference-Engineering/owner-resource-qualification-20261105.md | b04c3235f453cc5d04e5c38f4045c4cb74a6d34e13a358d443ee1291ca8c5995 |
+
+## Final schedule observation and operational continuation
+
+At1793929155 all15 declared unit states were read without model/health-generation
+or configuration effects. Core Agent/llama/Speech/UI/broker units are active and
+successful, idle workers inactive/success, News and EPUB monitor calendars have
+future deadlines, and Paperless has244.21seconds until its next monotonic poll.
+The retired EPUB worker timer remains disabled/inactive; no runtime/persistent
+mask or exclusion marker is present. Exact sanitized fields are retained in
+[evidence](evidence/20261105-r4/schedules.json).
+
+The existing operational follow-up was narrowed to the remaining19:25 resource
+reconciliation with exact R4 pass/R5 source identities, without modifying either
+Proxmox clock. Broader programme automations remain active. No live experiment,
+service, timer, configuration, download, mount, GPU/model or lease effect was
+performed by this preparation heartbeat. The external dependency is the booked
+19:15 resource window and its actual independent terminal result.
