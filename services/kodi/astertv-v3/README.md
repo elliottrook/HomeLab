@@ -126,7 +126,12 @@ PA3 remains synthetic and isolated in the portable Mini pilot:
   headings. Compact titles wrap to use the available card height; their artwork
   is flush to the result's left, top and bottom edges. The listening state uses
   a fine animated five-bar gold waveform instead of a static dot.
-- `F2` opens the News rework while preserving digest, article and narration labels.
+- `F2` opens the News rework while preserving digest, article and narration
+  labels. Its **Play from beginning** action opens the synthetic v3 player
+  candidate: current-story artwork and summary remain visible, whole-briefing
+  time/progress is explicit, the story rail shows thumbnails and the active
+  story in gold, and remote focus remains jade. The fixture plays no audio;
+  `news_player/` contains the tested mapping onto the existing digest runtime.
 - `F3` opens podcast discovery, duplicate/status and request surfaces; request is inert.
 - `F4` opens the denser Home overview with fixture-only household data.
 - `F5` opens Cameras with fresh, stale, unavailable and door-event states and no live imagery.

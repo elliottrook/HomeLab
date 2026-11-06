@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+  <defaultcontrol always="true">203</defaultcontrol>
+  <backgroundcolor>ff171c19</backgroundcolor>
+  <controls>
+    <control type="image"><width>1920</width><height>1080</height><texture>special://skin/media/ui-hero-left-fade.png</texture><colordiffuse>ff302820</colordiffuse><aspectratio>stretch</aspectratio></control>
+    <control type="image"><width>1920</width><height>1080</height><texture>special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>fff5f1e8</colordiffuse><aspectratio>stretch</aspectratio></control>
+    <control type="image"><left>70</left><top>28</top><width>126</width><height>112</height><texture>special://skin/media/30-aster-news-logo.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>215</left><top>48</top><width>720</width><height>48</height><label>Daily briefing</label><font>font40</font><textcolor>fff5f1e8</textcolor></control>
+    <control type="label"><left>215</left><top>101</top><width>720</width><height>30</height><label>$INFO[Window.Property(Digest.Status)]</label><font>font18</font><textcolor>ffa7c5aa</textcolor><truncate>true</truncate></control>
+    <control type="button" id="200"><left>1660</left><top>52</top><width>190</width><height>54</height><label>Back to News</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>fff5f1e8</textcolor><focusedcolor>fff5f1e8</focusedcolor><texturefocus border="24" colordiffuse="ff235640">special://skin/media/ui-button-focus-gold-rim.png</texturefocus><texturenofocus border="24" colordiffuse="e6242b25">special://skin/media/ui-button-current-gold-rim.png</texturenofocus><onleft>300</onleft><onright>203</onright><onup>200</onup><ondown>300</ondown></control>
+    <control type="image"><left>70</left><top>165</top><width>900</width><height>810</height><texture border="30" colordiffuse="a6242b25">special://skin/media/ui-panel.png</texture></control>
+    <control type="image"><left>104</left><top>205</top><width>832</width><height>382</height><texture background="true">$INFO[Window.Property(Digest.Image)]</texture><aspectratio>keep</aspectratio><fadetime>180</fadetime></control>
+    <control type="label"><left>104</left><top>620</top><width>820</width><height>30</height><label>NOW PLAYING · $INFO[Window.Property(Digest.Counter)]</label><font>font18</font><textcolor>ffd8b778</textcolor></control>
+    <control type="textbox"><left>104</left><top>658</top><width>820</width><height>86</height><label>$INFO[Window.Property(Digest.Title)]</label><font>font32</font><textcolor>fff5f1e8</textcolor></control>
+    <control type="label"><left>104</left><top>750</top><width>820</width><height>30</height><label>$INFO[Window.Property(Digest.Source)]</label><font>font18</font><textcolor>ffa7c5aa</textcolor><truncate>true</truncate></control>
+    <control type="textbox"><left>104</left><top>788</top><width>820</width><height>72</height><label>$INFO[Window.Property(Digest.Summary)]</label><font>font18</font><textcolor>ffbfc6bb</textcolor></control>
+    <control type="label"><left>104</left><top>868</top><width>180</width><height>28</height><label>$INFO[Player.Time(mm:ss)]</label><font>font18</font><textcolor>fff5f1e8</textcolor></control>
+    <control type="label"><left>744</left><top>868</top><width>180</width><height>28</height><label>$INFO[Player.Duration(mm:ss)]</label><font>font18</font><textcolor>fff5f1e8</textcolor><align>right</align></control>
+    <control type="progress"><left>104</left><top>901</top><width>820</width><height>10</height><info>Player.Progress</info><texturebg border="4" colordiffuse="55bfc6bb">special://skin/media/ui-progress.png</texturebg><midtexture border="4" colordiffuse="ffa7c5aa">special://skin/media/ui-progress.png</midtexture><lefttexture/><righttexture/><overlaytexture/></control>
+    <control type="button" id="201"><left>150</left><top>928</top><width>82</width><height>58</height><label>Previous story</label><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturenofocus/><texturefocus border="24" colordiffuse="ff235640">special://skin/media/ui-button-focus-gold-rim.png</texturefocus><onleft>300</onleft><onright>203</onright><onup>200</onup><ondown>300</ondown><enable>!String.IsEqual(Window.Property(Digest.First),true)</enable></control>
+    <control type="image"><left>167</left><top>937</top><width>46</width><height>40</height><texture>previous.png</texture><aspectratio>keep</aspectratio><colordiffuse>fff5f1e8</colordiffuse></control>
+    <control type="button" id="203"><left>276</left><top>928</top><width>82</width><height>58</height><label>Play or pause briefing</label><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturenofocus/><texturefocus border="24" colordiffuse="ff235640">special://skin/media/ui-button-focus-gold-rim.png</texturefocus><onleft>201</onleft><onright>202</onright><onup>200</onup><ondown>300</ondown></control>
+    <control type="image"><left>293</left><top>937</top><width>46</width><height>40</height><texture>play.png</texture><aspectratio>keep</aspectratio><colordiffuse>fff5f1e8</colordiffuse><visible>!String.IsEqual(Window.Property(Digest.Playing),true) | String.IsEqual(Window.Property(Digest.Paused),true)</visible></control>
+    <control type="image"><left>293</left><top>937</top><width>46</width><height>40</height><texture>pause.png</texture><aspectratio>keep</aspectratio><colordiffuse>fff5f1e8</colordiffuse><visible>String.IsEqual(Window.Property(Digest.Playing),true) + !String.IsEqual(Window.Property(Digest.Paused),true)</visible></control>
+    <control type="button" id="202"><left>402</left><top>928</top><width>82</width><height>58</height><label>Next story</label><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturenofocus/><texturefocus border="24" colordiffuse="ff235640">special://skin/media/ui-button-focus-gold-rim.png</texturefocus><onleft>203</onleft><onright>204</onright><onup>200</onup><ondown>300</ondown><enable>!String.IsEqual(Window.Property(Digest.Last),true)</enable></control>
+    <control type="image"><left>419</left><top>937</top><width>46</width><height>40</height><texture>next.png</texture><aspectratio>keep</aspectratio><colordiffuse>fff5f1e8</colordiffuse></control>
+    <control type="button" id="204"><left>528</left><top>928</top><width>82</width><height>58</height><label>Stop briefing</label><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturenofocus/><texturefocus border="24" colordiffuse="ff235640">special://skin/media/ui-button-focus-gold-rim.png</texturefocus><onleft>202</onleft><onright>300</onright><onup>200</onup><ondown>300</ondown></control>
+    <control type="image"><left>545</left><top>937</top><width>46</width><height>40</height><texture>stop.png</texture><aspectratio>keep</aspectratio><colordiffuse>fff5f1e8</colordiffuse></control>
+    <control type="image"><left>1015</left><top>165</top><width>835</width><height>810</height><texture border="30" colordiffuse="70242b25">special://skin/media/ui-panel.png</texture></control>
+    <control type="label"><left>1050</left><top>195</top><width>750</width><height>42</height><label>In this briefing</label><font>font30</font><textcolor>fff5f1e8</textcolor></control>
+    <control type="list" id="300"><left>1040</left><top>246</top><width>785</width><height>690</height><onleft>203</onleft><onright>200</onright><onup>200</onup><ondown>300</ondown><scrolltime>180</scrolltime>
+      <itemlayout width="785" height="138">
+        <control type="image"><left>4</left><top>6</top><width>765</width><height>126</height><texture border="18" colordiffuse="c8242b25">special://skin/media/ui-panel.png</texture></control>
+        <control type="image"><left>4</left><top>6</top><width>765</width><height>126</height><visible>String.IsEqual(ListItem.Property(Active),true)</visible><texture border="18" colordiffuse="ffd8b778">special://skin/media/ui-button-current-gold-rim.png</texture></control>
+        <control type="image"><left>16</left><top>16</top><width>190</width><height>106</height><texture background="true">$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio></control>
+        <control type="textbox"><left>224</left><top>18</top><width>515</width><height>58</height><label>$INFO[ListItem.Label]</label><font>font22</font><textcolor>fff5f1e8</textcolor></control>
+        <control type="label"><left>224</left><top>84</top><width>515</width><height>28</height><label>$INFO[ListItem.Property(Source)] · $INFO[ListItem.Property(Clock)]</label><font>font17</font><textcolor>ffbfc6bb</textcolor><truncate>true</truncate></control>
+      </itemlayout>
+      <focusedlayout width="785" height="138">
+        <control type="image"><left>4</left><top>6</top><width>765</width><height>126</height><texture border="18" colordiffuse="ff235640">special://skin/media/ui-button-focus-gold-rim.png</texture></control>
+        <control type="image"><left>16</left><top>16</top><width>190</width><height>106</height><texture background="true">$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio></control>
+        <control type="textbox"><left>224</left><top>18</top><width>515</width><height>58</height><label>$INFO[ListItem.Label]</label><font>font22</font><textcolor>fff5f1e8</textcolor></control>
+        <control type="label"><left>224</left><top>84</top><width>515</width><height>28</height><label>$INFO[ListItem.Property(Source)] · $INFO[ListItem.Property(Clock)]</label><font>font17</font><textcolor>ffd8b778</textcolor><truncate>true</truncate></control>
+      </focusedlayout>
+    </control>
+    <control type="label"><left>1050</left><top>944</top><width>750</width><height>28</height><label>Published $INFO[Window.Property(Digest.Published)]</label><font>font16</font><textcolor>ffbfc6bb</textcolor><truncate>true</truncate></control>
+  </controls>
+</window>

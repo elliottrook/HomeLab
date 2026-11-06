@@ -55,6 +55,7 @@
     {"id":"tv","family":"TV","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1196_tv_rework.xml"},
     {"id":"aster-ai-search","family":"Search","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1197_aster_ai.xml"},
     {"id":"news","family":"News","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1198_news_rework.xml"},
+    {"id":"news-player","family":"News","status":"candidate-v3-review","template":"services/kodi/astertv-v3/news_player/resources/skins/Default/1080i/DigestPlayer.xml"},
     {"id":"podcast-requests","family":"Requests","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1199_podcast_requests.xml"},
     {"id":"home","family":"Home","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1200_home_rework.xml"},
     {"id":"cameras","family":"Cameras","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1201_cameras_rework.xml"},

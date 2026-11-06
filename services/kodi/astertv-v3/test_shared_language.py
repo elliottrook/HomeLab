@@ -397,7 +397,7 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-            self.assertIn("293 visible buttons", completed.stdout)
+            self.assertIn("303 visible buttons", completed.stdout)
             self.assertIn("anchor:1, art:11, catcher:2, hidden:4", completed.stdout)
             self.assertIn("14 shared button definitions", completed.stdout)
 

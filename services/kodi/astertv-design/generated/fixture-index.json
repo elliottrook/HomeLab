@@ -173,6 +173,15 @@
     },
     {
       "height": 1080,
+      "id": "page-news-player",
+      "kind": "page",
+      "path": "generated/renders/pages/news-player.svg",
+      "source": "news-player",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
       "id": "page-podcast-requests",
       "kind": "page",
       "path": "generated/renders/pages/podcast-requests.svg",

@@ -178,6 +178,20 @@
     },
     {
       "controls": [
+        200,
+        201,
+        202,
+        203,
+        204,
+        300
+      ],
+      "family": "News",
+      "id": "news-player",
+      "status": "candidate-v3-review",
+      "template": "services/kodi/astertv-v3/news_player/resources/skins/Default/1080i/DigestPlayer.xml"
+    },
+    {
+      "controls": [
         11990,
         11991,
         11992,

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1204">
+  <defaultcontrol always="true">12042</defaultcontrol>
+  <controls>
+    <include>AsterV3PageBackdrop</include>
+    <control type="image"><left>55</left><top>26</top><width>100</width><height>100</height><texture>special://skin/media/30-aster-news-logo.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>165</left><top>42</top><width>620</width><height>44</height><label>Daily briefing</label><font>font36</font><textcolor>asterV3Text</textcolor></control>
+    <control type="label"><left>165</left><top>91</top><width>620</width><height>28</height><label>SYNTHETIC PLAYER · NO AUDIO</label><font>font16</font><textcolor>asterV3Focus</textcolor></control>
+    <control type="button" id="12040"><left>1640</left><top>38</top><width>200</width><height>54</height><label>Back to News</label><include>AsterV3MediaPill</include><onleft>12045</onleft><onright>12042</onright><onup>12040</onup><ondown>12045</ondown><onclick>ActivateWindow(1198)</onclick></control>
+
+    <control type="image"><left>70</left><top>150</top><width>900</width><height>830</height><texture border="30" colordiffuse="a6242b25">special://skin/media/ui-panel.png</texture></control>
+    <control type="image"><left>104</left><top>190</top><width>832</width><height>402</height><texture>special://skin/media/fixtures/youtube/autumn-rail.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>104</left><top>625</top><width>820</width><height>30</height><label>NOW PLAYING · STORY 2 OF 5</label><font>font18</font><textcolor>asterV3Focus</textcolor></control>
+    <control type="textbox"><left>104</left><top>665</top><width>820</width><height>82</height><label>Library opens a living archive</label><font>font32</font><textcolor>asterV3Text</textcolor></control>
+    <control type="label"><left>104</left><top>752</top><width>820</width><height>30</height><label>Civic Review</label><font>font18</font><textcolor>asterV3Success</textcolor></control>
+    <control type="textbox"><left>104</left><top>790</top><width>820</width><height>68</height><label>A new oral-history collection brings local voices together while preserving the pictures and places behind each account.</label><font>font18</font><textcolor>asterV3Muted</textcolor></control>
+    <control type="label"><left>104</left><top>870</top><width>160</width><height>28</height><label>04:12</label><font>font18</font><textcolor>asterV3Text</textcolor></control>
+    <control type="label"><left>764</left><top>870</top><width>160</width><height>28</height><label>15:54</label><font>font18</font><textcolor>asterV3Text</textcolor><align>right</align></control>
+    <control type="image"><left>104</left><top>904</top><width>820</width><height>10</height><texture colordiffuse="55bfc6bb">special://skin/media/ui-progress.png</texture></control>
+    <control type="image"><left>104</left><top>904</top><width>216</width><height>10</height><texture colordiffuse="ffa7c5aa">special://skin/media/ui-progress.png</texture></control>
+    <control type="button" id="12041"><left>145</left><top>936</top><width>132</width><height>54</height><label>Previous</label><include>AsterV3PrimaryAction</include><onleft>12045</onleft><onright>12042</onright><onup>12040</onup><ondown>12045</ondown></control>
+    <control type="button" id="12042"><left>295</left><top>936</top><width>132</width><height>54</height><label>Pause</label><include>AsterV3PrimaryAction</include><onleft>12041</onleft><onright>12043</onright><onup>12040</onup><ondown>12046</ondown></control>
+    <control type="button" id="12043"><left>445</left><top>936</top><width>132</width><height>54</height><label>Next</label><include>AsterV3PrimaryAction</include><onleft>12042</onleft><onright>12044</onright><onup>12040</onup><ondown>12047</ondown></control>
+    <control type="button" id="12044"><left>595</left><top>936</top><width>132</width><height>54</height><label>Stop</label><include>AsterV3PrimaryAction</include><onleft>12043</onleft><onright>12045</onright><onup>12040</onup><ondown>12048</ondown></control>
+
+    <control type="image"><left>1015</left><top>150</top><width>835</width><height>830</height><texture border="30" colordiffuse="70242b25">special://skin/media/ui-panel.png</texture></control>
+    <control type="label"><left>1050</left><top>184</top><width>750</width><height>42</height><label>In this briefing</label><font>font30</font><textcolor>asterV3Text</textcolor></control>
+    <control type="button" id="12045"><left>1040</left><top>238</top><width>785</width><height>136</height><label>Harbour restores its night ferry</label><include>AsterV3StateButton</include><onleft>12042</onleft><onright>12040</onright><onup>12040</onup><ondown>12046</ondown></control>
+    <control type="image"><left>1056</left><top>251</top><width>190</width><height>110</height><texture>special://skin/media/fixtures/youtube/aurora-station.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>1266</left><top>270</top><width>520</width><height>36</height><label>Harbour restores its night ferry</label><font>font22</font><textcolor>asterV3Text</textcolor></control>
+    <control type="label"><left>1266</left><top>320</top><width>520</width><height>28</height><label>Coastline Journal · 00:00</label><font>font17</font><textcolor>asterV3Muted</textcolor></control>
+    <control type="image"><left>1038</left><top>380</top><width>789</width><height>140</height><texture border="20" colordiffuse="ffd8b778">special://skin/media/ui-button-current-gold-rim.png</texture></control>
+    <control type="button" id="12046"><left>1040</left><top>382</top><width>785</width><height>136</height><label>Library opens a living archive</label><include>AsterV3StateButton</include><onleft>12042</onleft><onright>12040</onright><onup>12045</onup><ondown>12047</ondown></control>
+    <control type="image"><left>1056</left><top>395</top><width>190</width><height>110</height><texture>special://skin/media/fixtures/youtube/autumn-rail.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>1266</left><top>414</top><width>520</width><height>36</height><label>Library opens a living archive</label><font>font22</font><textcolor>asterV3Text</textcolor></control>
+    <control type="label"><left>1266</left><top>464</top><width>520</width><height>28</height><label>Civic Review · 03:18 · PLAYING</label><font>font17</font><textcolor>asterV3Focus</textcolor></control>
+    <control type="button" id="12047"><left>1040</left><top>526</top><width>785</width><height>136</height><label>Orchestra returns to the square</label><include>AsterV3StateButton</include><onleft>12043</onleft><onright>12040</onright><onup>12046</onup><ondown>12048</ondown></control>
+    <control type="image"><left>1056</left><top>539</top><width>190</width><height>110</height><texture>special://skin/media/fixtures/youtube/velvet-hour.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>1266</left><top>558</top><width>520</width><height>36</height><label>Orchestra returns to the square</label><font>font22</font><textcolor>asterV3Text</textcolor></control>
+    <control type="label"><left>1266</left><top>608</top><width>520</width><height>28</height><label>Arts Desk · 06:42</label><font>font17</font><textcolor>asterV3Muted</textcolor></control>
+    <control type="button" id="12048"><left>1040</left><top>670</top><width>785</width><height>136</height><label>New trail links the valley</label><include>AsterV3StateButton</include><onleft>12044</onleft><onright>12040</onright><onup>12047</onup><ondown>12049</ondown></control>
+    <control type="image"><left>1056</left><top>683</top><width>190</width><height>110</height><texture>special://skin/media/fixtures/youtube/living-light.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>1266</left><top>702</top><width>520</width><height>36</height><label>New trail links the valley</label><font>font22</font><textcolor>asterV3Text</textcolor></control>
+    <control type="label"><left>1266</left><top>752</top><width>520</width><height>28</height><label>Field Notes · 09:11</label><font>font17</font><textcolor>asterV3Muted</textcolor></control>
+    <control type="button" id="12049"><left>1040</left><top>814</top><width>785</width><height>136</height><label>Morning markets find new growers</label><include>AsterV3StateButton</include><onleft>12042</onleft><onright>12040</onright><onup>12048</onup><ondown>12049</ondown></control>
+    <control type="image"><left>1056</left><top>827</top><width>190</width><height>110</height><texture>special://skin/media/fixtures/youtube/aurora-station.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>1266</left><top>846</top><width>520</width><height>36</height><label>Morning markets find new growers</label><font>font22</font><textcolor>asterV3Text</textcolor></control>
+    <control type="label"><left>1266</left><top>896</top><width>520</width><height>28</height><label>Regional Wire · 12:27</label><font>font17</font><textcolor>asterV3Muted</textcolor></control>
+  </controls>
+</window>

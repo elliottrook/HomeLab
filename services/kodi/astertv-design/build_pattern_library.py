@@ -119,6 +119,55 @@ def page_render(page: dict, tokens: dict) -> str:
     return svg_frame(f'{family} page · {page["status"]}', body, tokens)
 
 
+def news_player_render(page: dict, tokens: dict) -> str:
+    c = tokens["colors"]
+    stories = [
+        ("Harbour restores its night ferry", "Coastline Journal", "00:00", "#365B50", False),
+        ("Library opens a living archive", "Civic Review", "03:18", "#9B7048", True),
+        ("Orchestra returns to the square", "Arts Desk", "06:42", "#5E4F6B", False),
+        ("New trail links the valley", "Field Notes", "09:11", "#476070", False),
+        ("Morning markets find new growers", "Regional Wire", "12:27", "#7A5948", False),
+    ]
+    rows = []
+    for index, (title, source, clock, art, active) in enumerate(stories):
+        y = 238 + index * 142
+        fill = c["charcoal"] if not active else "#493D28"
+        stroke = c["champagne_gold"] if active else "#00000000"
+        rows.append(
+            f'<g><rect x="1050" y="{y}" width="770" height="126" rx="18" fill="{fill}" fill-opacity=".88" stroke="{stroke}" stroke-width="{4 if active else 0}"/>'
+            f'<rect x="1062" y="{y+10}" width="184" height="106" rx="12" fill="{art}"/>'
+            f'<text x="1270" y="{y+42}" fill="{c["warm_white"]}" font-family="sans-serif" font-size="24">{svg_escape(title)}</text>'
+            f'<text x="1270" y="{y+82}" fill="{c["champagne_gold"] if active else c["soft_text"]}" font-family="sans-serif" font-size="18">{svg_escape(source)} · {clock}</text>'
+            f'<text x="1770" y="{y+82}" fill="{c["champagne_gold"]}" font-family="sans-serif" font-size="17">{"PLAYING" if active else ""}</text></g>'
+        )
+    controls = []
+    for index, label in enumerate(("Previous", "Pause", "Next", "Stop")):
+        x = 122 + index * 148
+        controls.append(
+            f'<rect x="{x}" y="900" width="126" height="58" rx="28" fill="{c["jade"] if label == "Pause" else c["charcoal"]}" stroke="{c["champagne_gold"]}" stroke-width="{4 if label == "Pause" else 2}"/>'
+            f'<text x="{x+63}" y="936" text-anchor="middle" fill="{c["warm_white"]}" font-family="sans-serif" font-size="19">{label}</text>'
+        )
+    body = (
+        f'<rect x="70" y="165" width="900" height="810" rx="30" fill="{c["charcoal"]}" fill-opacity=".66"/>'
+        f'<rect x="1025" y="165" width="825" height="810" rx="30" fill="{c["charcoal"]}" fill-opacity=".42"/>'
+        f'<rect x="112" y="220" width="816" height="382" rx="22" fill="#9B7048"/>'
+        f'<path d="M112 520 C350 410 600 640 928 420 L928 602 L112 602 Z" fill="#1D352D" fill-opacity=".72"/>'
+        f'<text x="112" y="658" fill="{c["champagne_gold"]}" font-family="sans-serif" font-size="22">NOW PLAYING · STORY 2 OF 5</text>'
+        f'<text x="112" y="708" fill="{c["warm_white"]}" font-family="sans-serif" font-size="38">Library opens a living archive</text>'
+        f'<text x="112" y="750" fill="{c["soft_text"]}" font-family="sans-serif" font-size="20">Civic Review · A new oral-history collection brings local voices together.</text>'
+        f'<text x="112" y="824" fill="{c["warm_white"]}" font-family="sans-serif" font-size="19">04:12</text>'
+        f'<text x="928" y="824" text-anchor="end" fill="{c["warm_white"]}" font-family="sans-serif" font-size="19">15:54</text>'
+        f'<rect x="112" y="846" width="816" height="10" rx="5" fill="{c["soft_text"]}" fill-opacity=".32"/>'
+        f'<rect x="112" y="846" width="216" height="10" rx="5" fill="{c["light_jade"]}"/>'
+        + ''.join(controls)
+        + f'<text x="1050" y="210" fill="{c["warm_white"]}" font-family="sans-serif" font-size="30">In this briefing</text>'
+        + ''.join(rows)
+        + f'<rect x="1665" y="72" width="150" height="52" rx="26" fill="{c["charcoal"]}" stroke="{c["champagne_gold"]}" stroke-width="2"/>'
+        f'<text x="1740" y="105" text-anchor="middle" fill="{c["warm_white"]}" font-family="sans-serif" font-size="20">Back to News</text>'
+    )
+    return svg_frame(f'News player · {page["status"]}', body, tokens)
+
+
 def render(tokens: dict, catalogue: dict, asset_index: dict) -> str:
     colors = tokens["colors"]
     component_sections = []
@@ -176,7 +225,7 @@ def outputs() -> dict[Path, str]:
         fixture_index["fixtures"].append({"id": f'component-{component["id"]}', "kind": "component", "source": component["id"], "path": path.relative_to(HERE).as_posix(), "width": 1920, "height": 1080, "synthetic": True})
     for page in catalogue["pages"]:
         path = GENERATED / "renders/pages" / f'{page["id"]}.svg'
-        rendered[path] = page_render(page, tokens)
+        rendered[path] = news_player_render(page, tokens) if page["id"] == "news-player" else page_render(page, tokens)
         fixture_index["fixtures"].append({"id": f'page-{page["id"]}', "kind": "page", "source": page["id"], "path": path.relative_to(HERE).as_posix(), "width": 1920, "height": 1080, "synthetic": True})
     rendered[GENERATED / "fixture-index.json"] = canonical(fixture_index)
     return rendered

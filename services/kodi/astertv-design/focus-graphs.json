@@ -50,6 +50,20 @@
       "back": "underlying-page",
       "scroll": "none",
       "nodes": {"dismiss":{"left":"dismiss","right":"dismiss","up":"dismiss","down":"dismiss"}}
+    },
+    {
+      "page": "news-player",
+      "entry": "play-pause",
+      "back": "news-return",
+      "scroll": "active-story-follow",
+      "nodes": {
+        "news-return":{"left":"story-list","right":"play-pause","down":"story-list"},
+        "previous":{"left":"story-list","right":"play-pause","up":"news-return","down":"story-list"},
+        "play-pause":{"left":"previous","right":"next","up":"news-return","down":"story-list"},
+        "next":{"left":"play-pause","right":"stop","up":"news-return","down":"story-list"},
+        "stop":{"left":"next","right":"story-list","up":"news-return","down":"story-list"},
+        "story-list":{"left":"play-pause","right":"news-return","up":"news-return","down":"story-list"}
+      }
     }
   ]
 }
