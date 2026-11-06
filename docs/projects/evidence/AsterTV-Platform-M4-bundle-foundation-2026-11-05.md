@@ -40,7 +40,7 @@ future promotion transaction. No promotion was performed.
 
 ## Verification
 
-- Fleet/release suite: 42/42 passing, including typed assertion drift, target
+- Fleet/release suite: 43/43 passing, including typed assertion drift, target
   isolation, install-path containment, offline checkpoint/apply/rollback and
   fail-closed missing/stale/drifted observation handling.
 - Four deterministic bundles build from the locally verified immutable release.
@@ -115,7 +115,10 @@ future promotion transaction. No promotion was performed.
 - The transaction runner validates bundle identity/hash, checkpoints every
   existing destination and predecessor accepted state, stages/re-hashes every
   payload, applies only declared files, preserves an exact rollback path and
-  keeps the old boot guard runtime-masked until explicit acceptance.
+  removes the old guard's boot edge until explicit acceptance. The first Jen
+  rehearsal proved that a runtime mask alone was insufficient on LibreELEC;
+  exact rollback succeeded and the corrected disable/enable sequence is now a
+  regression fixture.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 
 ## Next

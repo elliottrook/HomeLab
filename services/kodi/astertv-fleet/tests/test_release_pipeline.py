@@ -217,6 +217,23 @@ class ReleasePipelineTests(unittest.TestCase):
             self.assertEqual(APPLY.restore(root, checkpoint)["outcome"], "rolled-back")
             self.assertEqual(live.read_bytes(), b"old")
 
+    def test_bundle_runner_removes_and_restores_guard_boot_edge(self):
+        from unittest.mock import patch
+        with patch.object(APPLY, "run") as command:
+            APPLY.suspend_guard()
+            self.assertEqual(command.call_args_list, [
+                unittest.mock.call(["systemctl", "stop", "kodi.service"]),
+                unittest.mock.call(["systemctl", "disable", "astertv-release-guard.service"]),
+                unittest.mock.call(["systemctl", "daemon-reload"]),
+            ])
+        with patch.object(APPLY, "run") as command:
+            APPLY.resume_guard()
+            self.assertEqual(command.call_args_list, [
+                unittest.mock.call(["systemctl", "enable", "astertv-release-guard.service"]),
+                unittest.mock.call(["systemctl", "daemon-reload"]),
+                unittest.mock.call(["systemctl", "start", "kodi.service"]),
+            ])
+
     def test_guard_detects_payload_and_required_dependency_drift(self):
         contract = {
             "schema_version": 1, "kind": "composition-guard-contract",

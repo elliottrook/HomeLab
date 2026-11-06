@@ -252,6 +252,20 @@ def run(command: list[str]) -> None:
     subprocess.run(command, check=True)
 
 
+def suspend_guard() -> None:
+    """Stop Kodi and remove the persistent boot edge before candidate start."""
+    run(["systemctl", "stop", "kodi.service"])
+    run(["systemctl", "disable", "astertv-release-guard.service"])
+    run(["systemctl", "daemon-reload"])
+
+
+def resume_guard() -> None:
+    """Restore the boot edge, reload systemd and start Kodi."""
+    run(["systemctl", "enable", "astertv-release-guard.service"])
+    run(["systemctl", "daemon-reload"])
+    run(["systemctl", "start", "kodi.service"])
+
+
 def idle_players() -> bool:
     request = b'{"jsonrpc":"2.0","method":"Player.GetActivePlayers","id":1}\n'
     with socket.create_connection(("127.0.0.1", 9090), timeout=3) as connection:
@@ -283,25 +297,20 @@ def main(argv=None) -> int:
     checkpoint_path = args.checkpoint_root / args.checkpoint_id
     if args.action == "rollback":
         if not args.offline:
-            run(["systemctl", "stop", "kodi.service"])
-            run(["systemctl", "mask", "--runtime", "astertv-release-guard.service"])
+            suspend_guard()
         result = restore(args.root, checkpoint_path)
         if not args.offline:
-            run(["systemctl", "unmask", "--runtime", "astertv-release-guard.service"])
-            run(["systemctl", "daemon-reload"])
-            run(["systemctl", "start", "kodi.service"])
+            resume_guard()
         print(json.dumps(result, sort_keys=True)); return 0
     if args.action == "accept":
         journal = json.loads((checkpoint_path / "checkpoint.json").read_text())
         if not args.offline:
             if not idle_players():
                 raise ValueError("playback-active")
-            run(["systemctl", "stop", "kodi.service"])
+            suspend_guard()
             run(["/usr/bin/python3", "/storage/.aster-release/release_guard.py",
                  "snapshot", "--host", socket.gethostname()])
-            run(["systemctl", "unmask", "--runtime", "astertv-release-guard.service"])
-            run(["systemctl", "daemon-reload"])
-            run(["systemctl", "start", "kodi.service"])
+            resume_guard()
         update_status(checkpoint_path, "accepted",
                       accepted_composition=journal["composition_sha256"])
         print(json.dumps({"outcome": "accepted", "device_id": journal["device_id"]},
@@ -324,20 +333,17 @@ def main(argv=None) -> int:
     staged = stage(args.root, manifest, payloads, args.stage_root, args.checkpoint_id)
     try:
         if not args.offline:
-            run(["systemctl", "stop", "kodi.service"])
-            run(["systemctl", "mask", "--runtime", "astertv-release-guard.service"])
+            suspend_guard()
         changed = install(args.root, manifest, staged)
         if not args.offline:
             run(["systemctl", "daemon-reload"])
             run(["systemctl", "start", "kodi.service"])
         update_status(checkpoint_path, "candidate-running", changed=changed,
-                      guard_runtime_masked=not args.offline)
+                      guard_disabled=not args.offline)
     except Exception:
         restore(args.root, checkpoint_path)
         if not args.offline:
-            run(["systemctl", "unmask", "--runtime", "astertv-release-guard.service"])
-            run(["systemctl", "daemon-reload"])
-            run(["systemctl", "start", "kodi.service"])
+            resume_guard()
         raise
     print(json.dumps({"outcome": "candidate-running", "changed": len(changed),
                       "checkpoint": str(checkpoint_path)}, sort_keys=True))

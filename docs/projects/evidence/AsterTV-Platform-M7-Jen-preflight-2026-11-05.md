@@ -45,10 +45,26 @@ hash-bound `install/storage/...` members and rejects path escape or duplicate
 destinations. Generated binary bundles remain outside Git.
 
 The bounded transaction runner has an offline checkpoint/apply/rollback
-fixture. Candidate startup runtime-masks the predecessor boot guard so it
-cannot silently revert the candidate; acceptance snapshots the new guarded
-state before unmasking. Any failed apply restores the checkpoint and restarts
-Kodi.
+fixture. Candidate startup temporarily removes the predecessor guard's boot
+edge so it cannot silently revert the candidate; acceptance snapshots the new
+guarded state before restoring that edge. Any failed apply restores the
+checkpoint and restarts Kodi.
+
+## First rehearsal attempt and recovered guard interaction
+
+The first authorized candidate start exposed a LibreELEC-specific lifecycle
+interaction before acceptance: a runtime systemd mask did not prevent the
+already-enabled guard from joining Kodi's start transaction. The predecessor
+guard restored nine guarded files, so the candidate correctly remained
+unaccepted. The transaction checkpoint then restored all 124 declared paths
+and both accepted-state directories; Kodi returned active, the guard returned
+enabled and the exact preflight delta returned to 77 matches, 17 missing and
+30 replacements.
+
+This was a successful stop-and-recovery test, not an accepted deployment. The
+runner now removes the persistent guard boot edge and reloads systemd before
+candidate startup, then restores that edge during accept or rollback. A focused
+command-sequence regression raises the fleet suite to 43/43.
 
 ## Authorized rehearsal sequence when approved
 
