@@ -432,6 +432,19 @@
 > uncertain v6 ledger, touch the healthy canary or restart a service. The full
 > historical/corrected suite passes 234/234. The inactive four-file installation
 > is the next explicit deployment gate.
+> Jason approved that gate and the [v2 inactive installation](evidence/SA4-terminal-reconciliation-v2-inactive-install-result-2026-11-06.md)
+> passed. All four exact root-owned single-link files import cleanly; installed
+> v1 dependencies, the healthy canary and spent uncertain ledger are unchanged;
+> runtime state is absent and production is healthy. No runner, signer,
+> authority, ledger rewrite, target effect, service action, route or promotion
+> occurred. Next is installed-path zero-effect validation and a distinct inert
+> canary design; the repaired v6 target and grant are not reused.
+> The [installed v2 zero-effect preflight](evidence/SA4-terminal-reconciliation-v2-installed-zero-effect-preflight-2026-11-06.md)
+> then exercised the final-path runner with one unexpected argument. It failed
+> closed before reading inputs or creating state. Every retained v6 input,
+> summary, ledger and canary hash remained byte-identical; runtime state stayed
+> absent and production healthy. Next is the source-only registration and
+> release design for a distinct inert canary. No repair is currently authorized.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
