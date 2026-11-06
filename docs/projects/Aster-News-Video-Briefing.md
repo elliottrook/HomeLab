@@ -1,12 +1,13 @@
 # Aster News video briefing
 
-> **Status:** Proposed — Stream M; visual design accepted, renderer evaluation started
+> **Status:** Active — Stream A for the booked B60 renderer session; visual design accepted
 >
 > **Owner:** Jason
 >
 > **Proposed:** 2026-11-06
 >
-> **Authorization stream:** Stream M
+> **Authorization stream:** Stream M generally; bounded Stream A authorization
+> for booking `aster-news-video-xpu-20261106-1430-r1` through its recovery cutoff
 
 ## Purpose and desired outcome
 
@@ -49,6 +50,13 @@ or creating a local-AI schedule without verified Lab Hours admission.
 - `wardrobe.json` owns the accepted wardrobe, research evidence and rotation.
 - Project evidence records candidate acceptance; generated assets do not
   become authoritative merely because they exist.
+- Jason authorized the owner to use the full booked B60 session autonomously
+  for the fixed MuseTalk XPU smoke-render purpose. This covers diagnosis,
+  hash-pinned implementation/registry/release revisions, explicit retries and
+  early release on Proxmox/LXC 110 during the booking and recovery interval.
+  It excludes a different workload purpose, runner kind, public exposure,
+  destructive data operations, weakened restoration controls or work after the
+  protected interval.
 
 ## Architecture and data flows
 
@@ -117,7 +125,8 @@ briefing UI until atomically accepted.
 ### M4 — Private pilot and graduation
 
 - [ ] Design the private integration, recovery checkpoint and operator workflow.
-- [ ] Obtain authorization immediately before any remote/production mutation.
+- [x] Record bounded autonomous authorization for the booked B60 session;
+  retain ordinary authorization gates for later production integration.
 - [ ] Validate audio/text independence, monitoring, backup/restore and user acceptance.
 
 ## Validation and evaluation
@@ -315,7 +324,8 @@ and all production changes have their required authorization.
   proved all three systemd controls, the registry and release-manifest pins
   revalidated, and the 14:30 booking remains scheduled.
 - Activated Lab Hours Session Contract V2 for the booking. The 90-minute grant
-  now permits at most three independently evidenced 20-minute attempts. A
+  permits independently evidenced 20-minute attempts while enough booked time
+  remains; it is not artificially limited to three tries. A
   later attempt is admitted only after a failed attempt proves production
   restored and enough booked time remains; an unrestored failure is terminal.
   The booking stays claimed between attempts and can be surrendered early only
@@ -340,10 +350,49 @@ and all production changes have their required authorization.
   lease, locks, attempt evidence, registry and release hashes are clean. The
   only remaining uncertainty is first-use B60 XPU enumeration/model execution,
   which was intentionally not initialized outside the booking.
+- Jason clarified that this reservation is the authorization envelope for all
+  bounded work needed to fulfil its fixed purpose. The owner may diagnose,
+  repin, retry and surrender the lab without repeated approval while the
+  booking remains active and restoration is proven. Updated the V2 contract
+  and Codex skill from a three-attempt/per-retry-approval model to a
+  remaining-time-and-restoration model.
+- Attempt 1 crashed in PyTorch's Battlemage device-property path. The fixed
+  guest removed `torch.xpu.get_device_name()`, verifies the B60 directly as
+  PCI `8086:e211`, enables Python fault handling, and emits flushed stage
+  markers. The adapter now converts a native crash into a bounded last-stage
+  code instead of losing it as `UNCLASSIFIED`.
+- The first failed attempt also exposed a restoration replay bug: recovery
+  considered commands observed for an older lease and skipped the current
+  unmask operations. Although the ledger said restored, LXC 110's accepted
+  Qwen service remained runtime-masked and inactive. Replayed the exact fixed
+  recovery inventory, verified Qwen, Aster Agent, Speech and both News timers
+  active, and changed restore replay to consider only events bearing the
+  current lease ID. Release pin `full_inference_lab_session.py` is now
+  `210fa6811d488a0158347c7e40493833489836c73666f2146567145d2a2c3021`.
+- Independent re-audit found and closed a final-minute admission gap: the
+  retry ledger now includes the runner's 60-second setup lead in both admission
+  and `retry_available`. Installed reservations pin is
+  `7004bb8df68f4a9d6e30982d7163f21dc09453bff0b18b783e5e6938d8fb5dee`.
+- Attempt 2 passed fixed PCI identity and crashed at
+  `MOVE_MODELS_TO_XPU`, proving the failure occurs on the first real PyTorch
+  XPU transfer. This matches upstream Battlemage reports in
+  [PyTorch #179891](https://github.com/pytorch/pytorch/issues/179891) and
+  [Intel LLVM #22834](https://github.com/intel/llvm/issues/22834): enumeration
+  may succeed while Level Zero kernel execution segfaults. The reported
+  OpenCL backend workaround requires an unsupported `LD_PRELOAD` shim and was
+  not introduced into this fixed workload.
+- Attempt 2 restored production successfully. With no supported correction for
+  the registered PyTorch/Level Zero path, released the booking early as
+  `EARLY_RELEASE_FAILED_RESTORED` after two evidenced attempts. Qwen, Aster
+  Agent, Speech and News timers were active and drain/shared locks absent.
+  The PyTorch XPU MuseTalk route is rejected on this current B60 stack; a later
+  evaluation should use a separately registered supported runtime such as an
+  OpenVINO/ONNX path rather than retrying the same Level Zero stack.
 
 ## Close-out
 
-Not ready. M2 is accepted and M3 renderer evaluation is active. Human viewing
-and listening of the first candidate, articulated-motion evaluation and a
-production-capacity decision remain open; deployment requires later gates and
-the Stream M change boundary.
+Not ready. M2 is accepted and M3 renderer evaluation remains active, but the
+current PyTorch XPU MuseTalk route is rejected on B60. A supported alternative
+runtime, human viewing/listening of its first candidate, articulated-motion
+evaluation and a production-capacity decision remain open; deployment requires
+later gates outside the completed autonomous booking envelope.

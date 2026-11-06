@@ -12,19 +12,25 @@ or weakening the lease, shared-lock, pin, recovery, or ledger controls.
 
 ## Session attempts
 
-- A retryable workload explicitly declares `retryable_session` and a bounded
-  `maximum_attempts` in the root-installed workload registry.
+- A retryable workload explicitly declares `retryable_session`, a bounded
+  per-attempt deadline and a time-budgeted retry policy in the root-installed
+  workload registry. A count ceiling is optional rather than the primary bound.
 - Every attempt uses the booking's registered workload and current hash pins.
 - An attempt has its own deadline, evidence directory, terminal receipt, and
   production-restoration result.
 - A failed attempt is retryable only when production restoration is proven,
-  another attempt remains within the declared limit, and its complete bounded
-  deadline fits before the booking end.
-- Retry dispatch is explicit. There is no blind automatic retry and no command
-  supplied by the booking record.
+  any optional count ceiling permits it, and its complete bounded deadline fits
+  before the booking end.
+- Retry dispatch is explicit and evidence-driven. The admitted owner may
+  diagnose, repin and retry autonomously within the approved booking envelope;
+  there is no blind automatic retry and no command supplied by the record.
 - An unrestored failure is terminal and cannot be retried.
 - An idle retryable session remains `claimed` until early release or booked
   end, so the ledger continues to exclude other B60 work.
+- Restoration replay evidence is lease-scoped. A restore command observed for
+  an older lease may never satisfy or suppress the current lease's command.
+- Retry admission includes any fixed runner setup lead in addition to the
+  attempt deadline; the complete setup plus attempt must fit before booked end.
 
 ## Independent pre-run evaluation
 
@@ -70,7 +76,8 @@ restoration requirements.
 ## MuseTalk XPU pilot profile
 
 The initial Aster news-video XPU session is a 90-minute booking with a
-15-minute recovery reserve. It permits at most three attempts, each bounded to
-20 minutes. A read-only monitor reports early terminal evidence. Corrections
-must be reviewed and hash-pinned before an explicit retry is dispatched within
-the still-claimed session.
+15-minute recovery reserve. Attempts are individually bounded to 20 minutes;
+the number is governed by remaining booked time and proven restoration, not an
+arbitrary three-try limit. The owner may review, hash-pin and activate bounded
+corrections, then explicitly retry or release during the still-claimed session
+without repeated conversational approval.

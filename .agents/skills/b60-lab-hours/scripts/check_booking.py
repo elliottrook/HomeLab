@@ -90,8 +90,9 @@ def main() -> int:
             >= int(registry.get("recovery_reserve_seconds", 10**18)),
         "session_contract_bounded": isinstance(registry, dict)
             and type(registry.get("retryable_session")) is bool
-            and type(registry.get("maximum_attempts")) is int
-            and 1 <= int(registry.get("maximum_attempts", 0)) <= 16
+            and (registry.get("maximum_attempts") is None
+                 or (type(registry.get("maximum_attempts")) is int
+                     and 1 <= int(registry["maximum_attempts"]) <= 16))
             and type(registry.get("deadline_seconds")) is int
             and int(registry.get("deadline_seconds", 0)) > 0,
     })
@@ -99,15 +100,20 @@ def main() -> int:
         attempt_count = booking.get("attempt_count", 0)
         attempt_state = booking.get("attempt_state")
         retry_available = booking.get("retry_available", False)
+        maximum_attempts = registry.get("maximum_attempts")
+        count_within_limit = (maximum_attempts is None
+                              or attempt_count <= int(maximum_attempts))
+        retry_within_limit = (maximum_attempts is None
+                              or attempt_count < int(maximum_attempts))
         checks["session_attempt_state_valid"] = (
             booking.get("state") == "scheduled"
             or (booking.get("state") == "claimed"
                 and type(attempt_count) is int
-                and 1 <= attempt_count <= int(registry["maximum_attempts"])
+                and 1 <= attempt_count and count_within_limit
                 and attempt_state in {"running", "failed_restored", "complete_restored"}
                 and (retry_available is not True
                      or (attempt_state == "failed_restored"
-                         and attempt_count < int(registry["maximum_attempts"]))))
+                         and retry_within_limit)))
         )
     ready = all(checks.values())
     print(json.dumps({

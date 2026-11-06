@@ -17,9 +17,9 @@ stricter than confirming that the ledger accepted a record.
 - Every registered runtime pin has valid root custody and hash.
 - Runner kind is admitted by the reserved runner and routes to the intended
   transaction/adapter.
-- A retryable session declares a bounded attempt deadline and maximum attempt
-  count. The booking duration can accommodate the intended attempts without
-  consuming the recovery reserve.
+- A retryable session declares a bounded attempt deadline and a time-budgeted
+  retry policy. An optional count ceiling may further restrict attempts, but
+  the booking interval and restoration gate are the primary bounds.
 - For a claimed V2 session, `attempt_state`, `attempt_count`,
   `retry_available`, attempt history, and current evidence directory agree.
 - An independent read-only evaluator reviewed the final activated registration
@@ -65,8 +65,8 @@ stricter than confirming that the ledger accepted a record.
 ## V2 retry, release and promotion
 
 - Retry is admitted only from `failed_restored` with `retry_available=true`.
-- The next attempt number is within `maximum_attempts`, and its deadline fits
-  before booked end.
+- Any optional attempt-count ceiling permits the next attempt, and its complete
+  deadline fits before booked end.
 - Attempt evidence is unique and records the exact candidate pins used.
 - A pin correction is installed and release-manifest validated before retry;
   material workload-purpose or runner changes use a new workload identity.
@@ -74,8 +74,9 @@ stricter than confirming that the ledger accepted a record.
 - Release after effects preserves a recovery buffer and actual session outcome.
 - Promotion is limited to bookings created with `--promotable`, preserves their
   duration and original times, and rechecks all protected windows.
-- A read-only monitor may report state and retry budget; it must not dispatch a
-  retry, release a booking, or change B60 automatically.
+- A monitor may report state and retry budget to the owning agent. Within an
+  approved autonomous booking envelope, that agent may diagnose, repin,
+  explicitly retry or release without another conversational approval.
 
 ## Verdicts
 

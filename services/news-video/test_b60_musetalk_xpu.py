@@ -17,7 +17,8 @@ class B60MuseTalkXPUTests(unittest.TestCase):
         controls = manifest["controls"]
         self.assertEqual(manifest["status"], "scheduled-session-v2")
         self.assertIs(controls["retryable_session"], True)
-        self.assertEqual(controls["maximum_attempts"], 3)
+        self.assertEqual(controls["retry_policy"], "remaining-time-and-restoration")
+        self.assertIsNone(controls["maximum_attempts"])
         self.assertEqual(controls["attempt_deadline_seconds"], 1200)
         self.assertEqual(transaction.DEADLINE_SECONDS, 1200)
 
@@ -29,6 +30,16 @@ class B60MuseTalkXPUTests(unittest.TestCase):
 
     def test_intel_compiler_library_path_is_present(self):
         self.assertIn("/runtime/root/usr/local/lib", adapter.LIBRARY_PATH)
+
+    def test_native_failure_reports_last_stage(self):
+        raw = b'{"stage":"MOVE_MODELS_TO_XPU"}\nFatal Python error: Segmentation fault\n'
+        self.assertEqual(adapter.guest_failure_detail(raw),
+                         "NATIVE_CRASH_AFTER_MOVE_MODELS_TO_XPU")
+
+    def test_fixed_b60_identity_avoids_crashing_torch_name_query(self):
+        source = (HERE / "b60_musetalk_xpu_guest.py").read_text()
+        self.assertNotIn("get_device_name", source)
+        self.assertIn('EXPECTED_PCI_ID = ("0x8086", "0xe211")', source)
 
     def test_fixed_result_contract(self):
         value = {

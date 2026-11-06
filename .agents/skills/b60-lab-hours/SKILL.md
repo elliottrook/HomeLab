@@ -39,9 +39,14 @@ command runner.
    timestamps in `America/Vancouver`; never infer availability from clock time.
 4. If the ledger, registry, release manifest, dispatcher, lease or lock state is
    unavailable or cannot be verified, fail closed.
-5. Respect the active repository authorization stream. Under Stream M, present
-   the exact target, change, effect, validation and rollback, then obtain user
-   approval immediately before every remote mutation.
+5. Respect the active repository authorization stream. A user may define a
+   bounded Lab Hours booking as a Stream A authorization envelope: once the
+   booking, purpose, affected systems, allowed change classes, rollback and
+   stop conditions are approved and recorded, the admitted owner may diagnose,
+   repin implementation files, retry and release autonomously inside that
+   interval. Do not treat each retry as a new project or ask again for actions
+   already inside that envelope. Work outside it still follows the repository's
+   ordinary authorization rules.
 6. Do not overlap another owner's claimed booking, lock or incomplete recovery.
    A failed booking is reusable capacity only after its record proves restoration
    and live locks/services agree.
@@ -90,9 +95,10 @@ Keep the workload deterministic and bounded:
 
 For a V2 retryable session, the registry must additionally declare:
 
-- `retryable_session=True` and a small positive `maximum_attempts`;
-- an attempt deadline that allows the declared maximum plus recovery to fit in
-  the booking under the intended use case;
+- `retryable_session=True`, a bounded per-attempt deadline, and whether any
+  additional attempt-count ceiling applies;
+- a time-budgeted retry policy that admits another attempt only when its full
+  deadline fits before booked end;
 - attempt-unique evidence/output paths; and
 - restoration as a prerequisite for every later attempt or early release.
 
@@ -159,11 +165,11 @@ proof, and attempt-specific candidate pins.
 A retry may use that same claimed booking without a new window check only when:
 
 - the previous attempt is `failed_restored` and `retry_available` is true;
-- `attempt_count` is below the registry's `maximum_attempts`;
+- any optional registry attempt-count ceiling has not been reached;
 - the complete bounded attempt deadline fits before booked end;
 - the whole-host lease is ready and operation/drain locks are absent;
 - the workload remains registered and release-manifest validation passes; and
-- the retry receives the authorization required for the remote mutation.
+- the retry is within the booking's recorded authorization envelope.
 
 Dispatch the fixed registered workload only:
 
@@ -172,11 +178,12 @@ Dispatch the fixed registered workload only:
 ```
 
 Do not retry blindly or supply an arbitrary command. An unrestored failure is
-terminal. If diagnosis requires new code, runtime, model or input pins, activate
-the reviewed registry and release-manifest revision with its own remote-change
-approval before retry, and retain both attempts' pins in evidence. A material
-change of owner, runner kind, workload purpose or bounded request shape requires
-a new workload identity and booking.
+terminal. Inside an approved autonomous booking envelope, diagnosis may revise
+and activate code, runtime, model or input pins without another conversational
+approval when the owner, runner kind, workload purpose, affected systems and
+bounded request shape remain unchanged. Validate and retain every revision's
+pins and attempt evidence. A material change to those boundaries requires a new
+authorization decision and, where applicable, a new workload identity/booking.
 
 Permit early release before claim, or after a claimed attempt is idle and
 restoration is proven:
@@ -193,7 +200,10 @@ with any other protected window. Preserve its owner, workload, pins and
 original times in the ledger. Promotion is admission only; it does not itself
 start effects.
 
-For an uncertain first-use backend, prefer a bounded read-only heartbeat during
-the session. Report a restored failure and remaining retry budget promptly, but
-leave diagnosis, repinning and retry dispatch explicit. Remove the heartbeat at
-terminal state or the recovery cutoff.
+For an uncertain first-use backend, prefer a bounded heartbeat during the
+session. It may report state to the owning agent; the owner may then diagnose,
+repin and explicitly dispatch the fixed workload autonomously within the
+approved booking. Never implement an unexamined retry loop. Stop on unrestored
+failure, a new material risk, an out-of-envelope change, or insufficient time
+for the full bounded attempt. Remove the heartbeat at terminal state or the
+recovery cutoff.

@@ -18,7 +18,7 @@ from b60_musetalk_xpu_transaction import (
 
 
 GUEST_SCRIPT = "/opt/aster-news-video-xpu/b60_musetalk_xpu_guest.py"
-GUEST_SCRIPT_SHA256 = "51664f5aca80af98e0916fb6468ad8a66c56b1757f1d3cf7fdb119b52bee5e2e"
+GUEST_SCRIPT_SHA256 = "224c7b45aab24076c15b5009efd77f679f0b271767d8bddbff64ab6309390209"
 LEASE_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{1,127}")
 LIBRARY_PATH = (
     "/opt/aster-news-video-xpu/runtime/root/usr/lib/x86_64-linux-gnu:"
@@ -29,6 +29,23 @@ LIBRARY_PATH = (
 
 class AdapterError(RuntimeError):
     pass
+
+
+def guest_failure_detail(raw: bytes) -> str:
+    stage_name = None
+    for line in reversed(raw.splitlines()):
+        try:
+            value = json.loads(line)
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        code = value.get("code") if isinstance(value, dict) else None
+        if isinstance(code, str) and re.fullmatch(r"[A-Za-z0-9_:-]{1,120}", code):
+            return code
+        stage_value = value.get("stage") if isinstance(value, dict) else None
+        if (stage_name is None and isinstance(stage_value, str)
+                and re.fullmatch(r"[A-Z0-9_]{1,80}", stage_value)):
+            stage_name = stage_value
+    return f"NATIVE_CRASH_AFTER_{stage_name}" if stage_name else "UNCLASSIFIED"
 
 
 def unit_name(lease_id: str, generation: int) -> str:
@@ -98,11 +115,7 @@ def run(*, lease_id: str, generation: int, deadline_epoch: int,
                 stdout.flush(); stderr.flush(); stdout.close(); stderr.close(); stdout = stderr = None
                 raw_out = stdout_path.read_bytes(); raw_err = stderr_path.read_bytes()
                 if status != 0:
-                    try: detail = json.loads(raw_err.splitlines()[-1]).get("code")
-                    except (UnicodeDecodeError, json.JSONDecodeError, AttributeError, IndexError): detail = None
-                    if not isinstance(detail, str) or not re.fullmatch(r"[A-Za-z0-9_:-]{1,120}", detail):
-                        detail = "UNCLASSIFIED"
-                    raise AdapterError("MUSETALK_GUEST_" + detail)
+                    raise AdapterError("MUSETALK_GUEST_" + guest_failure_detail(raw_err))
                 try:
                     result = json.loads(raw_out); validate_result(result)
                 except (UnicodeDecodeError, json.JSONDecodeError, TransactionError) as error:

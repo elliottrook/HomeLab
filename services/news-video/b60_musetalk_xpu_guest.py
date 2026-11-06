@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import faulthandler
 import hashlib
 import json
 import os
@@ -13,6 +14,8 @@ import re
 import subprocess
 import sys
 import time
+
+faulthandler.enable(all_threads=True)
 
 import cv2
 import imageio_ffmpeg
@@ -34,6 +37,9 @@ FPS = 25
 BATCH_SIZE = 4
 CROP = (360, 20, 720, 380)
 SHA = re.compile(r"[0-9a-f]{64}")
+PCI_VENDOR = Path("/sys/class/drm/card0/device/vendor")
+PCI_DEVICE = Path("/sys/class/drm/card0/device/device")
+EXPECTED_PCI_ID = ("0x8086", "0xe211")
 PINS = {
     INPUT_IMAGE: "fe85bb5cb3966661cc87827f42fb0a5672364873a6a818ece3a01da159a3bf64",
     INPUT_AUDIO: "f35338879433e2982fcffea358b2219a456cfa79cf607f1607989bd6bbf0934f",
@@ -49,6 +55,21 @@ PINS = {
 
 class RenderError(RuntimeError):
     pass
+
+
+def stage(name: str) -> None:
+    print(json.dumps({"stage": name}, sort_keys=True), file=sys.stderr, flush=True)
+
+
+def fixed_device_identity() -> str:
+    try:
+        identity = (PCI_VENDOR.read_text().strip().lower(),
+                    PCI_DEVICE.read_text().strip().lower())
+    except OSError as exc:
+        raise RenderError("XPU_IDENTITY_UNREADABLE") from exc
+    if identity != EXPECTED_PCI_ID:
+        raise RenderError("XPU_IDENTITY")
+    return "Intel Arc Pro B60 (BMG, 8086:e211)"
 
 
 def sha256(path: Path) -> str:
@@ -97,16 +118,18 @@ def blend_lower_face(frame: np.ndarray, generated: np.ndarray) -> np.ndarray:
 
 
 def render(lease_id: str, generation: int) -> dict[str, object]:
+    stage("VERIFY_PINS")
     verify()
     if os.environ.get("MUSETALK_DEVICE") != "xpu:0":
         raise RenderError("DEVICE_NOT_FORCED")
+    stage("XPU_AVAILABILITY")
     if not hasattr(torch, "xpu") or not torch.xpu.is_available():
         raise RenderError("XPU_UNAVAILABLE")
+    stage("XPU_PCI_IDENTITY")
+    device_name = fixed_device_identity()
     device = torch.device("xpu:0")
-    device_name = torch.xpu.get_device_name(0)
-    if "Intel" not in device_name and "BMG" not in device_name:
-        raise RenderError("XPU_IDENTITY")
 
+    stage("IMPORT_MUSETALK")
     sys.path.insert(0, str(SOURCE))
     from musetalk.utils.audio_processor import AudioProcessor
     from musetalk.utils.utils import datagen, load_all_model
@@ -121,12 +144,14 @@ def render(lease_id: str, generation: int) -> dict[str, object]:
 
     started = time.monotonic()
     with contextlib.redirect_stdout(sys.stderr):
+        stage("LOAD_MODELS")
         vae, unet, pe = load_all_model(
             unet_model_path=str(MODELS / "musetalkV15/unet.pth"),
             vae_type=str(MODELS / "sd-vae"),
             unet_config=str(MODELS / "musetalkV15/musetalk.json"),
             device=device,
         )
+        stage("MOVE_MODELS_TO_XPU")
         pe = pe.half().to(device)
         vae.vae = vae.vae.half().to(device)
         unet.model = unet.model.half().to(device).eval()
@@ -134,15 +159,18 @@ def render(lease_id: str, generation: int) -> dict[str, object]:
         whisper = WhisperModel.from_pretrained(str(MODELS / "whisper"))
         whisper = whisper.to(device=device, dtype=torch.float16).eval()
         whisper.requires_grad_(False)
+        stage("AUDIO_FEATURES")
         features, sample_count = audio.get_audio_feature(str(INPUT_AUDIO))
         chunks = audio.get_whisper_chunk(
             features, device, torch.float16, whisper, sample_count, fps=FPS,
             audio_padding_length_left=2, audio_padding_length_right=2,
         )
+        stage("VAE_LATENT")
         latent = vae.get_latents_for_unet(crop)
         generator = datagen(chunks, [latent], batch_size=BATCH_SIZE, device=device)
         timesteps = torch.tensor([0], device=device)
         generated_frames: list[np.ndarray] = []
+        stage("INFERENCE")
         with torch.inference_mode():
             for whisper_batch, latent_batch in generator:
                 encoded = pe(whisper_batch)
@@ -151,8 +179,10 @@ def render(lease_id: str, generation: int) -> dict[str, object]:
                     encoder_hidden_states=encoded,
                 ).sample
                 generated_frames.extend(vae.decode_latents(predicted))
+        stage("XPU_SYNCHRONIZE")
         torch.xpu.synchronize()
 
+    stage("ENCODE_OUTPUT")
     safe_lease = re.sub(r"[^A-Za-z0-9_.-]", "-", lease_id)
     frame_dir = OUTPUTS / f"frames-{safe_lease}-{generation}"
     frame_dir.mkdir(mode=0o700, parents=False, exist_ok=False)
@@ -215,7 +245,8 @@ def main() -> int:
         return 0
     except BaseException as exc:
         code = str(exc) if isinstance(exc, RenderError) else type(exc).__name__
-        print(json.dumps({"code": re.sub(r"[^A-Za-z0-9_:-]", "_", code)[:120]}), file=sys.stderr)
+        print(json.dumps({"code": re.sub(r"[^A-Za-z0-9_:-]", "_", code)[:120]}),
+              file=sys.stderr, flush=True)
         return 1
 
 
