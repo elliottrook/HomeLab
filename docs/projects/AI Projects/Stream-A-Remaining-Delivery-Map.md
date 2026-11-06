@@ -815,6 +815,24 @@ and a tensor-bound selection receipt; matching but wrong replay files fail.
 The recipe identity is `419a42c1…c9aa0e9` and the J2 suite passes 98/98.
 This creates no data, model or effect. The M3 row's external custody/key and
 sealed-evaluation dependencies remain the controlling gates.
+
+**M3 single-owner isolated-agent custody boundary — 2026-11-06:** Jason is the
+only human operator and directed Stream A to use two fresh, separately scoped
+Codex instances for the remaining corpus and evaluation custody. The
+[recorded decision](evidence/M3-J2-single-owner-isolated-agent-custody-decision-2026-11-06.md)
+labels this accurately as single-owner, independently sandboxed AI custody,
+not independent organizational control. A new sealed-evaluation validator
+requires the exact accepted corpus, 32 unique cases balanced two per frozen
+label, trainer exclusion and zero normalized intersection. A create-only
+custody utility generates distinct RSA-2048 keys, canonical content-free
+receipts and immediately self-verifying detached proofs. Two copy-ready prompts
+and a deterministic content-free kit builder are complete. Seven new focused
+tests pass and the expanded J2 suite passes 104/104. The two source kits were
+built outside Git with manifests `91aefbe8…d5c9` and `14fccd1b…bb47`; they
+contain no private input. Next is Jason opening each kit in a fresh isolated
+Codex workspace, retaining each private key and the 32-case evaluation there,
+and returning only the public key and signed content-free outputs. No training,
+booking, local model call, routing, authority or deployment is authorized.
 | Companion | Ordinary signed-in Aster use, persisted recovery and read-only OpenBao status passed. | Continue ordinary reliability monitoring. The hidden manual-Codex fallback remains deferred unless Jason asks to release it. |
 
 **D4 live update — 2026-11-04 12:51 America/Vancouver:** the D4 row's older
