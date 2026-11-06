@@ -47,6 +47,9 @@ GUEST_SPEC.loader.exec_module(GUEST_MODULE)
 HOME_SPEC = importlib.util.spec_from_file_location("jen_home_materializer", ROOT / "materialize_jen_home_cameras.py")
 HOME_MODULE = importlib.util.module_from_spec(HOME_SPEC)
 HOME_SPEC.loader.exec_module(HOME_MODULE)
+MOVIE_YT_SPEC = importlib.util.spec_from_file_location("jen_movie_youtube_materializer", ROOT / "materialize_jen_movie_youtube.py")
+MOVIE_YT_MODULE = importlib.util.module_from_spec(MOVIE_YT_SPEC)
+MOVIE_YT_SPEC.loader.exec_module(MOVIE_YT_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -195,6 +198,19 @@ class MaterializationTests(unittest.TestCase):
         runtime = files["stable/apply_jen_home_cameras.py"][0].decode()
         self.assertNotIn("PROFILE_STATE", runtime)
         self.assertIn('disable", "--now", "aster-camera.service', runtime)
+
+    def test_jen_movie_youtube_excludes_session_and_account_state(self):
+        files, manifest = MOVIE_YT_MODULE.render()
+        self.assertEqual(len(files), 22)
+        self.assertEqual(MOVIE_YT_MODULE.sha(
+            files["live/skin.asterhome/1080i/custom_1130_movie.xml"][0]),
+            MOVIE_YT_MODULE.EXPECTED["movie/custom_1130_movie.xml"])
+        self.assertFalse(any("plugin.video.youtube" in path or "asterprofiles" in path
+                             for path in files))
+        self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
+        runtime = files["stable/apply.py"][0].decode()
+        self.assertNotIn("ACCOUNT", runtime)
+        self.assertNotIn("profiles.json", runtime)
 
 
 if __name__ == "__main__":

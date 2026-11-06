@@ -9,14 +9,15 @@ base release and ordered overlay source bytes. The guard contract includes
 expected payload hashes and required external dependencies.
 
 This is deliberately a **candidate build gate**, not a deployment approval.
-Sixteen overlays now have complete contracts: Family restart, target-aware release
+Seventeen overlays now have complete contracts: Family restart, target-aware release
 guard, Bedroom Wi-Fi, Bedroom stereo assertions, Family Dolby/HDR assertions
 the target-aware Remote client, the reconciled TV-details tree, and target-aware
 News playback, Family media lifecycle, the Family equipment bridge, and Jen's
 immutable account-registry code, Jen's immutable Aster client, and Jen's exact
 News icon overlay, Jen's podcast-request surface, and Jen's Guest catalogue
-adapter, and Jen's composed Home/Cameras surface. The other two
-overlay definitions name their exact current inputs and explicit blockers.
+adapter, Jen's composed Home/Cameras surface, and its composed Movie/YouTube
+surface. The final incomplete contract is the Jen low-spec runtime.
+All overlay definitions name their exact current inputs and explicit blockers.
 Plans build successfully; Bedroom is now the first composition eligible for a
 future promotion transaction. No promotion was performed.
 
@@ -36,7 +37,7 @@ future promotion transaction. No promotion was performed.
 
 ## Verification
 
-- Fleet/release suite: 37/37 passing, including typed assertion drift and
+- Fleet/release suite: 38/38 passing, including typed assertion drift and
   target isolation.
 - Four deterministic bundles build from the locally verified immutable release.
 - Repeated builds are byte-identical.
@@ -86,15 +87,19 @@ future promotion transaction. No promotion was performed.
   viewer, display marker and boot lifecycle. Its new composed reapply path no
   longer overwrites account or voice modules; HA mapping and private client
   files are typed external assertions.
+- Jen's Movie/YouTube composition binds the accepted live Movie, dispatcher,
+  trailer, YouTube navigation and graceful-stop outputs. Its composed boot path
+  no longer rewrites account modules, private YouTube state is excluded, and
+  shared family-manifest pins are typed assertions.
 - Bedroom and Family have no incomplete overlay contracts and are the two
-  deployable bundle-build plans. Jen remains blocked by two overlays, and Guest remains a
+  deployable bundle-build plans. Jen remains blocked only by its low-spec runtime, and Guest remains a
   non-deployed candidate.
 - Payload and dependency drift tests fail closed.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 
 ## Next
 
-Resolve the remaining Jen feature ownership, then materialize its two
+Materialize the final Jen low-spec runtime
 remaining overlays. Continue defining typed assertions/external artifacts and
 mutable-state exclusions one overlay at a time. Bedroom/Family eligibility does
 not authorize deployment; both must still pass Doctor observation and later

@@ -1,0 +1,9 @@
+[Unit]
+Description=Apply composed AsterTV v3 Movie and YouTube on Jen
+After=astertv-release-guard.service
+Before=kodi.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /storage/.aster-v3/m4-composed/apply.py
+[Install]
+WantedBy=kodi.service

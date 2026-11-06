@@ -9,18 +9,22 @@
   "targets": ["astertv-jen"],
   "owns": ["kodi/skin.asterhome/movie-details-v3", "kodi/skin.asterhome/youtube-v3", "kodi/youtube-lifecycle-loader"],
   "payload_sources": [
-    "services/kodi/astertv-v3/m4/apply_jen_m4y.py",
-    "services/kodi/astertv-v3/m4/youtube_root_focus.py",
-    "services/kodi/astertv-v3/m4/graceful_kodi_stop.py",
-    "services/kodi/astertv-v3/m4/install_jen_movie.py",
-    "services/kodi/astertv-v3/m4/install_jen_youtube_lifecycle.py",
-    "services/kodi/astertv-v3/jellyfin_trailer_route.py",
-    "services/kodi/astertv-v3/overlay/plugin.video.astersearch",
-    "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1191_youtube_rework.xml",
-    "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1194_movie_rework.xml",
-    "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1195_person_library.xml"
+    "services/kodi/astertv-fleet/materialized/jen-movie-youtube",
+    "services/kodi/astertv-fleet/materialize_jen_movie_youtube.py"
   ],
-  "payload_blockers": ["rendered-movie-youtube-dispatch-and-unit-outputs-not-materialized", "private-youtube-state-needs-explicit-exclusion"],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "systemd", "key": "astertv-v3-m4-composed-jen.service", "expected": "enabled", "sensitive": false},
+    {"authority": "systemd", "key": "astertv-v3-m4-jen.service", "expected": "disabled", "sensitive": false},
+    {"authority": "systemd", "key": "astertv-v3-m4y-jen.service", "expected": "disabled", "sensitive": false},
+    {"authority": "kodi", "key": "addon.plugin.video.youtube.version", "expected": "7.4.4", "sensitive": false},
+    {"authority": "kodi", "key": "addon.plugin.video.youtube.enabled", "expected": true, "sensitive": false},
+    {"authority": "filesystem", "key": "youtube-household-state.mode", "expected": "0600", "sensitive": false},
+    {"authority": "profile-registry", "key": "guest.personal_youtube", "expected": "denied", "sensitive": false},
+    {"authority": "family-manifest", "key": "components.aster-global-search-ui22.manifest_sha256", "expected": "92e6026774c9cac14353bc155a38013da0bcb6e652ce3db0bb9e3a9abe604707", "sensitive": false},
+    {"authority": "family-manifest", "key": "skin.tools.select_dispatch.py", "expected": "d72d82630a5b0a172f5c8ba7b11d51ad04cadb80500fbcfbd48da9d7374397e3", "sensitive": false}
+  ],
   "secret_refs": ["youtube-household-session"],
   "rollback_ref": "astertv-v3-m4-jen-movie and astertv-v3-m4y-jen",
   "tests": ["services/kodi/astertv-v3/m4/test_jen_movie.py", "services/kodi/astertv-v3/m4/test_jen_youtube_lifecycle.py"]

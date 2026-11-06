@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "65b806e859b87f18228ee95398572c3aed4abf28cae9bd3837631b3626365229",
+  "composition_sha256": "95a1e840fff2efd9e5b0201a23ec3eb516161a62bbc623b0b962a62a655494c7",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-jen",
   "expected_assertions": [
@@ -130,6 +130,69 @@
       "expected": "aa589c8939b627aa19f9ec9b7abf9a0852eb3b33595b8c884e2b56f8ddb2dba0",
       "key": "family-manifest.component.aster-series-preview24",
       "overlay": "tv-details-v3",
+      "sensitive": false
+    },
+    {
+      "authority": "systemd",
+      "expected": "enabled",
+      "key": "astertv-v3-m4-composed-jen.service",
+      "overlay": "jen-movie-youtube",
+      "sensitive": false
+    },
+    {
+      "authority": "systemd",
+      "expected": "disabled",
+      "key": "astertv-v3-m4-jen.service",
+      "overlay": "jen-movie-youtube",
+      "sensitive": false
+    },
+    {
+      "authority": "systemd",
+      "expected": "disabled",
+      "key": "astertv-v3-m4y-jen.service",
+      "overlay": "jen-movie-youtube",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": "7.4.4",
+      "key": "addon.plugin.video.youtube.version",
+      "overlay": "jen-movie-youtube",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": true,
+      "key": "addon.plugin.video.youtube.enabled",
+      "overlay": "jen-movie-youtube",
+      "sensitive": false
+    },
+    {
+      "authority": "filesystem",
+      "expected": "0600",
+      "key": "youtube-household-state.mode",
+      "overlay": "jen-movie-youtube",
+      "sensitive": false
+    },
+    {
+      "authority": "profile-registry",
+      "expected": "denied",
+      "key": "guest.personal_youtube",
+      "overlay": "jen-movie-youtube",
+      "sensitive": false
+    },
+    {
+      "authority": "family-manifest",
+      "expected": "92e6026774c9cac14353bc155a38013da0bcb6e652ce3db0bb9e3a9abe604707",
+      "key": "components.aster-global-search-ui22.manifest_sha256",
+      "overlay": "jen-movie-youtube",
+      "sensitive": false
+    },
+    {
+      "authority": "family-manifest",
+      "expected": "d72d82630a5b0a172f5c8ba7b11d51ad04cadb80500fbcfbd48da9d7374397e3",
+      "key": "skin.tools.select_dispatch.py",
+      "overlay": "jen-movie-youtube",
       "sensitive": false
     },
     {
@@ -546,6 +609,160 @@
       "overlay": "tv-details-v3",
       "path": "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_series.py",
       "sha256": "79522aa5a816067b174ae932fbb7740a0aeccb84fde6443ee0b209cfaacb0b18"
+    },
+    {
+      "bytes": 2123,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/apply.py",
+      "sha256": "5d36420a8c9da9ec63bdc5c5c08f74aaa23107a46b4d11c0880486a2bda08d47"
+    },
+    {
+      "bytes": 3063,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/graceful_kodi_stop.py",
+      "sha256": "00fa1cab4c5cea6f96ed9ee4527768e798a3dceb025a6f19fa1473833176d24d"
+    },
+    {
+      "bytes": 11686,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/payload/movie/custom_1130_movie.overlay.xml",
+      "sha256": "ec69ea074ed0ef7cd6f5c810ba35b437d612a1f27d300f93be96762de927164a"
+    },
+    {
+      "bytes": 11686,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/payload/movie/custom_1130_movie.xml",
+      "sha256": "ec69ea074ed0ef7cd6f5c810ba35b437d612a1f27d300f93be96762de927164a"
+    },
+    {
+      "bytes": 4650,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/payload/movie/jellyfin_trailer_route.py",
+      "sha256": "a94454d3a33fa64c49a8ddaa5b5f1c1df91de2400af1dd7f76df128b5d56888a"
+    },
+    {
+      "bytes": 3222,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/payload/movie/manifest.json",
+      "sha256": "92e6026774c9cac14353bc155a38013da0bcb6e652ce3db0bb9e3a9abe604707"
+    },
+    {
+      "bytes": 14347,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/payload/movie/movie.py",
+      "sha256": "bdb3384e507672ac7c0acfe1f5699a2a360eb383bb51ec990967c51fe7af201d"
+    },
+    {
+      "bytes": 6546,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/payload/movie/select_dispatch.overlay.py",
+      "sha256": "0a0d80545259cc390f03ff971a98eed19549194fed1bac42bb879ad697372cc3"
+    },
+    {
+      "bytes": 8518,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/payload/movie/select_dispatch.py",
+      "sha256": "d72d82630a5b0a172f5c8ba7b11d51ad04cadb80500fbcfbd48da9d7374397e3"
+    },
+    {
+      "bytes": 35602,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/payload/youtube/MyVideoNav.xml",
+      "sha256": "bdba7dd50a03b51eb35fdf3d0a31b03398e5dfe22063260d1cb1477933b4bc33"
+    },
+    {
+      "bytes": 2981,
+      "mode": "0600",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.aster-v3/m4-composed/payload/youtube/youtube_root_focus.py",
+      "sha256": "879dcd143cff8f0aa339438195d41756c4fa0549ea74ae859d2600a45ce64e15"
+    },
+    {
+      "bytes": 248,
+      "mode": "0644",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.config/system.d/astertv-v3-m4-composed-jen.service",
+      "sha256": "9ef6ed4fbbef54c053e4411167760d358fd6711925efcdeafd6291bd6a9ef4f7"
+    },
+    {
+      "bytes": 109,
+      "mode": "0644",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.config/system.d/kodi.service.d/50-astertv-graceful-stop.conf",
+      "sha256": "c69ca2669713568baac5a5d211f55b19a96c57fb1b1da7725c84fe9034b6dc6c"
+    },
+    {
+      "bytes": 4650,
+      "mode": "0755",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/jellyfin_trailer_route.py",
+      "sha256": "a94454d3a33fa64c49a8ddaa5b5f1c1df91de2400af1dd7f76df128b5d56888a"
+    },
+    {
+      "bytes": 3222,
+      "mode": "0644",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/manifest.json",
+      "sha256": "92e6026774c9cac14353bc155a38013da0bcb6e652ce3db0bb9e3a9abe604707"
+    },
+    {
+      "bytes": 14347,
+      "mode": "0755",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/movie.py",
+      "sha256": "bdb3384e507672ac7c0acfe1f5699a2a360eb383bb51ec990967c51fe7af201d"
+    },
+    {
+      "bytes": 11686,
+      "mode": "0644",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/overlay/custom_1130_movie.xml",
+      "sha256": "ec69ea074ed0ef7cd6f5c810ba35b437d612a1f27d300f93be96762de927164a"
+    },
+    {
+      "bytes": 6546,
+      "mode": "0755",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/overlay/select_dispatch.py",
+      "sha256": "0a0d80545259cc390f03ff971a98eed19549194fed1bac42bb879ad697372cc3"
+    },
+    {
+      "bytes": 35602,
+      "mode": "0644",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.kodi/addons/skin.asterhome/1080i/MyVideoNav.xml",
+      "sha256": "bdba7dd50a03b51eb35fdf3d0a31b03398e5dfe22063260d1cb1477933b4bc33"
+    },
+    {
+      "bytes": 11686,
+      "mode": "0644",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1130_movie.xml",
+      "sha256": "ec69ea074ed0ef7cd6f5c810ba35b437d612a1f27d300f93be96762de927164a"
+    },
+    {
+      "bytes": 8518,
+      "mode": "0755",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.kodi/addons/skin.asterhome/tools/select_dispatch.py",
+      "sha256": "d72d82630a5b0a172f5c8ba7b11d51ad04cadb80500fbcfbd48da9d7374397e3"
+    },
+    {
+      "bytes": 2981,
+      "mode": "0755",
+      "overlay": "jen-movie-youtube",
+      "path": "/storage/.kodi/addons/skin.asterhome/tools/youtube_root_focus.py",
+      "sha256": "879dcd143cff8f0aa339438195d41756c4fa0549ea74ae859d2600a45ce64e15"
     },
     {
       "bytes": 2954,

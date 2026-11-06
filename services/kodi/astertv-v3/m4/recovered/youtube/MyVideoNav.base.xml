@@ -1,0 +1,369 @@
+<?xml version='1.0' encoding='utf-8'?>
+<window>
+  <defaultcontrol always="true">50</defaultcontrol>
+  <onload>RunScript(special://skin/tools/youtube_root_focus.py)</onload><views>50</views>
+  <backgroundcolor>asterCharcoal</backgroundcolor>
+  <controls>
+    <control type="group" id="9890"><visible>!String.IsEqual(Container.FolderPath,plugin://plugin.video.youtube/)</visible><control type="group" id="9893"><visible>!String.StartsWith(Container.FolderPath,plugin://plugin.video.youtube/kodion/search/)</visible><control type="image">
+      <left>0</left>
+      <top>0</top>
+      <width>1920</width>
+      <height>620</height>
+      <texture background="true">$VAR[AsterBrowseFanart]</texture>
+      <aspectratio>scale</aspectratio>
+      <fadetime>250</fadetime>
+    </control>
+    <control type="image">
+      <left>0</left>
+      <top>0</top>
+      <width>1920</width>
+      <height>620</height>
+      <texture>special://skin/media/ui-hero-left-fade.png</texture>
+      <colordiffuse>asterCharcoal</colordiffuse>
+      <aspectratio>stretch</aspectratio>
+    </control>
+    <control type="image">
+      <left>0</left>
+      <top>0</top>
+      <width>1920</width>
+      <height>620</height>
+      <texture>special://skin/media/ui-hero-bottom-fade.png</texture>
+      <colordiffuse>asterStone</colordiffuse>
+      <aspectratio>stretch</aspectratio>
+    </control>
+    <control type="image">
+      <left>65</left>
+      <top>18</top>
+      <width>88</width>
+      <height>88</height>
+      <texture>$VAR[AsterBrowseIcon]</texture>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label">
+      <left>175</left>
+      <top>32</top>
+      <width>1150</width>
+      <height>60</height>
+      <label>$VAR[AsterBrowseHeading]</label>
+      <font>font40</font>
+      <textcolor>asterRailText</textcolor>
+    </control>
+    <control type="button" id="9000">
+      <left>1540</left>
+      <top>34</top>
+      <label>Back</label>
+      <include>AsterCategoryButton</include>
+      <width>280</width>
+      <onclick condition="!String.Contains(Container.FolderPath,plugin.video.youtube)">Action(Back)</onclick>
+      <ondown>50</ondown>
+      <textcolor>fff3eee5</textcolor>
+      <focusedcolor>fff3eee5</focusedcolor>
+      <aligny>center</aligny>
+      <texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus>
+      <texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus>
+      <textoffsetx>0</textoffsetx>
+      <align>center</align>
+    <onclick condition="String.Contains(Container.FolderPath,plugin.video.youtube)">RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</onclick></control>
+    <control type="label">
+      <left>145</left>
+      <top>132</top>
+      <width>1200</width>
+      <height>40</height>
+      <label>$INFO[Container(50).ListItem.Genre]  [COLOR asterSage]$INFO[Container(50).ListItem.Year][/COLOR]</label>
+      <font>font20</font>
+      <textcolor>asterGold</textcolor>
+    </control>
+    <control type="label">
+      <left>145</left>
+      <top>178</top>
+      <width>1200</width>
+      <height>70</height>
+      <label>$VAR[AsterBrowseTitle]</label>
+      <font>font40</font>
+      <textcolor>asterRailText</textcolor>
+      <shadowcolor>66000000</shadowcolor>
+    </control>
+    <control type="label">
+      <left>145</left>
+      <top>256</top>
+      <width>940</width>
+      <height>68</height>
+      <label>$VAR[AsterBrowsePlot]</label>
+      <font>font18</font>
+      <textcolor>asterRailText</textcolor>
+      <wrapmultiline>true</wrapmultiline>
+      <aligny>top</aligny>
+    </control>
+    <control type="label">
+      <left>145</left><top>308</top><width>940</width><height>30</height>
+      <label>$INFO[Container(50).ListItem.Rating,Score: , / 10]  $INFO[Container(50).ListItem.Mpaa]</label>
+      <font>font20</font><textcolor>asterSage</textcolor>
+      <visible>!Container(50).ListItem.IsParentFolder</visible>
+    </control>
+    <control type="button" id="9100">
+      <left>145</left>
+      <top>350</top>
+      <label>$VAR[AsterBrowseAction]</label>
+      <width>180</width>
+      <height>44</height>
+      <font>font20</font>
+      <align>center</align>
+      <aligny>center</aligny>
+      <textcolor>asterIvory</textcolor>
+      <focusedcolor>asterIvory</focusedcolor>
+      <texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus>
+      <texturenofocus border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texturenofocus>
+      <onclick>SendClick(50)</onclick>
+      <onright>9101</onright>
+      <onleft>19</onleft>
+      <onup>9000</onup>
+      <ondown>50</ondown>
+      <visible>![String.Contains(Container.FolderPath,plugin.video.youtube) + Container(50).ListItem.IsParentFolder]</visible>
+    </control>
+    <control type="button" id="9101">
+      <left>340</left>
+      <top>350</top>
+      <label>ⓘ  More Info</label>
+      <width>165</width>
+      <onclick>SetFocus(50)</onclick>
+      <onclick>Action(Info)</onclick>
+      <onleft>9100</onleft>
+      <onright>50</onright>
+      <onup>9000</onup>
+      <ondown>50</ondown>
+      <visible>![String.Contains(Container.FolderPath,plugin.video.youtube) + Container(50).ListItem.IsParentFolder]</visible>
+    <height>44</height><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texturenofocus></control>
+    <control type="image">
+      <left>145</left>
+      <top>350</top>
+      <width>180</width>
+      <height>44</height>
+      <texture>special://skin/media/ui-button-ring.png</texture>
+      <visible>Control.HasFocus(9100)</visible>
+    </control>
+    <control type="image">
+      <left>340</left>
+      <top>350</top>
+      <width>165</width>
+      <height>44</height>
+      <texture>special://skin/media/ui-button-ring.png</texture>
+      <visible>Control.HasFocus(9101)</visible>
+    </control>
+    
+    <control type="image">
+      <left>65</left>
+      <top>492</top>
+      <width>300</width>
+      <height>548</height>
+      <texture border="20">special://skin/media/ui-panel.png</texture>
+      <colordiffuse>e6f2ede4</colordiffuse>
+    </control>
+    <control type="label">
+      <left>85</left>
+      <top>512</top>
+      <width>260</width>
+      <height>40</height>
+      <label>$VAR[AsterBrowseSidebarHeading]</label>
+      <font>font24</font>
+      <textcolor>asterMuted</textcolor>
+    </control>
+    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="564" /><param name="innerleft" value="87" /><param name="innertop" value="566" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <control type="edit" id="19">
+      <left>85</left>
+      <top>564</top>
+      <width>260</width>
+      <height>56</height>
+      <hinttext>$VAR[AsterBrowseFilterHint]</hinttext>
+      <font>font20</font>
+      <textcolor>asterIvory</textcolor>
+      <focusedcolor>asterInk</focusedcolor>
+      <textoffsetx>16</textoffsetx>
+      <align>left</align>
+      <aligny>center</aligny>
+      <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+      <texturenofocus>none</texturenofocus>
+      <onright>50</onright>
+      <onup>9100</onup>
+      <ondown>9200</ondown>
+    </control>
+    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="636" /><param name="innerleft" value="87" /><param name="innertop" value="638" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="708" /><param name="innerleft" value="87" /><param name="innertop" value="710" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="780" /><param name="innerleft" value="87" /><param name="innertop" value="782" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="852" /><param name="innerleft" value="87" /><param name="innertop" value="854" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <control type="button" id="9001">
+      <left>85</left>
+      <top>780</top>
+      <label>Clear all filters</label>
+      <include>AsterFilterButton</include>
+      <onclick>Action(FilterClear)</onclick>
+      <onclick>RunScript(special://skin/tools/filter_library.py,clear)</onclick>
+      <onup>9201</onup>
+      <ondown>4</ondown>
+      <onright>50</onright>
+      <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
+    </control>
+    <control type="button" id="4">
+      <left>85</left>
+      <top>852</top>
+      <label>Reverse order</label>
+      <include>AsterFilterButton</include>
+      <onup>9001</onup>
+      <ondown>9000</ondown>
+      <onright>50</onright>
+      <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
+    </control>
+    <control type="label">
+      <left>85</left>
+      <top>924</top>
+      <width>260</width>
+      <height>100</height>
+      <label>$VAR[AsterBrowseSidebarNote]</label>
+      <font>font20</font>
+      <textcolor>asterMuted</textcolor>
+      <wrapmultiline>true</wrapmultiline>
+    </control>
+    <control type="button" id="9200">
+      <left>85</left><top>636</top><label>$VAR[AsterGenreFilterLabel]</label>
+      <include>AsterFilterButton</include>
+      <onclick>RunScript(special://skin/tools/filter_library.py,genre)</onclick>
+      <enable>String.Contains(Container.FolderPath,.xsp)</enable>
+      <onup>19</onup><ondown>9201</ondown><onright>50</onright>
+      <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
+    </control>
+    <control type="button" id="9201">
+      <left>85</left><top>708</top><label>$VAR[AsterScoreFilterLabel]</label>
+      <include>AsterFilterButton</include>
+      <onclick>RunScript(special://skin/tools/filter_library.py,rating)</onclick>
+      <enable>String.Contains(Container.FolderPath,.xsp)</enable>
+      <onup>9200</onup><ondown>9001</ondown><onright>50</onright>
+      <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
+    </control>
+    <control type="image">
+      <left>1539</left><top>33</top><width>282</width><height>48</height>
+      <texture border="18" colordiffuse="fff3eee5">special://skin/media/ui-compact-card-ring.png</texture>
+      <visible>Control.HasFocus(9000)</visible>
+    </control>
+  </control><control type="group" id="9892"><visible>String.StartsWith(Container.FolderPath,plugin://plugin.video.youtube/kodion/search/)</visible><control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture background="true">$VAR[AsterYouTubeHeroArt]</texture><aspectratio>scale</aspectratio><fadetime>250</fadetime></control><control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-hero-left-fade.png</texture><colordiffuse>ee101412</colordiffuse><aspectratio>stretch</aspectratio></control><control type="image"><left>0</left><top>250</top><width>1920</width><height>300</height><texture>special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>ee292721</colordiffuse><aspectratio>stretch</aspectratio></control><control type="image"><left>18</left><top>450</top><width>1884</width><height>630</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>f2f2ede4</colordiffuse><aspectratio>stretch</aspectratio></control><control type="image"><left>70</left><top>25</top><width>72</width><height>72</height><texture>special://skin/media/33-aster-youtube-128.png</texture></control><control type="label"><left>155</left><top>32</top><width>230</width><height>52</height><label>YouTube</label><font>font40</font><textcolor>asterIvory</textcolor></control><control type="image"><left>400</left><top>18</top><width>1120</width><height>72</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>99292721</colordiffuse></control><control type="image"><left>416</left><top>26</top><width>198</width><height>56</height><texture>special://skin/media/ui-compact-card-ring.png</texture><colordiffuse>asterGold</colordiffuse></control><control type="button" id="9400"><left>420</left><top>30</top><width>190</width><height>48</height><label>Search again</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9404</onleft><onright>9401</onright><onup>9400</onup><ondown>50</ondown><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onclick>Container.Update(plugin://plugin.video.youtube/kodion/search/input_prompt/?category_label=Search&amp;hide_folders=true)</onclick></control><control type="button" id="9401"><left>625</left><top>30</top><width>225</width><height>48</height><label>Subscriptions</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9400</onleft><onright>9402</onright><onup>9401</onup><ondown>50</ondown><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onclick>Container.Update(plugin://plugin.video.youtube/subscriptions/list/)</onclick><onclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_route_focus.py,plugin://plugin.video.youtube/subscriptions/list/)</onclick></control><control type="button" id="9402"><left>865</left><top>30</top><width>215</width><height>48</height><label>Recommendations</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9401</onleft><onright>9403</onright><onup>9402</onup><ondown>50</ondown><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onclick>Container.Update(plugin://plugin.video.youtube/special/recommendations)</onclick><onclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_route_focus.py,plugin://plugin.video.youtube/special/recommendations)</onclick></control><control type="button" id="9403"><left>1095</left><top>30</top><width>195</width><height>48</height><label>Watch Later</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9402</onleft><onright>9404</onright><onup>9403</onup><ondown>50</ondown><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onclick>Container.Update(plugin://plugin.video.youtube/special/playlist/WL)</onclick><onclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_route_focus.py,plugin://plugin.video.youtube/special/playlist/WL)</onclick></control><control type="button" id="9404"><left>1305</left><top>30</top><width>190</width><height>48</height><label>Back</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9403</onleft><onright>9400</onright><onup>9404</onup><ondown>50</ondown><onclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</onclick><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus></control><control type="label"><left>125</left><top>135</top><width>1120</width><height>56</height><label>$INFO[Container.PluginCategory]</label><font>font40</font><textcolor>asterIvory</textcolor><shadowcolor>aa000000</shadowcolor><truncate>true</truncate></control><control type="label"><left>125</left><top>202</top><width>1120</width><height>48</height><label>$VAR[AsterYouTubeHeroTitle]</label><font>font30</font><textcolor>asterIvory</textcolor><shadowcolor>aa000000</shadowcolor><truncate>true</truncate></control><control type="textbox"><left>125</left><top>254</top><width>980</width><height>96</height><label>$VAR[AsterYouTubeHeroPlot]</label><font>font20</font><textcolor>asterIvory</textcolor><shadowcolor>aa000000</shadowcolor><wrapmultiline>true</wrapmultiline></control><control type="label"><left>125</left><top>356</top><width>980</width><height>30</height><label>$VAR[AsterYouTubeHeroMeta]</label><font>font20</font><textcolor>asterSage</textcolor></control><control type="label"><left>400</left><top>445</top><width>700</width><height>40</height><label>Results</label><font>font24</font><textcolor>asterInk</textcolor></control></control><control type="panel" id="50">
+      <left>400</left>
+      <top>492</top>
+      <width>1440</width>
+      <height>548</height>
+      <viewtype label="Posters">poster</viewtype>
+      <orientation>vertical</orientation>
+      <scrolltime>180</scrolltime>
+      <preloaditems>2</preloaditems>
+      <onleft>19</onleft>
+      <itemlayout width="280" height="410">
+        <control type="image">
+          <visible>ListItem.IsParentFolder</visible>
+          <left>12</left>
+          <top>8</top>
+          <width>220</width>
+          <height>330</height>
+          <texture border="20">special://skin/media/ui-panel.png</texture>
+          <colordiffuse>asterPaper</colordiffuse>
+        </control>
+        <control type="label">
+          <visible>ListItem.IsParentFolder</visible>
+          <left>12</left>
+          <top>8</top>
+          <width>220</width>
+          <height>330</height>
+          <label>‹ Back</label>
+          <font>font40</font>
+          <textcolor>asterGreen</textcolor>
+          <align>center</align>
+          <aligny>center</aligny>
+        </control>
+        <control type="image">
+          <left>12</left>
+          <top>8</top>
+          <width>220</width>
+          <height>330</height>
+          <texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture>
+          <aspectratio scalediffuse="false">scale</aspectratio>
+          <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
+        </control>
+        <control type="image">
+          <left>12</left><top>42</top><width>220</width><height>240</height>
+          <texture background="true">$VAR[AsterPosterArt]</texture>
+          <aspectratio>keep</aspectratio>
+          <visible>String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
+        </control>
+        <include content="AsterWatchBadges"><param name="left" value="184" /><param name="top" value="20" /></include>
+        <control type="textbox">
+          <left>12</left>
+          <top>350</top>
+          <width>220</width>
+          <height>48</height>
+          <label>$VAR[AsterPosterLabel]</label>
+          <font>font20</font>
+          <textcolor>asterInk</textcolor>
+          <wrapmultiline>true</wrapmultiline>
+        </control>
+      </itemlayout>
+      <focusedlayout width="280" height="410">
+        <control type="image">
+          <left>2</left><top>0</top><width>240</width><height>358</height>
+          <texture>special://skin/media/ui-poster-ring.png</texture>
+          <colordiffuse>asterIvory</colordiffuse>
+        </control>
+        <control type="image">
+          <visible>ListItem.IsParentFolder</visible>
+          <left>6</left>
+          <top>2</top>
+          <width>232</width>
+          <height>348</height>
+          <texture border="20">special://skin/media/ui-panel.png</texture>
+          <colordiffuse>asterPaper</colordiffuse>
+        </control>
+        <control type="label">
+          <visible>ListItem.IsParentFolder</visible>
+          <left>6</left>
+          <top>2</top>
+          <width>232</width>
+          <height>348</height>
+          <label>‹ Back</label>
+          <font>font40</font>
+          <textcolor>asterGreen</textcolor>
+          <align>center</align>
+          <aligny>center</aligny>
+        </control>
+        <control type="image">
+          <left>6</left>
+          <top>2</top>
+          <width>232</width>
+          <height>348</height>
+          <texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture>
+          <aspectratio scalediffuse="false">scale</aspectratio>
+          <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
+        </control>
+        <control type="image">
+          <left>12</left><top>42</top><width>220</width><height>240</height>
+          <texture background="true">$VAR[AsterPosterArt]</texture>
+          <aspectratio>keep</aspectratio>
+          <visible>String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
+        </control>
+        <control type="image">
+          <left>6</left>
+          <top>2</top>
+          <width>232</width>
+          <height>348</height>
+          <texture>special://skin/media/ui-poster-ring.png</texture>
+          <colordiffuse>asterGreen</colordiffuse>
+        </control>
+        <include content="AsterWatchBadges"><param name="left" value="196" /><param name="top" value="14" /></include>
+        <control type="textbox">
+          <left>6</left>
+          <top>350</top>
+          <width>232</width>
+          <height>48</height>
+          <label>$VAR[AsterPosterLabel]</label>
+          <font>font20</font>
+          <textcolor>asterGreen</textcolor>
+          <wrapmultiline>true</wrapmultiline>
+        </control>
+      </focusedlayout>
+    <onup condition="String.StartsWith(Container.FolderPath,plugin://plugin.video.youtube/kodion/search/)">9400</onup><onup condition="!String.StartsWith(Container.FolderPath,plugin://plugin.video.youtube/kodion/search/)">9100</onup></control>
+    </control><control type="group" id="9891"><control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-panel.png</texture><colordiffuse>ff292721</colordiffuse><aspectratio>stretch</aspectratio></control><visible>String.IsEqual(Container.FolderPath,plugin://plugin.video.youtube/)</visible><control type="image"><left>0</left><top>0</top><width>1920</width><height>620</height><texture background="true">$VAR[AsterYouTubeHeroArt]</texture><aspectratio>scale</aspectratio><fadetime>250</fadetime></control><control type="image"><left>0</left><top>0</top><width>1920</width><height>620</height><texture>special://skin/media/ui-hero-left-fade.png</texture><colordiffuse>ee101412</colordiffuse><aspectratio>stretch</aspectratio></control><control type="image"><left>0</left><top>250</top><width>1920</width><height>370</height><texture>special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>ee292721</colordiffuse><aspectratio>stretch</aspectratio></control><control type="image"><left>70</left><top>25</top><width>72</width><height>72</height><texture>special://skin/media/33-aster-youtube-128.png</texture></control><control type="label"><left>155</left><top>32</top><width>230</width><height>52</height><label>YouTube</label><font>font40</font><textcolor>asterIvory</textcolor></control><control type="image"><left>400</left><top>18</top><width>1255</width><height>72</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>99292721</colordiffuse></control><control type="image"><left>416</left><top>26</top><width>173</width><height>56</height><texture colordiffuse="75cbb991">special://skin/media/ui-compact-card-ring.png</texture><colordiffuse>75cbb991</colordiffuse></control><control type="button" id="9300"><left>420</left><top>30</top><width>165</width><height>48</height><label>Search</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9305</onleft><onright>9301</onright><onup>9300</onup><ondown>9530</ondown><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="f23b3a32">special://skin/media/ui-panel.png</texturenofocus><onclick>Container.Update(plugin://plugin.video.youtube/kodion/search/input_prompt/?category_label=Search&amp;hide_folders=true)</onclick></control><control type="button" id="9301"><left>595</left><top>30</top><width>225</width><height>48</height><label>Subscriptions</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9300</onleft><onright>9302</onright><onup>9301</onup><ondown>9530</ondown><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onclick>Container.Update(plugin://plugin.video.youtube/subscriptions/list/)</onclick><onclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_route_focus.py,plugin://plugin.video.youtube/subscriptions/list/)</onclick></control><control type="button" id="9302"><left>830</left><top>30</top><width>215</width><height>48</height><label>Recommendations</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9301</onleft><onright>9303</onright><onup>9302</onup><ondown>9530</ondown><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onclick>Container.Update(plugin://plugin.video.youtube/special/recommendations)</onclick><onclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_route_focus.py,plugin://plugin.video.youtube/special/recommendations)</onclick></control><control type="button" id="9303"><left>1055</left><top>30</top><width>195</width><height>48</height><label>Watch Later</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9302</onleft><onright>9304</onright><onup>9303</onup><ondown>9530</ondown><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onclick>Container.Update(plugin://plugin.video.youtube/special/playlist/WL)</onclick><onclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_route_focus.py,plugin://plugin.video.youtube/special/playlist/WL)</onclick></control><control type="button" id="9304"><left>1260</left><top>30</top><width>175</width><height>48</height><label>My Channel</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9303</onleft><onright>9305</onright><onup>9304</onup><ondown>9530</ondown><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus><onclick>Container.Update(plugin://plugin.video.youtube/channel/mine)</onclick><onclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_route_focus.py,plugin://plugin.video.youtube/channel/mine)</onclick></control><control type="button" id="9305"><left>1445</left><top>30</top><width>190</width><height>48</height><label>Back</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>9304</onleft><onright>9300</onright><onup>9305</onup><ondown>9530</ondown><onclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</onclick><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus></control><control type="label"><left>125</left><top>142</top><width>1120</width><height>62</height><label>$VAR[AsterYouTubeHeroTitle]</label><font>font40</font><textcolor>asterIvory</textcolor><shadowcolor>aa000000</shadowcolor><truncate>true</truncate></control><control type="textbox"><left>125</left><top>210</top><width>980</width><height>120</height><label>$VAR[AsterYouTubeHeroPlot]</label><font>font20</font><textcolor>asterIvory</textcolor><shadowcolor>aa000000</shadowcolor><wrapmultiline>true</wrapmultiline></control><control type="label"><left>125</left><top>345</top><width>980</width><height>30</height><label>$VAR[AsterYouTubeHeroMeta]</label><font>font20</font><textcolor>asterSage</textcolor></control><control type="label"><left>125</left><top>390</top><width>700</width><height>32</height><label>Subscribed channels</label><font>font24</font><textcolor>asterIvory</textcolor></control><control type="panel" id="9530"><left>125</left><top>425</top><width>1700</width><height>160</height><orientation>horizontal</orientation><scrolltime>180</scrolltime><preloaditems>2</preloaditems><onup>9301</onup><ondown>9531</ondown><itemlayout width="300" height="160"><control type="image"><left>10</left><top>8</top><width>272</width><height>116</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio></control><control type="label"><left>10</left><top>126</top><width>280</width><height>30</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterIvory</textcolor><truncate>true</truncate></control></itemlayout><focusedlayout width="300" height="160"><control type="image"><left>0</left><top>0</top><width>292</width><height>136</height><texture>special://skin/media/ui-compact-card-ring.png</texture><colordiffuse>asterIvory</colordiffuse></control><control type="image"><left>6</left><top>4</top><width>280</width><height>124</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio></control><control type="image"><left>2</left><top>2</top><width>288</width><height>132</height><texture>special://skin/media/ui-compact-card-ring.png</texture><colordiffuse>asterGreen</colordiffuse></control><control type="label"><left>6</left><top>126</top><width>280</width><height>30</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterGreen</textcolor><truncate>true</truncate></control></focusedlayout><content target="videos">plugin://plugin.video.youtube/subscriptions/list/</content></control><control type="label"><left>125</left><top>590</top><width>700</width><height>32</height><label>Recommendations</label><font>font24</font><textcolor>asterIvory</textcolor></control><control type="panel" id="9531"><left>125</left><top>625</top><width>1700</width><height>160</height><orientation>horizontal</orientation><scrolltime>180</scrolltime><preloaditems>2</preloaditems><onup>9530</onup><ondown>9532</ondown><itemlayout width="300" height="160"><control type="image"><left>10</left><top>8</top><width>272</width><height>116</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio></control><control type="label"><left>10</left><top>126</top><width>280</width><height>30</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterIvory</textcolor><truncate>true</truncate></control></itemlayout><focusedlayout width="300" height="160"><control type="image"><left>0</left><top>0</top><width>292</width><height>136</height><texture>special://skin/media/ui-compact-card-ring.png</texture><colordiffuse>asterIvory</colordiffuse></control><control type="image"><left>6</left><top>4</top><width>280</width><height>124</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio></control><control type="image"><left>2</left><top>2</top><width>288</width><height>132</height><texture>special://skin/media/ui-compact-card-ring.png</texture><colordiffuse>asterGreen</colordiffuse></control><control type="label"><left>6</left><top>126</top><width>280</width><height>30</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterGreen</textcolor><truncate>true</truncate></control></focusedlayout><content target="videos">plugin://plugin.video.youtube/special/recommendations</content></control><control type="label"><left>125</left><top>790</top><width>700</width><height>32</height><label>Watch later</label><font>font24</font><textcolor>asterIvory</textcolor></control><control type="panel" id="9532"><left>125</left><top>825</top><width>1700</width><height>160</height><orientation>horizontal</orientation><scrolltime>180</scrolltime><preloaditems>2</preloaditems><onup>9531</onup><ondown>9532</ondown><itemlayout width="300" height="160"><control type="image"><left>10</left><top>8</top><width>272</width><height>116</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio></control><control type="label"><left>10</left><top>126</top><width>280</width><height>30</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterIvory</textcolor><truncate>true</truncate></control></itemlayout><focusedlayout width="300" height="160"><control type="image"><left>0</left><top>0</top><width>292</width><height>136</height><texture>special://skin/media/ui-compact-card-ring.png</texture><colordiffuse>asterIvory</colordiffuse></control><control type="image"><left>6</left><top>4</top><width>280</width><height>124</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio></control><control type="image"><left>2</left><top>2</top><width>288</width><height>132</height><texture>special://skin/media/ui-compact-card-ring.png</texture><colordiffuse>asterGreen</colordiffuse></control><control type="label"><left>6</left><top>126</top><width>280</width><height>30</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterGreen</textcolor><truncate>true</truncate></control></focusedlayout><content target="videos">plugin://plugin.video.youtube/special/playlist/WL</content></control></control></controls>
+</window>
