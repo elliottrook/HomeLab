@@ -213,6 +213,14 @@
 > no retry and routing off. The suite passes 129/129. Next is the exact
 > first-repair release review; any real repair still requires fresh authority,
 > promoted bindings and Jason's immediate approval for that one effect.
+> That release review found and closed the missing
+> [final effect-admission boundary](evidence/SA4-final-effect-admission-boundary-2026-11-05.md):
+> the final one-effect record now requires fresh cryptographic owner/AI-PAM
+> authentication and cross-binds the source preflight, checkpoint, claimed
+> ledger entry, exact candidate and intersected deadlines. The joined rehearsal
+> uses the new component and the suite passes 132/132. It is source-only and
+> uninstalled. Next is the single root transaction owner; the first live repair
+> remains an exact immediate approval gate.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)

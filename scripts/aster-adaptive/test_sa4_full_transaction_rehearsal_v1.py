@@ -9,6 +9,7 @@ from unittest.mock import patch
 import sa4_atomic_repair_owner_v1 as repair_owner
 import sa4_atomic_rollback_owner_v1 as rollback_owner
 import sa4_authenticated_authority_v1 as rsa
+import sa4_effect_admission_v1 as effect_admission
 import sa4_inactive_checkpoint_owner_v1 as checkpoint_owner
 import sa4_inactive_measurement_owner_v1 as measurement_owner
 import sa4_independent_postcheck_receipt_v1 as observer
@@ -115,17 +116,21 @@ class SA4FullTransactionRehearsalTests(unittest.TestCase):
             "maximum_effects": 0, "preflight_eligible": False,
             "owner_effect_approval_required": True,
             "automatic_retry": False, "automatic_routing": "off"})
-        effect_admission_raw = contract.canonical({
-            "schema": "aster-sa4-effect-admission.v1",
-            "plan_sha256": plan_sha,
-            "checkpoint_sha256": hashlib.sha256(checkpoint_raw).hexdigest(),
-            "claim_sha256": hashlib.sha256(claim_raw).hexdigest(),
-            "candidate_sha256": hashlib.sha256(candidate).hexdigest(),
-            "target_registration_sha256": registration,
-            "owner_effect_approval_sha256": "6" * 64,
-            "expires_epoch": 160, "effect_authorized": True,
-            "maximum_effects": 1, "automatic_retry": False,
-            "automatic_routing": "off"})
+        authenticated = {
+            "approval_sha256": "2" * 64,
+            "approval_proof_sha256": "3" * 64,
+            "grant_id": grant_id, "grant_sha256": grant_sha,
+            "grant_proof_sha256": "4" * 64,
+            "approval_expires_epoch": 180, "grant_expires_epoch": 180,
+            "grant_consumed": False, "maximum_effects": 0,
+            "preflight_eligible": False}
+        with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
+             patch.object(effect_admission.authority, "verify",
+                          return_value=authenticated):
+            effect_admission_raw = effect_admission.admit(
+                plan_raw, b"approval\n", b"approval-proof\n",
+                b"grant\n", b"grant-proof\n", source_admission_raw,
+                checkpoint_raw, claim_raw, candidate, effect_epoch=120)
         with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
              patch.multiple(repair_owner, LOCAL_HOST_ID=self.target.host_id,
                             EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()):
