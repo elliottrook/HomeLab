@@ -37,6 +37,12 @@ App**. On Android, open the same address in Chrome and choose **Add to Home
 screen** or **Install app**. No App Store or Play Store package is needed.
 While connected to an authorized home network, choose the controlled AsterTV
 from the bottom room selector and use the touch surface or icon controls.
+The app remembers the last valid room selected on that browser and restores it
+the next time the PWA opens. This preference stores only the room ID; it does
+not store credentials, searches, dictated text or Kodi input. If the room is
+removed from the authorized room registry, the stale preference is ignored and
+the first currently authorized room is selected. Clearing the browser's site
+data resets the preference.
 
 Voice recognition places cleaned text into Search. It does not submit
 automatically: correct or append with the iPhone keyboard, then press Search.

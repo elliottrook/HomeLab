@@ -46,7 +46,7 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn("margin:6px 0 -13px", CSS)
         self.assertIn("radial-gradient(ellipse at 50% 43%", CSS)
         self.assertIn("rgba(243,236,223,.27)", CSS)
-        self.assertIn("const CACHE = 'aster-remote-shell-v7'", SW)
+        self.assertIn("const CACHE = 'aster-remote-shell-v8'", SW)
         self.assertIn("self.skipWaiting()", SW)
         self.assertIn("self.clients.claim()", SW)
 
@@ -84,9 +84,16 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn("Number.isFinite(equipment.volume_level)", JS)
         self.assertIn("typeof equipment.muted === 'boolean'", JS)
 
-    def test_browser_uses_network_authorization_and_content_is_not_persisted(self):
+    def test_browser_uses_network_authorization_and_only_room_preference_is_persisted(self):
         self.assertNotIn("sessionStorage", JS)
-        self.assertNotIn("localStorage", JS)
+        self.assertIn("const ROOM_PREFERENCE_KEY = 'aster_remote_last_room_v1'", JS)
+        self.assertIn("localStorage.getItem(ROOM_PREFERENCE_KEY)", JS)
+        self.assertIn("localStorage.setItem(ROOM_PREFERENCE_KEY, roomId)", JS)
+        self.assertIn("rooms.some(item => item.room_id === roomId)", JS)
+        self.assertNotIn("localStorage.setItem('search", JS)
+        self.assertNotIn("localStorage.setItem('text", JS)
+        self.assertNotIn("localStorage.setItem('voice", JS)
+        self.assertNotIn("localStorage.setItem('token", JS)
         self.assertNotIn("refresh_token", JS)
         self.assertNotIn("auth.elliottrook.com", JS)
         self.assertIn("history.replaceState({}, '', '/remote/')", JS)
@@ -97,6 +104,13 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertNotIn("console.log", JS)
         self.assertIn("inputDirty = false", JS)
         self.assertNotIn("$('#search').value = ''", JS)
+
+    def test_last_valid_room_is_restored_and_stale_room_fails_safe(self):
+        self.assertIn("selectedRoom || roomPreference() || select.value", JS)
+        self.assertIn("rooms.some(item => item.room_id === prior) ? prior", JS)
+        self.assertIn("(rooms[0]?.room_id || '')", JS)
+        self.assertIn("if (selectedRoom) rememberRoom(selectedRoom)", JS)
+        self.assertIn("selectedRoom = event.target.value; rememberRoom(selectedRoom)", JS)
 
     def test_voice_uses_bounded_british_media_profile(self):
         self.assertIn("form.append('profile', 'en-GB-media')", JS)
