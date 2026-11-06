@@ -16,7 +16,48 @@
       "note": "Test posters and thumbnails are content, not reusable Aster interface assets."
     }
   ],
-  "placement_exports": [],
+  "placement_exports": [
+    {
+      "source_svg_path": "brands/aster-home/working/2026-10-13-aster-home-v2-reconstruction/family-candidate-2026-10-14/SVG/15-aster-compass.svg",
+      "source_svg_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9",
+      "output_path": "services/aster-agent/static/remote/aster-compass.png",
+      "output_sha256": "6b8788ade5bcc3447d93f497a296e55354e15a4dd9a403b22268c907c0f67ddf",
+      "placement": "Aster Remote in-app plain compass at 128px",
+      "dimensions": [128, 128],
+      "export_recipe": "approved-release direct SVG export at 128x128",
+      "runtime_resize_allowed": false
+    },
+    {
+      "source_svg_path": "brands/aster-home/working/2026-11-05-aster-tv-remote-svg/SVG/AsterTV-Remote.svg",
+      "source_svg_sha256": "7effb1ffe3ba828de63059235c976f26e0d7fb869e0856d0fb52cea86a775ada",
+      "output_path": "services/aster-agent/static/remote/astertv-remote-180.png",
+      "output_sha256": "36eb73e019be374fbf4cb2fdf2e16de14b30e0dc470cbc5b19fae63bc4ba8379",
+      "placement": "Aster Remote Apple touch icon at 180px",
+      "dimensions": [180, 180],
+      "export_recipe": "sips -s format png -z 180 180 <approved-svg> --out <placement-output>",
+      "runtime_resize_allowed": false
+    },
+    {
+      "source_svg_path": "brands/aster-home/working/2026-11-05-aster-tv-remote-svg/SVG/AsterTV-Remote.svg",
+      "source_svg_sha256": "7effb1ffe3ba828de63059235c976f26e0d7fb869e0856d0fb52cea86a775ada",
+      "output_path": "services/aster-agent/static/remote/astertv-remote-512.png",
+      "output_sha256": "07880f3fb4e791b6383cabfe3c77a5218c184e84073c8cb89037e9b9c5a16074",
+      "placement": "Aster Remote PWA manifest icon at 512px",
+      "dimensions": [512, 512],
+      "export_recipe": "sips -s format png -z 512 512 <approved-svg> --out <placement-output>",
+      "runtime_resize_allowed": false
+    },
+    {
+      "source_svg_path": "brands/aster-home/working/2026-11-04-approved-r5/SVG/32-aster-tv-logo.svg",
+      "source_svg_sha256": "747aab438334afc9b1e2a0dafa8608bd8b8d4aa5ed29af5697f22972b714d2e8",
+      "output_path": "services/kodi/astertv-v3/brand_assets/astertv-splash-1920x1080.png",
+      "output_sha256": "3658771b8ab771591839713cd497cc79a5a781d67463145fe2f23c3d541d4626",
+      "placement": "AsterTV Kodi startup splash at 1920x1080",
+      "dimensions": [1920, 1080],
+      "export_recipe": "render_tv_splash.swift draws the exact approved SVG at 600x386 on the #1d241f 1920x1080 placement canvas; no raster source or raster resizing",
+      "runtime_resize_allowed": false
+    }
+  ],
   "legacy_raster_baseline": {
     "count": 20,
     "sha256": "26d56035f7daa690d1bb598c1d362e4e0e4ed65d23f5fde32eb234dc71f5a3e4",

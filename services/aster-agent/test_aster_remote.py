@@ -29,7 +29,7 @@ class Request:
 class RemoteTests(unittest.TestCase):
     def setUp(self):
         self.clock = Clock(); self.root = tempfile.TemporaryDirectory(); root = Path(self.root.name)
-        for name in ("index.html", "app.js", "styles.css", "sw.js", "aster-compass.png", "manifest.webmanifest"):
+        for name in ("index.html", "app.js", "styles.css", "sw.js", "aster-compass.png", "astertv-remote-180.png", "astertv-remote-512.png", "manifest.webmanifest"):
             (root / name).write_text(name)
         self.gateway = AsterRemoteGateway(
             None, root,

@@ -9,8 +9,8 @@
   "theme_color": "#17130f",
   "icons": [
     {
-      "src": "/aster-app-icon.png",
-      "sizes": "2048x2048",
+      "src": "/remote/astertv-remote-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }

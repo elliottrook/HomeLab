@@ -22,7 +22,7 @@ FILES = {
        for path in sorted(HA.rglob("*")) if path.is_file()},
 }
 PINNED = {
-    "/opt/aster-agent/aster_remote.py": "424281d61114bab166ae6193f2ce5fe8810da8985142a1f246d209b11e199d04",
+    "/opt/aster-agent/aster_remote.py": "98c1a36caed3b31e06f29308e579337e2fea85b2628c67c81d476833588d6071",
     "/opt/aster-agent/static/remote/app.js": "76a14595af2da756a72975eb02afe45cd21ac035d8b118dfc67a2635258e0762",
     "/config/custom_components/aster_room_bridge/__init__.py": "cfcd02e48a15234b283be3815f5c692eccb32224116a64ebd3f5c82ccc328554",
     "/config/custom_components/aster_room_bridge/content_policy.py": "4ed19eade495e4d35f7b58cb3b8b54dc21de2158a3b782139dda3a1af21a82f8",

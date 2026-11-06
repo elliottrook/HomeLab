@@ -19,6 +19,8 @@ RUNTIME_ROOTS = [
     ROOT / "services/kodi/astertv-v3/aster_client/addon/script.astertv.voice/resources/media",
     ROOT / "services/kodi/astertv-v3/deploy/tv-details/skin.asterhome/media",
     ROOT / "services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/media",
+    ROOT / "services/kodi/astertv-v3/brand_assets",
+    ROOT / "services/aster-agent/static/remote",
 ]
 ASSET_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
 

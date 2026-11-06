@@ -16,7 +16,9 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertEqual(manifest["start_url"], "/remote/")
         self.assertEqual(manifest["scope"], "/remote/")
         self.assertEqual(manifest["display"], "standalone")
-        self.assertEqual(manifest["icons"][0]["src"], "/aster-app-icon.png")
+        self.assertEqual(manifest["icons"][0]["src"], "/remote/astertv-remote-512.png")
+        self.assertEqual(manifest["icons"][0]["sizes"], "512x512")
+        self.assertIn('/remote/astertv-remote-180.png', HTML)
 
     def test_shell_has_remote_keyboard_search_and_accessibility(self):
         for value in (
@@ -46,7 +48,7 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn("margin:6px 0 -13px", CSS)
         self.assertIn("radial-gradient(ellipse at 50% 43%", CSS)
         self.assertIn("rgba(243,236,223,.27)", CSS)
-        self.assertIn("const CACHE = 'aster-remote-shell-v8'", SW)
+        self.assertIn("const CACHE = 'aster-remote-shell-v9'", SW)
         self.assertIn("self.skipWaiting()", SW)
         self.assertIn("self.clients.claim()", SW)
 
@@ -72,6 +74,9 @@ class RemoteStaticTests(unittest.TestCase):
         self.assertIn('connection.setAttribute(\'aria-label\'', JS)
         self.assertNotIn("connection.textContent", JS)
         self.assertIn("'/remote/aster-compass.png'", SW)
+        self.assertIn("'/remote/astertv-remote-180.png'", SW)
+        self.assertIn("'/remote/astertv-remote-512.png'", SW)
+        self.assertNotIn("'/aster-app-icon.png'", SW)
 
     def test_equipment_controls_require_live_capability_state(self):
         self.assertIn("Equipment controls unavailable for this room", HTML)

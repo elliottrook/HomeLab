@@ -2,11 +2,19 @@
   "files": [
     {
       "authority": "home-assistant",
-      "bytes": 4911,
+      "bytes": 6720,
       "destination": "/config/custom_components/aster_room_bridge/__init__.py",
       "mode": "0644",
       "scope": "external",
-      "sha256": "213a813d3c6b71ab5b6208223060bd24ed7f4a030a247aebe43bc0b012d95fac"
+      "sha256": "cfcd02e48a15234b283be3815f5c692eccb32224116a64ebd3f5c82ccc328554"
+    },
+    {
+      "authority": "home-assistant",
+      "bytes": 6518,
+      "destination": "/config/custom_components/aster_room_bridge/content_policy.py",
+      "mode": "0644",
+      "scope": "external",
+      "sha256": "4ed19eade495e4d35f7b58cb3b8b54dc21de2158a3b782139dda3a1af21a82f8"
     },
     {
       "authority": "home-assistant",
@@ -26,11 +34,11 @@
     },
     {
       "authority": "aster-agent",
-      "bytes": 26669,
+      "bytes": 29892,
       "destination": "/opt/aster-agent/aster_remote.py",
       "mode": "0644",
       "scope": "external",
-      "sha256": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983"
+      "sha256": "98c1a36caed3b31e06f29308e579337e2fea85b2628c67c81d476833588d6071"
     },
     {
       "authority": "aster-agent",
@@ -50,19 +58,35 @@
     },
     {
       "authority": "aster-agent",
-      "bytes": 6858,
-      "destination": "/opt/aster-agent/static/remote/index.html",
+      "bytes": 66391,
+      "destination": "/opt/aster-agent/static/remote/astertv-remote-180.png",
       "mode": "0644",
       "scope": "external",
-      "sha256": "21df9781d38e31423be9ac9b78508fe618ff9e1a6bdb877eec07818ab38e00c6"
+      "sha256": "36eb73e019be374fbf4cb2fdf2e16de14b30e0dc470cbc5b19fae63bc4ba8379"
     },
     {
       "authority": "aster-agent",
-      "bytes": 365,
+      "bytes": 480340,
+      "destination": "/opt/aster-agent/static/remote/astertv-remote-512.png",
+      "mode": "0644",
+      "scope": "external",
+      "sha256": "07880f3fb4e791b6383cabfe3c77a5218c184e84073c8cb89037e9b9c5a16074"
+    },
+    {
+      "authority": "aster-agent",
+      "bytes": 6976,
+      "destination": "/opt/aster-agent/static/remote/index.html",
+      "mode": "0644",
+      "scope": "external",
+      "sha256": "54d11f133fcfd341487dcbbe190479b13451458a7c19041075c35db257949df5"
+    },
+    {
+      "authority": "aster-agent",
+      "bytes": 374,
       "destination": "/opt/aster-agent/static/remote/manifest.webmanifest",
       "mode": "0644",
       "scope": "external",
-      "sha256": "1f60d65e19b010afcf11e58b1184341f39e98a59f768419c28a41832e7a5795b"
+      "sha256": "2cef646afa075a39e4f1316ae5e9d91b9f644a14b3d68b14cf48dc78077b5e8d"
     },
     {
       "authority": "aster-agent",
@@ -74,11 +98,11 @@
     },
     {
       "authority": "aster-agent",
-      "bytes": 978,
+      "bytes": 1023,
       "destination": "/opt/aster-agent/static/remote/sw.js",
       "mode": "0644",
       "scope": "external",
-      "sha256": "9be36dd12a332cf22c71c3364479b23623b2a10abb07b8be0a5f8c27bc0f2bc8"
+      "sha256": "b72b204d8220cbf5f122aac9e8d384a91bb10c8613cd5b54a46d774fd74ebfa7"
     }
   ],
   "id": "family-equipment-bridge",

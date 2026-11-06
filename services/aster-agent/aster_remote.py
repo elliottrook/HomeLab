@@ -253,6 +253,8 @@ class AsterRemoteGateway:
         self.router.add_api_route("/remote/styles.css", self.asset, methods=["GET"])
         self.router.add_api_route("/remote/sw.js", self.asset, methods=["GET"])
         self.router.add_api_route("/remote/aster-compass.png", self.asset, methods=["GET"])
+        self.router.add_api_route("/remote/astertv-remote-180.png", self.asset, methods=["GET"])
+        self.router.add_api_route("/remote/astertv-remote-512.png", self.asset, methods=["GET"])
         self.router.add_api_route(
             "/remote/manifest.webmanifest", self.asset, methods=["GET"]
         )
@@ -289,6 +291,8 @@ class AsterRemoteGateway:
             "styles.css": "text/css",
             "sw.js": "application/javascript",
             "aster-compass.png": "image/png",
+            "astertv-remote-180.png": "image/png",
+            "astertv-remote-512.png": "image/png",
             "manifest.webmanifest": "application/manifest+json",
         }
         if name not in allowed:
