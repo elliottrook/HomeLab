@@ -113,6 +113,17 @@
 > Jason explicitly authorized bounded reruns; `r2` is the next and only active
 > candidate path. `r1` evidence is preserved and cannot be overwritten.
 
+> **M3 J2 terminal rejection, 2026-11-06:** corrected attempt `r2`
+> [completed cleanly as NO-GO](evidence/M3-J2-training-r2-terminal-rejection-2026-11-06.md).
+> All 40 epochs completed and epoch 37 was selected, but raw and guarded exact
+> were only 94/192 (48.96%) against the frozen 116 minimum. At most 17 rows
+> could be accepted with zero validation error, at threshold 0.795. No artifact
+> was written; production was unchanged; no service stopped; B60 and sealed
+> evaluation were unused. This deterministic J2 recipe is rejected and may not
+> be rerun unchanged. M3 now requires a materially distinct preregistered
+> candidate developed only against the admitted train/validation corpus, then
+> fresh custody/effect/evaluation gates before any promotion.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.
