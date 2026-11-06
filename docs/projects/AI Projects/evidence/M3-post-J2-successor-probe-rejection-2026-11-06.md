@@ -2,7 +2,7 @@
 
 ## Decision
 
-The first three post-J2 development probes are **rejected**. They were
+The first five post-J2 development probes are **rejected**. They were
 disposable, Mac-local aggregate experiments over only the admitted 768-row
 training and 192-row validation split. The sealed 32-case evaluation was not
 opened, B60 was not used and no production state changed.
@@ -18,6 +18,8 @@ promotion.
 | Joint character/word multinomial Naive Bayes | 109/192 exact | maximum zero-error accepted coverage 21/192 | Reject |
 | Hierarchical field-wise whole-label Naive Bayes | 116/192 exact | maximum zero-error accepted coverage 21/192 | Reject |
 | Apple NaturalLanguage word-embedding centroid/kNN family | best raw configuration 150/192 exact | best zero-safety-failure coverage remained 21/192; the equal-weight field-wise candidate was 146/192 exact and had 20 errors in its top 116 decisions | Reject |
+| Factorized hashed character/word linear head | 117/192 exact | top 116 had 35 errors and nine unsafe false routes | Reject |
+| Factorized supervised linear head over Apple NaturalLanguage embeddings | 141/192 exact | top 116 had 17 errors and seven unsafe false routes | Reject |
 
 The accepted confidence-policy v2 requires at least 60% decision coverage,
 at most 10% accepted decision error, zero unsafe false routes and zero routed
@@ -43,11 +45,12 @@ underclassification remained zero.
 
 ## Consequence and next action
 
-The probes confirm that simple lexical restatements, whole-label classifiers
-and fixed OS-local embedding neighbours do not close M3. Further tuning of
-these families against the same validation rows is closed. A successor must
-change the representation or task formulation, be preregistered before a new
-effect, and preserve a fresh untouched evaluation boundary.
+The probes confirm that simple lexical restatements, field factorization,
+whole-label classifiers and fixed OS-local embedding neighbours or supervised
+heads do not close M3. Further tuning of these families against the same
+validation rows is closed. A successor must change the representation or task
+formulation, be preregistered before a new effect, and preserve a fresh
+untouched evaluation boundary.
 
 While that materially distinct design is prepared, Stream A continues the
 independent SA4 source/inactive-install lane. M3 remains open and automatic
