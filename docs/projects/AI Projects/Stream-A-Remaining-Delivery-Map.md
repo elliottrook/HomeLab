@@ -395,6 +395,11 @@
 > Its independent result verifier rejects invocation, authority, target and
 > metadata drift; the suite passes 204/204. Offline preparation is exhausted
 > before the inactive one-file installation gate.
+> The approved [inactive runner installation](evidence/SA4-fixed-runner-inactive-install-result-2026-11-06.md)
+> then completed: exact root-owned file, clean import, no input/evidence,
+> ledger or runtime state, unchanged canary and healthy production. No runner
+> or signer was invoked. Next is final installed-path zero-effect preflight and
+> a fresh release packet; any repair requires new exact approval.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
