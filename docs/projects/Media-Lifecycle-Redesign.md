@@ -258,6 +258,23 @@ or physical archive roots.
 
 ## Evidence log
 
+- **2026-11-06 — Reversible oversized Archive sample:** after Jason approved
+  the specific Forgejo push, the M1/optimizer-contract candidate reached
+  Forgejo main and its GitHub mirror at `d5946684a1c3b0aa0f20b2f167b1b6d280719c4e`.
+  Rechecked live state: Radarr, Sonarr and Jellyfin containers running; legacy
+  cron jobs 4 and 6 disabled; `Media/data` recovery snapshot present. Of the
+  six directly probeable oversized Archive MKVs, the smallest is 5.74 GB,
+  106.9 minutes, 1080p SDR HEVC, with English six-channel E-AC-3 and one
+  English SubRip stream. A 90-second software x265 sample was staged outside
+  the libraries at 5.3 Mb/s nominal video bitrate. The output was 58,962,519
+  bytes over 92.081 seconds, retained six-channel audio and the English
+  subtitle, and decoded successfully. A 30-second aligned source/output SSIM
+  check scored 0.980282. This single scene is not representative enough to
+  infer full-film size or subjective quality; no source, ARR record, Jellyfin
+  library or watch state was changed. The temporary sample was removed.
+  Before any source replacement, test varied scenes, full-film size and
+  subtitle content, assess picture and playback on AsterTV, take a fresh
+  recovery checkpoint, then verify ARR continuity and rollback.
 - **2026-11-06 — User correction and oversized Archive inventory:** Jason
   directed that every file already over 5 GB in Archive be evaluated for
   transcoding/compression; ARR dates can govern future transfers. The 19
@@ -457,9 +474,10 @@ or physical archive roots.
   safeguards. A single-file optimizer pilot and a fresh checkpoint precede
   any bulk processing; failures remain playable as Current exceptions.
 - M0 evidence is synchronized to Forgejo and its GitHub mirror at `00fc34d`.
-  The later M1 pilot evidence is local only. Repository instructions require
-  immediate authorization for each further Forgejo push; the M0 approval
-  does not cover a later push.
+  The M1/optimizer-contract candidate was subsequently synchronized at
+  `d594668` by a separate user-approved push. This latest sample evidence is
+  local only. Repository instructions require immediate authorization for each
+  further Forgejo push.
 - The user wants the best file below 5 GB, with no compression solely to minimize size. They authorize a good 1080p version when 4K cannot meet the ceiling. The user prefers moving whole seasons after their youngest episode reaches four months, or keeping only two physical folders with separate Current/Archive views; the latter is recommended pending a Jellyfin client pilot.
 
 ## Close-out
