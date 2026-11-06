@@ -124,6 +124,19 @@
 > candidate developed only against the admitted train/validation corpus, then
 > fresh custody/effect/evaluation gates before any promotion.
 
+> **M3 post-J2 successor probes rejected, 2026-11-06:** three disposable
+> Mac-local development probes over only the admitted 768/192 split are
+> [closed](evidence/M3-post-J2-successor-probe-rejection-2026-11-06.md).
+> Joint character/word Naive Bayes reached 109/192 exact, a hierarchical
+> field-wise whole-label variant reached 116/192, and fixed Apple
+> NaturalLanguage embedding centroid/kNN variants reached at most 150/192 raw
+> exact. None met confidence-policy v2: best zero-safety-failure coverage was
+> only 21/192, while the strongest policy-checked top-116 slice still had 20
+> errors. The sealed evaluation, B60 and production were untouched. Lexical,
+> whole-label and fixed-embedding neighbour tuning on this split are now
+> closed; a successor must materially change representation or task
+> formulation.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.
@@ -590,6 +603,21 @@
 > summary, ledger and canary hash remained byte-identical; runtime state stayed
 > absent and production healthy. Next is the source-only registration and
 > release design for a distinct inert canary. No repair is currently authorized.
+> The resulting [distinct-canary v3 transaction source](evidence/SA4-distinct-canary-v3-transaction-source-boundary-2026-11-06.md)
+> now binds the accepted v2 registry to a new root owner and fixed no-argument
+> runner. It rejects the spent v1 target, uses separate create-only input,
+> evidence and ledger paths, retains the corrected complete-lineage v2 phase
+> graph and has no retry. The canonical release packet is
+> `47c68ba4…6c93`; the complete SA4 suite passes 249/249. Nothing is installed
+> or invoked. Next is an exact reversible inactive-install review and inert
+> installed-path preflight; no repair is authorized.
+> That [inactive-install review](evidence/SA4-distinct-canary-v3-inactive-install-review-2026-11-06.md)
+> now binds fresh LXC 104 absence, all seven exact installed dependencies, the
+> unchanged drifted v2 target and absent transaction/control state. The
+> create-exclusive two-file plan has canonical digest `7fd29ff4…a385`, exact
+> reverse removal and inert postchecks only; the complete SA4 suite passes
+> 252/252. The reversible inactive installation is the next operational gate.
+> No repair is included.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
@@ -2139,8 +2167,8 @@ is unverified.
 | **2. Complete normal Companion job handling (rest of D3)** | Jason can see a job continue/reconnect, distinguish busy, unavailable and quota states, and understand cancellation or an uncertain outcome. | Offline lifecycle tests and a small, separately reviewed ordinary-use check; preserve request IDs, never resubmit uncertain work, and keep basic Aster available when Codex/Mac/Internet fails. Follow-up context and notifications need explicit scope rather than being silently inferred from the pilot. | The [current source revalidation](evidence/D3-ordinary-job-handling-offline-revalidation-2026-10-25.md) passes all 60 native tests plus 66 targeted dependency-free delegation tests with five skips. The [live Companion window](evidence/D3-companion-test-window-2026-10-25.md) then passed two persisted-session relaunches, read-only OpenBao status, fail-closed recorded-request handling and one exact ordinary Aster response in 2.8 seconds. AI-PAM Management remains an inconclusive accessibility/display observation, and the durable failure categories remain confined to the hidden manual path. General Codex intake/notification are **not released**. |
 | **3. Establish the authority boundary before connected tools (M1 + D4 prerequisite)** | Codex may ask for narrowly scoped read-only evidence; it cannot obtain permissions by choosing a route. | Verify AI-PAM caller binding, demotion/revocation, expiry, stale policy, duplicate approval consumption and recovery; register each read-only target and keep secrets out of model context. Any connected capability has its own deployment gate. | **SYNTHETIC AUTHORITY PROOF COMPLETE.** The permanent independent route passed service restart, execution-broker outage and LXC104 reboot recovery. Reviewed broker source covers caller binding, demotion, capability revocation, expiry, stale policy, duplicate consumption and UI recovery. The exact [passkey mapping](evidence/M1-independent-ingress-passkey-install-result-2026-10-25.md) accepts only the reviewed Aster WebAuthn ACR. The final [live Red/management ceremony](evidence/M1-red-management-ceremony-result-2026-10-25.md) recorded a one-second-old passkey claim, consumed one hash-bound fictional Red request, denied its duplicate, and wrote one same-state management audit event. The read-only verifier proved exactly one terminal request and four ordered audit rows with no grant, policy, service, agent or global-switch drift; production remained healthy. The optional session-visibility UI remains undeployed, but freshness is now proven at the broker boundary. This evidence does not release generic Red or management actions: each real connected capability still needs its own least-privilege registration, deployment and effect gate. |
 | **4. Prove useful read-only sysadmin investigation (first D4 role)** | Aster can hand a real but bounded diagnostic question to Codex and explain findings, uncertainty and evidence. | Representative incidents, provenance and freshness, actual read-only tool behavior, independent technical postchecks, and a clear pass/fail rubric. No fix or generic shell authority follows from diagnostic success. | **COMPLETE — CANDIDATE-J ACCEPTED.** The distinct 20-case quality transaction completed restored in 232 seconds with deterministic 20/20 scoring. Three separate model-blind reviews conservatively intersect at the frozen 18/20 floor, with all six abstentions and zero false-completion failures. Jason accepted the cross-bound owner release candidate on 2026-11-05. The retained result qualifies only the bounded read-only investigation role; no generic shell, repair authority, automatic route or model promotion follows. |
-| **5. Qualify one supervised repair class (later D4/SA4)** | Only an exact reversible fix can be proposed and, after Jason's specific approval, carried out. | Precondition/checkpoint, exact target and action, AI-PAM grant, independent postcheck, rollback, uncertain-outcome reconciliation and emergency stop. | **EFFECT-CONTROLLER CORRECTION SOURCE-ONLY; LIVE REPAIR OFF.** The approved v4 run stopped before signing because no reviewed controller preserved the root owner across observer signing. A one-process controller now sequences success/one-rollback paths, requests exactly one/two observer signatures and has no retry; suite 171/171. It is not installed. Next is a fixed Proxmox-to-LXC proof transport, joined protocol tests and inactive-install review. The approval is spent and the canary remains unchanged. |
-| **6. Add low-resource automatic handover (M3–M6)** | Routine requests stay on deterministic/local paths; only requests that need stronger capability go to Codex or another approved provider, with privacy and cost controls. | Stable Decision/Capability contracts, representative routing labels, calibrated abstention, shadow comparison, measured latency/privacy/cost, and one evidence-backed promote-or-reject decision. The first route is read-only; a route never grants tools. | **J2 DATA RELEASE GATED; ROUTING OFF.** Prompt, lexical, embedding/head, 35B and J1 learned candidates are rejected. J2 is a materially different byte-convolutional joint-label family. Candidate-v4's balanced 960-row corpus has zero pinned-reference overlap, complete label/quality reviews and owner corpus-release acceptance. Training remains closed until an externally controlled signer authenticates corpus custody and a third distinct custodian seals the 32-case evaluation set outside trainer/main-agent access. Automatic routing, tools and authority remain off. |
+| **5. Qualify one supervised repair class (later D4/SA4)** | Only an exact reversible fix can be proposed and, after Jason's specific approval, carried out. | Precondition/checkpoint, exact target and action, AI-PAM grant, independent postcheck, rollback, uncertain-outcome reconciliation and emergency stop. | **FIRST PHYSICAL REPAIR RESTORED HEALTH BUT WAS NOT ACCEPTED; DISTINCT PROOF PATH SOURCE-COMPLETE.** The v6 transaction performed one exact repair with a passing independent postcheck, but the old reconciler correctly left it uncertain and the grant is spent. Corrected complete-lineage v2 components are installed inert. A separate accepted drifted canary and new v3 transaction path now pass 249/249 tests, reject the spent target and retain separate state. Next is reversible inactive installation and zero-effect proof before any new one-use repair gate. Routing and repair authority remain off. |
+| **6. Add low-resource automatic handover (M3–M6)** | Routine requests stay on deterministic/local paths; only requests that need stronger capability go to Codex or another approved provider, with privacy and cost controls. | Stable Decision/Capability contracts, representative routing labels, calibrated abstention, shadow comparison, measured latency/privacy/cost, and one evidence-backed promote-or-reject decision. The first route is read-only; a route never grants tools. | **J2 AND FIRST SUCCESSOR PROBES REJECTED; ROUTING OFF.** J2 completed its externally controlled custody chain and bounded Mac-local training, then failed the frozen validation floor at 94/192 exact. Three post-J2 development probes also failed confidence-policy v2; fixed lexical, whole-label and OS-local embedding-neighbour tuning on the admitted split are closed. The next candidate must materially change representation or task formulation and receive fresh preregistration/custody/effect gates. Sealed evaluation, tools and routing remain off. |
 
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
