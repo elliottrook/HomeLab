@@ -327,6 +327,12 @@
 > passes 171/171. It is source-only; next is the fixed hash-pinned
 > Proxmox-to-LXC proof transport adapter, then joined disposable protocol tests
 > and an inactive-install review.
+> The source-only [LXC proof-exchange half](evidence/SA4-LXC-observer-proof-exchange-source-2026-11-05.md)
+> now uses fixed root-only files, exclusive request creation, strict response
+> custody, no-follow reads and bounded timeout with retained uncertainty.
+> Duplicate, malformed and symlinked exchanges fail closed; no key or command
+> surface exists. The full suite passes 176/176. Next is the matching fixed
+> Proxmox bridge, joined protocol rehearsal and inactive-install review.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
