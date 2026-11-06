@@ -30,3 +30,9 @@ class KodiNodeTests(TestCase):
     def test_reject_duplicate_season(self):
         with self.assertRaises(ValueError):
             render_tv_nodes((SeriesView(1, "Test", (SeasonView(1, True), SeasonView(1, False))),))
+
+    def test_specials_are_a_valid_season_zero(self):
+        tree = render_tv_nodes((SeriesView(9, "Test", (SeasonView(0, True),)),))
+        special = ET.fromstring(tree["archive-tv/show-9/season-00.xml"])
+        self.assertEqual(special.findtext("label"), "Specials")
+        self.assertEqual(special.findall("rule")[1].findtext("value"), "0")

@@ -258,6 +258,34 @@ or physical archive roots.
 
 ## Evidence log
 
+- **2026-11-06 — M1 full-inventory preview, still unpublished:** refreshed
+  read-only Sonarr and AsterTV Bedroom Kodi inventories. Sonarr has 223 series,
+  5,646 episode files and 535 populated season groups; Kodi has 217 shows.
+  A unique TVDB provider ID matches 196 Sonarr series to one Kodi show. The
+  other 27 comprise 22 absent Kodi TVDB IDs and five duplicated Kodi TVDB
+  IDs. Fourteen have no media and need no Kodi view while remaining monitored;
+  the other 13 contain 292 episode files, so publishing a partial replacement
+  view would hide content. Kodi exposes no alternate
+  provider ID in these show records; all show paths use the Jellyfin plugin
+  item identifier. Six held titles match exactly once by title, but title
+  alone is insufficient identity proof. A Jellyfin item-ID/provider-ID bridge
+  or equivalent verified reconciliation is required before full publication.
+  The pre-project `Media/data` ZFS snapshot contains all 4,329 current
+  physical Archive TV file paths, including the two whose ARR `dateAdded`
+  changed after 2026-11-04. Those two dates therefore do not prove new
+  episodes; verified baseline membership keeps them eligible as legacy Archive
+  files. Fourteen of 1,317 Current TV files are absent from that snapshot.
+  A pure fail-closed TV plan now holds ambiguous series with media, skips
+  monitored series without media, applies the youngest episode and exact
+  5 GB rule per season, and refuses publication while any media-bearing series
+  is held. Season 0 Specials are rendered explicitly. A read-only
+  preview yielded 130 Current and 368 Archive season nodes, including five
+  Specials nodes, across 183 matched media-bearing series; publication
+  remained blocked by 13 held media-bearing series. Thirty-one synthetic
+  media-lifecycle tests pass. The
+  Radarr, Sonarr and Jellyfin containers, Kodi client and recovery snapshot
+  were present; legacy cron jobs 4 and 6 remained disabled. No client menu,
+  Jellyfin library, ARR record or media file changed.
 - **2026-11-06 — Reversible oversized Archive sample:** after Jason approved
   the specific Forgejo push, the M1/optimizer-contract candidate reached
   Forgejo main and its GitHub mirror at `d5946684a1c3b0aa0f20b2f167b1b6d280719c4e`.
@@ -464,7 +492,10 @@ or physical archive roots.
   show playlists cannot split one series by season because its episode API
   has no tag setter. A disposable per-season playlist worked on AsterTV
   Bedroom, while a playlist-of-playlists aggregator did not; the full view
-  and four-month eligibility calculation remain unproven. Profile design
+  and four-month eligibility calculation remain unproven. The full-inventory
+  preview matches 196 of 223 Sonarr series and refuses publication until 13
+  media-bearing identity mismatches are reconciled through Jellyfin item IDs
+  or other verified evidence. Profile design
   must resolve ARR's disabled upgrades;
   the three unmonitored movies are missing files, not playable archive files.
   No media file or ARR profile has been changed yet.

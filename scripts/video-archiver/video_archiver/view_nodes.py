@@ -37,7 +37,7 @@ def _folder_index(label: str, order: int = 1) -> bytes:
 
 def _season_filter(title: str, number: int, order: int) -> bytes:
     node = ET.Element("node", {"order": str(order), "type": "filter"})
-    ET.SubElement(node, "label").text = f"Season {number:02d}"
+    ET.SubElement(node, "label").text = "Specials" if number == 0 else f"Season {number:02d}"
     ET.SubElement(node, "content").text = "episodes"
     ET.SubElement(node, "match").text = "all"
     for field, value in (("tvshow", title), ("season", number)):
@@ -61,8 +61,8 @@ def render_tv_nodes(series: tuple[SeriesView, ...]) -> dict[str, bytes]:
         ids.add(show.kodi_id)
         titles.add(normalized_title)
         season_numbers = [season.number for season in show.seasons]
-        if any(number <= 0 for number in season_numbers) or len(set(season_numbers)) != len(season_numbers):
-            raise ValueError("season numbers must be positive and unique per series")
+        if any(number < 0 for number in season_numbers) or len(set(season_numbers)) != len(season_numbers):
+            raise ValueError("season numbers must be non-negative and unique per series")
 
     output = {
         "current-tv/index.xml": _folder_index("Current TV"),
