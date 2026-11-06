@@ -1851,6 +1851,16 @@ was restored. Kodi still needed its 25-second TERM fallback while restarting,
 which remains an open lifecycle reliability observation. Evidence:
 `docs/projects/evidence/AsterTV-v3-M10-Jen-camera-and-identity-2026-11-06.md`.
 
+The follow-on content-free artwork harness completed two stable-binding passes
+over Media, Books, News, Music and YouTube Recommendations. It samples only
+boolean art presence and aggregate traffic, requires bindings to remain present
+for 250 ms, and emits no title, URL, account value, pixel or screenshot. All
+ten routes were artwork-ready in 284.6–820.9 ms and received at most 82,727
+bytes. No player appeared and Home was restored. This closes automated artwork
+binding latency; pixel-level crop/render/design acceptance remains with the
+non-author physical walkthrough. Evidence:
+`docs/projects/evidence/AsterTV-v3-M10-Jen-artwork-readiness-2026-11-06.md`.
+
 The M7 content rollout read-only preflight also confirms the accepted
 predecessor hashes and healthy services on Aster Agent, Home Assistant and idle
 Bedroom. Family's recorded MAC still matches `192.168.1.157`, but its presented
@@ -1866,8 +1876,8 @@ now gates the coordinated rollout. Evidence:
   full v2 rollback.
 - [ ] Measure CPU, GPU, RAM, storage, page latency, artwork latency, network
   traffic, camera stream cost, speech latency and idle overhead. Idle,
-  page/network and camera-stream measurements now pass; artwork and speech
-  remain open.
+  page/network, camera-stream and artwork-binding measurements now pass;
+  speech remains open.
 - [x] Complete Doctor, Beszel, backup/restore, NetBox, wiki, reference, mirror
   and AI-administration integration work.
 - [ ] Complete a non-author walkthrough and correct avoidable friction.
@@ -2164,6 +2174,7 @@ explicit user acceptance.
 | 2026-11-06 | Accepted and deployed the new AsterTV and Aster Remote brand placements | Verified the exact private Forgejo SVG masters, rendered fixed consumer-specific PNGs without raster resizing, and installed through checkpointed hash-bound paths. Remote validation initially exposed an incorrect test URL and restored cleanly before the corrected install. | Remote launcher assets are live and healthy. Jen, Bedroom and Family carry the R5 splash under separate local rollback checkpoints; Bedroom Wi-Fi/audio and Family Dolby/HDR settings remain intact. Design, Remote and fleet gates pass. Evidence: `docs/projects/evidence/AsterTV-v3-brand-asset-deployment-2026-11-06.md`. |
 | 2026-11-06 | Measured repeatable low-spec page and data readiness | A target-bound, content-free harness activated Books, News, Home, Music and Cameras twice on the released Jen display, emitted only aggregate timings/traffic and restored Media Home. It starts no content or camera feed and fails on any active player. | All activations took 33.5–85.9 ms; declared data readiness remained below 1.02 s; per-route receive traffic stayed below 74 KiB; no player appeared and exact Home restoration passed. Artwork visibility, camera-stream cost, speech, playback and the non-author walkthrough remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Jen-page-latency-2026-11-06.md`. |
 | 2026-11-06 | Made Jen the standing V3 canary and closed the camera-cost gate | Owner made Jen continuously available for bounded V3 navigation/restart/testing until production. The camera harness exposed a raw-JSON identity hash mismatch, not a camera defect; semantic canonicalization now preserves the same authority across approved serializers while invalid markers still fail closed. | Checkpointed repair installed reviewed resolver `6c7f1ae4…700900ef` to live and boot-stable custody, profile state resolved, and the 12-second camera test passed at 4 frames, 4.44% CPU, 116,388.75 B/s receive, 26,848 KiB RSS growth and 27.8°C. The service stopped and Home restored with no player. Kodi's 25-second stop fallback remains an open lifecycle observation. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Jen-camera-and-identity-2026-11-06.md`. |
+| 2026-11-06 | Closed automated artwork-binding latency on Jen | Added a content-free boolean harness for Media, Books, News, Music and YouTube Recommendations. A transient News refresh exposed the need for 250 ms binding stability and a final binding-count assertion before accepting a result. | Two passes completed in 284.6–820.9 ms with at most 82,727 received bytes per route, no player and exact Home restoration. Pixel rendering remains a physical-walkthrough concern. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Jen-artwork-readiness-2026-11-06.md`. |
 
 ## Close-out
 
