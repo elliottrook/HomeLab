@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-11-06 — Media retention M3 reversible pilot completed
+
+- Added the last-movie-of-year safeguard to the dry-run selector. It requires a
+  complete household movie-year inventory and retains a representative within
+  a projected deletion batch. All 62 video-archiver tests passed.
+- With Jason's explicit approval, created fresh media and app-state snapshots,
+  temporarily unmonitored and deleted one movie and one complete two-episode
+  season through ARR, and restored their exact bytes and monitored file records.
+- Verified all seven Jellyfin user views, unchanged stored watch/favorite state,
+  empty candidate download queues, other-season monitoring, and healthy pool.
+  No scheduled deletion was enabled; the live controller and pool-feedback loop
+  remain M4.
+
 ## 2026-11-06 — Media retention M2 lab integration completed
 
 - Verified actual unmonitor/delete/re-monitor/search behavior against isolated

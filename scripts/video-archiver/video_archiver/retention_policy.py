@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Literal
+from typing import Literal, Mapping
 
 from .lifecycle_policy import calendar_months_before
 
@@ -57,6 +57,7 @@ class MediaUnit:
     subtitle_manifest_verified: bool
     recovery_ready: bool
     estimated_pool_reclaim_bytes: int
+    movie_release_year: int | None = None
     has_identity_conflict: bool = False
     active_playback_or_download: bool = False
     cooldown_until: datetime | None = None
@@ -150,7 +151,7 @@ def _hold_reason(
 def plan_retention(
     units: tuple[MediaUnit, ...], *, now: datetime,
     expected_user_ids: frozenset[str], pool_size_bytes: int,
-    pool_allocated_bytes: int,
+    pool_allocated_bytes: int, movie_year_counts: Mapping[int, int] | None = None,
 ) -> RetentionPlan:
     """Select oldest eligible units until predicted raw pool use returns to 60%.
 
@@ -168,6 +169,16 @@ def plan_retention(
         return RetentionPlan(False, guardrail, (), (), pool_allocated_bytes, 0)
     held: list[HeldUnit] = []
     eligible: list[tuple[date, str, MediaUnit]] = []
+    # Counts must cover distinct, physically present movies in every household
+    # movie library, including Current. Missing or conflicting evidence holds.
+    remaining_by_year = {
+        year: count for year, count in (movie_year_counts or {}).items()
+        if type(year) is int and type(count) is int and 1878 <= year <= now.year and count > 0
+    }
+    candidate_year_counts = Counter(
+        unit.movie_release_year for unit in units
+        if unit.kind == "movie" and unit.movie_release_year is not None
+    )
     seen_ids: set[str] = set()
     duplicate_ids = {provider_id for provider_id, count in Counter(u.provider_id for u in units).items() if count > 1}
     for unit in units:
@@ -176,6 +187,13 @@ def plan_retention(
         seen_ids.add(unit.provider_id)
         if unit.provider_id in duplicate_ids:
             held.append(HeldUnit(unit.provider_id, "duplicate provider identity"))
+            continue
+        if unit.kind == "movie" and (
+            unit.movie_release_year is None
+            or not 1878 <= unit.movie_release_year <= now.year
+            or remaining_by_year.get(unit.movie_release_year, 0) < candidate_year_counts[unit.movie_release_year]
+        ):
+            held.append(HeldUnit(unit.provider_id, "movie year inventory incomplete"))
             continue
         rank_date, reason = _hold_reason(unit, now, expected_user_ids)
         if reason:
@@ -189,6 +207,12 @@ def plan_retention(
     for _, _, unit in eligible:
         if predicted <= target:
             break
+        if unit.kind == "movie":
+            assert unit.movie_release_year is not None
+            if remaining_by_year[unit.movie_release_year] <= 1:
+                held.append(HeldUnit(unit.provider_id, "last movie from release year"))
+                continue
+            remaining_by_year[unit.movie_release_year] -= 1
         selected.append(unit.provider_id)
         predicted = max(0, predicted - unit.estimated_pool_reclaim_bytes)
     return RetentionPlan(

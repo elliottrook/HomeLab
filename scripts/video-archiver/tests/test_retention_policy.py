@@ -29,14 +29,21 @@ def movie(provider_id: str, year: int, **overrides) -> MediaUnit:
         subtitle_manifest_verified=True,
         recovery_ready=True,
         estimated_pool_reclaim_bytes=15,
+        movie_release_year=year,
     )
     return replace(facts, **overrides)
 
 
-def plan(*units: MediaUnit, allocated=70):
+def plan(*units: MediaUnit, allocated=70, movie_year_counts=None):
+    if movie_year_counts is None:
+        movie_year_counts = {
+            unit.movie_release_year: 2 for unit in units
+            if unit.kind == "movie" and unit.movie_release_year is not None
+        }
     return plan_retention(
         units, now=NOW, expected_user_ids=USERS,
         pool_size_bytes=100, pool_allocated_bytes=allocated,
+        movie_year_counts=movie_year_counts,
     )
 
 
@@ -124,3 +131,24 @@ class RetentionSafetyTests(TestCase):
     def test_year_only_date_cannot_claim_day_precision(self):
         invalid = movie("bad", 1950, fallback_media_date=date(1950, 6, 1))
         self.assertEqual(plan(invalid).selected_provider_ids, ())
+
+    def test_only_movie_from_year_is_held_even_when_other_years_can_be_deleted(self):
+        result = plan(movie("sole", 1939), movie("other", 1940),
+                      movie_year_counts={1939: 1, 1940: 2})
+        self.assertEqual(result.selected_provider_ids, ("other",))
+        self.assertIn(("sole", "last movie from release year"),
+                      {(row.provider_id, row.reason) for row in result.held})
+
+    def test_batch_never_removes_final_movie_from_same_year(self):
+        result = plan(movie("first", 1939), movie("second", 1939),
+                      allocated=90, movie_year_counts={1939: 2})
+        self.assertEqual(len(result.selected_provider_ids), 1)
+        self.assertEqual(result.remaining_to_target_bytes, 15)
+        self.assertEqual(len([row for row in result.held if row.reason == "last movie from release year"]), 1)
+
+    def test_missing_or_conflicting_year_inventory_holds_movie(self):
+        self.assertEqual(plan(movie("missing", 1939), movie_year_counts={}).selected_provider_ids, ())
+        self.assertEqual(plan(movie("bad-count", 1939), movie_year_counts={1939: 2.0}).selected_provider_ids, ())
+        result = plan(movie("first", 1939), movie("second", 1939), movie_year_counts={1939: 1})
+        self.assertEqual(result.selected_provider_ids, ())
+        self.assertEqual({row.reason for row in result.held}, {"movie year inventory incomplete"})
