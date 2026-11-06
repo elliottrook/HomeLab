@@ -30,3 +30,7 @@ see the [initial-build record](PROJECTS.md), [enhancement project portfolio](doc
 [master plan](docs/Master-Plan.md), [authorization runbook](docs/08-Authorization.md),
 [service onboarding process](docs/09-Service-Authorization-Onboarding.md) and
 [surveillance runbook](docs/07-Surveillance.md).
+
+Brand work starts with the [shared brand asset library](docs/standards/brand-design/BRAND-ASSET-LIBRARY.md),
+which links the private Forgejo artwork repository, agent handover and verified
+network backup/recovery receipt.

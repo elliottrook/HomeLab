@@ -17,7 +17,7 @@ verification pass.
 |---|---|
 | Workflow and routing instructions | Installed `$brand-design` skill |
 | Reusable standard and templates | This repository under `docs/standards/brand-design/` and `docs/templates/brand-design/` |
-| Brand registry and approved release metadata | Brand Asset Library |
+| Brand registry and approved release metadata | [Private Forgejo Brand Asset Library](BRAND-ASSET-LIBRARY.md) |
 | Original supplied material | Brand's immutable `incoming/` area |
 | Active engagement state and drafts | Brand's `working/<date>-<job>/` area |
 | Approved production assets | Brand's `assets/` area |

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "active",
+  "verified_date": "2026-11-06",
+  "repository": "git@192.168.20.30:jason/brand-assets.git",
+  "web_url": "https://git.elliottrook.com/jason/brand-assets",
+  "branch": "main",
+  "migration_verified_commit": "2bdb72732f67e117da6be34da914f16f043e2dce",
+  "private": true,
+  "configured_push_mirrors": 0,
+  "registry": "registry.json",
+  "agent_handover": "https://git.elliottrook.com/jason/brand-assets/src/branch/main/AGENT-HANDOVER.md",
+  "source": {
+    "original_files": 2591,
+    "logical_bytes": 4363230287,
+    "inventory_sha256": "ccf058956f206d9438701529e601c8e21f60e7af7cf5fdfe6af442e6f5c7d41b",
+    "excluded_os_metadata_files": 7,
+    "original_library_preserved": true,
+    "approved_master_hashes_verified": 115,
+    "design_promotions": 0
+  },
+  "git_lfs": {
+    "original_file_occurrences": 1895,
+    "unique_referenced_objects": 1574,
+    "fresh_full_client_fetch": "passed",
+    "native_fsck": "passed"
+  },
+  "backup": {
+    "source_host": "192.168.50.10",
+    "guest_id": 108,
+    "archive": "vzdump-lxc-108-2026_11_06-10_25_00.tar.zst",
+    "archive_bytes": 3744269119,
+    "archive_sha256": "31573fd2b5ea59d244118d776fb9eff3877eccd32e04d6ad62f41cc4e7d07dc1",
+    "source_archive_integrity": "passed",
+    "network_host": "192.168.20.40",
+    "network_directory": "/mnt/Recovery/guests/homelab-proxmox-guests",
+    "copy_job": 62427,
+    "copy_state": "SUCCESS",
+    "independent_archive_sha256_match": true,
+    "restore_root": "/mnt/Recovery/brand-assets-restore-test-20261106-102500",
+    "restore_scope": "isolated Git repository and LFS artwork",
+    "original_files_hash_verified": 2591,
+    "restored_git_fsck": "passed",
+    "whole_guest_boot_restore_test": false,
+    "offsite_restore_test": false,
+    "pruning_during_manual_backup": false,
+    "schedules_or_retention_changed": false
+  },
+  "agent_root_resolution": [
+    "explicit --root",
+    "BRAND_ASSET_ROOT",
+    "per-machine configured checkout",
+    "repository helper defaults to its own checkout"
+  ]
+}
