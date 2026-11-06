@@ -15,7 +15,7 @@
 ## Current coordination status
 
 [Operational R3 capture/News reconciliation is continuing](B60-Inference-Engineering/model-r3-capture-and-news-plan-20261106.md).
-The failure-preserving transport/host persistence path passes168 offline tests.
+The failure-preserving transport/host persistence path passes170 offline tests.
 A distinct actual16:20–17:05 November6 booking, reserve17:20 UTC−07, follows
 News-XPU's separate14:30–16:00 booking and reserve. Source/card/clock arming
 and actual model/result/restoration checks remain mandatory; no result is
@@ -594,7 +594,7 @@ Read-only discovery on 2026-09-25 reconciled the documented baseline:
   prefetchable bridge window.
 - Unprivileged LXC 110 is running with 4 vCPU and 16 GiB RAM. VM 105 is stopped
   and has no persistent B60 passthrough mapping.
-- `aster-llama.service` is active and health at `192.168.70.12:11435/health`
+- `aster-llama.service` is active and health at `192.170.70.12:11435/health`
   is `ok`. It runs llama.cpp b11081 (`161755f29`) with all layers offloaded,
   one 8,192-token slot, batch 256, microbatch 128, Q8 K/V cache, flash
   attention, Jinja templates and reasoning disabled.
@@ -681,7 +681,7 @@ Conflicts are recorded and reconciled; they are never silently resolved.
 
 The Proxmox host owns the B60 through `xe` and maps DRM devices into
 unprivileged LXC 110. Mesa ANV/Vulkan and llama.cpp serve a private
-OpenAI-compatible endpoint on `192.168.70.12:11435`; Aster in LXC 104 consumes
+OpenAI-compatible endpoint on `192.170.70.12:11435`; Aster in LXC 104 consumes
 it over Lab VLAN 70. API keys remain in root-owned service files and are never
 captured by this project's fixtures, logs or ledger.
 

@@ -1,0 +1,10 @@
+{
+  "schema": "aster-exclusive-integrity-result.v1",
+  "booking_id": "b60-exclusive-20261106-day-r3",
+  "state": "complete",
+  "archive_receipt": "retained-archive-integrity-sha256:33495b61e2c2dd1d98d461c4e3ff5382e43541041dac0105056c3a0ed47434a3",
+  "finished_epoch": 1793999364,
+  "observed_epoch": 1793999370,
+  "new_scan_performed": true,
+  "ai_stack_effects": false
+}

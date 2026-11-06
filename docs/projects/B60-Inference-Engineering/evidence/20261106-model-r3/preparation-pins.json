@@ -28,7 +28,7 @@
     "news_xpu_boundary.py": "3dcd4ea3183349b50e4cc2d7ad8ba0419ab872452f43c3fee4f26944111a3113",
     "request_failure_capture.py": "df3bce80f519f6f2f274f6c7cc8c9fff51b157753d57ac6a51bbc18052648f99"
   },
-  "offline_tests_passed": 168,
+  "offline_tests_passed": 170,
   "model_calls_in_preparation": 0,
   "actual_model_result_claimed": false,
   "peer_owner_publication_received": false

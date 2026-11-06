@@ -1,5 +1,7 @@
 """Exercise the exact next live transport and host retention with fake IO."""
 import importlib.util
+import contextlib
+import io
 import json
 from pathlib import Path
 import signal
@@ -90,6 +92,20 @@ class Integration(unittest.TestCase):
         self.assertEqual(packet['records'][0]['outcome'], 'timeout')
         self.assertEqual(len(calls), 1)
         self.assertNotIn('synthetic private', json.dumps(packet))
+    def test_actual_cli_preserves_failed_packet_with_zero_exit(self):
+        packet, _ = self.packet([answer(), answer('length', '')])
+        output = io.StringIO()
+        with patch.object(sys, 'argv', ['capture', '--run-authorized']), \
+             patch.object(self.g, 'run', return_value=packet), contextlib.redirect_stdout(output):
+            self.assertEqual(self.g.main(), 0)
+        self.assertEqual(json.loads(output.getvalue()), packet)
+    def test_cli_without_switch_does_not_read_key_or_call(self):
+        output = io.StringIO()
+        with patch.object(sys, 'argv', ['capture']), \
+             patch.object(self.g, 'run', side_effect=AssertionError('must remain inert')), \
+             contextlib.redirect_stdout(output):
+            self.assertEqual(self.g.main(), 0)
+        self.assertEqual(json.loads(output.getvalue()), {'state': 'disabled', 'requests': 0})
     def test_arbitrary_fields_rejected_before_store(self):
         packet, _ = self.packet([answer(), answer()])
         packet['secret'] = 'must not persist'

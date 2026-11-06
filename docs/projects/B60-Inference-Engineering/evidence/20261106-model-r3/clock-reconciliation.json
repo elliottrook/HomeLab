@@ -1,0 +1,11 @@
+{
+  "observed_epoch": 1793999779,
+  "host_local_offset": "-07:00",
+  "host_America_Vancouver_offset": "-07:00",
+  "Mac_America_Vancouver_offset": "-07:00",
+  "booking_start_epoch": 1794007200,
+  "booking_start_local": "2026-11-06T16:20:00-07:00",
+  "booking_end_epoch": 1794009900,
+  "booking_end_local": "2026-11-06T17:05:00-07:00",
+  "actual_timer_epoch_still_requires_verification": true
+}
