@@ -6,15 +6,37 @@ from pathlib import Path
 import re
 import stat
 import time
+import json
 from typing import Callable
-
-import sa4_observer_signer_v1 as observer
-
 
 EXCHANGE_DIR = Path("/run/aster-sa4-observer-exchange")
 EXPECTED_UID = 0
 TIMEOUT_SECONDS = 60
 SIGNATURE = re.compile(rb"[0-9a-f]{512}\n")
+OBSERVER_ID = "aster-observer"
+KEY_SHA256 = "a8b5e876898ddcd7882a51c74d8b8388bb26160c96f87ab23dbeeecab9c0892b"
+FIELDS = {"schema", "receipt_sha256", "observer_id",
+          "observer_key_sha256", "signature_algorithm", "authority"}
+
+def canonical(value: object) -> bytes:
+    return (json.dumps(value, sort_keys=True, separators=(",", ":"),
+                       allow_nan=False) + "\n").encode()
+
+def validate_statement(raw: bytes) -> bytes:
+    try: value = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("SA4 observer statement is not JSON") from exc
+    digest = value.get("receipt_sha256") if isinstance(value, dict) else None
+    if (not isinstance(value, dict) or set(value) != FIELDS
+            or value["schema"] != "aster-sa4-independent-receipt-proof.v1"
+            or not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)
+            or value["observer_id"] != OBSERVER_ID
+            or value["observer_key_sha256"] != KEY_SHA256
+            or value["signature_algorithm"] != "rsa-pkcs1v1_5-sha256"
+            or value["authority"] != "observer-proof-only-no-effect"
+            or canonical(value) != raw):
+        raise ValueError("SA4 observer statement changed")
+    return raw
 
 
 def _directory() -> None:
@@ -55,7 +77,7 @@ def request_signature(statement: bytes, sequence: int, *,
                       sleep: Callable[[float], None] = time.sleep) -> str:
     if type(sequence) is not int or sequence not in (1, 2):
         raise ValueError("SA4 observer exchange sequence changed")
-    observer.validate_statement(statement)
+    validate_statement(statement)
     _directory()
     request = EXCHANGE_DIR / f"request-{sequence}.json"
     response = EXCHANGE_DIR / f"response-{sequence}.signature"

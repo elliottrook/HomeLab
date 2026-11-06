@@ -344,6 +344,12 @@
 > signer and remove-only-exact rollback. Postchecks cannot invoke any effect.
 > The full suite passes 184/184. The inactive three-file installation is the
 > next explicit deployment gate.
+> Its first approved attempt failed the isolated LXC import on a cross-host
+> dependency and rolled all three exact files back. No runtime or target state
+> changed. The LXC side now owns only public protocol validation while the
+> Proxmox bridge alone imports the signer; corrected hashes are repinned and
+> the suite passes 184/184. The corrected inactive install remains authorized
+> as the deterministic retry of this same packet.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)

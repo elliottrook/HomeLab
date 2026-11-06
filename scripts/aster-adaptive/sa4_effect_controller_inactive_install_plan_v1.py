@@ -10,8 +10,8 @@ class Change:
     operation: str = "create-exclusive"
 
 CHANGES = (
-    Change("lxc104", "scripts/aster-adaptive/sa4_one_shot_transaction_controller_v1.py", "/usr/local/libexec/aster-sa4/sa4_one_shot_transaction_controller_v1.py", "7259905b8677f31d7919e95ae22bb4363e31ae7cf8c28af267ba8a5889305a0c"),
-    Change("lxc104", "scripts/aster-adaptive/sa4_observer_file_exchange_v1.py", "/usr/local/libexec/aster-sa4/sa4_observer_file_exchange_v1.py", "2736880c79a647198722890abc4c1182b973174f05534505ade0f46b8f75701e"),
+    Change("lxc104", "scripts/aster-adaptive/sa4_one_shot_transaction_controller_v1.py", "/usr/local/libexec/aster-sa4/sa4_one_shot_transaction_controller_v1.py", "4d7a2392c5b424a26e28a13e5205f144b1c27910929c8caaccf2b428188e11e7"),
+    Change("lxc104", "scripts/aster-adaptive/sa4_observer_file_exchange_v1.py", "/usr/local/libexec/aster-sa4/sa4_observer_file_exchange_v1.py", "6cddfd315ca70753e7065de7d01eb176f9fc4b0a0d4740d326f3d08be1883a63"),
     Change("proxmox", "scripts/aster-adaptive/sa4_proxmox_observer_bridge_v1.py", "/usr/local/libexec/aster-sa4/sa4_proxmox_observer_bridge_v1.py", "f6f6016c683b700ccda3806de99c500d3f24cab624eee89dd3a44791564d8632"),
 )
 OBSERVER_SIGNER_SHA256 = "d804154ca98baeac9a7b4a449be7fe475979e7f3f8be20bb3280b68b0002cf16"

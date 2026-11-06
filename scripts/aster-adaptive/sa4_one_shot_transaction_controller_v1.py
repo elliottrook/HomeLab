@@ -5,7 +5,7 @@ import hashlib
 import re
 from typing import Callable
 
-import sa4_observer_signer_v1 as observer
+import sa4_observer_file_exchange_v1 as observer
 import sa4_root_transaction_owner_v1 as root_owner
 import sa4_single_file_repair_contract_v1 as contract
 
