@@ -710,6 +710,16 @@
 > is canonical at `bad1aaef…0155`, uses a third non-reused grant and fresh v4
 > paths, and keeps both failed predecessors terminal. The complete SA4 suite
 > passes 314/314. The next versioned gate is one fresh v7 transaction.
+>
+> That v7 transaction failed closed during preparation because its fresh v4
+> runtime paths still reused the first v2 plan ID, whose retained checkpoint
+> already exists. The [bounded reconciliation and v8 review](evidence/SA4-v7-checkpoint-collision-and-v8-correction-review-2026-11-06.md)
+> proves the target unchanged, ledger ready/use-zero, no observer request or
+> repair, empty evidence and exact retained controls. The source correction
+> adds a one-purpose pre-claim reconciler, unique plan/checkpoint ID, fourth
+> authority identity and v8 on fresh v5 paths. The complete SA4 suite passes
+> 322/322. Next is the two-file create-exclusive inert install, exact pre-claim
+> reconciliation, and a fresh v8 release packet; v7 is not retried.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
