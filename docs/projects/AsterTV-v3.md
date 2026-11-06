@@ -1744,6 +1744,21 @@ focus controls and double-builds M9. It reports connected/environment work as
 open rather than converting absence into a pass. Evidence:
 `docs/projects/evidence/AsterTV-v3-M10-local-integrated-gate-2026-11-05.md`.
 
+#### Proposed SA-M10-C1 — pinned Aster gateway test environment
+
+This envelope is **proposed, not authorized**. It targets only Aster LXC 104
+and may stage a secret-scanned, hash-manifested copy of the repository's Aster
+Remote/gateway source and tests under one unique `/tmp` directory, run only the
+Remote/gateway unit and installer tests with `/opt/aster-agent/venv/bin/python`,
+compare content-free service health before/after, and remove only that temporary
+directory. It may not load `/etc/aster/aster.env`, run inference, submit media
+requests, issue television/equipment commands, restart or reconfigure the
+Aster service, alter credentials/network policy, or touch any AsterTV client.
+
+The connected Jen HEVC gate is explicitly excluded because its retained
+privacy-safe fixture is absent. Recreating a fixture and exercising Jen media
+playback requires a later named authorization and idle-display confirmation.
+
 - [ ] Run functional, account-isolation, failure, security, focus/navigation,
   playback, audio/video and secret-pattern suites on the low-spec client.
 - [ ] Prove interrupted install, corrupt package, dependency outage, reboot and
