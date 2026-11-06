@@ -26,6 +26,7 @@ class ArrSeries:
     arr_id: int
     tvdb_id: int | None
     seasons: tuple[ArrSeason, ...]
+    canonical_path: str | None = None
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,8 @@ class KodiSeries:
     kodi_id: int
     tvdb_id: int | None
     display_title: str
+    # Verified through Kodi's Jellyfin item ID and Jellyfin's series metadata.
+    canonical_path: str | None = None
 
 
 @dataclass(frozen=True)
@@ -48,7 +51,7 @@ class TvViewPlan:
     skipped_empty: tuple[int, ...]
 
     def require_complete(self) -> tuple[SeriesView, ...]:
-        """Return publishable series only when every ARR series is reconciled."""
+        """Return publishable series only when every media-bearing ARR series is reconciled."""
         if self.held:
             raise ValueError(f"{len(self.held)} series need identity or metadata review")
         return self.series
@@ -65,15 +68,13 @@ def plan_tv_views(
     arr_provider_ids = Counter(show.tvdb_id for show in arr_series if show.tvdb_id)
     kodi_provider_ids = Counter(show.tvdb_id for show in kodi_series if show.tvdb_id)
     kodi_by_provider = {show.tvdb_id: show for show in kodi_series if show.tvdb_id}
-    matched_titles = Counter(
-        kodi_by_provider[show.tvdb_id].display_title.strip().casefold()
-        for show in arr_series
-        if show.tvdb_id and arr_provider_ids[show.tvdb_id] == 1
-        and kodi_provider_ids[show.tvdb_id] == 1
-    )
+    arr_paths = Counter(show.canonical_path for show in arr_series if show.canonical_path)
+    kodi_paths = Counter(show.canonical_path for show in kodi_series if show.canonical_path)
+    kodi_by_path = {show.canonical_path: show for show in kodi_series if show.canonical_path}
     views: list[SeriesView] = []
     held: list[HeldSeries] = []
     skipped_empty: list[int] = []
+    candidates: list[tuple[ArrSeries, KodiSeries]] = []
     for show in arr_series:
         if not any(season.files for season in show.seasons):
             # A monitored but missing series has nothing for Kodi to display.
@@ -82,19 +83,27 @@ def plan_tv_views(
         reason: str | None = None
         if show.arr_id <= 0 or arr_ids[show.arr_id] != 1:
             reason = "invalid or duplicate ARR series ID"
-        elif not show.tvdb_id:
-            reason = "missing TVDB ID"
-        elif arr_provider_ids[show.tvdb_id] != 1:
-            reason = "duplicate ARR TVDB ID"
-        elif kodi_provider_ids[show.tvdb_id] != 1:
-            reason = "missing or duplicate Kodi TVDB ID"
+        elif show.canonical_path:
+            if not show.canonical_path.startswith("/") or arr_paths[show.canonical_path] != 1:
+                reason = "invalid or duplicate ARR host path"
+            elif kodi_paths[show.canonical_path] != 1:
+                reason = "missing or duplicate Kodi host path"
+            else:
+                kodi = kodi_by_path[show.canonical_path]
+                if show.tvdb_id and kodi.tvdb_id and show.tvdb_id != kodi.tvdb_id:
+                    reason = "ARR and Kodi TVDB IDs conflict for the same host path"
         else:
-            kodi = kodi_by_provider[show.tvdb_id]
-            title = kodi.display_title.strip()
-            if kodi.kodi_id <= 0 or kodi_ids[kodi.kodi_id] != 1 or not title:
-                reason = "invalid or duplicate Kodi identity"
-            elif matched_titles[title.casefold()] != 1:
-                reason = "duplicate Kodi display title"
+            if not show.tvdb_id:
+                reason = "missing TVDB ID and host path"
+            elif arr_provider_ids[show.tvdb_id] != 1:
+                reason = "duplicate ARR TVDB ID without host path"
+            elif kodi_provider_ids[show.tvdb_id] != 1:
+                reason = "missing or duplicate Kodi TVDB ID"
+            else:
+                kodi = kodi_by_provider[show.tvdb_id]
+        if reason is None and (kodi.kodi_id <= 0 or kodi_ids[kodi.kodi_id] != 1
+                               or not kodi.display_title.strip()):
+            reason = "invalid or duplicate Kodi identity"
         season_numbers = [season.number for season in show.seasons]
         if reason is None and (any(number < 0 for number in season_numbers)
                                or len(set(season_numbers)) != len(season_numbers)):
@@ -102,7 +111,12 @@ def plan_tv_views(
         if reason:
             held.append(HeldSeries(show.arr_id, reason))
             continue
-        kodi = kodi_by_provider[show.tvdb_id]
+        candidates.append((show, kodi))
+    selected_kodi_ids = Counter(kodi.kodi_id for _, kodi in candidates)
+    for show, kodi in candidates:
+        if selected_kodi_ids[kodi.kodi_id] != 1:
+            held.append(HeldSeries(show.arr_id, "Kodi show matched to multiple ARR series"))
+            continue
         seasons = tuple(
             SeasonView(season.number, age_size_eligibility(season.files, now).eligible)
             for season in show.seasons

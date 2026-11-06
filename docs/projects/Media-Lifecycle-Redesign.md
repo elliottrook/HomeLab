@@ -258,6 +258,37 @@ or physical archive roots.
 
 ## Evidence log
 
+- **2026-11-06 — M1 host-path and numeric-season pilot:** Kodi's Jellyfin
+  plugin item IDs matched all 217 Kodi shows to Jellyfin series metadata rows.
+  After translating the different container mount prefixes to the same
+  TrueNAS host path, all 196 Sonarr series with episode files matched one
+  Kodi/Jellyfin series by an exact unique path. This resolved missing and
+  duplicated Kodi TVDB IDs without title guessing, but six path-matched
+  series have conflicting nonempty Sonarr/Kodi TVDB IDs and remain held for
+  metadata review. The client has duplicate display titles, so title-based
+  episode filters could overlap. Kodi's numeric
+  `videodb://tvshows/titles/<Kodi show ID>/<season number>/` route returned
+  13 episodes for a multi-season case where database season ID differed from
+  season number, and six episodes for a Specials season. A disposable folder
+  node pointing to the numeric route returned the same 13 episodes and was
+  removed immediately. Kodi's official [video-node documentation](https://kodi.wiki/view/Video_nodes)
+  supports folder nodes with internal database paths. The local renderer now
+  uses numeric show/season routes and accepts duplicate display titles only
+  as labels. A read-only, identity-only full preview rendered 513 season nodes
+  for 190 media-bearing series and held the six TVDB conflicts; 27 monitored
+  series have no files to display. A separate route/count comparison found
+  5,460 Sonarr episode-file records against 5,458 Kodi episode entries across
+  those 513 seasons, with differences in nine seasons across nine series.
+  A subsequent item-ID to Jellyfin metadata to physical-path join found exact
+  file-set agreement in 503 seasons and differences in ten. Eight Sonarr paths
+  appear in another Kodi season of the same series; three Sonarr paths are
+  absent from Kodi entirely. Nine Kodi Archive files across five series
+  (`.m4v` or `.mp4`) have no Sonarr episode-file record. All 20 discrepant
+  physical paths still exist on TrueNAS. This is a real ownership and client
+  metadata gap, so M1 publication and any physical-root migration remain on
+  hold until each file is reconciled. The existing household views, watch state,
+  ARR records, Jellyfin libraries and media were unchanged. Thirty-eight
+  local media-lifecycle tests pass; the new renderer is undeployed.
 - **2026-11-06 — M1 full-inventory preview, still unpublished:** refreshed
   read-only Sonarr and AsterTV Bedroom Kodi inventories. Sonarr has 223 series,
   5,646 episode files and 535 populated season groups; Kodi has 217 shows.
@@ -493,9 +524,11 @@ or physical archive roots.
   has no tag setter. A disposable per-season playlist worked on AsterTV
   Bedroom, while a playlist-of-playlists aggregator did not; the full view
   and four-month eligibility calculation remain unproven. The full-inventory
-  preview matches 196 of 223 Sonarr series and refuses publication until 13
-  media-bearing identity mismatches are reconciled through Jellyfin item IDs
-  or other verified evidence. Profile design
+  host-path and Kodi-ID preview resolves seven of the prior 13 media-bearing
+  identity holds. Six conflicting TVDB IDs and ten season file-set differences
+  remain. Nine existing Kodi Archive files lack Sonarr episode-file records;
+  three Sonarr files are missing from Kodi and eight are classified into a
+  different season by Kodi. Reconcile these before view publication. Profile design
   must resolve ARR's disabled upgrades;
   the three unmonitored movies are missing files, not playable archive files.
   No media file or ARR profile has been changed yet.

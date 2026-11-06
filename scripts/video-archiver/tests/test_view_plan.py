@@ -35,12 +35,12 @@ class TvViewPlanTests(TestCase):
         with self.assertRaises(ValueError):
             plan.require_complete()
 
-    def test_duplicate_display_title_blocks_both_series(self):
+    def test_duplicate_display_title_is_safe_with_kodi_ids(self):
         arr = (ArrSeries(1, 100, (ArrSeason(1, (self.file,)),)),
                ArrSeries(2, 200, (ArrSeason(1, (self.file,)),)))
         kodi = (KodiSeries(10, 100, "Same"), KodiSeries(11, 200, "same"))
         plan = plan_tv_views(arr, kodi, self.now)
-        self.assertEqual({h.reason for h in plan.held}, {"duplicate Kodi display title"})
+        self.assertEqual({show.kodi_id for show in plan.require_complete()}, {10, 11})
 
     def test_duplicate_arr_id_and_season_are_held(self):
         arr = (
@@ -56,3 +56,47 @@ class TvViewPlanTests(TestCase):
         plan = plan_tv_views((ArrSeries(5, 500, ()),), (), self.now)
         self.assertEqual(plan.skipped_empty, (5,))
         self.assertEqual(plan.require_complete(), ())
+
+    def test_exact_host_path_resolves_duplicate_tvdb_ids(self):
+        arr = (ArrSeries(1, 100, (ArrSeason(1, (self.file,)),), "/media/archive-tv/one"),)
+        kodi = (
+            KodiSeries(10, 100, "One", "/media/archive-tv/one"),
+            KodiSeries(11, 100, "Other", "/media/media/tv/other"),
+        )
+        plan = plan_tv_views(arr, kodi, self.now)
+        self.assertEqual(plan.require_complete()[0].kodi_id, 10)
+
+    def test_exact_host_path_resolves_missing_kodi_tvdb_id(self):
+        arr = (ArrSeries(1, 100, (ArrSeason(1, (self.file,)),), "/media/archive-tv/one"),)
+        kodi = (KodiSeries(10, None, "One", "/media/archive-tv/one"),)
+        self.assertEqual(plan_tv_views(arr, kodi, self.now).require_complete()[0].kodi_id, 10)
+
+    def test_conflicting_tvdb_ids_at_same_path_are_held(self):
+        arr = (ArrSeries(1, 100, (ArrSeason(1, (self.file,)),), "/media/archive-tv/one"),)
+        kodi = (KodiSeries(10, 200, "One", "/media/archive-tv/one"),)
+        plan = plan_tv_views(arr, kodi, self.now)
+        self.assertEqual(plan.held[0].reason, "ARR and Kodi TVDB IDs conflict for the same host path")
+
+    def test_same_tvdb_id_with_different_known_paths_is_held(self):
+        arr = (ArrSeries(1, 100, (ArrSeason(1, (self.file,)),), "/media/archive-tv/one"),)
+        kodi = (KodiSeries(10, 100, "One", "/media/media/tv/one"),)
+        plan = plan_tv_views(arr, kodi, self.now)
+        self.assertEqual(plan.held[0].reason, "missing or duplicate Kodi host path")
+
+    def test_duplicate_arr_host_path_is_held(self):
+        arr = (
+            ArrSeries(1, 100, (ArrSeason(1, (self.file,)),), "/media/one"),
+            ArrSeries(2, 200, (ArrSeason(1, (self.file,)),), "/media/one"),
+        )
+        kodi = (KodiSeries(10, 100, "One", "/media/one"),)
+        plan = plan_tv_views(arr, kodi, self.now)
+        self.assertEqual({h.reason for h in plan.held}, {"invalid or duplicate ARR host path"})
+
+    def test_duplicate_title_with_unmatched_kodi_show_is_safe(self):
+        arr = (ArrSeries(1, 100, (ArrSeason(1, (self.file,)),), "/media/archive-tv/one"),)
+        kodi = (
+            KodiSeries(10, 100, "Same", "/media/archive-tv/one"),
+            KodiSeries(11, 200, "same", "/media/media/tv/other"),
+        )
+        plan = plan_tv_views(arr, kodi, self.now)
+        self.assertEqual(plan.require_complete()[0].kodi_id, 10)
