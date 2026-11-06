@@ -1,0 +1,53 @@
+{
+  "schema": "aster.news-video-musetalk-probe.v1",
+  "status": "staged-not-authorized",
+  "production_enabled": false,
+  "source": {
+    "repository": "https://github.com/xocialize/musetalk-mlx.git",
+    "revision": "c6eb30ebd1ed4d043983209813370153de9346bf",
+    "tree_sha256": "50143ee04d2ef4660f753260e2cf703ff24260487af971518c09b3bd31a7a8ea",
+    "path": "/private/tmp/aster-musetalk-prep.My2Xa2/source"
+  },
+  "model": {
+    "repository": "mlx-community/MuseTalk-1.5-q4",
+    "revision": "ff57bd4b785b3813f43be689390c3d7494258a35",
+    "path": "/private/tmp/aster-musetalk-prep.My2Xa2/model",
+    "files": {
+      "config.json": "ba919fbdecb9834fc1c3e0b08234c8e8dce53910a22cb1c43e006038c69255b9",
+      "unet.safetensors": "7a66b9f65d98e29eb7ecd4dac034331075d125ba00e1cdc704999ef404b60f1b",
+      "vae.safetensors": "2a7670782dbe0ab66c40833dfd431b193375f0bdfc7c2daf76f5bc4e59070f98",
+      "whisper_encoder.safetensors": "c04baf7220bbc73393eeba74b6224398ce56caad60e4e0a0f4c28af3180836d3"
+    }
+  },
+  "inputs": {
+    "studio_image": {
+      "path": "../../docs/assets/news-video/studio/aster-studio-2026-candidate-v3.png",
+      "sha256": "fe85bb5cb3966661cc87827f42fb0a5672364873a6a818ece3a01da159a3bf64"
+    },
+    "audio": {
+      "path": "../../docs/assets/news-video/pilot/aster-lipsync-motion-pilot-v3.wav",
+      "sha256": "f35338879433e2982fcffea358b2219a456cfa79cf607f1607989bd6bbf0934f"
+    },
+    "face_crop_xyxy": [360, 20, 720, 380]
+  },
+  "probe": {
+    "frames": 1,
+    "batch_size": 1,
+    "fps": 25,
+    "timeout_seconds": 300,
+    "output_root": "/private/tmp/aster-news-video-musetalk-probe"
+  },
+  "safety": {
+    "minimum_free_percent_at_start": 40,
+    "minimum_free_percent_while_running": 20,
+    "maximum_process_tree_rss_bytes": 6442450944,
+    "maximum_swap_used_mb": 0,
+    "lightroom_must_be_closed": true,
+    "browsers_must_be_closed": true
+  },
+  "admission": {
+    "execution_host": "mac-mlx",
+    "b60_lab_hours_required": false,
+    "attended_probe_only": true
+  }
+}

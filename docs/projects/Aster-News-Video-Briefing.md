@@ -253,6 +253,19 @@ and all production changes have their required authorization.
   were repackaged with separate durable library directories and relative
   runtime paths; authenticated production validation passed. A real OS-reboot
   recovery test remains deliberately deferred.
+- Staged a fixed MuseTalk/MLX one-frame resource probe against source revision
+  `c6eb30ebd1ed4d043983209813370153de9346bf` and the pinned Q4 model snapshot.
+  It permits exactly one frame at batch size one, verifies every source/model
+  and input hash, refuses the real Lightroom editor and browser processes,
+  holds Mac-local whole-host and shared-operation locks, and continuously
+  aborts on swap, less than 20% free memory, more than 6 GiB process-tree RSS
+  or a five-minute deadline. The suite passes 25 tests.
+- Jason clarified that the authoritative Lab Hours ledger governs B60 work,
+  not this Mac/MLX workload. No B60 registration or reservation was changed.
+  The local execution environment nevertheless refused model launch without a
+  booking, including after Qwen was safely unloaded and memory reached 60%.
+  Therefore no MuseTalk inference has yet occurred; current preparation-only
+  preflight passes at 41% free memory and zero swap.
 
 ## Close-out
 
