@@ -20,6 +20,16 @@ It supplements the repository's general security, authorization and evidence rul
 | Immutable delivery packages | Brand's `releases/` area |
 | Superseded approved assets | Brand's `archive/` area |
 
+The `Brand Asset Library` is maintained by the Branding Agent and is the pull
+authority for approved masters and brand release packages. Its physical
+workstation path is resolved through the active `brand.json` registry record;
+consumers must not depend on a username-specific absolute path. A file in
+`incoming/` or `working/` is not approved. Consumers may retrieve only from
+`assets/` or an immutable package in `releases/`, and must verify the selected
+master against `approved-master-hashes.json`. A private Forgejo release is the
+immutable publication carrier after promotion, not a substitute for the Brand
+Asset Library approval record.
+
 ## Standard brand directory
 
 ```text
