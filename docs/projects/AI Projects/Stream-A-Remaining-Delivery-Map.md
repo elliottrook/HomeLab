@@ -680,6 +680,16 @@
 > uses a new grant identity. The complete SA4 suite passes 294/294. The
 > one-file create-exclusive v6 inactive-install plan is `02565c96…f49f` and
 > is the next operational gate. No new live repair is authorized.
+>
+> Jason approved that inert install. The [v6 installed result](evidence/SA4-fresh-path-runner-inactive-install-result-2026-11-06.md)
+> is exact and zero-effect: the runner rejects arguments before input, all
+> fresh v3 paths remain absent, the retained v2 NO-GO is unchanged, the canary
+> is unchanged and production remains healthy. The subsequent
+> [v3 release candidate](evidence/SA4-distinct-canary-v3-release-candidate-review-2026-11-06.md)
+> is canonical at `0ca1507a…84cb`; it binds the installed v5/v6 hashes, fresh
+> v3 paths, a new operation identity and a new unsigned one-use grant identity.
+> The failed authority is non-reusable. The complete SA4 suite passes 297/297.
+> One fresh exact live repair is the next SA4 gate; no attempt has run.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
