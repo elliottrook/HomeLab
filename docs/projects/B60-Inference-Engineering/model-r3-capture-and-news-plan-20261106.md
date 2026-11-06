@@ -119,3 +119,67 @@ resolve the booked epochs toUTC−07; the final timer epoch still must be read
 back. Existing Stream A authority is sufficient. Continue the active task
 through the peer's genuine release, final exact installation/arming and actual
 R3 model/restoration result.
+
+## Named registration and independent source review
+
+The News owner's publication is now actually received: commit2b8385f2bfcbd83f477bc202039cb1a7b8476327,
+services/local-ai-lease/LAB-HOURS-SESSION-CONTRACT-V2.md, SHA256
+19cc47a2608ec7cffea19658ce106705966959357516051701ad30658efce58b.
+Its lab-hours skill mirror atd0fdf4dcabbef175f2216c10729338810d88cab2
+is also read; exact commit/path/hash receipts are retained separately. This
+corrects the earlier no-publication observation; no claim that News read our
+branch is made. The V2 session retains its reservation between restored
+attempts, with explicit retries and final dispatcher expiry. B60 does not
+release, retry or change that session.
+
+Independent source review found that the unarmed capacity/card route should
+name a registered workload in the current control plane. This is an interface
+gap, not missing Stream A authorization. The additive fixed registration is
+b60-qwen36-35b-failure-capture-v1, request2×60s, attempt1200s, booking2700s,
+reserve900s, **nonretryable/max1**. A stable stdlib-only bridge is the sole
+registered runtime pin; it validates the private fixed-mode card's9-source
+closure and original base30 map rather than creating a hash cycle.
+
+The exact-date dedicated clock now invokes the global registered runner. Its
+new early branch precedes the generic claim/finalization path and launches
+the accepted exclusive controller in a **fresh Python process**. Importing the
+inner controller into the outer runner would mix identically named modules
+from different release directories; the subprocess avoids that actual risk.
+The bridge creates one immutable O_EXCL dispatch intent before launching and
+never calls the generic claim API. The qualified ExclusiveSession remains the
+only claimant. The unchanged minute dispatcher excludes reserved capacity, so
+it cannot double-launch the dedicated route. The owner/guardian require the
+exact named-workload and card/stable-identity intent before using this route.
+
+Installation remains blocked until actual final News ledger state and absent
+owner/guardian. Under shared exclusion it checkpoints the exact original
+registry, reserved runner and release manifest source-locally, then atomically
+replaces only those two code files, adds the fixed bridge, and publishes the
+manifest last. Every unrelated registration and existing pin is preserved.
+A closed inert target/manifest check must pass before only R3.workload is bound
+fromNone to the registered name through the existing locked atomic store API.
+Its owner, times, exclusive kind, reserved state and recovery margin stay fixed.
+Dispatcher/reservation code, base30, accepted services/models and News data
+remain untouched. A validation failure restores only our exact predecessor
+bytes; an unexpected concurrent writer is never overwritten or reported as
+restored. The original before/after booking hashes and source pins are retained.
+
+The independent review caught a frozen REGISTERED_WORKLOADS ordering defect
+before deployment; the new entry is now inserted before that snapshot. Exact
+source review SHA2562ecd99d2136c27c31f8d26c52b8f0133cbf92b7b4f5245a7097da1b70e91a243
+records181 passing tests and no remaining deterministic source blocker. Three
+additional local transaction tests prove success changes onlyworkload, failed
+validation restores exact sources without binding, and rollback preserves
+foreign bytes without a false restore receipt. The current full suite passes184.
+These are source/fake-IO tests, not live arming, independent acceptance or model
+results. Final independent read-only audit follows actual activation before
+first model execution, including real timer epoch/empty prior trigger, registry,
+card/plan/source pins, clear ownership and the qualified recovery path.
+
+Capture caveats remain explicit: startup/key/source errors occur before any
+request and may return no request packet; the new packet guarantee covers
+request outcomes. Abnormal token counters above2**53 are now unknown rather
+than causing a valid prior row to be discarded. The HTTP client has a60s alarm
+and bounded IO; whole-cgroup GPU fencing refers to the candidate service, not
+a claim that the root HTTP client belongs to that GPU cgroup. No raw reasoning,
+response, exception or credential bytes enter evidence.

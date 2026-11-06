@@ -62,6 +62,11 @@ def context(b):
  from lab_hours_exclusive_cli import context as base_context
  result=base_context(b);profile,store,bookings,scopes,adapter=result
  row=bookings.get(b)
+ require(row.get('workload')=='b60-qwen36-35b-failure-capture-v1','REGISTERED_WORKLOAD_REQUIRED')
+ from lab_hours_exclusive_profile import protected_bytes
+ dispatch=json.loads(protected_bytes(ROOT/'exclusive-dispatch'/(b+'.json')))
+ expected={k:row[k] for k in ('booking_id','owner','kind','workload','start_epoch','end_epoch')}
+ require(dispatch.get('schema')=='b60-registered-exclusive-dispatch.v1' and dispatch.get('booking_identity')==expected and dispatch.get('card_sha256')==hashlib.sha256(protected_bytes(ROOT/'model-trial-cards'/(b+'.json'))).hexdigest() and dispatch.get('claimant')=='qualified-inner-owner-only','REGISTERED_DISPATCH_REQUIRED')
  require(row.get('owner')=='b60-stream-a' and row.get('kind')=='exclusive-stack' and all(row[k]==card[k] for k in ('booking_id','start_epoch','end_epoch')),'BOOKING_CARD_DRIFT')
  require(profile['experiment'] is None and profile['qualification_only'] is True and profile['trial_seconds']==1200,'BASE_ACTIVATION_DRIFT')
  from backup_chain_history import backup

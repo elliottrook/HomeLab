@@ -1,0 +1,35 @@
+{
+  "schema": "b60-independent-registration-source-review.v1",
+  "scope": "offline only; no LAN or stack/model/credentials effects",
+  "source_sha256": {
+    "b60_exclusive_card_bridge.py": "6cabfd9115fdf2a5767e10a0f77a93c8aa783ddceaf3e160312e51207803d1cd",
+    "build_registration.py": "ae34da398a1ecf3dcec42e8a49a1e54c90573121ea73966f470000d1d0014148",
+    "registration_install.py.txt": "9eee656d4b7ceda588505038481e0305818c4676af54eadb9ea045d691afb217",
+    "install_body.py.txt": "ac57ddb4a46e73dac9a8cf822ba37ef4c182abe34e09eab2dafb875c85ae7e3a",
+    "build_install.py": "022f7c244b78645921ba50ee550e10189517845e9c18af658523afc580409ca8",
+    "model_trial.py": "59c2c39b6849d952cb572a476532fdf1fbfe01b5b2014b091317bf3315bfeda1",
+    "news_xpu_boundary.py": "2b0aa52b95f8de38be38f7ac2d4520b703f213e3818f4555fd3d1ef3213eeebc"
+  },
+  "tests_passed": 181,
+  "candidate_registry_sha256": "847deaba5a4fe16d68257e4d90e4920b51abffdf9b552b53079692790d038e59",
+  "registered_id_snapshot_line": 238,
+  "new_entry_line": 228,
+  "registered_id_snapshot_precedes_new_entry": false,
+  "verdict": "SOURCE CORRECTION PASSED; final installed/live readiness pending",
+  "safe_design_confirmed": [
+    "No generic ledger claim on registered exclusive path",
+    "Accepted base30/ExclusiveSession remains sole claimant",
+    "Fullpilot and inner controller module namespaces are process-isolated",
+    "Card pins exact9-source closure and base30 source map",
+    "Immutable dispatch intent precedes once-only isolated launch",
+    "Guardian identity tolerates legitimate claimed/released row additions",
+    "Global manifest update preserves unrelated source pins; no dispatcher/reservation/base30 code change",
+    "Registry hash and model closure have no circular dependency"
+  ],
+  "required_fix": "Resolved: additive entry now precedes frozen ID snapshot; independent181 tests and explicit membership assertion pass.",
+  "no_additional_conversational_approval_missing": true,
+  "final_live_audit_pending": true,
+  "candidate_news_pin_coherence_verified": true,
+  "no_remaining_deterministic_source_blocker_found": true,
+  "live_effect_authority_or_model_result_inferred": false
+}

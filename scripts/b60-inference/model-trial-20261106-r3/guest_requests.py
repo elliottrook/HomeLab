@@ -1,4 +1,4 @@
-"""Fixed source-local transport; always emit bounded metadata, even on failure.
+"""Fixed source-local transport; emit bounded metadata for request failures.
 
 The explicit CLI switch is used only by the source/card-bound independent
 runner. It is not booking authority. No redirects, proxies, retries, text,

@@ -42,11 +42,18 @@ with host_exclusion(ROOT):
  verify(retained,inventory,date='2026_11_06',now_epoch=start+120,resolve=fixed_resolve,lstat=os.lstat)
  raw_history=base64.b64decode(HISTORY);assert hashlib.sha256(raw_history).hexdigest()==HISTORY_SHA
  hv=json.loads(raw_history);assert 0<=start+120-hv['observed_epoch']<=7200
- for n,sha in NEWS['PINS'].items():assert hashlib.sha256(protected_bytes(BASE.parent/'full-inference-pilot'/n,executable=True,maximum=262144)).hexdigest()==sha
+ for n,sha in NEWS['PINS'].items():
+  if n not in REG_FILES:assert hashlib.sha256(protected_bytes(BASE.parent/'full-inference-pilot'/n,executable=True,maximum=262144)).hexdigest()==sha
  assert call(['pct','exec','110','--','sha256sum',NEWS['GUEST']]).split()[0]==NEWS['GUEST_SHA']
  mrows=[l for l in call(['pct','config','110','--current']).splitlines() if l.startswith('mp0:')]
  assert len(mrows)==1 and hashlib.sha256(mrows[0].encode()).hexdigest()==NEWS['MOUNT_SHA']
- assert not DEST.exists();DEST.mkdir(mode=0o700)
+ assert not DEST.exists()
+ assert not any((ROOT/parent/(B+'.json')).exists() for parent in ('exclusive-activations','model-trial-cards','arming-receipts'))
+ assert not (ROOT/'arming-receipts'/(B+'-model.json')).exists()
+ registration_receipt=install_registration(bookings,row);row=bookings.get(B)
+ assert row['workload']=='b60-qwen36-35b-failure-capture-v1' and row['state']=='reserved'
+ for n,sha in NEWS['PINS'].items():assert hashlib.sha256(protected_bytes(BASE.parent/'full-inference-pilot'/n,executable=True,maximum=262144)).hexdigest()==sha
+ DEST.mkdir(mode=0o700)
  for name,encoded in FILES.items():
   raw=base64.b64decode(encoded);assert hashlib.sha256(raw).hexdigest()==MANIFEST[name];create(DEST/name,raw)
  create(DEST/'manifest.json',canonical(MANIFEST));sys.path.insert(0,str(DEST))
@@ -78,11 +85,11 @@ with host_exclusion(ROOT):
  # No model, health generation, claim, isolation or current service stop has
  # occurred. Only a future date-specific one-shot clock is installed here.
  units=Path('/etc/systemd/system');name='b60-model-trial-'+B;day=datetime.fromtimestamp(start,ZoneInfo('America/Vancouver'))
- files={name+'.service':'[Unit]\nDescription=B60 R3 fixed failure-preserving model trial\n\n[Service]\nType=oneshot\nUser=root\nRestart=no\nKillMode=control-group\nTimeoutStartSec=30\nExecStart=/usr/bin/python3 -B '+str(DEST/'model_trial.py')+' launch --booking-id '+B+'\n',name+'.timer':'[Unit]\nDescription=B60 R3 exact booked model clock\n\n[Timer]\nOnCalendar='+day.strftime('%Y-%m-%d %H:%M:%S')+' America/Vancouver\nPersistent=false\nAccuracySec=1s\nRandomizedDelaySec=0\nUnit='+name+'.service\n\n[Install]\nWantedBy=timers.target\n'}
+ files={name+'.service':'[Unit]\nDescription=B60 R3 fixed failure-preserving model trial\n\n[Service]\nType=oneshot\nUser=root\nRestart=no\nKillMode=control-group\nTimeoutStartSec=30\nExecStart=/usr/bin/python3 -B '+str(BASE.parent/'full-inference-pilot/lab_hours_reserved_runner.py')+' --booking-id '+B+'\n',name+'.timer':'[Unit]\nDescription=B60 R3 exact booked model clock\n\n[Timer]\nOnCalendar='+day.strftime('%Y-%m-%d %H:%M:%S')+' America/Vancouver\nPersistent=false\nAccuracySec=1s\nRandomizedDelaySec=0\nUnit='+name+'.service\n\n[Install]\nWantedBy=timers.target\n'}
  assert time.time()+120<start and not any((units/n).exists() or (units/n).is_symlink() for n in files)
  for n,v in files.items():create(units/n,v.encode(),0o644)
  call(['systemd-analyze','verify',*[str(units/n) for n in files]])
  call(['systemctl','daemon-reload']);call(['systemctl','enable','--now',name+'.timer'])
- receipt={'schema':'b60-model-trial-arming.v3','booking_id':B,'start_epoch':start,'end_epoch':end,'recovery_reserve_until_epoch':end+900,'source_sha256':MANIFEST,'guest_plan_sha256':plans,'backup_history_sha256':HISTORY_SHA,'retained_scan_finished_epoch':retained['finished_epoch'],'archive_receipt':proof,'model_card_sha256':hashlib.sha256(canonical(card)).hexdigest(),'activation_sha256':hashlib.sha256(canonical(profile)).hexdigest(),'unit_sha256':{n:hashlib.sha256(v.encode()).hexdigest() for n,v in files.items()},'prepared_epoch':int(time.time()),'model_run_claimed':False,'peer_release_rechecked_at_admission':True}
+ receipt={'schema':'b60-model-trial-arming.v3','booking_id':B,'start_epoch':start,'end_epoch':end,'recovery_reserve_until_epoch':end+900,'source_sha256':MANIFEST,'guest_plan_sha256':plans,'backup_history_sha256':HISTORY_SHA,'retained_scan_finished_epoch':retained['finished_epoch'],'archive_receipt':proof,'model_card_sha256':hashlib.sha256(canonical(card)).hexdigest(),'activation_sha256':hashlib.sha256(canonical(profile)).hexdigest(),'unit_sha256':{n:hashlib.sha256(v.encode()).hexdigest() for n,v in files.items()},'prepared_epoch':int(time.time()),'model_run_claimed':False,'peer_release_rechecked_at_admission':True,'registered_workload':'b60-qwen36-35b-failure-capture-v1','global_registration_file_sha256':REG_SHA,'registration_receipt_sha256':hashlib.sha256(canonical(registration_receipt)).hexdigest()}
  create(ROOT/'arming-receipts'/(B+'-model.json'),canonical(receipt))
  print(json.dumps({'receipt':receipt,'sha256':hashlib.sha256(canonical(receipt)).hexdigest()},sort_keys=True))

@@ -12,10 +12,11 @@ NEWS = 'aster-news-video-xpu-20261106-1430-r1'
 MOUNT_SHA = '640906303474d1a7f7ed527bb8ea5bcba74390af8c8dfcb105fdc12f7642825e'
 HOST = Path('/usr/local/libexec/local-ai-lease/full-inference-pilot')
 PINS = {
+    'b60_exclusive_card_bridge.py': '6cabfd9115fdf2a5767e10a0f77a93c8aa783ddceaf3e160312e51207803d1cd',
     'b60_musetalk_xpu_transaction.py': 'a2c67006c3559ff86ab35dadfa6c7e511293d28b21d4a08589248608c053b58b',
     'b60_musetalk_xpu_adapter.py': 'f20944db89d3dd1c13290cc55ca7636cb2c25f348cd73de1de2efc0701981c20',
-    'lab_hours_workloads.py': '2e6dd0882924f0c9ba926c5df95abc8f54765af233e33898ef468233d3426c1f',
-    'lab_hours_reserved_runner.py': 'f0f740d82e5312239b9553bffe0d009dc4608d0c0ab9def84d526505b69c3644',
+    'lab_hours_workloads.py': '847deaba5a4fe16d68257e4d90e4920b51abffdf9b552b53079692790d038e59',
+    'lab_hours_reserved_runner.py': 'ff029f68eead659d1357463a1d8e411851950cb10d5221412781d11f4cffcd4c',
     'full_inference_lab_runtime.py': 'fb89c007e4ebe2e896e7a38e6af71237a0907f672d7ae5fdd14c7f6df699fe42',
 }
 GUEST = '/opt/aster-news-video-xpu/b60_musetalk_xpu_guest.py'

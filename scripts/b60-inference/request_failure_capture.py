@@ -32,7 +32,7 @@ def number(value):
 
 
 def tokens(value):
-    return value if type(value) is int and value>=0 else None
+    return value if type(value) is int and 0<=value<=2**53 else None
 
 
 def parse(status,raw,row):

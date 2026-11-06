@@ -14,6 +14,15 @@
 
 ## Current coordination status
 
+The [named-workload bridge and capture integration](B60-Inference-Engineering/model-r3-capture-and-news-plan-20261106.md)
+now pass184 offline tests. Independent source review found and corrected the
+registration-ID snapshot ordering defect; final live audit follows actual
+activation. News's14:30–16:00 session remains its exclusive reservation even
+after a restored attempt. B60's16:20 R3 is reserved, **unarmed**, and waits for
+actual final peer release, not another owner approval. The operational task
+continues through installation, arming, an actual model result and restoration.
+
+
 [Operational R3 capture/News reconciliation is continuing](B60-Inference-Engineering/model-r3-capture-and-news-plan-20261106.md).
 The failure-preserving transport/host persistence path passes171 offline tests.
 A distinct actual16:20–17:05 November6 booking, reserve17:20 UTC−07, follows

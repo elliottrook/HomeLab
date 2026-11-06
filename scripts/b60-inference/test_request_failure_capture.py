@@ -28,6 +28,12 @@ class Tests(unittest.TestCase):
         self.assertEqual(p['records'][0]['outcome'],'timeout');self.assertEqual(len(self.calls),1)
         self.assertEqual(p['attempted_requests'],1);self.assertEqual(p['planned_requests'],2)
         self.assertNotIn('do not export',json.dumps(p));self.assertEqual(p['retries'],0)
+    def test_abnormal_token_numbers_are_unknown_without_losing_rows(self):
+        p=self.run_capture([response(completion_tokens=2**100),response('',finish='length',
+            completion_tokens_details={'reasoning_tokens':2**100})])
+        self.assertEqual(len(p['records']),2)
+        self.assertIsNone(p['records'][0]['completion_tokens'])
+        self.assertIsNone(p['records'][1]['reasoning_tokens'])
     def test_http_malformed_oversized_and_invalid_type(self):
         for value,outcome in [((503,b'private server body'),'http_error'),((200,b'not json'),'malformed_response'),
                 ((200,b'x'*(MAXIMUM+1)),'response_too_large'),((True,b'{}'),'invalid_http_status'),

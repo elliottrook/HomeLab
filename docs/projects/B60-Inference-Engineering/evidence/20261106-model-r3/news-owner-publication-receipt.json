@@ -1,0 +1,32 @@
+{
+  "schema": "b60-news-owner-read-receipt.v1",
+  "receipts": [
+    {
+      "commit": "d0fdf4dcabbef175f2216c10729338810d88cab2",
+      "path": ".agents/skills/b60-lab-hours/SKILL.md",
+      "sha256": "4525fd6eda3579deb035f5050a346b4ff91a9a8d12765c289b4ea0818cff4977"
+    },
+    {
+      "commit": "d0fdf4dcabbef175f2216c10729338810d88cab2",
+      "path": ".agents/skills/b60-lab-hours/references/readiness.md",
+      "sha256": "5f25a8a62124479c1c137feb3d6b4e7a6bec3bf89fd47ac73a7e7c23cd9ba95c"
+    },
+    {
+      "commit": "d0fdf4dcabbef175f2216c10729338810d88cab2",
+      "path": ".agents/skills/b60-lab-hours/scripts/check_booking.py",
+      "sha256": "477788c73e645837a6bf581160830658e6ab9bfa6d66fef8b95dfb4809b6f462"
+    },
+    {
+      "commit": "2b8385f2bfcbd83f477bc202039cb1a7b8476327",
+      "path": "services/local-ai-lease/LAB-HOURS-SESSION-CONTRACT-V2.md",
+      "sha256": "19cc47a2608ec7cffea19658ce106705966959357516051701ad30658efce58b"
+    },
+    {
+      "commit": "d0fdf4dcabbef175f2216c10729338810d88cab2",
+      "path": "docs/projects/Aster-News-Video-Briefing.md",
+      "sha256": "5b3e18cea01aee58bd4edc4eb901f9b62dafbf4434a31e32d9292986a5244de0"
+    }
+  ],
+  "receipt_is_not_peer_read_acknowledgment": true,
+  "live_pin_revalidation_still_required": true
+}
