@@ -1,6 +1,6 @@
 {
   "channel": "v3-lab",
-  "composition_sha256": "3ac9aaaa87cc503b83389578b1848df53048e8824ae68aa1e7fc2994b46ed5e3",
+  "composition_sha256": "bccdac5a9e0dd1e5684649cf79d37e1e2f5a9a0714668da34d3556d5aec0eda1",
   "deployed": true,
   "device_id": "astertv-jen",
   "external_integrations": [
@@ -943,7 +943,7 @@
     "overlays/jen-aster-client.yaml": "08621ef27e351cf46381ba3af1efd897b41b42c5c0aa43e84c03f73a5d480a57",
     "overlays/jen-guest-catalogue.yaml": "0a3e886a741d09930c7302838296ed4e4dc8e39cfbe0fcce50f3d63188e4466c",
     "overlays/jen-home-cameras.yaml": "b68312b8b9e6cdb73657033ba889e64c36ef7d8635a4e0f32e0e23e6d55d95dc",
-    "overlays/jen-low-spec-runtime.yaml": "1d7f4c991a20892da230d268694b7a2d31c4eda470ccff65e07babc40756f2ed",
+    "overlays/jen-low-spec-runtime.yaml": "b402daa97e9e9cba6f3c5991728db21415c3c9ef7af728a8a21884772f7d3263",
     "overlays/jen-movie-youtube.yaml": "504104268858fd5357fe045b893957820300e62cb49f657c9fdfd0d06a219fe9",
     "overlays/jen-news-icons.yaml": "bf2d922a23398be52c785c197a48a8104395a099716be56e24e37790c22d0cce",
     "overlays/jen-podcast-requests.yaml": "ab1ba7cf1c2a27d9d6e53c647753762668ce3ce6deb03cb3953d70da7cfd7480",

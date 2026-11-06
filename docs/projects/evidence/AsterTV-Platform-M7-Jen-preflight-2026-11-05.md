@@ -2,10 +2,13 @@
 
 ## Outcome
 
-The first compiled-composition rehearsal is ready but has not changed Jen.
-Read-only evidence resolves the exact target, proves the playback gate and
-quantifies the owned-file delta. The release artifact now includes a normalized
-install tree so migration never needs to replay historical installers.
+Jen completed the first compiled-composition migration and recovery rehearsal.
+The accepted final composition is
+`bccdac5a9e0dd1e5684649cf79d37e1e2f5a9a0714668da34d3556d5aec0eda1`;
+its deterministic bundle is `astertv-jen-bccdac5a9e0d.tar.gz`, SHA-256
+`1df94e922e44565de65c1b6fe5fce53dc6cf4ed34054e6341ed8439623e44b8b`.
+The normalized install tree means migration did not replay historical
+installers. Family and Bedroom were not changed.
 
 ## Target and safety evidence
 
@@ -106,16 +109,54 @@ Owner clarification during rehearsal: Jen's restriction applies to media
 playback, not Kodi's GUI output. The native 3840×2160 GUI is allowed. The
 acceptance gate is the Jen-only Jellyfin 1920-pixel/18 Mb/s policy, stereo and
 passthrough disabled. The erroneous `display.output=1920x1080` assertion was
-removed before any candidate acceptance; the expected post-migration guard
-snapshot count was also advanced from predecessor 528 to composed 532.
-
-That correction produces composition
+removed before any candidate acceptance. That GUI/media correction produced
+the intermediate composition
 `3ac9aaaa87cc503b83389578b1848df53048e8824ae68aa1e7fc2994b46ed5e3`.
 The focused media-versus-GUI contract regression and absent-unit recovery gate
 raise the fleet suite to 45/45.
 
-## Authorization boundary
+The accepted snapshot later proved that the composition adds six declared
+guarded paths, advancing the expected post-migration count from predecessor
+528 to 534. That metadata-only arithmetic correction produces the final
+composition recorded above.
 
-Everything recorded here was local or read-only. Creating the checkpoint,
-copying the artifact, stopping/restarting Kodi, installing payloads, rebooting,
-rolling back or reinstalling is a live Jen mutation and was not performed.
+## Completed rehearsal and recovery evidence
+
+The approved bounded rehearsal used checkpoints
+`astertv-platform-m7-jen-20261105-r4` through `r6`. The accepted candidate was
+rebooted and then rolled back to its exact predecessor. Kodi recovered active,
+stereo and passthrough-off remained unchanged, the composed unit was removed,
+and the predecessor's two legacy units returned to their prior state. The
+predecessor's known fourteen-file release-guard drift also returned, proving
+that rollback restored state rather than silently retaining candidate bytes.
+
+The same immutable payload was then reinstalled and accepted. A final
+contract correction changed only metadata: the migration adds six declared
+guarded paths to the 528-file predecessor, so the accepted total is 534 rather
+than the originally estimated 532. The corrected bundle preflight found all
+124 installed payloads matching with zero missing or replacement files before
+acceptance.
+
+Final source-local and post-reboot evidence:
+
+- release guard: clean, 534 files, no restored drift;
+- composition preflight: 124 matching, zero missing, zero replacement;
+- boot writers: composed M4 unit enabled; both superseded M4/M4Y units disabled;
+- Kodi: active after both reboot cycles;
+- GUI: native 3840x2160 is intentionally allowed;
+- media policy: selective, 18,000 kb/s, HEVC direct-play width 1920;
+- audio: Kodi channel setting `1` (2.0 stereo), passthrough false;
+- representative News MP3: PAPlayer reached `PrepareStream - Ready` after each
+  reboot and stopped cleanly; and
+- rollback: exact predecessor recovery followed by reinstall of the same
+  immutable payload.
+
+The first sanitized Doctor observation contains 124 live hashes/modes, 45 typed
+assertions and 12 required dependency states. Jen classifies `clean` with no
+payload, metadata, assertion, dependency, identity or composition mismatch.
+Fleet Doctor remains `attention` by design because Bedroom and Family have not
+yet supplied observations; this does not dilute Jen's result or invent health
+for untouched appliances.
+
+This is engineering acceptance, not owner acceptance. Physical navigation and
+representative Jellyfin film/television playback on Jen remain an owner check.

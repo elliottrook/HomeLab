@@ -615,8 +615,8 @@ media mutation, playback interruption, unknown identity or broader firewall.
 ## Current resume state
 
 **Milestone:** M2/M3 owner acceptance and publication gates; M4 composition,
-bundle and fleet-Doctor foundation complete; live observation/recovery rehearsal
-remains pending.
+bundle and fleet-Doctor foundation complete; M7 Jen migration/recovery rehearsal
+complete with owner acceptance still pending.
 
 **Verified:** M0 accepted pinned identities for Family, Bedroom and Jen, recorded
 Guest as not deployed, classified the existing wiki/reference/NetBox/release
@@ -641,25 +641,31 @@ host gates and exact Jellyfin policy code/units. Mutable identity and broker-key
 state remain excluded. All three deployable composition artifacts were built
 locally from the verified base, produced recorded deterministic hashes, and
 were removed after verification so generated binaries do not enter Git.
-Bedroom, Family and Jen have no overlay blocker; this is release eligibility
-only and did not deploy any device. The fleet Doctor now fails closed on
-missing, stale, future, malformed or drifted observations; its initial run
-correctly reports all three deployed clients as unobserved because the
-observation collector has not been installed or run on them. Jen retains its local
-1080p-media/stereo constraints without constraining v3 globally. Guest
-remains a non-deployed candidate. M5's Guest fixture fails closed on unresolved physical and
+Bedroom and Family have no overlay blocker but remain unchanged and unobserved.
+Jen now runs the accepted compiled composition after an exact
+rollback/reinstall rehearsal. The fleet Doctor fails closed on missing, stale,
+future, malformed or drifted observations; Jen's first fresh observation is
+clean while the untouched Bedroom and Family remain unobserved. Jen retains
+its local 1080p-media/stereo constraints without constraining v3 globally or
+its native-resolution GUI. Guest remains a non-deployed candidate. M5's Guest
+fixture fails closed on unresolved physical and
 NetBox facts. Both M6 skills are installed from a hash manifest and passed
-independent effect-free forward tests. No published wiki, Aster mirror or live
-AsterTV changed.
+independent effect-free forward tests. No published wiki or Aster mirror
+changed.
 
-**Next:** owner-review the 25-page wiki and generated design reference. Build
-the wiki through the established LXC 113 path only after content acceptance.
-The Jen read-only preflight is complete and its normalized install artifact is
-ready. The next appliance milestone is a bounded Jen migration/recovery
-rehearsal: create a new checkpoint, apply only its compiled composition,
-collect a fresh Doctor observation, prove reboot/playback/recovery and preserve
-Jen's local 1080p-media/stereo limits. That live mutation requires its own immediate
-authorization.
+Jen now runs accepted composition `bccdac5a…eda1`. Its native-resolution GUI
+remains allowed; only media playback is limited to 1920 pixels/18 Mb/s, stereo
+and no passthrough. The release guard is clean across 534 files, all 124
+composition payloads match, the first sanitized Jen Doctor observation is
+clean, reboot/playback passed and exact rollback/reinstall was proved. Fleet
+Doctor still reports attention because Bedroom and Family remain deliberately
+unobserved. No other appliance changed.
+
+**Next:** owner-review the 25-page wiki and generated design reference, then
+build the wiki through the established LXC 113 path only after content
+acceptance. Separately, perform the short physical Jen navigation and
+representative Jellyfin movie/television owner check. Bedroom and Family
+observation/migration must each use their own later bounded plan.
 
 ## Evidence log
 
@@ -677,6 +683,7 @@ authorization.
 | 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 39/39 fleet/release tests | All eighteen contracts are complete; Bedroom, Family and Jen are build-eligible but not deployed; Jen's 1080p-media/stereo constraints remain device-local and Guest remains a non-deployed candidate |
 | 2026-11-05 | Completed the M4 fleet Doctor foundation | Timestamped observation schema, collector, fail-closed Doctor and 40/40 fleet/release tests | Missing live observations correctly report attention for Bedroom, Family and Jen; no device was changed and no false healthy state was emitted |
 | 2026-11-05 | Prepared the M7 Jen migration and recovered two lifecycle interactions | `docs/projects/evidence/AsterTV-Platform-M7-Jen-preflight-2026-11-05.md`; deterministic normalized install artifact and bounded transaction runner; 44/44 tests | Runtime masking and superseded boot units were both caught before acceptance; exact rollback restored each predecessor, and guard isolation plus typed systemd reconciliation are ready for retry |
+| 2026-11-05 | Completed the M7 Jen migration and recovery rehearsal | Final composition `bccdac5a…eda1`; bundle `1df94e92…4b8b`; checkpoints r4-r6; 45/45 tests; clean Jen Doctor observation | Native GUI resolution preserved; media remains 1920px/18 Mb/s stereo with passthrough off; 534-file guard and 124/124 payloads clean; reboot, News playback, exact rollback and immutable reinstall passed; Family/Bedroom unchanged; owner physical acceptance pending |
 
 ## Close-out
 

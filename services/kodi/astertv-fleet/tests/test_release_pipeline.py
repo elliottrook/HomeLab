@@ -81,7 +81,7 @@ class ReleasePipelineTests(unittest.TestCase):
             self.assertEqual(assertions["policy.max-bitrate-kbps"], 18000)
             self.assertEqual(assertions["audio.channels"], "2.0")
             self.assertFalse(assertions["audio.passthrough"])
-            self.assertEqual(assertions["accepted-file-count"], 532)
+            self.assertEqual(assertions["accepted-file-count"], 534)
 
     def test_guard_classifies_clean_unknown_missing_and_dependency_drift(self):
         contract = {"schema_version": 1, "kind": "composition-guard-contract", "device_id": "box", "composition_sha256": "abc", "expected_resources": ["a", "b"], "registered_extras": ["c"]}

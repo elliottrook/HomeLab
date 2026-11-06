@@ -22,7 +22,7 @@
     {"authority": "jellyfin-client", "key": "policy.mode", "expected": "selective", "sensitive": false},
     {"authority": "jellyfin-client", "key": "policy.max-bitrate-kbps", "expected": 18000, "sensitive": false},
     {"authority": "jellyfin-client", "key": "policy.hevc-direct-play-max-width", "expected": 1920, "sensitive": false},
-    {"authority": "release-guard", "key": "accepted-file-count", "expected": 532, "sensitive": false},
+    {"authority": "release-guard", "key": "accepted-file-count", "expected": 534, "sensitive": false},
     {"authority": "jellyfin-server", "key": "arc-a380-hwa", "expected": "hevc-vp9-av1-mpeg2-decode:intel-vpp:on:opencl:off", "sensitive": false}
   ],
   "secret_refs": ["jellyfin-jen-client"],

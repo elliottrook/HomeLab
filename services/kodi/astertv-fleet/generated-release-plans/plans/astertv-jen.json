@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-jen-0da4c6be132e.tar.gz",
+    "name": "astertv-jen-bccdac5a9e0d.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "0da4c6be132e7ea83684c0eaee945b0a0d34e3916bca99e32407e6dd65241a83",
+  "composition_sha256": "bccdac5a9e0dd1e5684649cf79d37e1e2f5a9a0714668da34d3556d5aec0eda1",
   "deployable": false,
   "device_id": "astertv-jen",
   "kind": "release-plan",
@@ -721,12 +721,6 @@
       "assertions": [
         {
           "authority": "kodi",
-          "expected": "1920x1080",
-          "key": "display.output",
-          "sensitive": false
-        },
-        {
-          "authority": "kodi",
           "expected": "2.0",
           "key": "audio.channels",
           "sensitive": false
@@ -769,7 +763,7 @@
         },
         {
           "authority": "release-guard",
-          "expected": 528,
+          "expected": 534,
           "key": "accepted-file-count",
           "sensitive": false
         },
@@ -933,7 +927,7 @@
       "layer": "device-performance",
       "owner": "fleet-engineering",
       "owns": [
-        "kodi/settings/jen-1080p-stereo",
+        "kodi/playback/jen-1080p-stereo",
         "kodi/runtime/jen-host-gates",
         "jellyfin/client-policy-jen"
       ],
@@ -2087,8 +2081,8 @@
   ],
   "owned_resources": [
     "device-performance:jellyfin/client-policy-jen",
+    "device-performance:kodi/playback/jen-1080p-stereo",
     "device-performance:kodi/runtime/jen-host-gates",
-    "device-performance:kodi/settings/jen-1080p-stereo",
     "kodi-catalogue:kodi/jellyfin-guest-catalogue-adapter",
     "kodi-identity:kodi/astertv-profile-registry",
     "kodi-identity:kodi/profile-capability-policy",
@@ -2115,7 +2109,7 @@
     "boot_ready_seconds_max": 60,
     "focus_response_ms_max": 240,
     "memory_mib_max": 2048,
-    "output_ceiling": "1080p-stereo-device-only",
+    "output_ceiling": "1080p-media-stereo-device-only",
     "page_open_ms_max": 2200
   },
   "promotion_blockers": [
