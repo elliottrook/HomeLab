@@ -17,6 +17,8 @@ from nlu_threshold_policy import decode_unique_json
 
 
 ENDPOINT = "http://192.168.70.12:11435/v1/chat/completions"
+PRIVATE_LAB_ENDPOINT = "http://127.0.0.1:11436/v1/chat/completions"
+ALLOWED_ENDPOINTS = frozenset({ENDPOINT, PRIVATE_LAB_ENDPOINT})
 CORPUS_SHA256 = scorer.CORPUS_SHA256
 SHORTLIST_SHA256 = "620f5b5badce1c3ee70b5718a0d05ff4ad6261308360cc5c5dad588e4b977f6e"
 ENGINE_SHA256 = "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
@@ -159,9 +161,12 @@ def _failure(case_id: str, latency: float, error_type: str) -> dict[str, object]
             "latency_seconds": round(latency, 3), "error_type": error_type}
 
 
-def run_cases(cases: list[dict[str, object]], token: str, *, opener=None,
+def run_cases(cases: list[dict[str, object]], token: str, *, endpoint=ENDPOINT,
+              opener=None,
               clock=time.monotonic, observer=None) -> dict[str, object]:
     _validate_token(token)
+    if endpoint not in ALLOWED_ENDPOINTS:
+        raise ValueError("K2 endpoint is outside the fixed runtime set")
     transport = opener or urllib.request.build_opener(
         urllib.request.ProxyHandler({}), NoRedirect())
     emit = observer or (lambda event: None)
@@ -176,7 +181,7 @@ def run_cases(cases: list[dict[str, object]], token: str, *, opener=None,
             break
         emit({"event": "attempt_started", "case_id": case["id"]})
         request = urllib.request.Request(
-            ENDPOINT,
+            endpoint,
             data=adapter.build_payload(case["text"], case["shortlist_ids"]),
             method="POST",
             headers={"Authorization": "Bearer " + token,
@@ -256,6 +261,8 @@ def main() -> int:
     parser.add_argument("--key-file", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--journal", type=Path, required=True)
+    parser.add_argument("--endpoint", choices=sorted(ALLOWED_ENDPOINTS),
+                        default=ENDPOINT)
     args = parser.parse_args()
     cases = validate_inputs(args.corpus.read_bytes(), args.shortlist.read_bytes())
     token = args.key_file.read_text().splitlines()[0].strip()
@@ -269,7 +276,7 @@ def main() -> int:
         raise
     try:
         with journal:
-            result = run_cases(cases, token,
+            result = run_cases(cases, token, endpoint=args.endpoint,
                                observer=lambda event: _write_event(journal, event))
         raw = (json.dumps(result, sort_keys=True, separators=(",", ":"),
                           allow_nan=False) + "\n").encode()

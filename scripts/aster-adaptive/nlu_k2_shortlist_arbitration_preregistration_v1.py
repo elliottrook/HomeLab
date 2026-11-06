@@ -96,7 +96,7 @@ def expected() -> dict[str, object]:
             "shared_operation_lock_required": True,
             "accepted_service_restoration_required": True,
             "model_or_backend_change": "forbidden",
-            "service_restart": "forbidden",
+            "service_restart": "booked-full-drain-restore-required",
         },
         "retention": {
             "request_text": "owner-only-not-git",

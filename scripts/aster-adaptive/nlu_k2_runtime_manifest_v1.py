@@ -62,7 +62,7 @@ def validate(raw: bytes, source_directory: Path) -> dict[str, object]:
         "per_case_timeout_seconds": 45,
         "recovery_reserve_seconds": 900,
         "retries": 0,
-        "service_restart": "forbidden",
+        "service_restart": "booked-full-drain-restore-required",
         "shared_operation_lock_required": True,
         "tools": "forbidden",
         "wall_deadline_seconds": 1800,
