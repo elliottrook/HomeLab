@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "astertv-operational-reference",
+      "kind": "manual",
+      "title": "AsterTV fleet operational reference",
+      "owner": "AsterTV Fleet Engineering",
+      "canonical_url": "upload:AsterTV-Operational-Reference.md",
+      "boundary": {"type": "exact-file", "value": "AsterTV-Operational-Reference.md"},
+      "source_class": "local-reviewed",
+      "media_type": "text/markdown",
+      "version_policy": "homelab-reference-commit-62bb587",
+      "refresh_hours": 720,
+      "size_limit_bytes": 262144,
+      "license_status": "permitted",
+      "mirror_policy": "allow-derived",
+      "license_id": "LicenseRef-Private-HomeLab",
+      "enabled": true
+    }
+  ]
+}
