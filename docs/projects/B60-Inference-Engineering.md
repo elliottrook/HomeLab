@@ -14,6 +14,11 @@
 
 ## Current coordination status
 
+[November 6 nightly recovery composition](B60-Inference-Engineering/nightly-recovery-boundary-20261106.md)
+adds durable-intent and fence/mount/custody-before-base-restore composition;
+133 offline tests pass. It is local and undeployed; no model result or live
+candidate qualification is claimed. Exact production backend remains next.
+
 [The fixed candidate command adapter is prepared](B60-Inference-Engineering/fixed-candidate-command-preparation-20261106.md):
 124offline tests pass, exact candidate scope matches the qualified fence, and
 trial/restoration deadlines are explicit. No live candidate profile or effect

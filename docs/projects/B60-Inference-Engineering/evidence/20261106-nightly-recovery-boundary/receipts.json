@@ -1,0 +1,46 @@
+{
+  "schema": "b60-nightly-local-preparation.v1",
+  "trigger": "2026-11-06T15:28:24.923Z",
+  "read_receipts": [
+    {
+      "commit": "70832267c59b1e9a6b809ec08ff1af1157c0c8e1",
+      "path": "docs/projects/AI Projects/evidence/B60-first-screen-enforcement-source-reconciliation-2026-10-26.md",
+      "sha256": "9c47499ffa6fb283f92f4c45aaa2d81212544b6b121b4e32e00948225fa6e45f"
+    },
+    {
+      "commit": "ee955ce1466d748eed7f0527a4e618aed3b045cd",
+      "path": "docs/projects/B60-Inference-Engineering/fixed-candidate-command-preparation-20261106.md",
+      "sha256": "d05c6e430ddd1f293c101d928412e302f3dec9f0a39060323de197fa97324d83"
+    },
+    {
+      "commit": "6fb0207fec5190e0c34ed3bc72ea38e128f06127",
+      "path": "docs/projects/Local-AI-Platform-Split.md",
+      "sha256": "6bd3106078315a80046a6f917646410698df6a73f6e34c219b32272ce9f935d7"
+    },
+    {
+      "commit": "6fb0207fec5190e0c34ed3bc72ea38e128f06127",
+      "path": "docs/service-release-registry.md",
+      "sha256": "d93de63ad79e3980568335b485b0713041f43bdf7e36f3f46f584de9c5b060d8"
+    }
+  ],
+  "minimal_control_plane": {
+    "observed_epoch": 1793979051,
+    "all_four_lease_drain_markers_absent": true,
+    "operation_marker_absent": true,
+    "full_admission_verified": false
+  },
+  "test_result": {
+    "suite": "scripts/b60-inference/test_*.py",
+    "tests": 133,
+    "passed": true,
+    "controller_source_root": "/private/tmp/b60-resource-checkpoint-20261104/scripts/local-ai"
+  },
+  "source_sha256": {
+    "candidate_recovery_boundary.py": "ad7ba3ccfbcef500fc55045ab39b636ddf9ea8f373b483208ecfa97bd8f3d4db",
+    "test_candidate_recovery_boundary.py": "c148d6f652de902593f147017b6b6a00d5c5ace489daba00feb513d12053aa28"
+  },
+  "live_candidate_adapter_deployed": false,
+  "model_experiment_run": false,
+  "qualification_inferred_from_fake_tests": false,
+  "pushed": false
+}
