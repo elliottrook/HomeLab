@@ -58,6 +58,12 @@ class OperationsAuditTests(unittest.TestCase):
         self.assertEqual(gates["performance"]["status"], "partial")
         self.assertEqual(gates["walkthrough"]["status"], "open")
 
+    def test_integrated_gate_includes_room_bridge_contracts(self):
+        tests, _ = VALIDATE.discover_tests()
+        names = {path.name for path in tests}
+        self.assertIn("test_contract.py", names)
+        self.assertIn("test_content_policy.py", names)
+
 
 if __name__ == "__main__":
     unittest.main()

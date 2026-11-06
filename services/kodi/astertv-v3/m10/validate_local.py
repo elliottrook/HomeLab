@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[4]
 V3 = ROOT / "services/kodi/astertv-v3"
 DESIGN = ROOT / "services/kodi/astertv-design"
 FLEET_TESTS = ROOT / "services/kodi/astertv-fleet/tests"
+HOME_ASSISTANT_TESTS = ROOT / "services/home-assistant/aster_room_bridge"
 OPERATIONS_OBSERVATION = (
     ROOT / "docs/projects/evidence/AsterTV-v3-M10-operations-observation-2026-11-05.json")
 CONNECTED_ONLY = {
@@ -62,6 +63,7 @@ def discover_tests() -> tuple[list[Path], list[dict]]:
     discovered = sorted(V3.rglob("test_*.py"))
     discovered += sorted(DESIGN.rglob("test_*.py"))
     discovered += sorted(FLEET_TESTS.rglob("test_*.py"))
+    discovered += sorted(HOME_ASSISTANT_TESTS.glob("test_*.py"))
     runnable = []
     connected = []
     for path in discovered:

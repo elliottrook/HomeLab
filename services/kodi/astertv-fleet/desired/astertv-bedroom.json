@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "a927073cb6009611519b3dc18f39607acd9e0f34f4843be322e5b816fe946d5c",
+  "composition_sha256": "b19c8023ff8fc48964f8fde296d34f49a790b77c02b1ab57a4fb3bfd721ede8c",
   "deployed": true,
   "device_id": "astertv-bedroom",
   "external_integrations": [
@@ -169,9 +169,9 @@
     ],
     "remote-client-v3": [
       {
-        "bytes": 6244,
+        "bytes": 6250,
         "path": "services/kodi/astertv-fleet/materialize_remote_client.py",
-        "sha256": "fbe261684231c61c6685822fab7ba20d7e0e86153d5e5ce91842aa8d92992693"
+        "sha256": "be3cdf211937634815de4d0107d335d477d6f3d2bfed6b801845d48e6350f42c"
       },
       {
         "bytes": 661,

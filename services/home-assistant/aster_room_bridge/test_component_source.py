@@ -27,6 +27,13 @@ class ComponentSourceTests(unittest.TestCase):
         self.assertNotIn('command.get("entity', SOURCE)
         self.assertNotIn('command.get("service', SOURCE)
 
+    def test_content_state_is_outbound_polled_and_volatile_only(self):
+        self.assertIn('self.url + "/content"', SOURCE)
+        self.assertIn("PlaybackObservation.parse", SOURCE)
+        self.assertIn('hass.data.setdefault(DOMAIN, {})["content_state"]', SOURCE)
+        self.assertNotIn("async_fire", SOURCE)
+        self.assertNotIn("recorder", SOURCE.casefold())
+
 
 if __name__ == "__main__":
     unittest.main()

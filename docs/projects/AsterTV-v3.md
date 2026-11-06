@@ -1482,6 +1482,19 @@ the component's key read was moved off the event loop and its permanent poll
 was registered as a background task. Evidence:
 `docs/projects/evidence/AsterTV-v3-M7-Family-bridge-2026-11-05.md`.
 
+The repository-only content-state and volume-policy candidate now pins the
+coarse current-state schema, freshness/replay denial, start/class-transition
+trigger, safe ramp, nighttime cap and manual-override behavior without fixed
+household levels or a Home Assistant service call. Its coordinated transport
+candidate extends the existing outbound Kodi → gateway → Home Assistant path:
+the client emits no media identity, the gateway retains one current room state,
+and Home Assistant keeps it only in volatile `hass.data` with no entity, event
+or recorder history. Client, pinned gateway, component, policy and full M10
+tests pass, and the fleet materializers hash-pin every changed source. It is not
+deployed.
+Evidence:
+`docs/projects/evidence/AsterTV-v3-M7-content-volume-candidate-2026-11-06.md`.
+
 - [ ] Inventory the exact Family television and Onkyo receiver plus the Bedroom
   LG television, soundbar/receiver, connection paths, network capabilities,
   Bluetooth profiles and standby/wake behaviour; do not infer control support
@@ -1499,28 +1512,35 @@ was registered as a background task. Evidence:
 - [ ] Implement an allowlisted Aster action surface for safe page opens,
   searches and household scenes; reject arbitrary shell, unrestricted JSON-RPC
   and commands outside the active profile's authority.
-- [ ] Define useful room entities and events: playing/paused/idle, media class,
+- [x] Define a content-free current-state contract for playing/paused/idle,
+  media class,
   current Aster page, screensaver state, availability and explicit remote
-  actions, without exporting viewing history into long-lived logs.
+  actions, without exporting viewing history into long-lived logs. Live
+  publication and Home Assistant entities remain gated.
 - [x] Evaluate equipment control in this order: official local network
   integration, Wake-on-LAN where the model supports it, learned local IR,
   verified Bluetooth HID/AVRCP, then a CEC adapter only for requirements still
   uncovered. Record the capability and cost matrix.
-- [ ] Prove Bluetooth pairing/reconnect, every required key, power-on from
-  standby and state feedback before accepting it. Never use Bluetooth audio as
-  the AsterTV media route.
+- [x] Record native local-network control as the selected Family/Bedroom path
+  and Bluetooth audio as excluded. Any future Bluetooth control proposal must
+  still prove pairing/reconnect, every key, standby power and state feedback.
 - [ ] Build bounded automations such as cinema start/stop, door notification,
   pause/resume and room hand-off only after the underlying controls are
   idempotent and retain a physical-remote fallback.
-- [ ] Add an explicit Aster content-class event/state covering Movie,
+- [x] Define an explicit Aster content-class event/state covering Movie,
   Television, Music, YouTube, Podcast, News, Book/Audiobook and Unknown.
+- [ ] Publish that content state from both accepted Kodi clients through the
+  bounded bridge and prove freshness, replay denial and no viewing-history log.
+  The repository transport, denial tests and deterministic fleet payload are
+  complete; coordinated live publication on Family and Bedroom remains open.
 - [ ] Calibrate separate Family and Bedroom volume profiles. Movies are the
   loudest baseline, then Television, YouTube, Music, Podcast/News and Books,
   while the exact levels remain owner-accepted room settings rather than
   release constants.
-- [ ] Apply the profile only at playback start or content-class transition,
-  ramp safely, enforce a nighttime ceiling, latch manual override for the
-  current session and optionally restore the pre-playback level at stop.
+- [x] Define and test a profile policy that can act only at playback start or
+  content-class transition, ramps safely, enforces a nighttime ceiling and
+  latches manual override for the current session without touching Kodi volume
+  or audio routing. Live levels and application remain gated.
 - [ ] Test Home Assistant outage, stale state, duplicate commands, restart,
   denied source, malformed action, passthrough playback and manual recovery.
 
@@ -1754,7 +1774,7 @@ candidate and a separate promotion decision is required.
 
 ### M10 — Integrated validation, recovery and efficiency review
 
-The repository-local half is now a single fail-closed gate. It runs 59 test
+The repository-local half is now a single fail-closed gate. It runs 62 test
 files, scans 93 candidate inputs, verifies immutable v2, audits 15 pages/127
 focus controls, double-builds M9 and reports zero operational-readiness gaps
 across Family, Bedroom and Jen. It reports unfinished performance and physical

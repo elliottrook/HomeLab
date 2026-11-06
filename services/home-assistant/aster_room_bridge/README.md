@@ -16,6 +16,16 @@ It is not placed in YAML, source, logs or the browser. Home Assistant initiates
 all traffic to `/v1/remote/equipment/{poll,ack}`; the component opens no inbound
 port and registers no general Home Assistant service.
 
+The repository candidate also polls `/v1/remote/equipment/content` with that
+same room-scoped identity. The response is a strict, 30-second content-free
+observation containing only playback state, coarse class, Aster page,
+screensaver state and ephemeral session/sequence metadata. It is retained only
+in `hass.data` as current volatile state: the component creates no sensor,
+event, recorder row or viewing-history log. Duplicate reads are idempotent;
+stale, malformed, replayed or wrong-room observations fail closed. This path is
+not live until the coordinated Kodi, gateway and Home Assistant deployment gate
+is separately accepted.
+
 Candidate configuration (the final key path and URL are deployment-owned):
 
 ```yaml

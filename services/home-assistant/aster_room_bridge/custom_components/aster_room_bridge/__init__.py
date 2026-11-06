@@ -6,6 +6,7 @@ import asyncio
 from contextlib import suppress
 from pathlib import Path
 import stat
+import time
 
 import voluptuous as vol
 
@@ -15,6 +16,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .contract import EQUIPMENT_ACTIONS, RoomContract, observation
+from .content_policy import CurrentState, PlaybackObservation
 
 
 DOMAIN = "aster_room_bridge"
@@ -54,6 +56,7 @@ class RoomBridge:
             frozenset(config["actions"]),
         )
         self.session = async_get_clientsession(hass)
+        self.content_state = CurrentState()
 
     def _headers(self) -> dict[str, str]:
         return {"Authorization": "Bearer " + self.key,
@@ -74,9 +77,29 @@ class RoomBridge:
             if response.status != 200:
                 raise RuntimeError("equipment-ack-failed")
 
+    async def _content(self):
+        payload = {"client_id": self.client_id, "room_id": self.room_id}
+        async with self.session.post(self.url + "/content", json=payload,
+                                     headers=self._headers(), timeout=10) as response:
+            if response.status == 204:
+                return
+            if response.status != 200:
+                raise RuntimeError("content-state-poll-failed")
+            value = await response.json()
+        state = PlaybackObservation.parse(value, now_epoch=int(time.time()))
+        if state.room_id != self.room_id:
+            raise ValueError("content-state-room")
+        previous = self.content_state.get(self.room_id)
+        if (previous is not None and previous.session_id == state.session_id
+                and previous.sequence == state.sequence):
+            return
+        self.content_state.accept(state)
+        self.hass.data.setdefault(DOMAIN, {})["content_state"] = state
+
     async def run(self):
         while True:
             try:
+                await self._content()
                 async with self.session.post(
                     self.url + "/poll", json=self._payload(),
                     headers=self._headers(), timeout=25,
@@ -120,5 +143,5 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             await task
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, stop)
-    hass.data[DOMAIN] = bridge
+    hass.data[DOMAIN] = {"bridge": bridge}
     return True

@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-jen-6d54c85fbb6d.tar.gz",
+    "name": "astertv-jen-e9b8bd6339b8.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "6d54c85fbb6d2cef3eef2f4511c8591f5497d55066286a03b91952b7dd37ff5b",
+  "composition_sha256": "e9b8bd6339b86a34839d877ab93432117b1bc0dd56328a12831c4df22a740d27",
   "deployable": false,
   "device_id": "astertv-jen",
   "kind": "release-plan",
@@ -2092,9 +2092,9 @@
       "payload_status": "complete",
       "payloads": [
         {
-          "bytes": 6244,
+          "bytes": 6250,
           "path": "services/kodi/astertv-fleet/materialize_remote_client.py",
-          "sha256": "fbe261684231c61c6685822fab7ba20d7e0e86153d5e5ce91842aa8d92992693"
+          "sha256": "be3cdf211937634815de4d0107d335d477d6f3d2bfed6b801845d48e6350f42c"
         },
         {
           "bytes": 661,

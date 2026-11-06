@@ -74,6 +74,22 @@ class RemoteClientTests(unittest.TestCase):
         )
         self.assertNotIn('"nav.select": "Input.Select"', SOURCE)
 
+    def test_content_state_is_coarse_fresh_and_contains_no_media_identity(self):
+        for value in (
+            '"schema": "astertv-room-playback.v1"',
+            '"expires_epoch": now + 30',
+            '"screensaver_active"',
+            '"content_class"',
+            '"Book/Audiobook"',
+            '"Podcast"',
+        ):
+            self.assertIn(value, SOURCE)
+        state_block = SOURCE[SOURCE.index('"content_state": {'):SOURCE.index(
+            "result.update(INPUT.snapshot())"
+        )]
+        for forbidden in ('"title"', '"label"', '"file"', '"path"', '"plot"'):
+            self.assertNotIn(forbidden, state_block)
+
 
 if __name__ == "__main__":
     unittest.main()

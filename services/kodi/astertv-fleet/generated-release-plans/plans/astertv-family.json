@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-family-5959c121ad68.tar.gz",
+    "name": "astertv-family-f6a69a02ad25.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "5959c121ad682d761653af3a6bca465b5a90bb37598bea5ee98c01ac75d2c6e1",
+  "composition_sha256": "f6a69a02ad256c4a707d72b17a10f9bb920009437d8f6f8630fbada363a31d54",
   "deployable": false,
   "device_id": "astertv-family",
   "kind": "release-plan",
@@ -342,9 +342,9 @@
       "payload_status": "complete",
       "payloads": [
         {
-          "bytes": 6244,
+          "bytes": 6250,
           "path": "services/kodi/astertv-fleet/materialize_remote_client.py",
-          "sha256": "fbe261684231c61c6685822fab7ba20d7e0e86153d5e5ce91842aa8d92992693"
+          "sha256": "be3cdf211937634815de4d0107d335d477d6f3d2bfed6b801845d48e6350f42c"
         },
         {
           "bytes": 661,
@@ -453,9 +453,9 @@
       "payload_status": "complete",
       "payloads": [
         {
-          "bytes": 4351,
+          "bytes": 4488,
           "path": "services/kodi/astertv-fleet/materialize_family_equipment_bridge.py",
-          "sha256": "65f74dec91e9cf12bfeedf4cbea4cbc4bd2275f4bd36ca0491f5c6722e39af1b"
+          "sha256": "3fda055c0c5777096a93b82cb1aa4d4af562bb6007e7239d3140b12d83d2181b"
         },
         {
           "bytes": 4911,

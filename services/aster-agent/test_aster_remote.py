@@ -8,7 +8,8 @@ from unittest.mock import AsyncMock, patch
 
 from fastapi import HTTPException
 from aster_remote import (AsterRemoteGateway, BrowserCommand, ClientAck,
-                          ClientIdentity, ClientPoll, EquipmentIdentity,
+                          ClientIdentity, ClientPoll, ContentRead,
+                          EquipmentIdentity,
                           EquipmentPoll, REMOTE_HEADERS)
 
 
@@ -115,6 +116,79 @@ class RemoteTests(unittest.TestCase):
         self.assertEqual(self.call(self.gateway.session(Request()))["rooms"][0]["input"]["value"], "Dark")
         with self.assertRaises(ValueError):
             ClientPoll(client_id="AsterTV-Jen", room_id="jen-lab", current_page="keyboard", playback="idle", input_active=True, input_sensitive=True, input_title="Password", input_value="secret")
+
+    def test_content_state_is_current_content_free_and_equipment_scoped(self):
+        gateway = AsterRemoteGateway(
+            None, self.gateway.static_root,
+            clients={"AsterTV-Jen": ClientIdentity(
+                "jen-lab", "AsterTV Jen", "k" * 40)},
+            equipment_clients={"HA-Family": EquipmentIdentity(
+                "jen-lab", "Family equipment", "e" * 40,
+                frozenset({"equipment.power_on"}))},
+            subject_rooms={}, network_rooms={}, trusted_proxies=set(),
+            clock=self.clock,
+        )
+        content = {
+            "schema": "astertv-room-playback.v1",
+            "session_id": "boot-12345678", "sequence": 1,
+            "observed_epoch": int(self.clock.value),
+            "expires_epoch": int(self.clock.value) + 30,
+            "available": True, "playback_state": "playing",
+            "content_class": "Movie", "page_id": "movie-details",
+            "screensaver_active": False,
+        }
+        poll = ClientPoll(
+            client_id="AsterTV-Jen", room_id="jen-lab",
+            current_page="movies", playback="playing", content_state=content,
+        )
+
+        async def publish():
+            task = asyncio.create_task(gateway.client_poll(
+                poll, "Bearer " + "k" * 40, "AsterTV-Jen"))
+            await asyncio.sleep(0); task.cancel()
+            try: await task
+            except asyncio.CancelledError: pass
+        self.call(publish())
+        request = ContentRead(client_id="HA-Family", room_id="jen-lab")
+        value = self.call(gateway.equipment_content(
+            request, "Bearer " + "e" * 40, "HA-Family"))
+        self.assertEqual((value["room_id"], value["content_class"]),
+                         ("jen-lab", "Movie"))
+        self.assertEqual(set(value), {
+            "room_id", "schema", "session_id", "sequence", "observed_epoch",
+            "expires_epoch", "available", "playback_state", "content_class",
+            "page_id", "screensaver_active",
+        })
+        with self.assertRaises(HTTPException) as caught:
+            self.call(gateway.equipment_content(
+                request, "Bearer wrong", "HA-Family"))
+        self.assertEqual(caught.exception.status_code, 401)
+
+        replay = ClientPoll(
+            client_id="AsterTV-Jen", room_id="jen-lab",
+            current_page="movies", playback="playing", content_state=content,
+        )
+        with self.assertRaises(HTTPException) as caught:
+            self.call(gateway.client_poll(
+                replay, "Bearer " + "k" * 40, "AsterTV-Jen"))
+        self.assertEqual(caught.exception.status_code, 409)
+
+        stale_poll = ClientPoll(
+            client_id="AsterTV-Jen", room_id="jen-lab",
+            current_page="movies", playback="playing",
+            content_state={**content, "session_id": "boot-87654321",
+                           "observed_epoch": int(self.clock.value) - 31,
+                           "expires_epoch": int(self.clock.value) - 1},
+        )
+        with self.assertRaises(HTTPException) as caught:
+            self.call(gateway.client_poll(
+                stale_poll, "Bearer " + "k" * 40, "AsterTV-Jen"))
+        self.assertEqual(caught.exception.status_code, 409)
+
+        self.clock.value += 31
+        stale = self.call(gateway.equipment_content(
+            request, "Bearer " + "e" * 40, "HA-Family"))
+        self.assertEqual(stale.status_code, 204)
 
     def test_actions_and_csp_remain_narrow(self):
         actions = set(BrowserCommand.model_json_schema()["properties"]["action"]["enum"])
