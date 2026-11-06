@@ -253,6 +253,11 @@
 > hash-guarded rollback. Its tests raise the suite to 140/140. No installation
 > has occurred. The inactive installation is now the next explicit effect gate;
 > it would not invoke the root owner or authorize a repair.
+> Its independent
+> [result verifier](evidence/SA4-root-owner-inactive-upgrade-verifier-2026-11-05.md)
+> now fail-closes on any row, hash, metadata, binding, health, rollback or
+> prohibited-action drift. The suite passes 143/143. No further offline
+> preparation is required before the inactive installation gate.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
