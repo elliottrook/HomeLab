@@ -46,3 +46,9 @@ A schema-restricted readback returned the exact model, serial, role, site,
 interface type, MAC and primary address. A second script run was idempotent and
 reported `already-present` with the same object IDs. No appliance, firewall,
 DHCP, DNS, monitoring service or Family record changed.
+
+At clean commit `24da9d2df1ac6e6310027164e093c8da69fa4c2a`, two full
+M10 runs were byte-identical at SHA-256
+`b93db1b2a103dc51a3ed8e3b9ee4a04d6aaafa5e3219c12f436af17cb15f883c`.
+All 52 local test files passed, 93 candidate inputs scanned clean and the
+operational-readiness projection retained the 11 remaining gaps.

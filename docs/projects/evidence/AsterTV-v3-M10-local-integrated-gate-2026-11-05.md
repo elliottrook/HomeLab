@@ -66,6 +66,12 @@ byte-identical JSON SHA-256
 `7da2a11199ba02b8403f3f1a5b8b6a6a1183d4d9d270d5e4dbef7fa3e62c80d5`,
 with 51 passing test files and 12 remaining operational gaps.
 
+Bedroom's transaction-scoped NetBox reconciliation added one bounded local
+test and closed one more operations gap. Two clean-tree runs at
+`24da9d2df1ac6e6310027164e093c8da69fa4c2a` emitted byte-identical JSON
+SHA-256 `b93db1b2a103dc51a3ed8e3b9ee4a04d6aaafa5e3219c12f436af17cb15f883c`,
+with 52 passing test files and 11 remaining operations gaps.
+
 No appliance, service, account, network rule or remote system changed while
 building or running this local gate. The separate gateway run staged and then
 removed only a transient `/tmp` test bundle; it made no persistent change.
