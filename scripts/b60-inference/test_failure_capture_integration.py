@@ -129,6 +129,12 @@ class Integration(unittest.TestCase):
         for key, value in [('state', 'claimed'), ('owner', 'other-owner'),
                            ('booking_id', 'other-booking'), ('finished_epoch', None)]:
             self.assertFalse(n.peer_released(dict(row, **{key: value}), 1900))
+    def test_peer_gpu_hazard_cannot_age_out_of_admission(self):
+        n = load('next_news_hazard', 'news_xpu_boundary.py')
+        self.assertEqual(n.hazards('ordinary boot information'), 0)
+        self.assertEqual(n.hazards('xe frequency changed'), 0)
+        for text in ('xe 0000:04:00.0 GPU reset', 'xe: device lost', 'Out of memory: killed process'):
+            self.assertEqual(n.hazards(text), 1)
 
 
 if __name__ == '__main__': unittest.main()

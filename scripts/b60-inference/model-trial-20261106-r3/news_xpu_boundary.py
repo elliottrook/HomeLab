@@ -5,6 +5,7 @@ the mounted volume. Drift or an unfinished peer transaction refuses this trial.
 """
 import hashlib
 import json
+import re
 from pathlib import Path
 
 NEWS = 'aster-news-video-xpu-20261106-1430-r1'
@@ -28,6 +29,13 @@ def peer_released(row, start):
         and type(row.get('finished_epoch')) is int and row['finished_epoch'] + 900 <= start)
 
 
+def hazards(raw):
+    return sum('out of memory' in line or 'oom-kill' in line or
+        bool(re.search(r'\bxe\b', line)) and
+        bool(re.search(r'\b(?:reset\w*|hang\w*|hung|wedged|device lost|fault\w*|error\w*)\b', line))
+        for line in raw.lower().splitlines())
+
+
 def observe(adapter, store, booking):
     from lab_hours_exclusive_profile import protected_bytes
     from lab_hours_reservations import ReservationStore
@@ -40,6 +48,11 @@ def observe(adapter, store, booking):
     terminal = json.loads(terminal_raw)
     assert terminal.get('booking_id') == NEWS and terminal.get('production_restored') is True, 'NEWS_RESTORATION_UNVERIFIED'
     deadline = booking['end_epoch'] - 900
+    # Include the whole peer trial, even if it ended more than ten minutes
+    # ago. A peer device failure must not age out of our preflight window.
+    raw_kernel = adapter._call(('journalctl', '-k', '--since', '@'+str(peer['start_epoch']),
+                               '--no-pager', '-o', 'cat'), deadline, 10)
+    assert hazards(raw_kernel) == 0, 'NEWS_INTERVAL_DEVICE_OR_OOM_HAZARD'
     raw = adapter._call(('pct', 'config', '110', '--current'), deadline, 10)
     rows = [line for line in raw.splitlines() if line.startswith('mp0:')]
     assert len(rows) == 1 and hashlib.sha256(rows[0].encode()).hexdigest() == MOUNT_SHA, 'NEWS_MOUNT_DRIFT'
@@ -54,6 +67,7 @@ def observe(adapter, store, booking):
         'peer_booking_id': NEWS, 'peer_state': peer['state'],
         'peer_finished_epoch': peer['finished_epoch'], 'peer_terminal_sha256': hashlib.sha256(terminal_raw).hexdigest(),
         'peer_production_restored': True, 'mount_line_sha256': MOUNT_SHA,
+        'kernel_hazards_since_peer_start': 0,
         'host_source_sha256': PINS, 'guest_script_sha256': GUEST_SHA,
         'news_process_count': 0, 'news_volume_modified': False,
         'owner_publication_received': False,
