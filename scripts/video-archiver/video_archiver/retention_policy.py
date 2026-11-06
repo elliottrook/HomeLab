@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Literal, Mapping
 
 from .lifecycle_policy import calendar_months_before
@@ -57,7 +57,10 @@ class MediaUnit:
     subtitle_manifest_verified: bool
     recovery_ready: bool
     estimated_pool_reclaim_bytes: int
-    watch_history_verified: bool = False
+    watch_evidence_complete: bool = False
+    historical_playback: bool = False
+    household_notice_at: datetime | None = None
+    household_notice_identity_verified: bool = False
     movie_release_year: int | None = None
     has_identity_conflict: bool = False
     active_playback_or_download: bool = False
@@ -108,6 +111,7 @@ def _candidate_date(unit: MediaUnit, now: datetime) -> tuple[date | None, str | 
 
 def _hold_reason(
     unit: MediaUnit, now: datetime, expected_user_ids: frozenset[str],
+    minimum_grace_days: int,
 ) -> tuple[date | None, str | None]:
     if not unit.provider_id or unit.kind not in ("movie", "season"):
         return None, "invalid provider identity or media kind"
@@ -128,13 +132,19 @@ def _hold_reason(
             return None, "younger than three calendar months"
     if not expected_user_ids or len(unit.watch) != len(expected_user_ids):
         return None, "household watch state incomplete"
-    if not unit.watch_history_verified:
-        return None, "watch history continuity unverified"
+    if not unit.watch_evidence_complete:
+        return None, "current watch and retained playback evidence incomplete"
     watch_ids = [row.user_id for row in unit.watch]
     if len(set(watch_ids)) != len(watch_ids) or set(watch_ids) != expected_user_ids:
         return None, "household watch identities incomplete"
     if any(row.protected for row in unit.watch):
         return None, "watched, in progress, favorite or keep"
+    if unit.historical_playback:
+        return None, "retained playback log records a watch"
+    if not unit.household_notice_identity_verified or not _aware(unit.household_notice_at):
+        return None, "household notice or file identity unverified"
+    if unit.household_notice_at > now or now - unit.household_notice_at < timedelta(days=minimum_grace_days):
+        return None, "household notice grace period active"
     if not unit.subtitle_manifest_verified:
         return None, "subtitle/sidecar manifest unverified"
     if unit.active_playback_or_download:
@@ -155,6 +165,7 @@ def plan_retention(
     units: tuple[MediaUnit, ...], *, now: datetime,
     expected_user_ids: frozenset[str], pool_size_bytes: int,
     pool_allocated_bytes: int, movie_year_counts: Mapping[int, int] | None = None,
+    minimum_grace_days: int = 7,
 ) -> RetentionPlan:
     """Select oldest eligible units until predicted raw pool use returns to 60%.
 
@@ -165,6 +176,8 @@ def plan_retention(
         raise ValueError("now must be timezone aware")
     if pool_size_bytes <= 0 or not 0 <= pool_allocated_bytes <= pool_size_bytes:
         raise ValueError("invalid pool accounting")
+    if type(minimum_grace_days) is not int or not 1 <= minimum_grace_days <= 365:
+        raise ValueError("invalid household grace period")
     triggered = 100 * pool_allocated_bytes >= 60 * pool_size_bytes
     guardrail = 100 * pool_allocated_bytes >= 62 * pool_size_bytes
     target = 60 * pool_size_bytes // 100
@@ -198,7 +211,7 @@ def plan_retention(
         ):
             held.append(HeldUnit(unit.provider_id, "movie year inventory incomplete"))
             continue
-        rank_date, reason = _hold_reason(unit, now, expected_user_ids)
+        rank_date, reason = _hold_reason(unit, now, expected_user_ids, minimum_grace_days)
         if reason:
             held.append(HeldUnit(unit.provider_id, reason))
         else:

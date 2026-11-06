@@ -1,7 +1,7 @@
 """Safety behavior for the dry-run retention selector."""
 
 from dataclasses import replace
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from unittest import TestCase
 
 from video_archiver.retention_policy import MediaUnit, UserWatch, plan_retention
@@ -29,7 +29,9 @@ def movie(provider_id: str, year: int, **overrides) -> MediaUnit:
         subtitle_manifest_verified=True,
         recovery_ready=True,
         estimated_pool_reclaim_bytes=15,
-        watch_history_verified=True,
+        watch_evidence_complete=True,
+        household_notice_at=NOW - timedelta(days=8),
+        household_notice_identity_verified=True,
         movie_release_year=year,
     )
     return replace(facts, **overrides)
@@ -49,6 +51,19 @@ def plan(*units: MediaUnit, allocated=70, movie_year_counts=None):
 
 
 class RetentionSafetyTests(TestCase):
+    def test_missing_recent_or_unbound_household_notice_holds(self):
+        units = (
+            movie("missing", 1950, household_notice_at=None),
+            movie("recent", 1951, household_notice_at=NOW - timedelta(days=6)),
+            movie("unbound", 1952, household_notice_identity_verified=False),
+        )
+        result = plan(*units)
+        self.assertEqual(result.selected_provider_ids, ())
+        self.assertEqual({row.reason for row in result.held}, {
+            "household notice or file identity unverified",
+            "household notice grace period active",
+        })
+
     def test_no_candidates_below_sixty_percent(self):
         result = plan(movie("film-a", 1950), allocated=59)
         self.assertFalse(result.triggered)
@@ -76,10 +91,15 @@ class RetentionSafetyTests(TestCase):
         self.assertEqual({h.provider_id for h in result.held}, {"partial", "missing", "last-played"})
         self.assertEqual(result.remaining_to_target_bytes, 10)
 
-    def test_currently_unwatched_legacy_file_stays_held_without_history_continuity(self):
-        result = plan(movie("legacy", 1950, watch_history_verified=False))
+    def test_currently_unwatched_legacy_file_stays_held_without_complete_evidence(self):
+        result = plan(movie("legacy", 1950, watch_evidence_complete=False))
         self.assertEqual(result.selected_provider_ids, ())
-        self.assertEqual(result.held[0].reason, "watch history continuity unverified")
+        self.assertEqual(result.held[0].reason, "current watch and retained playback evidence incomplete")
+
+    def test_retained_playback_event_protects_even_after_userdata_reset(self):
+        result = plan(movie("reset", 1950, historical_playback=True))
+        self.assertEqual(result.selected_provider_ids, ())
+        self.assertEqual(result.held[0].reason, "retained playback log records a watch")
 
     def test_identity_recovery_and_missing_media_date_hold(self):
         units = (

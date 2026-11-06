@@ -28,7 +28,9 @@ def film(provider: str) -> MediaUnit:
         archive_view_verified=True, arr_file_matches=1, jellyfin_file_matches=1,
         watch=(UserWatch('a'), UserWatch('b')), subtitle_manifest_verified=True,
         recovery_ready=True, estimated_pool_reclaim_bytes=15,
-        watch_history_verified=True, movie_release_year=1939,
+        watch_evidence_complete=True, movie_release_year=1939,
+        household_notice_at=NOW - timedelta(days=8),
+        household_notice_identity_verified=True,
     )
 
 

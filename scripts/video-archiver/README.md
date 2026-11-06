@@ -18,13 +18,16 @@ python3 -m video_archiver.retention_audit \
 
 The separate `retention_controller` is an adapter-neutral prototype. It has no
 production ARR executor or schedule. Its movie-year count excludes ambiguous
-and absent files; its policy also holds unknown watch-history continuity and
-snapshot-covered files that cannot release pool blocks immediately. Existing
+and absent files; its policy holds incomplete seven-user watch or retained
+playback evidence and snapshot-covered files that cannot release pool blocks
+immediately. Existing
 archiver/compactor cron jobs 4 and 6 remain disabled.
 
 The read-only audit is installed at `/mnt/Media/data/tools/media-retention-audit`
 on TrueNAS. Cron 9 runs `run-retention-audit.sh` at 10:45 daily and writes only a
-root-readable `status.json`. This schedule does not run the deletion controller.
+root-readable `status.json` with aggregate pool, snapshot, movie-year,
+season-path and retained-playback counts. The season counts are path evidence,
+not deletion candidates. This schedule does not run the deletion controller.
 
 Downconverts aged Radarr/Sonarr current-library video (movies/TV) to roughly 1–2 GB and hands the
 result to the `archive-movies`/`archive-tv` roots created by the Plex-to-Jellyfin migration

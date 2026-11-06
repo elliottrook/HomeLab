@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from urllib.parse import urlencode
 
+from .retention_playback import PlaybackLogEvidence, read_playback_log_evidence
 from .retention_policy import UserWatch
 from .retention_reconcile import CompleteUserView
 from .retention_years_live import FetchJson, _fetch_json, _item_id

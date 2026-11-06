@@ -13,6 +13,8 @@ from datetime import date
 from pathlib import Path
 
 from .retention_reclaim import estimate_unprotected_file, snapshot_names
+from .retention_seasons_live import collect_season_paths
+from .retention_playback import read_playback_log_evidence
 from .retention_years_live import LiveYearConfig, _host_path, collect_movie_years
 
 
@@ -32,7 +34,7 @@ def _pool_usage() -> tuple[int, int, int]:
 
 
 def _container_db(container: str, relative: str) -> Path:
-    if container not in ("radarr", "jellyfin"):
+    if container not in ("radarr", "sonarr", "jellyfin"):
         raise ValueError("unexpected container")
     result = subprocess.run(
         ["docker", "inspect", "--format", "{{json .Mounts}}", container],
@@ -48,12 +50,14 @@ def _container_db(container: str, relative: str) -> Path:
     return path
 
 
-def audit(radarr_db: Path, jellyfin_db: Path, data_root: Path,
+def audit(radarr_db: Path, sonarr_db: Path, jellyfin_db: Path, data_root: Path,
           jellyfin_url: str, jellyfin_key: str) -> dict:
     size, allocated, cap = _pool_usage()
     years = collect_movie_years(LiveYearConfig(
         radarr_db, jellyfin_db, data_root, jellyfin_url, jellyfin_key,
     ), today=date.today())
+    playback = read_playback_log_evidence(jellyfin_db)
+    seasons = collect_season_paths(sonarr_db, jellyfin_db, data_root)
     snapshots = tuple(reversed(snapshot_names()))
     coverage: Counter[str] = Counter()
     with closing(sqlite3.connect(f"{jellyfin_db.as_uri()}?mode=ro", uri=True)) as db:
@@ -87,6 +91,19 @@ def audit(radarr_db: Path, jellyfin_db: Path, data_root: Path,
             "held": years.held, "years": len(years.counts),
             "singleton_years": sum(count == 1 for count in years.counts.values()),
         },
+        "retained_playback": {
+            "event_count": playback.event_count,
+            "distinct_item_count": len(playback.item_ids),
+            "first_event": playback.first_event,
+            "last_event": playback.last_event,
+        },
+        "season_path_inventory": {
+            "sonarr_file_rows": seasons.sonarr_file_rows,
+            "exact_file_rows": seasons.exact_file_rows,
+            "season_scopes": seasons.season_scopes,
+            "exact_season_scopes": seasons.exact_season_scopes,
+            "held_reasons": seasons.held_reasons,
+        },
         "media_data_snapshot_count": len(snapshots),
         "physical_inventory": dict(sorted(coverage.items())),
     }
@@ -95,6 +112,7 @@ def audit(radarr_db: Path, jellyfin_db: Path, data_root: Path,
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--radarr-db", type=Path)
+    parser.add_argument("--sonarr-db", type=Path)
     parser.add_argument("--jellyfin-db", type=Path)
     parser.add_argument("--discover-docker", action="store_true")
     parser.add_argument("--data-root", type=Path, required=True)
@@ -104,15 +122,16 @@ def main() -> None:
     if not key:
         raise SystemExit("JELLYFIN_API_KEY is required")
     if args.discover_docker:
-        if args.radarr_db or args.jellyfin_db:
+        if args.radarr_db or args.sonarr_db or args.jellyfin_db:
             raise SystemExit("use explicit DB paths or --discover-docker, not both")
         radarr_db = _container_db("radarr", "radarr.db")
+        sonarr_db = _container_db("sonarr", "sonarr.db")
         jellyfin_db = _container_db("jellyfin", "data/data/jellyfin.db")
-    elif args.radarr_db and args.jellyfin_db:
-        radarr_db, jellyfin_db = args.radarr_db, args.jellyfin_db
+    elif args.radarr_db and args.sonarr_db and args.jellyfin_db:
+        radarr_db, sonarr_db, jellyfin_db = args.radarr_db, args.sonarr_db, args.jellyfin_db
     else:
-        raise SystemExit("both DB paths or --discover-docker are required")
-    print(json.dumps(audit(radarr_db, jellyfin_db,
+        raise SystemExit("all three DB paths or --discover-docker are required")
+    print(json.dumps(audit(radarr_db, sonarr_db, jellyfin_db,
                            args.data_root, args.jellyfin_url, key), sort_keys=True))
 
 

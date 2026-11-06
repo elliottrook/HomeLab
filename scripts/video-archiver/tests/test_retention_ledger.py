@@ -113,3 +113,17 @@ class LedgerTests(TestCase):
             self.assertEqual(ledger.begin_action("run-1:tmdb:101", "tmdb:101", NOW), "cancelled")
             with self.assertRaisesRegex(ValueError, "already terminal"):
                 ledger.mark_action("run-1:tmdb:101", "verified", NOW)
+
+    def test_delivered_notice_is_bound_to_current_file_set(self):
+        with RetentionLedger(self.path) as ledger:
+            ledger.record_complete_observation(observation())
+            with self.assertRaisesRegex(ValueError, "delivery reference"):
+                ledger.record_delivered_notice("tmdb:101", NOW, "")
+            ledger.record_delivered_notice("tmdb:101", NOW, "local-receipt-1")
+            self.assertEqual(ledger.notice_for_current_files("tmdb:101"), NOW)
+        with RetentionLedger(self.path) as ledger:
+            self.assertEqual(ledger.notice_for_current_files("tmdb:101"), NOW)
+            ledger.record_complete_observation(observation(
+                ObservedFile(8, "sha256:new", NEW), first=None,
+            ))
+            self.assertIsNone(ledger.notice_for_current_files("tmdb:101"))

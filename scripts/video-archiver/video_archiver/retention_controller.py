@@ -99,6 +99,7 @@ def run_retention(
     execute: bool = False, max_units_per_run: int = 2,
     max_estimated_bytes_per_run: int = 20_000_000_000,
     min_reclaim_fraction: float = 0.25,
+    minimum_grace_days: int = 7,
 ) -> RunResult:
     """Run a capped, sequential batch or report a dry-run/safe-failure status."""
     if max_units_per_run <= 0 or max_estimated_bytes_per_run <= 0:
@@ -122,6 +123,7 @@ def run_retention(
                 pool_size_bytes=snapshot.pool_size_bytes,
                 pool_allocated_bytes=snapshot.pool_allocated_bytes,
                 movie_year_counts=snapshot.movie_year_inventory.counts,
+                minimum_grace_days=minimum_grace_days,
             )
             if not plan.triggered:
                 status = "target_reached" if deleted else "below_trigger"

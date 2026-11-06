@@ -1,10 +1,13 @@
 """All-user Jellyfin watch adapter fails closed on missing or malformed state."""
 
+import sqlite3
+import tempfile
+from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from unittest import TestCase
 
 from video_archiver.retention_reconcile import watch_for_item
-from video_archiver.retention_watch_live import collect_user_views
+from video_archiver.retention_watch_live import collect_user_views, read_playback_log_evidence
 
 
 USERS = frozenset({'a', 'b'})
@@ -48,3 +51,28 @@ class WatchLiveTests(TestCase):
             collect_user_views(('movie',), user_ids=USERS,
                                jellyfin_url='http://jellyfin.invalid',
                                jellyfin_api_key='fixture', fetch=lambda *_: (503, {}))
+
+    def test_retained_playback_logs_protect_reset_userdata(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'jf.db'
+            with sqlite3.connect(path) as db:
+                db.executescript('''
+                    CREATE TABLE ActivityLogs(ItemId TEXT,UserId TEXT,DateCreated TEXT,Type TEXT);
+                    INSERT INTO ActivityLogs VALUES
+                      ('12345678-1234-1234-1234-123456789abc','user-a','2026-08-03','VideoPlayback'),
+                      ('12345678123412341234123456789abc','user-a','2026-08-04','VideoPlaybackStopped');
+                ''')
+            evidence = read_playback_log_evidence(path)
+            self.assertEqual(evidence.event_count, 2)
+            self.assertEqual(len(evidence.item_ids), 1)
+
+    def test_missing_log_identity_fails_closed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'jf.db'
+            with sqlite3.connect(path) as db:
+                db.executescript('''
+                    CREATE TABLE ActivityLogs(ItemId TEXT,UserId TEXT,DateCreated TEXT,Type TEXT);
+                    INSERT INTO ActivityLogs VALUES (NULL,'user-a','2026-08-03','VideoPlayback');
+                ''')
+            with self.assertRaisesRegex(RuntimeError, 'missing identity'):
+                read_playback_log_evidence(path)

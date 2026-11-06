@@ -8,6 +8,8 @@ adapter must revalidate live facts before acting on any journal entry.
 from __future__ import annotations
 
 import sqlite3
+import hashlib
+import json
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
@@ -70,6 +72,12 @@ class RetentionLedger:
                 stage TEXT NOT NULL CHECK(stage IN ('planned', 'verified', 'cancelled')),
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS notices (
+                provider_id TEXT PRIMARY KEY REFERENCES units(provider_id),
+                scope_digest TEXT NOT NULL,
+                delivered_at TEXT NOT NULL,
+                delivery_reference TEXT NOT NULL
             );
         """)
 
@@ -193,6 +201,44 @@ class RetentionLedger:
                 (action_id, provider_id, "planned", stamp, stamp),
             )
         return "planned"
+
+    def current_file_scope_digest(self, provider_id: str) -> str:
+        """Bind a notice to the exact set of currently observed ARR files."""
+        rows = self.connection.execute(
+            "SELECT arr_file_id,identity_digest FROM files WHERE provider_id=? ORDER BY arr_file_id",
+            (provider_id,),
+        ).fetchall()
+        if not rows:
+            raise ValueError("no complete file observation for notice")
+        payload = json.dumps(rows, separators=(",", ":"), ensure_ascii=True)
+        return hashlib.sha256(payload.encode("ascii")).hexdigest()
+
+    def record_delivered_notice(
+        self, provider_id: str, delivered_at: datetime, delivery_reference: str,
+    ) -> None:
+        """Record external delivery evidence; this function sends nothing."""
+        stamp = _instant(delivered_at)
+        if not delivery_reference or not delivery_reference.strip():
+            raise ValueError("notice delivery reference required")
+        scope = self.current_file_scope_digest(provider_id)
+        with self.connection:
+            self.connection.execute(
+                """INSERT INTO notices VALUES (?,?,?,?)
+                   ON CONFLICT(provider_id) DO UPDATE SET
+                   scope_digest=excluded.scope_digest,
+                   delivered_at=excluded.delivered_at,
+                   delivery_reference=excluded.delivery_reference""",
+                (provider_id, scope, stamp, delivery_reference),
+            )
+
+    def notice_for_current_files(self, provider_id: str) -> datetime | None:
+        row = self.connection.execute(
+            "SELECT scope_digest,delivered_at FROM notices WHERE provider_id=?",
+            (provider_id,),
+        ).fetchone()
+        if row is None or row[0] != self.current_file_scope_digest(provider_id):
+            return None
+        return datetime.fromisoformat(row[1])
 
     def mark_action(self, action_id: str, stage: str, now: datetime) -> None:
         if stage not in ("verified", "cancelled"):
