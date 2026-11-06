@@ -39,12 +39,19 @@ accepted Aster skin assets and does not write library or profile data.
 
 ## Verification
 
-- Seven policy/structure tests pass.
+- Eight policy, structure and packaging tests pass.
 - The tracker explicitly ignores window changes while the screensaver is
   active.
 - All three Python modules compile using an isolated temporary bytecode cache.
 - XML parses and includes separate 1920x1080 media and 760x760 album surfaces.
 - `git diff --check` passes.
+- Two independent candidate builds are byte-identical. The current local
+  3,922-byte archive hashes to
+  `5623c09af3fd48157e70ccdf84528626dd6925473a2ee1737751683f10a1055a`.
+  Its embedded manifest explicitly says
+  `non-production-test-candidate`, `release=false`, pins every payload file and
+  declares the two required accepted skin assets. The archive in `/tmp` is
+  disposable evidence and is not committed as a release.
 
 ## Remaining gate
 

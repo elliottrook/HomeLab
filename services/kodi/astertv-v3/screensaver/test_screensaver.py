@@ -1,4 +1,7 @@
 import importlib.util
+import json
+import tarfile
+import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -8,6 +11,10 @@ HERE = Path(__file__).resolve().parent
 SPEC = importlib.util.spec_from_file_location("aster_screensaver_policy", HERE / "policy.py")
 POLICY = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(POLICY)
+BUILD_SPEC = importlib.util.spec_from_file_location(
+    "aster_screensaver_build", HERE / "build_candidate.py")
+BUILDER = importlib.util.module_from_spec(BUILD_SPEC)
+BUILD_SPEC.loader.exec_module(BUILDER)
 
 
 class ScreensaverPolicyTests(unittest.TestCase):
@@ -60,6 +67,24 @@ class ScreensaverPolicyTests(unittest.TestCase):
         extensions = {(node.attrib.get("point"), node.attrib.get("library"))
                       for node in addon.findall("extension")}
         self.assertIn(("xbmc.service", "service.py"), extensions)
+
+    def test_candidate_archive_is_deterministic_and_non_release(self):
+        with tempfile.TemporaryDirectory() as directory:
+            first = Path(directory) / "first.tar.gz"
+            second = Path(directory) / "second.tar.gz"
+            one = BUILDER.build(first)
+            two = BUILDER.build(second)
+            self.assertEqual(first.read_bytes(), second.read_bytes())
+            self.assertEqual(one["sha256"], two["sha256"])
+            with tarfile.open(first, "r:gz") as archive:
+                names = archive.getnames()
+                self.assertEqual(names[-1], "manifest.json")
+                record = json.load(archive.extractfile("manifest.json"))
+            self.assertFalse(record["release"])
+            self.assertEqual(record["status"], "non-production-test-candidate")
+            self.assertEqual(
+                [row["path"] for row in record["files"]], list(BUILDER.PAYLOAD))
+            self.assertEqual(record["skin_dependencies"], list(BUILDER.SKIN_DEPENDENCIES))
 
 
 if __name__ == "__main__":
