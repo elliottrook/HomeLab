@@ -2,7 +2,7 @@
 
 Date: 2026-11-05
 
-Status: fail-closed audit installed; 8 named gaps remain
+Status: fail-closed audit installed; 5 named gaps remain
 
 ## Method
 
@@ -30,7 +30,7 @@ authority is absent.
 
 ## Result
 
-The audit correctly reports `attention` with 8 gaps:
+The audit correctly reports `attention` with 5 gaps:
 
 - Doctor: Bedroom and Jen are clean; Family remains unobserved. Bedroom's 25
   declared payloads, 13 non-secret assertions and nine dependencies were
@@ -41,10 +41,12 @@ The audit correctly reports `attention` with 8 gaps:
   pending independent SSH identity verification;
 - NetBox: Jen and Bedroom now have complete primary-address and MAC records;
   Family remains absent pending independent SSH identity/chassis verification;
-- Wiki: all 25 AsterTV pages exist in the validated local candidate at
-  `fc33f735c…5718351`, but the live LXC 113 corpus has zero AsterTV pages;
-- reviewed reference: no AsterTV operations page exists;
-- derived mirror: no registered/provenance-linked AsterTV source exists; and
+- Wiki: all 25 AsterTV pages from `fc33f735c…5718351` are live on LXC 113;
+- reviewed reference: `operations/astertv.md` is committed and synchronized at
+  `62bb587a…a432`;
+- derived mirror: the exact reviewed page is accepted as
+  `astertv-operational-reference` and produces 12 provenance-linked entries;
+  the deterministic mirror has 1,823 verified entries; and
 - appliance recovery: Jen has an isolated rollback/reinstall rehearsal, while
   Bedroom and Family do not.
 
@@ -88,11 +90,19 @@ reported source commit `6ee63f2cbaff8addfd2692ffc6d2d11ecc4da352` and were byte-
 54 test files pass and 93 candidate inputs remain free of credential/private-key
 assignments.
 
+The checkpointed knowledge publication closes the wiki, reviewed-reference and
+derived-mirror gaps, leaving 5. All 25 AsterTV pages render through the existing
+LXC 113 service; its 31 pre-existing sources and 62 generated files were
+preserved before the new source was accepted. Collector verification passes for
+32 sources, and mirror verification passes for all 1,823 entries at content
+SHA-256 `8c9d4446…62ee5`. Corpus health has zero broken links, directory drift,
+duplicates or unclassified sources. Its warning is limited to two pre-existing
+stale Synology installation guides. Evidence is
+`docs/projects/evidence/AsterTV-v3-M10-knowledge-publication-2026-11-05.md`.
+
 ## Next bounded work
 
 The least disruptive sequence is: independently establish Family identity,
-then reconcile it into NetBox, Doctor and Beszel;
-publish the already validated wiki candidate through the existing LXC 113
-workflow; add the reviewed reference and derived mirror source; then rehearse
-Bedroom and Family restore independently. Each remote write or appliance
-rehearsal retains its normal authorization and recovery gate.
+then reconcile it into NetBox, Doctor and Beszel; then rehearse Bedroom and
+Family restore independently. Each remote write or appliance rehearsal retains
+its normal authorization and recovery gate.

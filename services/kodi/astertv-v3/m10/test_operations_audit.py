@@ -19,11 +19,12 @@ class OperationsAuditTests(unittest.TestCase):
         self.assertNotIn("doctor:astertv-bedroom:unobserved", result["gaps"])
         self.assertIn("doctor:astertv-family:unobserved", result["gaps"])
         self.assertNotIn("doctor:astertv-jen:drift", result["gaps"])
-        self.assertEqual(result["gap_count"], 8)
+        self.assertEqual(result["gap_count"], 5)
         self.assertNotIn("monitoring:astertv-bedroom:missing-or-down", result["gaps"])
         self.assertNotIn("monitoring:astertv-jen:missing-or-down", result["gaps"])
-        self.assertIn("wiki:live-astertv-department-absent", result["gaps"])
-        self.assertIn("mirror:astertv-derived-source-absent", result["gaps"])
+        self.assertNotIn("wiki:live-astertv-department-absent", result["gaps"])
+        self.assertNotIn("reference:astertv-operations-absent", result["gaps"])
+        self.assertNotIn("mirror:astertv-derived-source-absent", result["gaps"])
 
     def test_complete_synthetic_observation_passes(self):
         devices = list(AUDIT.DEVICES)

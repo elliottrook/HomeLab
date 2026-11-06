@@ -18,8 +18,8 @@
   },
   "kind": "astertv-m10-operations-observation",
   "mirror": {
-    "derived_with_provenance": false,
-    "source_registered": false
+    "derived_with_provenance": true,
+    "source_registered": true
   },
   "monitoring": {
     "astertv-bedroom": "up",
@@ -38,13 +38,13 @@
   },
   "observed_local_date": "2026-11-05",
   "reference": {
-    "astertv_page_count": 0
+    "astertv_page_count": 1
   },
   "schema_version": 1,
   "wiki": {
     "candidate_commit": "fc33f735c8e1338e1409d2f81933192ff9578351",
     "candidate_page_count": 25,
-    "live_page_count": 0,
-    "published": false
+    "live_page_count": 25,
+    "published": true
   }
 }
