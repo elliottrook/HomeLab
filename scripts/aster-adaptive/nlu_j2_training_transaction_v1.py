@@ -40,6 +40,7 @@ OUTPUT_NAMES = (
     "replay-clean-cpu-1.json", "replay-clean-cpu-2.json",
     "training-transaction.json",
 )
+FAILURE_NAMES = ("failure.json",)
 FORBIDDEN_AUDIT_PREFIXES = ("socket.", "ssl.")
 
 
@@ -176,6 +177,39 @@ def _quantized(tensors: dict[str, list[float]]) -> dict[str, list[float]]:
     return result
 
 
+def _threshold_rejection(selected_epoch: int,
+                         summaries: list[dict[str, object]],
+                         records: list[dict[str, object]]) -> dict[str, bytes]:
+    safe = []
+    for step in range(201):
+        threshold = step / 200
+        accepted = [row for row in records if row["margin"] >= threshold]
+        if all(row["raw_exact"] and row["guarded_exact"] for row in accepted):
+            safe.append((len(accepted), threshold))
+    maximum_safe, best_threshold = max(safe, default=(0, 1.0))
+    summary = next(row for row in summaries if row["epoch"] == selected_epoch)
+    return {"failure.json": artifact_contract.canonical({
+        "schema": "aster-nlu-j2-training-transaction-failure.v1",
+        "status": "no-go",
+        "first_failure_phase": "threshold-selection",
+        "failure_class": "CANDIDATE_REJECTED",
+        "failure_code": "NO_ELIGIBLE_VALIDATION_THRESHOLD",
+        "epochs_completed": 40,
+        "selected_epoch": selected_epoch,
+        "selected_raw_exact_count": summary["raw_exact_count"],
+        "selected_guarded_exact_count": summary["guarded_exact_count"],
+        "maximum_safe_accepted": maximum_safe,
+        "best_safe_threshold": best_threshold,
+        "minimum_required": 116,
+        "artifact_written": False,
+        "production_changed": False,
+        "sealed_evaluation_access": False,
+        "authority": "none",
+        "automatic_routing": "off",
+        "deployment": False,
+    })}
+
+
 def train(corpus_raw: bytes, release_raw: bytes, admission_raw: bytes,
           recipe_raw: bytes) -> dict[str, bytes]:
     """Perform the complete deterministic training and emit inert evidence."""
@@ -200,7 +234,13 @@ def train(corpus_raw: bytes, release_raw: bytes, admission_raw: bytes,
     selected_tensors = _quantized(checkpoints[selected_epoch])
     _replay_rows, threshold_rows = replay_contract._recomputed_records(
         inputs["validation_rows"], selected_tensors, 0.0, forward.forward)
-    selected_threshold = selection.select_threshold(threshold_rows)
+    try:
+        selected_threshold = selection.select_threshold(threshold_rows)
+    except ValueError as exc:
+        if str(exc) == "J2 has no eligible validation threshold":
+            return _threshold_rejection(
+                selected_epoch, summaries, threshold_rows)
+        raise
     replay_rows, threshold_rows = replay_contract._recomputed_records(
         inputs["validation_rows"], selected_tensors,
         selected_threshold["threshold"], forward.forward)
@@ -295,9 +335,9 @@ def _worker(corpus: Path, release: Path, admission: Path, recipe: Path,
     sys.addaudithook(_audit)
     values = train(corpus.read_bytes(), release.read_bytes(),
                    admission.read_bytes(), recipe.read_bytes())
-    if set(values) != set(OUTPUT_NAMES):
+    if set(values) != set(OUTPUT_NAMES) and set(values) != set(FAILURE_NAMES):
         raise ValueError("J2 worker output set changed")
-    for name in OUTPUT_NAMES:
+    for name in values:
         _write_exclusive(output / name, values[name])
 
 
@@ -360,6 +400,22 @@ def execute(corpus: Path, release: Path, admission: Path, recipe: Path,
                 "--recipe", str(recipe.resolve()),
                 "--output", str(trained),
             ], cwd=temporary_path, timeout=21600)
+            trained_names = {path.name for path in trained.iterdir()}
+            if trained_names == set(FAILURE_NAMES):
+                raw = (trained / "failure.json").read_bytes()
+                failure = decode_unique_json(raw)
+                if (not isinstance(failure, dict)
+                        or failure.get("status") != "no-go"
+                        or failure.get("production_changed") is not False
+                        or failure.get("sealed_evaluation_access") is not False
+                        or failure.get("authority") != "none"
+                        or failure.get("automatic_routing") != "off"
+                        or failure.get("deployment") is not False):
+                    raise RuntimeError("isolated J2 failure evidence changed")
+                _write_exclusive(output / "failure.json", raw)
+                return failure
+            if trained_names != set(OUTPUT_NAMES):
+                raise RuntimeError("isolated J2 worker output set changed")
             for number in (1, 2):
                 phase = f"clean-replay-{number}"
                 replay_path = temporary_path / f"replay-{number}.json"
@@ -425,14 +481,24 @@ def main() -> int:
         parser.error("complete J2 execution arguments are required")
     receipt = execute(args.corpus, args.release, args.admission,
                       args.recipe, args.output)
-    print(artifact_contract.canonical({
-        "status": receipt["status"], "epochs": receipt["epochs"],
-        "selected_epoch": receipt["selected_epoch"],
-        "accepted_validation_rows": receipt["accepted_validation_rows"],
-        "authority": receipt["authority"],
-        "automatic_routing": receipt["automatic_routing"],
-        "deployment": receipt["deployment"],
-    }).decode(), end="")
+    if receipt["status"] == "no-go":
+        summary = {key: receipt[key] for key in (
+            "status", "first_failure_phase", "failure_class", "failure_code",
+            "epochs_completed", "selected_epoch", "selected_raw_exact_count",
+            "selected_guarded_exact_count", "maximum_safe_accepted",
+            "best_safe_threshold", "minimum_required", "artifact_written",
+            "production_changed", "sealed_evaluation_access", "authority",
+            "automatic_routing", "deployment")}
+    else:
+        summary = {
+            "status": receipt["status"], "epochs": receipt["epochs"],
+            "selected_epoch": receipt["selected_epoch"],
+            "accepted_validation_rows": receipt["accepted_validation_rows"],
+            "authority": receipt["authority"],
+            "automatic_routing": receipt["automatic_routing"],
+            "deployment": receipt["deployment"],
+        }
+    print(artifact_contract.canonical(summary).decode(), end="")
     return 0
 
 

@@ -13,10 +13,14 @@ Aster Lab Hours booking. No worker was started by this review.
 - host: `Jasons-Mac-mini.local`;
 - hardware: Mac mini `Mac16,10`, Apple M4, ten cores, 16 GB memory;
 - operating system: macOS 26.6.2 build 25G83;
-- transaction source SHA-256:
+- superseded R1 transaction source SHA-256:
   `e9f8821b4316197b25cfac3c33a949128317002249da9f6b2cc4e0169e0435c8`;
-- Mac owner source SHA-256:
+- corrected R2 transaction source SHA-256:
+  `52ad19a9eda92187779992b27cf0e1ae1c14349e367cf1ed136ac3e3626ddea8`;
+- superseded R1 Mac owner source SHA-256:
   `ca9af007576a072adc47c82bd7cfa9d7794308c6cebd3c1da643bd106285f40b`;
+- corrected R2 Mac owner source SHA-256:
+  `4f9e07f789968cf8596c2414745a4a05292fb374617e06b09428155a6bdfd4c4`;
 - exact corpus, release, admission and recipe pins remain those in the
   transaction source evidence;
 - backend: portable Python CPU reference, one thread, no accelerator, network,

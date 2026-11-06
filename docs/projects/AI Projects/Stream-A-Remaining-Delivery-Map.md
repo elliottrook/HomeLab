@@ -101,6 +101,18 @@
 > Lab Hours ledger does not govern it. The next gate is the exact owner
 > training-effect decision; no worker has started.
 
+> **M3 J2 training R1 diagnostic NO-GO and R2 correction, 2026-11-06:** the
+> approved Mac-local `r1` attempt ran for approximately 42 minutes, then failed
+> closed at `training-worker`. It retained only the coarse class
+> `RuntimeError`, with production unchanged and sealed evaluation untouched;
+> that is insufficient to distinguish a candidate rejection from a contract
+> fault. The [diagnostic correction](evidence/M3-J2-training-r1-no-go-and-r2-diagnostic-correction-2026-11-06.md)
+> now retains an exact content-free `NO_ELIGIBLE_VALIDATION_THRESHOLD` result
+> with selected-epoch, exact-count, safe-coverage and threshold facts. The J2
+> suite passes 122/122 and `r2` passes fresh input/resource/process preflight.
+> Jason explicitly authorized bounded reruns; `r2` is the next and only active
+> candidate path. `r1` evidence is preserved and cannot be overwritten.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.

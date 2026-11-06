@@ -138,6 +138,26 @@ class J2TrainingTransactionTests(unittest.TestCase):
                             for values in quantized.values()
                             for value in values))
 
+    def test_threshold_rejection_is_bounded_and_content_free(self):
+        summaries = [{"epoch": epoch, "rows": 192,
+                      "raw_exact_count": 100, "guarded_exact_count": 100,
+                      "mean_validation_loss": 1.0}
+                     for epoch in range(1, 41)]
+        records = [{"id": f"case-{index}", "margin": 0.9,
+                    "raw_exact": index < 100,
+                    "guarded_exact": index < 100}
+                   for index in range(192)]
+        raw = transaction._threshold_rejection(1, summaries, records)[
+            "failure.json"]
+        value = json.loads(raw)
+        self.assertEqual("NO_ELIGIBLE_VALIDATION_THRESHOLD",
+                         value["failure_code"])
+        self.assertEqual(0, value["maximum_safe_accepted"])
+        self.assertEqual(116, value["minimum_required"])
+        self.assertFalse(value["artifact_written"])
+        self.assertFalse(value["production_changed"])
+        self.assertNotIn("text", json.dumps(value))
+
     def test_execute_retains_bounded_failure_without_retry(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -18,7 +18,7 @@ import nlu_j2_artifact_contract_v1 as artifact_contract
 import nlu_j2_training_transaction_v1 as transaction
 
 
-TRANSACTION_SHA256 = "e9f8821b4316197b25cfac3c33a949128317002249da9f6b2cc4e0169e0435c8"
+TRANSACTION_SHA256 = "52ad19a9eda92187779992b27cf0e1ae1c14349e367cf1ed136ac3e3626ddea8"
 CORPUS_SHA256 = transaction.CORPUS_SHA256
 RELEASE_SHA256 = transaction.CORPUS_RELEASE_SHA256
 ADMISSION_SHA256 = "9994f4a2941503c5608ae85095bd0985d3292855c09bec0b6dfcb9e2aca00fd1"
@@ -164,17 +164,27 @@ def run(corpus: Path, release: Path, admission: Path, recipe: Path,
         if process.returncode or stderr:
             raise RuntimeError("J2 Mac training owner failed closed")
         summary = json.loads(stdout)
-        if (summary.get("status") != "complete"
-                or summary.get("authority") != "none"
+        if (summary.get("authority") != "none"
                 or summary.get("automatic_routing") != "off"
-                or summary.get("deployment") is not False
-                or set(path.name for path in output.iterdir())
-                != set(transaction.OUTPUT_NAMES)):
+                or summary.get("deployment") is not False):
+            raise RuntimeError("J2 Mac completion postcheck failed")
+        output_names = {path.name for path in output.iterdir()}
+        if summary.get("status") == "no-go":
+            if (output_names != set(transaction.FAILURE_NAMES)
+                    or summary.get("production_changed") is not False
+                    or summary.get("sealed_evaluation_access") is not False):
+                raise RuntimeError("J2 Mac NO-GO postcheck failed")
+        elif (summary.get("status") != "complete"
+                or output_names != set(transaction.OUTPUT_NAMES)):
             raise RuntimeError("J2 Mac completion postcheck failed")
         if process.poll() != 0:
             raise RuntimeError("J2 Mac process restoration failed")
         return {"schema": "aster-nlu-j2-mac-host-result.v1",
-                "status": "complete", "resource_observations": observations,
+                "status": summary["status"],
+                "first_failure_phase": summary.get("first_failure_phase"),
+                "failure_class": summary.get("failure_class"),
+                "failure_code": summary.get("failure_code"),
+                "resource_observations": observations,
                 "minimum_available_bytes": minimum_available,
                 "maximum_swap_used_bytes": maximum_swap,
                 "services_stopped": 0, "production_changed": False,
