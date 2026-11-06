@@ -42,6 +42,17 @@
 > The accepted corpus evidence remains valid; only one fresh revision-5
 > evaluation session is next.
 
+> **M3 J2 custody chain complete, 2026-11-06:** the revision-5 evaluation
+> return [passes](evidence/M3-J2-evaluation-custody-and-owner-trust-review-2026-11-06.md)
+> exact receipt validation, both RSA signatures, zero-intersection binding and
+> distinct-key checks without exposing the sealed evaluation. The complete real
+> chain reaches `eligible-for-owner-training-effect-review` under a temporary
+> exact trust map while training, evaluation access, authority, routing and
+> deployment remain false. The compiled registry is still empty. The only next
+> gate is Jason's exact owner trust decision on the two recorded public-key
+> fingerprints; acceptance would authorize source pinning and admission replay,
+> not training or any runtime effect.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.
