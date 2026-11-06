@@ -23,5 +23,11 @@ drift, retained-result drift and malformed custody inputs fail closed. The
 focused K2 transaction, reconciliation and platform-admission suite passes
 11/11.
 
+The wider reserved-runner regression initially exposed eight stale test
+expectations left behind by the current attempt-numbered evidence layout and
+the added explicit evidence-path argument. The tests were corrected to the
+already installed runtime contract; no runtime source changed. The combined
+K2 and reserved-runner suite now passes 28/28.
+
 This boundary does not run K2, claim a reservation, call a model, retry a
 transaction, open sealed evaluation, enable routing or promote a candidate.

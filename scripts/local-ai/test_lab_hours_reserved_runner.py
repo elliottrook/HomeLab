@@ -1,6 +1,7 @@
 import json
 import unittest
 from datetime import datetime
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
@@ -54,7 +55,8 @@ class ReservedRunnerTests(unittest.TestCase):
     def test_commands_bind_exact_booking_identity_and_deadline(self):
         booking={"booking_id":"test-booking-01","end_epoch":4600,
                  "workload":"accepted-9b-direct-control-smoke-v1"}
-        guardian_unit,owner_unit,guardian,owner=runner.commands(booking,"lh-12345678",1000)
+        guardian_unit,owner_unit,guardian,owner=runner.commands(
+            booking,"lh-12345678",1000,Path("/tmp/evidence"))
         self.assertIn("lh-12345678",guardian_unit)
         self.assertIn("lh-12345678",owner_unit)
         self.assertEqual(guardian[guardian.index("--rescue-at")+1],"2800")
@@ -65,20 +67,23 @@ class ReservedRunnerTests(unittest.TestCase):
     def test_owner_loss_exercise_has_early_bounded_rescue(self):
         booking={"booking_id":"loss-booking-01","end_epoch":4600,
                  "workload":"accepted-9b-owner-loss-exercise-v1"}
-        _,_,guardian,_=runner.commands(booking,"lh-12345678",1000)
+        _,_,guardian,_=runner.commands(
+            booking,"lh-12345678",1000,Path("/tmp/evidence"))
         self.assertEqual(guardian[guardian.index("--rescue-at")+1],"1120")
 
     def test_sa3_guardian_deadline_uses_registered_2700_second_budget(self):
         booking={"booking_id":"sa3-booking-01","end_epoch":4600,
                  "workload":"sa3-expanded-source-quality-v1"}
-        _,_,guardian,_=runner.commands(booking,"lh-12345678",1000)
+        _,_,guardian,_=runner.commands(
+            booking,"lh-12345678",1000,Path("/tmp/evidence"))
         self.assertEqual(guardian[guardian.index("--rescue-at")+1],"3700")
         self.assertEqual(guardian[guardian.index("--hard-deadline")+1],"5500")
 
     def test_m3_uses_mount_aware_guardian_and_exact_profile(self):
         booking={"booking_id":"m3-booking-01","end_epoch":5500,
                  "workload":"m3-joint-semantic-35b-public-v1"}
-        _,_,guardian,owner=runner.commands(booking,"lh-12345678",1000)
+        _,_,guardian,owner=runner.commands(
+            booking,"lh-12345678",1000,Path("/tmp/evidence"))
         self.assertTrue(any(str(item).endswith("m3_joint_semantic_35b_guardian.py")
                             for item in guardian))
         self.assertFalse(any(str(item).endswith("full_inference_lab_deadline_guardian.py")
@@ -147,7 +152,7 @@ class ReservedRunnerTests(unittest.TestCase):
                  patch.object(runner.os,"geteuid",lambda:0), \
                  patch.object(runner.time,"time",lambda:1000):
                 self.assertEqual(0,runner.run("m3-joined-path-test"))
-            terminal=json.loads((root/"attempts"/"reservation-m3-joined-path-test"/
+            terminal=json.loads((root/"attempts"/"reservation-m3-joined-path-test-attempt-1"/
                                  "terminal.json").read_text())
             self.assertEqual("complete",terminal["state"])
             self.assertEqual(24,terminal["request_count"])
@@ -194,7 +199,7 @@ class ReservedRunnerTests(unittest.TestCase):
                  patch.object(runner.time,"time",lambda:1000):
                 self.assertEqual(0,runner.run("candidate-g-joined-path-test"))
             terminal=json.loads((root/"attempts"/
-                "reservation-candidate-g-joined-path-test"/"terminal.json").read_text())
+                "reservation-candidate-g-joined-path-test-attempt-1"/"terminal.json").read_text())
             self.assertEqual("complete",terminal["state"])
             self.assertEqual(20,terminal["request_count"])
 
@@ -237,7 +242,7 @@ class ReservedRunnerTests(unittest.TestCase):
                  patch.object(runner.time,"time",lambda:1000):
                 self.assertEqual(0,runner.run("candidate-i-joined-path-test"))
             terminal=json.loads((root/"attempts"/
-                "reservation-candidate-i-joined-path-test"/"terminal.json").read_text())
+                "reservation-candidate-i-joined-path-test-attempt-1"/"terminal.json").read_text())
             self.assertEqual("complete",terminal["state"])
             self.assertEqual(20,terminal["request_count"])
 
@@ -281,7 +286,7 @@ class ReservedRunnerTests(unittest.TestCase):
                  patch.object(runner.time,"time",lambda:1000):
                 self.assertEqual(0,runner.run("candidate-j-joined-path-test"))
             terminal=json.loads((root/"attempts"/
-                "reservation-candidate-j-joined-path-test"/"terminal.json").read_text())
+                "reservation-candidate-j-joined-path-test-attempt-1"/"terminal.json").read_text())
             self.assertEqual("complete",terminal["state"])
             self.assertEqual(6,terminal["request_count"])
 
