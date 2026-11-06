@@ -453,6 +453,13 @@
 > removal forbid runner, signer, ledger, existing-canary, service, route or
 > promotion effects. The complete suite passes 245/245. The two-file inactive
 > seed installation is the next explicit deployment gate; no repair is included.
+> Jason approved that gate and the [distinct-canary seed installation](evidence/SA4-distinct-canary-v2-seed-install-result-2026-11-06.md)
+> passed. The accepted registry and inert drifted seed are exact root-owned
+> single-link files; v2 resolves both targets while v1 still rejects the new
+> one. The original canary, spent ledger and runtime state are unchanged and
+> production is healthy. No runner, signer, authority, repair, service action,
+> route or promotion occurred. Next is source-only v3 transaction integration,
+> inactive-install review and zero-effect preflight; no repair is authorized.
 > The [installed v2 zero-effect preflight](evidence/SA4-terminal-reconciliation-v2-installed-zero-effect-preflight-2026-11-06.md)
 > then exercised the final-path runner with one unexpected argument. It failed
 > closed before reading inputs or creating state. Every retained v6 input,
