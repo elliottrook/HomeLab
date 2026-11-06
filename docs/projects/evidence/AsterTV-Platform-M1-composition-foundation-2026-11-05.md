@@ -18,7 +18,8 @@
   Guest compiles as a non-deployed candidate with no address, identity,
   integration, overlay or credential reference.
 - Generated four machine-readable desired compositions and a human-readable
-  release matrix. Jen's 1080p/stereo constraint remains device-scoped.
+  release matrix. Jen's 1080p-media/stereo constraint remains device-scoped;
+  the GUI may use native display resolution.
 
 ## Determinism and failure evidence
 

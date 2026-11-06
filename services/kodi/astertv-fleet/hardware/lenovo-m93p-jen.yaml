@@ -7,7 +7,7 @@
     "cpu": "Intel i5-4570T, two cores and four threads",
     "gpu": "Haswell 8086:0412",
     "network": ["Intel I217-LM Ethernet"],
-    "qualification": "1080p H.264/HEVC practical, stereo, no fleet-wide 4K parity",
+    "qualification": "native-display GUI with 1080p H.264/HEVC media playback policy, stereo, no fleet-wide 4K playback parity",
     "scope": "Jen only"
   }
 }

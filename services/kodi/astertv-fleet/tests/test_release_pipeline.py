@@ -72,8 +72,16 @@ class ReleasePipelineTests(unittest.TestCase):
             self.build(destination)
             jen = json.loads((Path(destination) / "plans/astertv-jen.json").read_text())
             family = json.loads((Path(destination) / "plans/astertv-family.json").read_text())
-            self.assertEqual(jen["performance_budget"]["output_ceiling"], "1080p-stereo-device-only")
+            self.assertEqual(jen["performance_budget"]["output_ceiling"], "1080p-media-stereo-device-only")
             self.assertNotEqual(family["performance_budget"]["output_ceiling"], jen["performance_budget"]["output_ceiling"])
+            assertions = {row["key"]: row["expected"] for overlay in jen["overlays"]
+                          for row in overlay["assertions"]}
+            self.assertNotIn("display.output", assertions)
+            self.assertEqual(assertions["policy.hevc-direct-play-max-width"], 1920)
+            self.assertEqual(assertions["policy.max-bitrate-kbps"], 18000)
+            self.assertEqual(assertions["audio.channels"], "2.0")
+            self.assertFalse(assertions["audio.passthrough"])
+            self.assertEqual(assertions["accepted-file-count"], 532)
 
     def test_guard_classifies_clean_unknown_missing_and_dependency_drift(self):
         contract = {"schema_version": 1, "kind": "composition-guard-contract", "device_id": "box", "composition_sha256": "abc", "expected_resources": ["a", "b"], "registered_extras": ["c"]}

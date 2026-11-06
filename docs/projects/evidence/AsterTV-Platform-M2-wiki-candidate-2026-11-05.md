@@ -32,7 +32,7 @@ has not been pushed or published.
 
 Every page declares owner, authority, applicability, review date, sources and
 recovery. Device pages preserve Family Dolby/HDR/equipment control, Bedroom
-stereo/Wi-Fi, Jen's device-only 1080p/stereo limit and Guest non-deployment.
+stereo/Wi-Fi, Jen's device-only 1080p-media/stereo limit and Guest non-deployment.
 
 ## Pinned intake candidates
 

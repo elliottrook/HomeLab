@@ -40,13 +40,13 @@ future promotion transaction. No promotion was performed.
 
 ## Verification
 
-- Fleet/release suite: 44/44 passing, including typed assertion drift, target
+- Fleet/release suite: 45/45 passing, including typed assertion drift, target
   isolation, install-path containment, offline checkpoint/apply/rollback and
   fail-closed missing/stale/drifted observation handling.
 - Four deterministic bundles build from the locally verified immutable release.
   With normalized install trees, the current artifact hashes are Bedroom
   `95154184...2dbe`, Family `71423e21...3027`, Guest candidate
-  `4d79b20a...1e0`, and Jen `5e39bbc5...d187`; only Bedroom, Family and Jen are
+  `4d79b20a...1e0`, and Jen `1f7cf741...2b9b`; only Bedroom, Family and Jen are
   deployable plans.
 - Repeated builds are byte-identical.
 - Guest stays non-deployable.

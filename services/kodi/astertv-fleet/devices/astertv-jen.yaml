@@ -35,5 +35,5 @@
     "astertv-jen-broker-client", "jen-home-feed-client", "jen-camera-viewer-client",
     "jen-podcast-request-client"
   ],
-  "local_deviation": "Jen-only 1080p/stereo constraints and accepted v3 lab overlays"
+  "local_deviation": "Jen-only 1080p media/stereo constraints (native GUI resolution permitted) and accepted v3 lab overlays"
 }

@@ -37,9 +37,9 @@ profile keymap, one Music runtime file, the TV v3 extension and visual assets,
 and the composed Movie/YouTube boot/runtime tree. This matches the declared
 overlay ownership and is not unexplained drift.
 
-The verified deterministic Jen artifact is
-`astertv-jen-0da4c6be132e.tar.gz`, SHA-256
-`5e39bbc51920d8dc7e24c7dbe38601ff3274d31870dca98fc40810e52730d187`.
+The current verified deterministic Jen artifact is
+`astertv-jen-3ac9aaaa87cc.tar.gz`, SHA-256
+`1f7cf741887dbd7f1bd5b046450acfe6297adc062cfcae9eb480978965a62b9b`.
 An independent repeat build was byte-identical. The bundle includes 124
 hash-bound `install/storage/...` members and rejects path escape or duplicate
 destinations. Generated binary bundles remain outside Git.
@@ -98,9 +98,21 @@ unit state during rollback. Its focused assertion test raises the suite to
    reinstall the same accepted artifact and collect a final clean observation.
 
 Stop on active playback, identity/build mismatch, checkpoint failure, unknown
-drift, secret output, unavailable required dependency, failed 1080p/stereo
+drift, secret output, unavailable required dependency, failed 1080p-media/stereo
 preservation, regression or rollback failure. Bedroom and Family remain out of
 scope.
+
+Owner clarification during rehearsal: Jen's restriction applies to media
+playback, not Kodi's GUI output. The native 3840×2160 GUI is allowed. The
+acceptance gate is the Jen-only Jellyfin 1920-pixel/18 Mb/s policy, stereo and
+passthrough disabled. The erroneous `display.output=1920x1080` assertion was
+removed before any candidate acceptance; the expected post-migration guard
+snapshot count was also advanced from predecessor 528 to composed 532.
+
+That correction produces composition
+`3ac9aaaa87cc503b83389578b1848df53048e8824ae68aa1e7fc2994b46ed5e3`.
+The focused media-versus-GUI contract regression and absent-unit recovery gate
+raise the fleet suite to 45/45.
 
 ## Authorization boundary
 

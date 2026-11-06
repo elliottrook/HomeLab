@@ -391,7 +391,7 @@ def render_matrix(compositions: list[dict], hardware: dict[str, dict],
     lines.extend(["", "## Boundaries", "",
                   "- Family retains its measured Dolby/HDR and equipment-control composition.",
                   "- Bedroom retains stereo and Wi-Fi stability requirements.",
-                  "- Jen's 1080p/stereo limit belongs only to its hardware profile.",
+                  "- Jen's 1080p-media/stereo limit belongs only to its hardware profile; native GUI resolution is permitted.",
                   "- Guest is a compiled candidate with no address, identity, firewall path or deployment.",
                   "- Opaque secret references identify custody only; no value appears in an output.", ""])
     return "\n".join(lines).encode()

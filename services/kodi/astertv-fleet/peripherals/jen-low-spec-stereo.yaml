@@ -5,7 +5,7 @@
   "label": "Jen low-spec stereo display chain",
   "facts": {
     "display_observed": "LG HDR 4K",
-    "output_contract": "1080p stereo qualification",
+    "output_contract": "native-display GUI; media playback capped at 1080p/18 Mb/s with stereo and no passthrough",
     "controls": []
   }
 }

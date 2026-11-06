@@ -1,6 +1,6 @@
 {
   "channel": "v3-lab",
-  "composition_sha256": "0da4c6be132e7ea83684c0eaee945b0a0d34e3916bca99e32407e6dd65241a83",
+  "composition_sha256": "3ac9aaaa87cc503b83389578b1848df53048e8824ae68aa1e7fc2994b46ed5e3",
   "deployed": true,
   "device_id": "astertv-jen",
   "external_integrations": [
@@ -41,15 +41,15 @@
       "owner": "jen-low-spec-runtime",
       "resource": "jellyfin/client-policy-jen"
     },
+    "device-performance:kodi/playback/jen-1080p-stereo": {
+      "layer": "device-performance",
+      "owner": "jen-low-spec-runtime",
+      "resource": "kodi/playback/jen-1080p-stereo"
+    },
     "device-performance:kodi/runtime/jen-host-gates": {
       "layer": "device-performance",
       "owner": "jen-low-spec-runtime",
       "resource": "kodi/runtime/jen-host-gates"
-    },
-    "device-performance:kodi/settings/jen-1080p-stereo": {
-      "layer": "device-performance",
-      "owner": "jen-low-spec-runtime",
-      "resource": "kodi/settings/jen-1080p-stereo"
     },
     "kodi-catalogue:kodi/jellyfin-guest-catalogue-adapter": {
       "layer": "kodi-catalogue",
@@ -937,13 +937,13 @@
     "youtube-household-session"
   ],
   "source_hashes": {
-    "devices/astertv-jen.yaml": "9fca66440ca0c0c61a151e6a7e8e273f676f3f36e696526a9ce4ff26004a7aca",
-    "hardware/lenovo-m93p-jen.yaml": "62596413e3f508c77048cfccc3203cca847607ab84383d9cffb4d8768f0db101",
+    "devices/astertv-jen.yaml": "4375b0914d03485db5ca5ce39e1fde5a0924dd23a458632dd3d42972fcae2087",
+    "hardware/lenovo-m93p-jen.yaml": "a008d1b6b193215295e6190f508722549432e86d67275d53e9300aee66eed788",
     "overlays/jen-account-registry.yaml": "b3020ba22421c98e14516e2e442e78fb74164182cb176f546b30d5ddf4d37750",
     "overlays/jen-aster-client.yaml": "08621ef27e351cf46381ba3af1efd897b41b42c5c0aa43e84c03f73a5d480a57",
     "overlays/jen-guest-catalogue.yaml": "0a3e886a741d09930c7302838296ed4e4dc8e39cfbe0fcce50f3d63188e4466c",
     "overlays/jen-home-cameras.yaml": "b68312b8b9e6cdb73657033ba889e64c36ef7d8635a4e0f32e0e23e6d55d95dc",
-    "overlays/jen-low-spec-runtime.yaml": "9e4a8f1479d0b948480762415ac6d9fb7903774aab88da62045b85598eab30e1",
+    "overlays/jen-low-spec-runtime.yaml": "1d7f4c991a20892da230d268694b7a2d31c4eda470ccff65e07babc40756f2ed",
     "overlays/jen-movie-youtube.yaml": "504104268858fd5357fe045b893957820300e62cb49f657c9fdfd0d06a219fe9",
     "overlays/jen-news-icons.yaml": "bf2d922a23398be52c785c197a48a8104395a099716be56e24e37790c22d0cce",
     "overlays/jen-podcast-requests.yaml": "ab1ba7cf1c2a27d9d6e53c647753762668ce3ce6deb03cb3953d70da7cfd7480",
@@ -951,7 +951,7 @@
     "overlays/release-guard-v1.yaml": "a3afc7db25e4c295b3f4bd944f32e4cf47fa0ccefae2cbf182edbed38214c038",
     "overlays/remote-client-v3.yaml": "40267e62ec475ce2318ea20bf5f8771943a46b30b60ace77ac91ea96a8cc948a",
     "overlays/tv-details-v3.yaml": "717c1f44e8ee12804cd58f2513e275292c28bbd3eb50dfb2d22cd9ec17a6b03e",
-    "peripherals/jen-low-spec-stereo.yaml": "d56ab40a683315e30e7a4696d105d4707bbde51bbe3abbbdca79f0876ab1f6f5",
+    "peripherals/jen-low-spec-stereo.yaml": "c197665a6ef192b3eecce622f9df0d14c1a23a55198465bd5ae7fe558a06b9f6",
     "releases/astertv-v2.0.7-2026-10-31.yaml": "204a004c9b099cedfbaa49ed5eed55185c0d33cd10d9d06942409fc7dd8add36"
   }
 }

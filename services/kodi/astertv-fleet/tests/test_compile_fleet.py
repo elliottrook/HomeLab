@@ -117,7 +117,7 @@ class FleetCompilerTests(unittest.TestCase):
             matrix = (Path(output) / "reports/release-matrix.md").read_text()
             self.assertIn("Dolby passthrough and HDR", matrix)
             self.assertIn("Bedroom retains stereo", matrix)
-            self.assertIn("Jen's 1080p/stereo limit belongs only", matrix)
+            self.assertIn("Jen's 1080p-media/stereo limit belongs only", matrix)
             self.assertIn("Guest is a compiled candidate", matrix)
 
     def test_target_specific_payloads_do_not_cross_devices(self):

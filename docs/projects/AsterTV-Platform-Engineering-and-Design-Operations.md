@@ -79,7 +79,8 @@ and authority used for each decision.
 - V3 has deterministic but separately managed Jen, Family and Bedroom overlays
   plus external HA, firewall, audio, Wi-Fi, identity and Remote components.
 - Active devices are Family, Bedroom and low-spec Jen; Guest is expected. Jen's
-  1080p/stereo constraints are client-specific, not a global ceiling.
+  1080p-media/stereo constraints are client-specific, not a global ceiling;
+  Jen's GUI may use the display's native resolution.
 - `homelab-wiki` is healthy in Forgejo at
   `c9bd0114f3157cd128cd5ee2dda1c3f697fb90cb`; it uses MkDocs and the Human Wiki
   Contract, but has no AsterTV department today.
@@ -645,7 +646,7 @@ only and did not deploy any device. The fleet Doctor now fails closed on
 missing, stale, future, malformed or drifted observations; its initial run
 correctly reports all three deployed clients as unobserved because the
 observation collector has not been installed or run on them. Jen retains its local
-1080p/stereo constraints without constraining v3 globally. Guest
+1080p-media/stereo constraints without constraining v3 globally. Guest
 remains a non-deployed candidate. M5's Guest fixture fails closed on unresolved physical and
 NetBox facts. Both M6 skills are installed from a hash manifest and passed
 independent effect-free forward tests. No published wiki, Aster mirror or live
@@ -657,7 +658,7 @@ The Jen read-only preflight is complete and its normalized install artifact is
 ready. The next appliance milestone is a bounded Jen migration/recovery
 rehearsal: create a new checkpoint, apply only its compiled composition,
 collect a fresh Doctor observation, prove reboot/playback/recovery and preserve
-Jen's local 1080p/stereo limits. That live mutation requires its own immediate
+Jen's local 1080p-media/stereo limits. That live mutation requires its own immediate
 authorization.
 
 ## Evidence log
@@ -673,7 +674,7 @@ authorization.
 | 2026-11-05 | Built and validated the additive M2 HomeLab Wiki candidate | Local `homelab-wiki` commit `1fdcf6a`; `docs/projects/evidence/AsterTV-Platform-M2-wiki-candidate-2026-11-05.md`; two pinned intake sources | 25 pages, 3/3 tests and real bounded source fetches pass; human acceptance/push/LXC publication/mirror remain pending; no live system changed |
 | 2026-11-05 | Built M3–M6 platform foundations | `docs/projects/evidence/AsterTV-Platform-M3-M6-foundations-2026-11-05.md`; design, release-plan, onboarding and skill packages | Hash-bound design assets and fixtures, plan-only SBOM/guards, least-privilege Guest planning and two independently tested skills; no appliance/wiki publication |
 | 2026-11-05 | Verified the immutable base and transaction recovery | v2.0.7 archive hash, 17/17 fleet/release tests, synthetic interruption and rollback fixture | All plans now prove the base artifact; deployment remains blocked until every overlay declares exact payload paths/hashes and guard/Doctor integration is complete |
-| 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 39/39 fleet/release tests | All eighteen contracts are complete; Bedroom, Family and Jen are build-eligible but not deployed; Jen's 1080p/stereo constraints remain device-local and Guest remains a non-deployed candidate |
+| 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 39/39 fleet/release tests | All eighteen contracts are complete; Bedroom, Family and Jen are build-eligible but not deployed; Jen's 1080p-media/stereo constraints remain device-local and Guest remains a non-deployed candidate |
 | 2026-11-05 | Completed the M4 fleet Doctor foundation | Timestamped observation schema, collector, fail-closed Doctor and 40/40 fleet/release tests | Missing live observations correctly report attention for Bedroom, Family and Jen; no device was changed and no false healthy state was emitted |
 | 2026-11-05 | Prepared the M7 Jen migration and recovered two lifecycle interactions | `docs/projects/evidence/AsterTV-Platform-M7-Jen-preflight-2026-11-05.md`; deterministic normalized install artifact and bounded transaction runner; 44/44 tests | Runtime masking and superseded boot units were both caught before acceptance; exact rollback restored each predecessor, and guard isolation plus typed systemd reconciliation are ready for retry |
 

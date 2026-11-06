@@ -29,7 +29,8 @@ for Jason's visual acceptance.
 `services/kodi/astertv-fleet/build_release_plans.py` deterministically emits a
 plan, CycloneDX SBOM and desired-state guard contract for Family, Bedroom, Jen
 and the Guest candidate. Compatibility/deprecation policy and per-hardware
-performance budgets preserve Jen's 1080p/stereo limit as Jen-only.
+performance budgets preserve Jen's 1080p-media/stereo limit as Jen-only while
+allowing a native-resolution GUI.
 
 The immutable local v2.0.7 archive now matches its recorded SHA-256 for every
 composition. All plans still deliberately report `deployable: false` and the

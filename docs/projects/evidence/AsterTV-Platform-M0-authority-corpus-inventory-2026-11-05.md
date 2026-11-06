@@ -39,7 +39,7 @@ architecture are the adopted publishing path. No wiki deployment was changed.
 |---|---|---|---|---|---|
 | AsterTV Family | production | `192.168.1.157` | Intel N95/Alder Lake-N; TCL QM8L through Onkyo TX-RZ30; HDMI Dolby/HDR | Hostname matched; LibreELEC `nightly-20261021-440640e`; guard enabled; accepted manifest 533 files, observation digest `b821c2a2…e61d` | v2.0.7 base + Family HDMI/HDR/audio + current shared runtime + Remote + Family equipment bridge |
 | AsterTV Bedroom | production | `192.168.1.140` | Intel i5-9500T/UHD 630; LG display; Wi-Fi; stereo | Hostname matched; same LibreELEC build; guard and Wi-Fi stability enabled; accepted manifest 535 files, digest `474c887d…f204` | v2.0.7 base + Bedroom stereo/Wi-Fi + current shared runtime + Remote |
-| AsterTV Jen | lab | `192.168.1.180` | Intel i5-4570T/Haswell; qualified for 1080p/stereo, not fleet-wide 4K parity | Hostname matched; same LibreELEC build; guard enabled; accepted manifest 528 files, digest `dfc51bc8…c3ff` | v2.0.7 base + low-spec profile + accepted Jen v3 overlays + Remote |
+| AsterTV Jen | lab | `192.168.1.180` | Intel i5-4570T/Haswell; qualified for 1080p-media/stereo, with native-resolution GUI permitted and no fleet-wide 4K playback parity | Hostname matched; same LibreELEC build; guard enabled; accepted manifest 528 files, digest `dfc51bc8…c3ff` | v2.0.7 base + low-spec profile + accepted Jen v3 overlays + Remote |
 | AsterTV Guest | candidate | not assigned | Hardware and peripheral chain not yet selected | Not deployed; no address, identity, firewall path or credential exists | Candidate record only; compilation must not imply deployment |
 
 The accepted guard manifest includes `accepted_at`, so its file digest is an
