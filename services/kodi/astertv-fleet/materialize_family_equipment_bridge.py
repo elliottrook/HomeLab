@@ -24,7 +24,7 @@ FILES = {
 PINNED = {
     "/opt/aster-agent/aster_remote.py": "424281d61114bab166ae6193f2ce5fe8810da8985142a1f246d209b11e199d04",
     "/opt/aster-agent/static/remote/app.js": "76a14595af2da756a72975eb02afe45cd21ac035d8b118dfc67a2635258e0762",
-    "/config/custom_components/aster_room_bridge/__init__.py": "1d7ef6821f89841c55763e78b2b79c8c0d8afbc55c6f945a196f580efe855bf3",
+    "/config/custom_components/aster_room_bridge/__init__.py": "cfcd02e48a15234b283be3815f5c692eccb32224116a64ebd3f5c82ccc328554",
     "/config/custom_components/aster_room_bridge/content_policy.py": "4ed19eade495e4d35f7b58cb3b8b54dc21de2158a3b782139dda3a1af21a82f8",
 }
 

@@ -57,6 +57,7 @@ class RoomBridge:
         )
         self.session = async_get_clientsession(hass)
         self.content_state = CurrentState()
+        self.content_supported = True
 
     def _headers(self) -> dict[str, str]:
         return {"Authorization": "Bearer " + self.key,
@@ -78,10 +79,17 @@ class RoomBridge:
                 raise RuntimeError("equipment-ack-failed")
 
     async def _content(self):
+        if not self.content_supported:
+            return
         payload = {"client_id": self.client_id, "room_id": self.room_id}
         async with self.session.post(self.url + "/content", json=payload,
                                      headers=self._headers(), timeout=10) as response:
             if response.status == 204:
+                return
+            if response.status in {404, 405}:
+                # The deployed predecessor has no content endpoint. Keep the
+                # existing equipment bridge live during a gateway-first roll.
+                self.content_supported = False
                 return
             if response.status != 200:
                 raise RuntimeError("content-state-poll-failed")
@@ -99,7 +107,14 @@ class RoomBridge:
     async def run(self):
         while True:
             try:
-                await self._content()
+                try:
+                    await self._content()
+                except asyncio.CancelledError:
+                    raise
+                except Exception:
+                    # Content observation must fail closed without taking down
+                    # already accepted Family power/volume/mute controls.
+                    pass
                 async with self.session.post(
                     self.url + "/poll", json=self._payload(),
                     headers=self._headers(), timeout=25,

@@ -52,7 +52,7 @@ def render() -> tuple[dict[str, tuple[bytes, int]], dict]:
     addon = {path.relative_to(ADDON).as_posix(): path.read_bytes()
              for path in sorted(ADDON.rglob("*")) if path.is_file()}
     current_service = sha(addon["service.py"])
-    if current_service != "be50926bfce8379035cd0219ce3bb03894ac90a27edf4887777d7b8a38f1b4e8":
+    if current_service != "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0":
         raise RuntimeError("remote-current-service-drift")
     addon_digest = tree_sha(addon)
     files: dict[str, tuple[bytes, int]] = {}
@@ -88,7 +88,7 @@ def render() -> tuple[dict[str, tuple[bytes, int]], dict]:
         "targets": sorted(TARGETS),
         "files": sorted(rows, key=lambda row: (row["scope"], row["destination"])),
         "lineage": {
-            "accepted_predecessor_sha256": "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49",
+            "accepted_predecessor_sha256": "be50926bfce8379035cd0219ce3bb03894ac90a27edf4887777d7b8a38f1b4e8",
             "current_sha256": current_service,
             "evidence": "AsterTV v3 M7 content-state repository candidate; live publication remains gated",
         },

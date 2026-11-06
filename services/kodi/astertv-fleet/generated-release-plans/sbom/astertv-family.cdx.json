@@ -31,7 +31,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-f6a69a02ad25"
+      "version": "composition-2b80e39ae735"
     },
     {
       "name": "beszel-client-v1",
@@ -46,7 +46,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-f6a69a02ad25"
+      "version": "composition-2b80e39ae735"
     },
     {
       "name": "family-dolby-hdr",
@@ -61,7 +61,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-f6a69a02ad25"
+      "version": "composition-2b80e39ae735"
     },
     {
       "name": "remote-client-v3",
@@ -76,7 +76,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-f6a69a02ad25"
+      "version": "composition-2b80e39ae735"
     },
     {
       "name": "family-equipment-bridge",
@@ -91,7 +91,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-f6a69a02ad25"
+      "version": "composition-2b80e39ae735"
     },
     {
       "name": "family-kodi-restart",
@@ -106,7 +106,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-f6a69a02ad25"
+      "version": "composition-2b80e39ae735"
     },
     {
       "name": "family-media-lifecycle",
@@ -121,7 +121,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-f6a69a02ad25"
+      "version": "composition-2b80e39ae735"
     },
     {
       "name": "news-playback-v3",
@@ -136,7 +136,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-f6a69a02ad25"
+      "version": "composition-2b80e39ae735"
     },
     {
       "name": "tv-details-v3",
@@ -151,17 +151,17 @@
         }
       ],
       "type": "application",
-      "version": "composition-f6a69a02ad25"
+      "version": "composition-2b80e39ae735"
     }
   ],
   "metadata": {
     "component": {
       "name": "astertv-family",
       "type": "device",
-      "version": "f6a69a02ad25"
+      "version": "2b80e39ae735"
     }
   },
-  "serialNumber": "urn:uuid:astertv-f6a69a02ad256c4a707d72b17a10f9bb",
+  "serialNumber": "urn:uuid:astertv-2b80e39ae73501dab3051230eedad0a1",
   "specVersion": "1.5",
   "version": 1
 }

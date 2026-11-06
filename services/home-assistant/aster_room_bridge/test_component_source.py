@@ -34,6 +34,14 @@ class ComponentSourceTests(unittest.TestCase):
         self.assertNotIn("async_fire", SOURCE)
         self.assertNotIn("recorder", SOURCE.casefold())
 
+    def test_content_failure_cannot_take_down_accepted_equipment_controls(self):
+        self.assertIn("response.status in {404, 405}", SOURCE)
+        self.assertIn("self.content_supported = False", SOURCE)
+        content = SOURCE.index("await self._content()")
+        equipment = SOURCE.index('self.url + "/poll"', content)
+        isolation = SOURCE[content:equipment]
+        self.assertIn("except Exception", isolation)
+
 
 if __name__ == "__main__":
     unittest.main()

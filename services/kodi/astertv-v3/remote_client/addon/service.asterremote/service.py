@@ -42,6 +42,7 @@ CONTENT_BY_ITEM = {
 }
 SESSION_ID = "boot-" + secrets.token_hex(16)
 SEQUENCES = itertools.count(1)
+CONTENT_STATE_SUPPORTED = True
 NAVIGATION = {
     "nav.up": "Input.Up", "nav.down": "Input.Down",
     "nav.left": "Input.Left", "nav.right": "Input.Right",
@@ -224,10 +225,23 @@ def request(path, payload, timeout, client_id):
 
 
 def poll():
+    global CONTENT_STATE_SUPPORTED
     client_id, room_id = identity()
     current = state()
+    if not CONTENT_STATE_SUPPORTED:
+        current.pop("content_state", None)
     current.update({"client_id": client_id, "room_id": room_id})
-    return request("/client/poll", current, 25, client_id)
+    try:
+        return request("/client/poll", current, 25, client_id)
+    except RemoteError as error:
+        # The previous gateway rejects unknown fields. Preserve Remote during a
+        # gateway-first rolling upgrade, then publish content state after the
+        # service is restarted against the accepted gateway contract.
+        if CONTENT_STATE_SUPPORTED and str(error) == "gateway-http-422":
+            CONTENT_STATE_SUPPORTED = False
+            current.pop("content_state", None)
+            return request("/client/poll", current, 25, client_id)
+        raise
 
 
 def ack(command, outcome):

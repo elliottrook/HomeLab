@@ -33,12 +33,21 @@ state into volatile `hass.data`; it creates no entity, event or recorder row.
 Repeated reads are idempotent while stale, malformed, replayed and wrong-key
 requests fail closed.
 
-Six focused policy tests, ten client tests, four component source tests and
+Six focused policy tests, eleven client tests, five component source tests and
 eleven pinned gateway tests pass. The M10 integrated gate includes all three
 Home Assistant room-bridge test files and passes 62 test files with zero
 operations-readiness gaps. Fleet materialization pins the new Kodi client,
 gateway, component and policy-module hashes so a later release cannot silently
 substitute an older lineage.
+
+The rolling-upgrade failure mode is also bounded. A new Kodi client talking to
+the accepted predecessor gateway receives one schema rejection, retries without
+the optional content envelope and preserves Remote for the rest of that service
+session. A new Home Assistant component talking to the predecessor gateway
+disables only content polling when the endpoint is absent; content failures are
+isolated and cannot stop the already accepted Family equipment poll. This makes
+gateway-first deployment preferable without turning a partial rollout into a
+Remote, power, volume or mute regression.
 
 ## Remaining live gate
 

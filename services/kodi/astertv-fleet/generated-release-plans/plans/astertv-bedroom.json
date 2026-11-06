@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-bedroom-b19c8023ff8f.tar.gz",
+    "name": "astertv-bedroom-ae78ce806f64.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "b19c8023ff8fc48964f8fde296d34f49a790b77c02b1ab57a4fb3bfd721ede8c",
+  "composition_sha256": "ae78ce806f64fa955c5a4df922c431bf98d61570eea91f00845fcd07d44ded7a",
   "deployable": false,
   "device_id": "astertv-bedroom",
   "kind": "release-plan",
@@ -382,7 +382,7 @@
         {
           "bytes": 6250,
           "path": "services/kodi/astertv-fleet/materialize_remote_client.py",
-          "sha256": "be3cdf211937634815de4d0107d335d477d6f3d2bfed6b801845d48e6350f42c"
+          "sha256": "a6a4219aa4c9193606b8197f9bf6eb0850ab74a8089bbb456ee4223102469652"
         },
         {
           "bytes": 661,

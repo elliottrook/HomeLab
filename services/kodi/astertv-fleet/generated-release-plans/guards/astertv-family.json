@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "f6a69a02ad256c4a707d72b17a10f9bb920009437d8f6f8630fbada363a31d54",
+  "composition_sha256": "2b80e39ae73501dab3051230eedad0a1747575db3cd94224f15db3c58ccfc371",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [

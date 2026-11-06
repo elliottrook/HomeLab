@@ -26,6 +26,14 @@ stale, malformed, replayed or wrong-room observations fail closed. This path is
 not live until the coordinated Kodi, gateway and Home Assistant deployment gate
 is separately accepted.
 
+Rolling upgrades preserve the accepted controls. A new Kodi client retries
+once without the optional content envelope when the predecessor gateway rejects
+it, then keeps that envelope disabled until service restart. A component that
+finds the predecessor gateway's content endpoint absent disables content
+polling while continuing the already accepted equipment poll. Other malformed
+or unavailable content responses are isolated from power/volume/mute; they
+never widen authority or produce a volume action.
+
 Candidate configuration (the final key path and URL are deployment-owned):
 
 ```yaml
