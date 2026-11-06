@@ -5,8 +5,11 @@
 The release planner now constructs byte-deterministic, hash-bound composition
 bundles from the verified v2.0.7 base and the exact source inventory for every
 selected overlay. Each bundle contains its canonical manifest, guard contract,
-base release and ordered overlay source bytes. The guard contract includes
-expected payload hashes and required external dependencies.
+base release, ordered overlay source bytes and a normalized install tree for
+every owned destination. Install members retain declared modes, are resolved
+from reviewed hash-matched sources and reject destination escape or duplicate
+ownership. The guard contract includes expected payload hashes and required
+external dependencies.
 
 This is deliberately a **candidate build gate**, not a deployment approval.
 All eighteen overlays now have complete contracts: Family restart, target-aware release
@@ -37,12 +40,14 @@ future promotion transaction. No promotion was performed.
 
 ## Verification
 
-- Fleet/release suite: 40/40 passing, including typed assertion drift, target
-  isolation and fail-closed missing/stale/drifted observation handling.
+- Fleet/release suite: 41/41 passing, including typed assertion drift, target
+  isolation, install-path containment and fail-closed missing/stale/drifted
+  observation handling.
 - Four deterministic bundles build from the locally verified immutable release.
-  The current composition hashes are Bedroom `e1cdac8a...d632`, Family
-  `17536fc3...13e7`, Guest candidate `54a585dd...7864`, and Jen
-  `e139edc2...8b87`; only Bedroom, Family and Jen are deployable plans.
+  With normalized install trees, the current artifact hashes are Bedroom
+  `0fa9c015...c253`, Family `bd20c352...5cbd`, Guest candidate
+  `4d79b20a...1e0`, and Jen `893dd189...9ff5`; only Bedroom, Family and Jen are
+  deployable plans.
 - Repeated builds are byte-identical.
 - Guest stays non-deployable.
 - The Family restart overlay is reproducibly rendered from exact predecessor

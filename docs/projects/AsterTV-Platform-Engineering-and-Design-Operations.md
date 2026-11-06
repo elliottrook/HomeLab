@@ -653,10 +653,12 @@ AsterTV changed.
 
 **Next:** owner-review the 25-page wiki and generated design reference. Build
 the wiki through the established LXC 113 path only after content acceptance.
-The next appliance milestone is a bounded Jen migration/recovery rehearsal:
-checkpoint the client, apply only its compiled composition, collect a fresh
-Doctor observation, prove reboot/playback/recovery and preserve Jen's local
-1080p/stereo limits. That live mutation requires its own immediate authorization.
+The Jen read-only preflight is complete and its normalized install artifact is
+ready. The next appliance milestone is a bounded Jen migration/recovery
+rehearsal: create a new checkpoint, apply only its compiled composition,
+collect a fresh Doctor observation, prove reboot/playback/recovery and preserve
+Jen's local 1080p/stereo limits. That live mutation requires its own immediate
+authorization.
 
 ## Evidence log
 
@@ -673,6 +675,7 @@ Doctor observation, prove reboot/playback/recovery and preserve Jen's local
 | 2026-11-05 | Verified the immutable base and transaction recovery | v2.0.7 archive hash, 17/17 fleet/release tests, synthetic interruption and rollback fixture | All plans now prove the base artifact; deployment remains blocked until every overlay declares exact payload paths/hashes and guard/Doctor integration is complete |
 | 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 39/39 fleet/release tests | All eighteen contracts are complete; Bedroom, Family and Jen are build-eligible but not deployed; Jen's 1080p/stereo constraints remain device-local and Guest remains a non-deployed candidate |
 | 2026-11-05 | Completed the M4 fleet Doctor foundation | Timestamped observation schema, collector, fail-closed Doctor and 40/40 fleet/release tests | Missing live observations correctly report attention for Bedroom, Family and Jen; no device was changed and no false healthy state was emitted |
+| 2026-11-05 | Prepared the M7 Jen migration without effects | `docs/projects/evidence/AsterTV-Platform-M7-Jen-preflight-2026-11-05.md`; deterministic normalized install artifact; 41/41 tests | Jen is correct-build, idle and checkpoint-capable; 98 owned files match, 18 are new and 8 are planned replacements; live mutation remains authorization-gated |
 
 ## Close-out
 

@@ -138,6 +138,14 @@ class ReleasePipelineTests(unittest.TestCase):
             with tarfile.open(bundle, "r:gz") as archive:
                 manifest = json.load(archive.extractfile("manifest.json"))
             self.assertEqual(manifest["composition_sha256"], family["composition_sha256"])
+            self.assertEqual(len(manifest["install_payloads"]),
+                             len(manifest["guard"]["expected_payloads"]))
+            with tarfile.open(bundle, "r:gz") as archive:
+                names = set(archive.getnames())
+                for payload in manifest["install_payloads"]:
+                    self.assertIn(payload["archive_path"], names)
+                    data = archive.extractfile(payload["archive_path"]).read()
+                    self.assertEqual(PLANS.file_sha256_from_bytes(data), payload["sha256"])
             self.assertTrue(family["deployable"])
             self.assertEqual(family["promotion_blockers"], [])
             self.assertTrue(bedroom["deployable"])
@@ -154,6 +162,19 @@ class ReleasePipelineTests(unittest.TestCase):
             one_bundles = {path.name: path.read_bytes() for path in (Path(first) / "bundles").glob("*.tar.gz")}
             two_bundles = {path.name: path.read_bytes() for path in (Path(second) / "bundles").glob("*.tar.gz")}
             self.assertEqual(one_bundles, two_bundles)
+
+    def test_install_tree_rejects_destination_escape(self):
+        desired = {"overlays": ["bad"], "payloads": {"bad": [{
+            "path": "README.md", "sha256": PLANS.file_sha256(ROOT / "README.md"),
+            "bytes": (ROOT / "README.md").stat().st_size,
+        }]}}
+        installed = {"bad": [{
+            "destination": "/storage/../etc/escape",
+            "sha256": desired["payloads"]["bad"][0]["sha256"],
+            "bytes": desired["payloads"]["bad"][0]["bytes"], "mode": "0644",
+        }]}
+        with self.assertRaisesRegex(PLANS.FLEET.FleetError, "install-destination"):
+            PLANS.resolve_install_members(ROOT, desired, installed)
 
     def test_guard_detects_payload_and_required_dependency_drift(self):
         contract = {

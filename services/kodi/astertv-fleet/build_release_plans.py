@@ -12,7 +12,7 @@ import json
 import os
 import tarfile
 import tempfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 HERE = Path(__file__).resolve().parent
 SPEC = importlib.util.spec_from_file_location("astertv_compile_fleet", HERE / "compile_fleet.py")
@@ -37,6 +37,10 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def file_sha256_from_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
 def atomic_write(path: Path, data: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}-", dir=path.parent)
@@ -51,8 +55,38 @@ def atomic_write(path: Path, data: bytes) -> None:
             os.unlink(temporary)
 
 
+def resolve_install_members(checkout: Path, desired: dict,
+                            installed: dict[str, list[dict]]) -> list[tuple[str, bytes, int]]:
+    """Map every installed destination to a reviewed, hash-bound source byte stream."""
+    members = []
+    for overlay_id in desired["overlays"]:
+        sources = desired["payloads"][overlay_id]
+        for row in installed[overlay_id]:
+            destination = row["destination"]
+            destination_path = PurePosixPath(destination)
+            if (not destination.startswith("/storage/") or ".." in destination_path.parts or
+                    destination_path.as_posix() != destination):
+                raise FLEET.FleetError(f"install-destination:{overlay_id}:{destination}")
+            matches = [
+                checkout / item["path"] for item in sources
+                if item["sha256"] == row["sha256"] and item["bytes"] == row["bytes"]
+            ]
+            if not matches:
+                raise FLEET.FleetError(f"install-source-missing:{overlay_id}:{destination}")
+            source = matches[0]
+            data = source.read_bytes()
+            if len(data) != row["bytes"] or hashlib.sha256(data).hexdigest() != row["sha256"]:
+                raise FLEET.FleetError(f"install-source-drift:{overlay_id}:{destination}")
+            members.append(("install" + destination, data, int(row["mode"], 8)))
+    names = [name for name, _, _ in members]
+    if len(names) != len(set(names)):
+        raise FLEET.FleetError("duplicate-install-destination")
+    return members
+
+
 def deterministic_bundle(checkout: Path, artifact_path: Path, release: dict,
-                         desired: dict, guard: dict) -> bytes:
+                         desired: dict, guard: dict,
+                         installed: dict[str, list[dict]]) -> bytes:
     """Build a byte-stable appliance bundle from verified source bytes."""
     manifest = {
         "schema_version": 1,
@@ -68,6 +102,11 @@ def deterministic_bundle(checkout: Path, artifact_path: Path, release: dict,
             "id": overlay_id,
             "payloads": desired["payloads"][overlay_id],
         } for overlay_id in desired["overlays"]],
+        "install_payloads": [
+            dict(row, overlay=overlay_id, archive_path="install" + row["destination"])
+            for overlay_id in desired["overlays"]
+            for row in installed[overlay_id]
+        ],
         "guard": guard,
     }
     members: list[tuple[str, bytes, int]] = [
@@ -83,6 +122,7 @@ def deterministic_bundle(checkout: Path, artifact_path: Path, release: dict,
                 raise FLEET.FleetError(f'payload-drift:{overlay_id}:{payload["path"]}')
             mode = 0o755 if os.access(source, os.X_OK) else 0o644
             members.append((f'overlays/{overlay_id}/{payload["path"]}', data, mode))
+    members.extend(resolve_install_members(checkout, desired, installed))
     stream = io.BytesIO()
     with gzip.GzipFile(fileobj=stream, mode="wb", filename="", mtime=0) as compressed:
         with tarfile.open(fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT) as archive:
@@ -213,7 +253,7 @@ def build(root: Path, output: Path, artifact_root: Path | None = None) -> dict:
         bundle_sha256 = None
         bundle_bytes = None
         if artifact_verified:
-            bundle = deterministic_bundle(checkout, artifact_path, release, desired, guard)
+            bundle = deterministic_bundle(checkout, artifact_path, release, desired, guard, installed)
             bundle_sha256 = hashlib.sha256(bundle).hexdigest()
             bundle_bytes = len(bundle)
             atomic_write(output / "bundles" / bundle_name, bundle)

@@ -40,8 +40,11 @@ changes the device composition hash instead of silently inheriting a hotfix.
 
 `build_release_plans.py --artifact-root services/kodi/dist` verifies the pinned
 base release and builds deterministic per-device bundles containing the base,
-payload inventory, source bytes and guard contract. Bundles are candidates, not
-permission to deploy. An overlay remains fail-closed until its manifest says
+payload inventory, source bytes, guard contract and a normalized
+`install/storage/...` tree for every owned live destination. Install members
+are resolved only from reviewed hash-matched sources, retain their declared
+modes and reject path traversal or duplicate destinations. Bundles are
+candidates, not permission to deploy. An overlay remains fail-closed until its manifest says
 `payload_status: complete` with no blockers. Transformer-only overlays must
 first materialize and hash their final outputs; external configuration and
 mutable/private state must be represented as assertions or exclusions rather
