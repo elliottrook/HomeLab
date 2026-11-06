@@ -1,5 +1,17 @@
 # Stream A — remaining delivery map
 
+> **M3 J2 custody transport recovery, 2026-11-06:** the first corpus and
+> evaluation custody attempts are retained as `NO-GO`. Their Mac mini source
+> and return paths were under volatile `/private/tmp` and disappeared during a
+> Mac mini crash/restart; the evaluation retry then correctly rejected its
+> already-created MacBook destination. The
+> [revision-2 recovery](evidence/M3-J2-isolated-custody-workspace-recovery-2026-11-06.md)
+> rebuilds both kits under persistent ignored local state, packages each as one
+> hash-pinned archive, and independently verifies all 22 manifest source files
+> plus the exact 11/1 private-input split. Fresh unrelated MacBook sessions and
+> new destination names are required. No key, receipt, proof, training effect
+> or promotion was accepted from the failed attempts.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.

@@ -89,6 +89,11 @@ workspace contains the exact eleven hash-verified inputs; the evaluation
 workspace contains only the accepted corpus comparison input. Neither has a
 key, evaluation set or receipt before its isolated Codex session runs.
 
+Those first workspaces were subsequently lost when the Mac mini restarted, and
+both external attempts were retained as fail-closed `NO-GO` results. They are
+superseded by the persistent, archive-verified revision-2 workspaces recorded
+in the [custody workspace recovery](M3-J2-isolated-custody-workspace-recovery-2026-11-06.md).
+
 ## Acceptance and exclusions
 
 Stream A may pin the returned public-key fingerprints only after checking that
