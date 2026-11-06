@@ -18,7 +18,8 @@ class OperationsAuditTests(unittest.TestCase):
         self.assertEqual(result["outcome"], "attention")
         self.assertIn("doctor:astertv-bedroom:unobserved", result["gaps"])
         self.assertIn("doctor:astertv-family:unobserved", result["gaps"])
-        self.assertIn("doctor:astertv-jen:drift", result["gaps"])
+        self.assertNotIn("doctor:astertv-jen:drift", result["gaps"])
+        self.assertEqual(result["gap_count"], 12)
         self.assertIn("wiki:live-astertv-department-absent", result["gaps"])
         self.assertIn("mirror:astertv-derived-source-absent", result["gaps"])
 

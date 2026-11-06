@@ -36,8 +36,9 @@ with SHA-256
 - two M9 candidate builds matched
   `254ac8bdb8b49989e4157d42824e06ed7ced3bd25836e9d8fa412a295345bc16`;
   and
-- the operational-readiness projection remained fail-closed at `attention`
-  with 13 named gaps.
+- the operational-readiness projection remained fail-closed at `attention`.
+  The clean-tree hash recorded its initial 13 named gaps; Jen's later read-only
+  payload refresh reduced the current snapshot to 12.
 
 M9 is now part of the normal page candidate source/secret scan and focused
 candidate gate, preventing a later release build from omitting it silently.

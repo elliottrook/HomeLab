@@ -2,7 +2,7 @@
 
 Date: 2026-11-05
 
-Status: fail-closed audit installed; 13 named gaps remain
+Status: fail-closed audit installed; 12 named gaps remain
 
 ## Method
 
@@ -30,10 +30,11 @@ authority is absent.
 
 ## Result
 
-The audit correctly reports `attention` with 13 gaps:
+The audit correctly reports `attention` with 12 gaps:
 
-- Doctor: Bedroom and Family are unobserved; Jen has composition drift limited
-  to three later accepted Remote-client payloads;
+- Doctor: Bedroom and Family are unobserved. Jen's 124 declared payloads were
+  re-read without remote writes, all matched the current composition, and its
+  refreshed sanitized observation is clean;
 - Beszel: no AsterTV appliance is enrolled;
 - NetBox: Jen has a primary address and MAC; Bedroom and Family do not yet have
   complete AsterTV identity records;
@@ -55,8 +56,9 @@ synthetic observation passes, and an unknown schema is rejected. The main M10
 gate now includes the readiness object. At clean commit
 `746ade8f47fd8454c4926aec0d0f41a48de9e5b7`, two runs were byte-identical at
 SHA-256 `8c2996f2c9ac570172a291ba7e8d574cf7b86f8e48e2fed9aebe16bb852fe901`:
-51 test files passed, 93 candidate files scanned clean, and the 13 gaps remained
-explicit rather than being converted into a release pass.
+51 test files passed and 93 candidate files scanned clean. That hash records
+the initial 13-gap snapshot; the refreshed Jen observation reduces the current
+audit to 12 without changing the fail-closed release result.
 
 ## Next bounded work
 
