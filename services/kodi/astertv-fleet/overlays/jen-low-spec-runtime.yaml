@@ -7,12 +7,25 @@
   "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
   "dependencies": ["release-guard-v1"],
   "targets": ["astertv-jen"],
-  "owns": ["kodi/settings/jen-1080p-stereo", "jellyfin/client-policy-jen"],
+  "owns": ["kodi/settings/jen-1080p-stereo", "kodi/runtime/jen-host-gates", "jellyfin/client-policy-jen"],
   "payload_sources": [
-    "services/kodi/astertv-v3/low-spec/jellyfin_client_policy.py",
-    "services/kodi/astertv-v3/low-spec/enable_low_spec_runtime.py"
+    "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime",
+    "services/kodi/astertv-fleet/materialize_jen_low_spec_runtime.py"
   ],
-  "payload_blockers": ["embedded-units-not-materialized", "undeclared-v2-transform-output-set", "jellyfin-hwa-and-client-settings-are-external-state"],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "assertions": [
+    {"authority": "kodi", "key": "display.output", "expected": "1920x1080", "sensitive": false},
+    {"authority": "kodi", "key": "audio.channels", "expected": "2.0", "sensitive": false},
+    {"authority": "kodi", "key": "audio.passthrough", "expected": false, "sensitive": false},
+    {"authority": "systemd", "key": "astertv-jen-jellyfin-policy.service", "expected": "enabled", "sensitive": false},
+    {"authority": "systemd", "key": "astertv-jen-jellyfin-policy.path", "expected": "enabled-active", "sensitive": false},
+    {"authority": "jellyfin-client", "key": "policy.mode", "expected": "selective", "sensitive": false},
+    {"authority": "jellyfin-client", "key": "policy.max-bitrate-kbps", "expected": 18000, "sensitive": false},
+    {"authority": "jellyfin-client", "key": "policy.hevc-direct-play-max-width", "expected": 1920, "sensitive": false},
+    {"authority": "release-guard", "key": "accepted-file-count", "expected": 528, "sensitive": false},
+    {"authority": "jellyfin-server", "key": "arc-a380-hwa", "expected": "hevc-vp9-av1-mpeg2-decode:intel-vpp:on:opencl:off", "sensitive": false}
+  ],
   "secret_refs": ["jellyfin-jen-client"],
   "rollback_ref": "astertv-reliability-AsterTV-Jen accepted state",
   "tests": ["services/kodi/astertv-v3/low-spec/test_jellyfin_client_policy.py"]

@@ -1,6 +1,6 @@
 {
   "channel": "v3-lab",
-  "composition_sha256": "95a1e840fff2efd9e5b0201a23ec3eb516161a62bbc623b0b962a62a655494c7",
+  "composition_sha256": "0da4c6be132e7ea83684c0eaee945b0a0d34e3916bca99e32407e6dd65241a83",
   "deployed": true,
   "device_id": "astertv-jen",
   "external_integrations": [
@@ -40,6 +40,11 @@
       "layer": "device-performance",
       "owner": "jen-low-spec-runtime",
       "resource": "jellyfin/client-policy-jen"
+    },
+    "device-performance:kodi/runtime/jen-host-gates": {
+      "layer": "device-performance",
+      "owner": "jen-low-spec-runtime",
+      "resource": "kodi/runtime/jen-host-gates"
     },
     "device-performance:kodi/settings/jen-1080p-stereo": {
       "layer": "device-performance",
@@ -368,14 +373,134 @@
     ],
     "jen-low-spec-runtime": [
       {
-        "bytes": 4925,
-        "path": "services/kodi/astertv-v3/low-spec/enable_low_spec_runtime.py",
-        "sha256": "c3c48c4bba8e5d19dd7960009c2d0e5c6f12f5812156c2b41b45a75a6a167ef8"
+        "bytes": 5569,
+        "path": "services/kodi/astertv-fleet/materialize_jen_low_spec_runtime.py",
+        "sha256": "4c3662fbacffaf8f4522cdfd037a50b64b20d43c0a49b48faf53c3e0966f0845"
+      },
+      {
+        "bytes": 742,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/plugin.audio.asterbooks/resources/lib/books_sleep_ui.py",
+        "sha256": "cdf93e894e666723f8b0b1802b91e8bbed40685544798c0cbe298947bfa24138"
+      },
+      {
+        "bytes": 8532,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/plugin.audio.asterbooks/service.py",
+        "sha256": "684dfffe9b5b9f6c53fb5710bd69cf58e40a13281a07a83f6c3ef84494b2b571"
+      },
+      {
+        "bytes": 4733,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/screensaver.asterhome.v2lab/default.py",
+        "sha256": "9a52adbcd7165e270831d290d067ba98903e0c13b9fd9e3089c2567d9c7568e4"
+      },
+      {
+        "bytes": 7680,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.asteracquisition/default.py",
+        "sha256": "5d97d5fb763be721d38fe0d5bebaab2f4223345212776e296807eddf4c73cae4"
+      },
+      {
+        "bytes": 734,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.asterbootstrap/default.py",
+        "sha256": "f022e18c67ffafa4224306564c6287189003e51c92302a15a050e20969ced4ba"
+      },
+      {
+        "bytes": 81597,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.astermusic.v2lab/default.py",
+        "sha256": "f56fa833a9068e4713429051bc9db6f19c3db6995429949fb4f89047a5a5754d"
+      },
+      {
+        "bytes": 18192,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.astermusic.v2lab/resources/lib/music_expanded_trial.py",
+        "sha256": "da74f6f496ecfb06bf78752c4d0e11c2adde5400ef0be422ee2e0b6fc1413961"
+      },
+      {
+        "bytes": 4908,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.astermusic.v2lab/resources/lib/music_jellyfin.py",
+        "sha256": "d9156057bcc4b2f14bbcf74992899811b224bd2e73f5407f4a76b016c1217b45"
+      },
+      {
+        "bytes": 13336,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.astermusic.v2lab/resources/lib/music_trial.py",
+        "sha256": "93bb09b9e5d75c8c169ae51addb79e6c30204a99c5a7eaeb7868c9a0ec5e24ff"
+      },
+      {
+        "bytes": 14862,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.asterruntime/aster-digest-player8/default.py",
+        "sha256": "c5ce865d5058ff16760fa8b89b1bafdf4a0eb17ab215e23b711d0b739bde8fc9"
+      },
+      {
+        "bytes": 6151,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.asterruntime/aster-digest-player8/resources/lib/digest_preview_source.py",
+        "sha256": "13e43f08fc37033951d89ff0cf238c3a7644441a8173cce8159ddb8055d50b35"
+      },
+      {
+        "bytes": 10495,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.asterruntime/aster-digest-reader6/default.py",
+        "sha256": "98197f0f4e7ff6acb727282fbac7a9fe5ef00ded5268290ba588a68c22f4a58b"
+      },
+      {
+        "bytes": 22667,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.asterruntime/aster-global-search-ui22/default.py",
+        "sha256": "642f2eaf3cef010b4e9a16d618692f637ade961ef4b958cab8b5fc293ba69ce8"
+      },
+      {
+        "bytes": 13952,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.asterruntime/aster-network-preview6/default.py",
+        "sha256": "d40479d3ea4e1dbbfb3015fbeb85215f8a4d8566d7132392bf38dc95684039e2"
+      },
+      {
+        "bytes": 4908,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.asterruntime/aster-video-scrub5/default.py",
+        "sha256": "48f33b89bc775c35c63aa859ffb38b3fee69f8175c5a8277e64f5f7949bb6328"
+      },
+      {
+        "bytes": 10877,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.asterseerr/default.py",
+        "sha256": "5486ee8feaa4d654796de6e5fc1849119022f9fc7dd68b59fcaa23a656f5c5ba"
+      },
+      {
+        "bytes": 4798,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/script.astervoice.v2lab/default.py",
+        "sha256": "85b078ba1776f8280b15c4da998e066dbbc1bdc2a9f7a6b6f63e3dffe8f71e0f"
+      },
+      {
+        "bytes": 2992,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/service.aster.playerui/service.py",
+        "sha256": "b14044a7b2fb8db4ce52040f406830c8f908411f0d43dd8af3f1df2bd1d178c7"
+      },
+      {
+        "bytes": 4192,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/skin.asterhome/tools/aster_v2_music.py",
+        "sha256": "d1c788a7497621415ee0fa1787306b7b0536115b4c627d63667cce06ebbb719e"
+      },
+      {
+        "bytes": 2647,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/skin.asterhome/tools/header_search.py",
+        "sha256": "3312bda4f9a51a66d2a0ff7c019686063356359df919946f37e18a8b94c6b96d"
+      },
+      {
+        "bytes": 3513,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/host-gates/skin.asterhome/tools/osd_choices.py",
+        "sha256": "bbfc3ca1955a5528b7b46c29951a741817bc40334ab96a981ebc00b994640caf"
+      },
+      {
+        "bytes": 7179,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/materialization-manifest.json",
+        "sha256": "9ca2f3fc076aebb4cf98f234264fc1cd7871a0baba20a359a4bcc4a9e0716e65"
       },
       {
         "bytes": 9767,
-        "path": "services/kodi/astertv-v3/low-spec/jellyfin_client_policy.py",
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/policy/jellyfin_client_policy.py",
         "sha256": "451f4d2173743f5fab93e8ace1a43f7182fb91d1909bdb51651ed87245a7d1d0"
+      },
+      {
+        "bytes": 348,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/system.d/astertv-jen-jellyfin-policy.path",
+        "sha256": "b77c8e8e02d5452ec77a5925cdc66dd30877a5487c999f1f73389c5a0eb1a94e"
+      },
+      {
+        "bytes": 286,
+        "path": "services/kodi/astertv-fleet/materialized/jen-low-spec-runtime/system.d/astertv-jen-jellyfin-policy.service",
+        "sha256": "fa315a2a1a573645d513c2d06aa66de5f315dc61a3962f9116fd4d129d85569d"
       }
     ],
     "jen-movie-youtube": [
@@ -818,7 +943,7 @@
     "overlays/jen-aster-client.yaml": "08621ef27e351cf46381ba3af1efd897b41b42c5c0aa43e84c03f73a5d480a57",
     "overlays/jen-guest-catalogue.yaml": "0a3e886a741d09930c7302838296ed4e4dc8e39cfbe0fcce50f3d63188e4466c",
     "overlays/jen-home-cameras.yaml": "b68312b8b9e6cdb73657033ba889e64c36ef7d8635a4e0f32e0e23e6d55d95dc",
-    "overlays/jen-low-spec-runtime.yaml": "eba688a05c73c9a1af3794fed5552e3e9496ff539d9dd89e8701d729eebcab6d",
+    "overlays/jen-low-spec-runtime.yaml": "9e4a8f1479d0b948480762415ac6d9fb7903774aab88da62045b85598eab30e1",
     "overlays/jen-movie-youtube.yaml": "504104268858fd5357fe045b893957820300e62cb49f657c9fdfd0d06a219fe9",
     "overlays/jen-news-icons.yaml": "bf2d922a23398be52c785c197a48a8104395a099716be56e24e37790c22d0cce",
     "overlays/jen-podcast-requests.yaml": "ab1ba7cf1c2a27d9d6e53c647753762668ce3ce6deb03cb3953d70da7cfd7480",

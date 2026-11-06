@@ -50,6 +50,9 @@ HOME_SPEC.loader.exec_module(HOME_MODULE)
 MOVIE_YT_SPEC = importlib.util.spec_from_file_location("jen_movie_youtube_materializer", ROOT / "materialize_jen_movie_youtube.py")
 MOVIE_YT_MODULE = importlib.util.module_from_spec(MOVIE_YT_SPEC)
 MOVIE_YT_SPEC.loader.exec_module(MOVIE_YT_MODULE)
+LOW_SPEC = importlib.util.spec_from_file_location("jen_low_spec_materializer", ROOT / "materialize_jen_low_spec_runtime.py")
+LOW_SPEC_MODULE = importlib.util.module_from_spec(LOW_SPEC)
+LOW_SPEC.loader.exec_module(LOW_SPEC_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -211,6 +214,21 @@ class MaterializationTests(unittest.TestCase):
         runtime = files["stable/apply.py"][0].decode()
         self.assertNotIn("ACCOUNT", runtime)
         self.assertNotIn("profiles.json", runtime)
+
+    def test_jen_low_spec_owns_only_unclaimed_host_gates_and_policy_code(self):
+        files, manifest = LOW_SPEC_MODULE.render()
+        self.assertEqual(len(files), 24)
+        destinations = {row["destination"] for row in manifest["files"]}
+        self.assertFalse(any(path in destinations for path in (
+            "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/movie.py",
+            "/storage/.kodi/addons/script.asterruntime/aster-series-preview24/default.py",
+            "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_digest.py",
+            "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_series.py",
+        )))
+        self.assertEqual(len(manifest["provenance"]["excluded_outputs"]), 4)
+        self.assertTrue(all(not row["bundled"] for row in manifest["mutable_state"]))
+        self.assertEqual(manifest["external_state"][0]["expected_sha256"],
+                         "e4715278558f7956030b92b34677dab71776cf7820f1787b1f68e8ff11d6d89b")
 
 
 if __name__ == "__main__":

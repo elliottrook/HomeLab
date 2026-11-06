@@ -1,0 +1,11 @@
+[Unit]
+Description=Enforce AsterTV-Jen low-spec Jellyfin client policy
+After=local-fs.target astertv-release-guard.service
+Before=kodi.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /storage/.aster-policy/jellyfin_client_policy.py reconcile
+
+[Install]
+WantedBy=kodi.service

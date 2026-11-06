@@ -100,9 +100,10 @@ class ReleasePipelineTests(unittest.TestCase):
             result = PLANS.build(ROOT, Path(destination), artifact_root)
             self.assertEqual(result["verified_artifacts"], 4)
             self.assertEqual(result["built_bundles"], 4)
-            self.assertEqual(result["deployable_devices"], 2)
+            self.assertEqual(result["deployable_devices"], 3)
             family = json.loads((Path(destination) / "plans/astertv-family.json").read_text())
             bedroom = json.loads((Path(destination) / "plans/astertv-bedroom.json").read_text())
+            jen = json.loads((Path(destination) / "plans/astertv-jen.json").read_text())
             self.assertTrue(family["artifact"]["verified"])
             self.assertNotIn("release-artifact-not-locally-verified", family["promotion_blockers"])
             self.assertNotIn("composition-bundle-not-built", family["promotion_blockers"])
@@ -116,6 +117,8 @@ class ReleasePipelineTests(unittest.TestCase):
             self.assertEqual(family["promotion_blockers"], [])
             self.assertTrue(bedroom["deployable"])
             self.assertEqual(bedroom["promotion_blockers"], [])
+            self.assertTrue(jen["deployable"])
+            self.assertEqual(jen["promotion_blockers"], [])
 
     def test_verified_bundle_build_is_byte_deterministic(self):
         artifact_root = ROOT.parent / "dist"

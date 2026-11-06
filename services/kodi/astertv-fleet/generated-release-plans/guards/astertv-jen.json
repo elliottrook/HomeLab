@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "95a1e840fff2efd9e5b0201a23ec3eb516161a62bbc623b0b962a62a655494c7",
+  "composition_sha256": "0da4c6be132e7ea83684c0eaee945b0a0d34e3916bca99e32407e6dd65241a83",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-jen",
   "expected_assertions": [
@@ -116,6 +116,76 @@
       "expected": "0600",
       "key": "camera-viewer-client.mode",
       "overlay": "jen-home-cameras",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": "1920x1080",
+      "key": "display.output",
+      "overlay": "jen-low-spec-runtime",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": "2.0",
+      "key": "audio.channels",
+      "overlay": "jen-low-spec-runtime",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": false,
+      "key": "audio.passthrough",
+      "overlay": "jen-low-spec-runtime",
+      "sensitive": false
+    },
+    {
+      "authority": "systemd",
+      "expected": "enabled",
+      "key": "astertv-jen-jellyfin-policy.service",
+      "overlay": "jen-low-spec-runtime",
+      "sensitive": false
+    },
+    {
+      "authority": "systemd",
+      "expected": "enabled-active",
+      "key": "astertv-jen-jellyfin-policy.path",
+      "overlay": "jen-low-spec-runtime",
+      "sensitive": false
+    },
+    {
+      "authority": "jellyfin-client",
+      "expected": "selective",
+      "key": "policy.mode",
+      "overlay": "jen-low-spec-runtime",
+      "sensitive": false
+    },
+    {
+      "authority": "jellyfin-client",
+      "expected": 18000,
+      "key": "policy.max-bitrate-kbps",
+      "overlay": "jen-low-spec-runtime",
+      "sensitive": false
+    },
+    {
+      "authority": "jellyfin-client",
+      "expected": 1920,
+      "key": "policy.hevc-direct-play-max-width",
+      "overlay": "jen-low-spec-runtime",
+      "sensitive": false
+    },
+    {
+      "authority": "release-guard",
+      "expected": 528,
+      "key": "accepted-file-count",
+      "overlay": "jen-low-spec-runtime",
+      "sensitive": false
+    },
+    {
+      "authority": "jellyfin-server",
+      "expected": "hevc-vp9-av1-mpeg2-decode:intel-vpp:on:opencl:off",
+      "key": "arc-a380-hwa",
+      "overlay": "jen-low-spec-runtime",
       "sensitive": false
     },
     {
@@ -525,6 +595,174 @@
       "overlay": "jen-home-cameras",
       "path": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1134_cameras.xml",
       "sha256": "fc8e4c7b9f611319847784c229d08adaa5a66faf43c83035f349af977b93866d"
+    },
+    {
+      "bytes": 9767,
+      "mode": "0700",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.aster-policy/jellyfin_client_policy.py",
+      "sha256": "451f4d2173743f5fab93e8ace1a43f7182fb91d1909bdb51651ed87245a7d1d0"
+    },
+    {
+      "bytes": 348,
+      "mode": "0644",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.config/system.d/astertv-jen-jellyfin-policy.path",
+      "sha256": "b77c8e8e02d5452ec77a5925cdc66dd30877a5487c999f1f73389c5a0eb1a94e"
+    },
+    {
+      "bytes": 286,
+      "mode": "0644",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.config/system.d/astertv-jen-jellyfin-policy.service",
+      "sha256": "fa315a2a1a573645d513c2d06aa66de5f315dc61a3962f9116fd4d129d85569d"
+    },
+    {
+      "bytes": 742,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/plugin.audio.asterbooks/resources/lib/books_sleep_ui.py",
+      "sha256": "cdf93e894e666723f8b0b1802b91e8bbed40685544798c0cbe298947bfa24138"
+    },
+    {
+      "bytes": 8532,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/plugin.audio.asterbooks/service.py",
+      "sha256": "684dfffe9b5b9f6c53fb5710bd69cf58e40a13281a07a83f6c3ef84494b2b571"
+    },
+    {
+      "bytes": 4733,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/screensaver.asterhome.v2lab/default.py",
+      "sha256": "9a52adbcd7165e270831d290d067ba98903e0c13b9fd9e3089c2567d9c7568e4"
+    },
+    {
+      "bytes": 7680,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.asteracquisition/default.py",
+      "sha256": "5d97d5fb763be721d38fe0d5bebaab2f4223345212776e296807eddf4c73cae4"
+    },
+    {
+      "bytes": 734,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.asterbootstrap/default.py",
+      "sha256": "f022e18c67ffafa4224306564c6287189003e51c92302a15a050e20969ced4ba"
+    },
+    {
+      "bytes": 81597,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.astermusic.v2lab/default.py",
+      "sha256": "f56fa833a9068e4713429051bc9db6f19c3db6995429949fb4f89047a5a5754d"
+    },
+    {
+      "bytes": 18192,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.astermusic.v2lab/resources/lib/music_expanded_trial.py",
+      "sha256": "da74f6f496ecfb06bf78752c4d0e11c2adde5400ef0be422ee2e0b6fc1413961"
+    },
+    {
+      "bytes": 4908,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.astermusic.v2lab/resources/lib/music_jellyfin.py",
+      "sha256": "d9156057bcc4b2f14bbcf74992899811b224bd2e73f5407f4a76b016c1217b45"
+    },
+    {
+      "bytes": 13336,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.astermusic.v2lab/resources/lib/music_trial.py",
+      "sha256": "93bb09b9e5d75c8c169ae51addb79e6c30204a99c5a7eaeb7868c9a0ec5e24ff"
+    },
+    {
+      "bytes": 14862,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/default.py",
+      "sha256": "c5ce865d5058ff16760fa8b89b1bafdf4a0eb17ab215e23b711d0b739bde8fc9"
+    },
+    {
+      "bytes": 6151,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-digest-player8/resources/lib/digest_preview_source.py",
+      "sha256": "13e43f08fc37033951d89ff0cf238c3a7644441a8173cce8159ddb8055d50b35"
+    },
+    {
+      "bytes": 10495,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-digest-reader6/default.py",
+      "sha256": "98197f0f4e7ff6acb727282fbac7a9fe5ef00ded5268290ba588a68c22f4a58b"
+    },
+    {
+      "bytes": 22667,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/default.py",
+      "sha256": "642f2eaf3cef010b4e9a16d618692f637ade961ef4b958cab8b5fc293ba69ce8"
+    },
+    {
+      "bytes": 13952,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-network-preview6/default.py",
+      "sha256": "d40479d3ea4e1dbbfb3015fbeb85215f8a4d8566d7132392bf38dc95684039e2"
+    },
+    {
+      "bytes": 4908,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.asterruntime/aster-video-scrub5/default.py",
+      "sha256": "48f33b89bc775c35c63aa859ffb38b3fee69f8175c5a8277e64f5f7949bb6328"
+    },
+    {
+      "bytes": 10877,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.asterseerr/default.py",
+      "sha256": "5486ee8feaa4d654796de6e5fc1849119022f9fc7dd68b59fcaa23a656f5c5ba"
+    },
+    {
+      "bytes": 4798,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/script.astervoice.v2lab/default.py",
+      "sha256": "85b078ba1776f8280b15c4da998e066dbbc1bdc2a9f7a6b6f63e3dffe8f71e0f"
+    },
+    {
+      "bytes": 2992,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/service.aster.playerui/service.py",
+      "sha256": "b14044a7b2fb8db4ce52040f406830c8f908411f0d43dd8af3f1df2bd1d178c7"
+    },
+    {
+      "bytes": 4192,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/skin.asterhome/tools/aster_v2_music.py",
+      "sha256": "d1c788a7497621415ee0fa1787306b7b0536115b4c627d63667cce06ebbb719e"
+    },
+    {
+      "bytes": 2647,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/skin.asterhome/tools/header_search.py",
+      "sha256": "3312bda4f9a51a66d2a0ff7c019686063356359df919946f37e18a8b94c6b96d"
+    },
+    {
+      "bytes": 3513,
+      "mode": "0755",
+      "overlay": "jen-low-spec-runtime",
+      "path": "/storage/.kodi/addons/skin.asterhome/tools/osd_choices.py",
+      "sha256": "bbfc3ca1955a5528b7b46c29951a741817bc40334ab96a981ebc00b994640caf"
     },
     {
       "bytes": 343,
@@ -963,6 +1201,7 @@
   ],
   "expected_resources": [
     "device-performance:jellyfin/client-policy-jen",
+    "device-performance:kodi/runtime/jen-host-gates",
     "device-performance:kodi/settings/jen-1080p-stereo",
     "kodi-catalogue:kodi/jellyfin-guest-catalogue-adapter",
     "kodi-identity:kodi/astertv-profile-registry",

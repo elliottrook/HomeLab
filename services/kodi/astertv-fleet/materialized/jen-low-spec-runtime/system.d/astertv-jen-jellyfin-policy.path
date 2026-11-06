@@ -1,0 +1,11 @@
+[Unit]
+Description=Watch AsterTV-Jen Jellyfin client policy inputs
+After=local-fs.target
+
+[Path]
+PathChanged=/storage/.kodi/addons/plugin.video.jellyfin/jellyfin_kodi/helper/playutils.py
+PathChanged=/storage/.kodi/userdata/addon_data/plugin.video.jellyfin/settings.xml
+Unit=astertv-jen-jellyfin-policy.service
+
+[Install]
+WantedBy=multi-user.target

@@ -61,8 +61,8 @@ Family media lifecycle is also rendered from its exact checkpoint, while
 Intro Skipper remains hash-pinned external Jellyfin state. The Family equipment
 bridge packages exact recovery sources and verifies live HA/Agent/OPNsense
 state through assertions. Jen's immutable account registry is now materialized
-without mutable profiles, authority state or credentials. Bedroom and Family
-are complete, Jen has one final incomplete low-spec runtime overlay, and Guest is an
+without mutable profiles, authority state or credentials. Bedroom, Family and
+Jen are complete, and Guest is an
 intentional non-deployed candidate. This status is eligibility evidence, not a
 deployment instruction.
 

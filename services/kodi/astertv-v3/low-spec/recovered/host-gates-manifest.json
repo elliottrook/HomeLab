@@ -1,0 +1,130 @@
+{
+  "files": {
+    "plugin.audio.asterbooks/resources/lib/books_sleep_ui.py": {
+      "after_sha256": "cdf93e894e666723f8b0b1802b91e8bbed40685544798c0cbe298947bfa24138",
+      "before_sha256": "af3b7cafd14644d3ffe2a9bf4a81acc380b86a58f061b3f7e74642f90cff8ed0",
+      "replacements": 1
+    },
+    "plugin.audio.asterbooks/service.py": {
+      "after_sha256": "684dfffe9b5b9f6c53fb5710bd69cf58e40a13281a07a83f6c3ef84494b2b571",
+      "before_sha256": "fc6655217becf8e2fbe8ad26b45ee2f74c2a399c67ff44b87fe8057951bdf116",
+      "replacements": 1
+    },
+    "screensaver.asterhome.v2lab/default.py": {
+      "after_sha256": "9a52adbcd7165e270831d290d067ba98903e0c13b9fd9e3089c2567d9c7568e4",
+      "before_sha256": "003723480fe98ae8b53ec6e0d94a0ba6ee609927539fb03a35c0c07cb93c5704",
+      "replacements": 1
+    },
+    "script.asteracquisition/default.py": {
+      "after_sha256": "5d97d5fb763be721d38fe0d5bebaab2f4223345212776e296807eddf4c73cae4",
+      "before_sha256": "530b55ec5f7878db6e14a3f80817fc0fb559c67825af0078d81858243c3147a8",
+      "replacements": 1
+    },
+    "script.asterbootstrap/default.py": {
+      "after_sha256": "f022e18c67ffafa4224306564c6287189003e51c92302a15a050e20969ced4ba",
+      "before_sha256": "2ec7827247a3a9a388154f004223b7224e682ced685616c63e803d69af8fee41",
+      "replacements": 1
+    },
+    "script.astermusic.v2lab/default.py": {
+      "after_sha256": "f56fa833a9068e4713429051bc9db6f19c3db6995429949fb4f89047a5a5754d",
+      "before_sha256": "0d8d168a5206176875e1d46effe0b3fe75b7c0d0320cd708903f17a080586a35",
+      "replacements": 1
+    },
+    "script.astermusic.v2lab/resources/lib/music_expanded_trial.py": {
+      "after_sha256": "da74f6f496ecfb06bf78752c4d0e11c2adde5400ef0be422ee2e0b6fc1413961",
+      "before_sha256": "24917c4002a43ab6fd27f75b27cc0ed65396c5946e06d5b3c854288123e0676d",
+      "replacements": 1
+    },
+    "script.astermusic.v2lab/resources/lib/music_jellyfin.py": {
+      "after_sha256": "d9156057bcc4b2f14bbcf74992899811b224bd2e73f5407f4a76b016c1217b45",
+      "before_sha256": "cdc8918333fef162a70b850d279e24d76eb68f4a21100a8375fb2ff24b8ea819",
+      "replacements": 1
+    },
+    "script.astermusic.v2lab/resources/lib/music_trial.py": {
+      "after_sha256": "93bb09b9e5d75c8c169ae51addb79e6c30204a99c5a7eaeb7868c9a0ec5e24ff",
+      "before_sha256": "cc52b4d20b74f8f805403cb24a7bb45ee5f9f335a6e2dc8ba4e4ae6542d4a44f",
+      "replacements": 2
+    },
+    "script.asterruntime/aster-digest-player8/default.py": {
+      "after_sha256": "c5ce865d5058ff16760fa8b89b1bafdf4a0eb17ab215e23b711d0b739bde8fc9",
+      "before_sha256": "288a2e1f4521e5597156116d622f944af94434d7850183d7b7de58dffe73d5a7",
+      "replacements": 1
+    },
+    "script.asterruntime/aster-digest-player8/resources/lib/digest_preview_source.py": {
+      "after_sha256": "13e43f08fc37033951d89ff0cf238c3a7644441a8173cce8159ddb8055d50b35",
+      "before_sha256": "f9fc18138f66ca92377eab2399e189896f792456133aff2d49f363c6eb319751",
+      "replacements": 1
+    },
+    "script.asterruntime/aster-digest-reader6/default.py": {
+      "after_sha256": "98197f0f4e7ff6acb727282fbac7a9fe5ef00ded5268290ba588a68c22f4a58b",
+      "before_sha256": "4f8ef017c4bde19ff5e14283ef90d38ab4d5ab842a6717085329570339dd2e1d",
+      "replacements": 1
+    },
+    "script.asterruntime/aster-global-search-ui22/default.py": {
+      "after_sha256": "642f2eaf3cef010b4e9a16d618692f637ade961ef4b958cab8b5fc293ba69ce8",
+      "before_sha256": "711d29e69b69b804fb783d62e058e32e03d0d1f98c7540a7c4c373e8b8ad1257",
+      "replacements": 1
+    },
+    "script.asterruntime/aster-global-search-ui22/movie.py": {
+      "after_sha256": "406362f7f6ac0f6833df604176ef40b5406790103863b3bf72aefc2105cc05ce",
+      "before_sha256": "422ac98641297e3eb210ff4e6b65392feff8adb4e2f3289f218114d6e4016355",
+      "replacements": 1
+    },
+    "script.asterruntime/aster-network-preview6/default.py": {
+      "after_sha256": "d40479d3ea4e1dbbfb3015fbeb85215f8a4d8566d7132392bf38dc95684039e2",
+      "before_sha256": "89389b85ffcf6e529ef976fdd2ec674327b67cdb36281b4b7e64ca0229ec7d68",
+      "replacements": 1
+    },
+    "script.asterruntime/aster-series-preview24/default.py": {
+      "after_sha256": "0af89dfabce35018c46a31bb79e78b1489c500c954cec6cd15d165230af5320b",
+      "before_sha256": "dd75885cd19750ccf876e1fa20bf2192d2cc9896e57a83b4b0b18df2b7298032",
+      "replacements": 2
+    },
+    "script.asterruntime/aster-video-scrub5/default.py": {
+      "after_sha256": "48f33b89bc775c35c63aa859ffb38b3fee69f8175c5a8277e64f5f7949bb6328",
+      "before_sha256": "ecbd46b02a9b584541474d8ff78ab2914998c69001c275ae510fa76c26130c14",
+      "replacements": 1
+    },
+    "script.asterseerr/default.py": {
+      "after_sha256": "5486ee8feaa4d654796de6e5fc1849119022f9fc7dd68b59fcaa23a656f5c5ba",
+      "before_sha256": "946ce6bcd0c3c9114e1ca47b9590ef3b51f23e438b19bf5ff7bf5fdc6a5e272c",
+      "replacements": 1
+    },
+    "script.astervoice.v2lab/default.py": {
+      "after_sha256": "85b078ba1776f8280b15c4da998e066dbbc1bdc2a9f7a6b6f63e3dffe8f71e0f",
+      "before_sha256": "8cded00659c6ab113f610953694f90c363db5fe5a61cb9e08729a86177a8b288",
+      "replacements": 1
+    },
+    "service.aster.playerui/service.py": {
+      "after_sha256": "b14044a7b2fb8db4ce52040f406830c8f908411f0d43dd8af3f1df2bd1d178c7",
+      "before_sha256": "c3f10a9aebbdcf8d9d57dc5a6091a907139a6a9e7a83353f2b3f2a91822b2e6f",
+      "replacements": 1
+    },
+    "skin.asterhome/tools/aster_v2_digest.py": {
+      "after_sha256": "24decbddc17fccf7c5e7afe4bba40c084d5f4bdb979a371ac6f83df0ee5908f8",
+      "before_sha256": "4958ec39e5dc76e089d7a856fe15b842046312b9f5de15b8e0201cb40599ce03",
+      "replacements": 1
+    },
+    "skin.asterhome/tools/aster_v2_music.py": {
+      "after_sha256": "d1c788a7497621415ee0fa1787306b7b0536115b4c627d63667cce06ebbb719e",
+      "before_sha256": "4aae1c23d36fd5c954e14cd4b46dc3f5c6238ee83704605eadf96cd459a9b7e8",
+      "replacements": 2
+    },
+    "skin.asterhome/tools/aster_v2_series.py": {
+      "after_sha256": "16815e4ec8f16b5e75a076e45faf9e0a0bca8eb10b35d0b6c24f1236469a107b",
+      "before_sha256": "0041f06ea9d866e309fc15abf7e4ba59a5c32e2cef56041197f0b2089a967a89",
+      "replacements": 1
+    },
+    "skin.asterhome/tools/header_search.py": {
+      "after_sha256": "3312bda4f9a51a66d2a0ff7c019686063356359df919946f37e18a8b94c6b96d",
+      "before_sha256": "48054902c3ec234127993a096b1671e271ed55847524f520a277c262aaf7f8ec",
+      "replacements": 1
+    },
+    "skin.asterhome/tools/osd_choices.py": {
+      "after_sha256": "bbfc3ca1955a5528b7b46c29951a741817bc40334ab96a981ebc00b994640caf",
+      "before_sha256": "3baa317413492f58de82360d30428cd7e29315abf1dbf68fe165d598566cdea6",
+      "replacements": 1
+    }
+  },
+  "host": "AsterTV-Jen"
+}
