@@ -1,4 +1,4 @@
-"""Undeployed bounded capture core for the fixed compatibility requests.
+"""Bounded capture core for the source/card-bound fixed compatibility requests.
 
 Transport and monotonic clock must be injected. No endpoint, key reader, CLI,
 installation, lease or network default exists. Returned text/hidden reasoning
