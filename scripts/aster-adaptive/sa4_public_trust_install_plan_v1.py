@@ -16,7 +16,7 @@ NEW_SHA256 = {
     f"{BASE}/sa4_authenticated_authority_v1.py":
         "367bf1a1e473363b8c8aac7d13a4f06456964de45093c172e32a1f3c93a725d6",
     f"{BASE}/sa4_independent_postcheck_receipt_v1.py":
-        "a37a4926c61ae6afecec666f109e1197ed83c3e9a554e696d74cf5134bfc3789",
+        "b0a4a3cfe6ad2c53c14c8165fe0a342f6c7eec28d0c5b727579dcbdc0ef6f831",
     f"{BASE}/sa4_key_custody_slots_v1.py":
         "e1d9088a1725847a6b7f16460177e266e076fd987b01894daf4a69c5b2b8d0d0",
     f"{BASE}/sa4_public_trust_candidate_v1.py":

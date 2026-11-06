@@ -111,17 +111,22 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
         value, _, _ = rollback_value(
             state="complete" if complete else "uncertain",
             health="pass" if complete else "uncertain")
+        rollback_terminal_raw = contract.canonical({
+            "schema": "aster-sa4-rollback-terminal.v1",
+            "operation_id": self.terminal["operation_id"],
+            "rollback_attempt_id": "sa4-synthetic-rollback"})
         value.update(
             plan_sha256=reconciler.sha256(self.plan_raw),
             admission_sha256=reconciler.sha256(self.admission_raw),
             claim_sha256=self.claim_sha,
             trigger_postcheck_receipt_sha256=reconciler.sha256(postcheck_raw),
+            rollback_terminal_sha256=reconciler.sha256(rollback_terminal_raw),
             checkpoint_sha256="2" * 64,
             target_registration_sha256=self.registration)
         value["final_target_snapshot"]["bytes_sha256"] = "2" * 64
         value["checkpoint_snapshot"]["bytes_sha256"] = "2" * 64
         raw = contract.canonical(value)
-        return value, raw, proof_for(raw)
+        return rollback_terminal_raw, value, raw, proof_for(raw)
 
     def reconcile(self, postcheck_raw, proof_raw, **kwargs):
         with patch.object(observer, "TRUSTED_OBSERVERS", self.trusted):
@@ -143,9 +148,10 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
 
     def test_failed_postcheck_with_complete_rollback_burns_failed(self):
         _, raw, proof = self.postcheck(("pass", "fail", "pass"))
-        _, rollback_raw, rollback_proof = self.rollback(raw)
+        rollback_terminal, _, rollback_raw, rollback_proof = self.rollback(raw)
         result = self.reconcile(
-            raw, proof, rollback_receipt_raw=rollback_raw,
+            raw, proof, rollback_terminal_raw=rollback_terminal,
+            rollback_receipt_raw=rollback_raw,
             rollback_proof_raw=rollback_proof)
         self.assertEqual("failed", result["ledger_terminal_state"])
         self.assertTrue(result["rollback_evidence_complete"])
@@ -159,9 +165,11 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
                 self.plan_raw, self.admission_raw, self.checkpoint_raw,
                 self.terminal_raw, raw, proof, self.ledger, now_epoch=130)
         self.assertEqual("claimed", self.ledger.get("synthetic-grant")["state"])
-        _, rollback_raw, rollback_proof = self.rollback(raw, complete=False)
+        rollback_terminal, _, rollback_raw, rollback_proof = self.rollback(
+            raw, complete=False)
         result = self.reconcile(
-            raw, proof, rollback_receipt_raw=rollback_raw,
+            raw, proof, rollback_terminal_raw=rollback_terminal,
+            rollback_receipt_raw=rollback_raw,
             rollback_proof_raw=rollback_proof)
         self.assertEqual("uncertain", result["ledger_terminal_state"])
 

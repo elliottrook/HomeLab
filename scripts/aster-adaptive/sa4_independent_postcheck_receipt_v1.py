@@ -162,7 +162,8 @@ def validate_rollback(receipt_raw: bytes, proof_raw: bytes, *,
     value = decode_unique_json(receipt_raw)
     fields = {"schema", "operation_id", "plan_sha256", "admission_sha256",
               "claim_sha256", "trigger_postcheck_receipt_sha256",
-              "checkpoint_sha256", "rollback_attempt_id", "target_id",
+              "rollback_terminal_sha256", "checkpoint_sha256",
+              "rollback_attempt_id", "target_id",
               "target_registration_sha256", "rollback_program_sha256",
               "observed_epoch", "observer_id", "rollback_state",
               "final_target_snapshot", "checkpoint_snapshot",
@@ -175,8 +176,9 @@ def validate_rollback(receipt_raw: bytes, proof_raw: bytes, *,
                 "operation_id", "rollback_attempt_id", "observer_id"))
             or any(not _digest(value[name]) for name in (
                 "plan_sha256", "admission_sha256", "claim_sha256",
-                "trigger_postcheck_receipt_sha256", "checkpoint_sha256",
-                "target_registration_sha256", "rollback_program_sha256"))
+                "trigger_postcheck_receipt_sha256", "rollback_terminal_sha256",
+                "checkpoint_sha256", "target_registration_sha256",
+                "rollback_program_sha256"))
             or type(value["observed_epoch"]) is not int
             or type(not_before_epoch) is not int or type(deadline_epoch) is not int
             or not not_before_epoch <= value["observed_epoch"] <= deadline_epoch

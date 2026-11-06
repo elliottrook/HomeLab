@@ -163,6 +163,14 @@
 > retained, retry count is zero and the suite passes 115/115. Nothing is
 > installed or live; next is the independent rollback receipt producer and a
 > joined disposable success-plus-failure transaction rehearsal.
+> The [independent rollback receipt producer](evidence/SA4-independent-rollback-receipt-producer-source-2026-11-05.md)
+> is now source-complete and inactive. It independently rereads the restored
+> target and retained checkpoint, and it closes a discovered lineage gap by
+> binding the signed rollback receipt and ledger reconciliation to the exact
+> rollback-owner terminal digest. Complete, failed and tampered-terminal paths
+> are covered; the suite passes 118/118. Next is the joined disposable
+> success-plus-failure transaction rehearsal. The first live repair remains an
+> exact immediate approval gate.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)

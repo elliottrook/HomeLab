@@ -85,6 +85,7 @@ def rollback_value(state="complete", health="pass"):
         "plan_sha256": "1" * 64, "admission_sha256": "2" * 64,
         "claim_sha256": "3" * 64,
         "trigger_postcheck_receipt_sha256": "4" * 64,
+        "rollback_terminal_sha256": "5" * 64,
         "checkpoint_sha256": "9" * 64,
         "rollback_attempt_id": "sa4-synthetic-rollback",
         "target_id": target.target_id,

@@ -139,6 +139,7 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
               checkpoint_owner_raw: bytes, terminal_raw: bytes,
               postcheck_receipt_raw: bytes, postcheck_proof_raw: bytes,
               ledger: object, *, now_epoch: int,
+              rollback_terminal_raw: bytes | None = None,
               rollback_receipt_raw: bytes | None = None,
               rollback_proof_raw: bytes | None = None) -> dict[str, object]:
     """Validate full synthetic lineage and terminally burn its ledger claim."""
@@ -196,13 +197,16 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
     rollback = None
     ledger_state = "uncertain"
     if postcheck["postchecks_complete"]:
-        if rollback_receipt_raw is not None or rollback_proof_raw is not None:
+        if (rollback_terminal_raw is not None
+                or rollback_receipt_raw is not None
+                or rollback_proof_raw is not None):
             raise ValueError("SA4 passing postchecks cannot carry rollback")
         if (postcheck_value["target_snapshot"]["bytes_sha256"]
                 != plan["change"]["artifact_sha256"]):
             raise ValueError("SA4 observed candidate bytes changed")
     else:
-        if rollback_receipt_raw is None or rollback_proof_raw is None:
+        if (rollback_terminal_raw is None or rollback_receipt_raw is None
+                or rollback_proof_raw is None):
             raise ValueError("SA4 failed postcheck requires rollback evidence")
         rollback = observer.validate_rollback(
             rollback_receipt_raw, rollback_proof_raw,
@@ -215,6 +219,8 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
                 or rollback_value["claim_sha256"] != claim_sha256
                 or rollback_value["trigger_postcheck_receipt_sha256"]
                 != sha256(postcheck_receipt_raw)
+                or rollback_value["rollback_terminal_sha256"]
+                != sha256(rollback_terminal_raw)
                 or rollback_value["checkpoint_sha256"]
                 != checkpoint["checkpoint_sha256"]
                 or rollback_value["target_id"] != target.target_id
