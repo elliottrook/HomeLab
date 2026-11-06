@@ -92,6 +92,7 @@ class RegisteredBridge(unittest.TestCase):
                     return types.SimpleNamespace(st_mode=s.st_mode,st_uid=0)
                 with patch.object(Path,'lstat',info), \
                      patch.object(self.b,'validate_card',return_value='a'*64), \
+                     patch.object(self.b,'require_incident_closed',return_value=None), \
                      contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(self.b.dispatch(self.row,self.spec,clock=lambda:1001,runner=run),0)
                     with self.assertRaises(FileExistsError):
@@ -103,6 +104,17 @@ class RegisteredBridge(unittest.TestCase):
                 self.assertEqual(kw['timeout'],25)
                 intent=json.loads((Path(d)/'exclusive-dispatch'/(self.row['booking_id']+'.json')).read_bytes())
                 self.assertEqual(intent['booking_identity']['workload'],self.b.WORKLOAD)
+    def test_open_incident_blocks_and_missing_or_changed_evidence_cannot_clear_it(self):
+        raw=self.b.canonical({'incident_id':self.b.INCIDENT,'state':'OPEN'})
+        with patch.object(self.b,'protected',return_value=raw), \
+             patch.object(self.b,'INCIDENT_SHA',hashlib.sha256(raw).hexdigest()):
+            with self.assertRaisesRegex(RuntimeError,'DEVICE_INCIDENT_OPEN'):
+                self.b.require_incident_closed()
+        with patch.object(self.b,'protected',side_effect=FileNotFoundError):
+            with self.assertRaises(FileNotFoundError):self.b.require_incident_closed()
+        with patch.object(self.b,'protected',return_value=b'closed'):
+            with self.assertRaisesRegex(RuntimeError,'DEVICE_INCIDENT_EVIDENCE_DRIFT'):
+                self.b.require_incident_closed()
     def test_failed_launch_is_burned_not_retried_or_claimed(self):
         # The immutable intent remains even if the outer launch fails; only a
         # new reviewed booking can dispatch again. No generic claim API exists.

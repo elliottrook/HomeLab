@@ -13,7 +13,7 @@ DEST = Path('/private/tmp/b60-registration-candidate-20261106')
 WORKLOAD = 'b60-qwen36-35b-failure-capture-v1'
 BRIDGE = 'b60_exclusive_card_bridge.py'
 PREDECESSORS = {
-    'lab_hours_workloads.py': '2e6dd0882924f0c9ba926c5df95abc8f54765af233e33898ef468233d3426c1f',
+    'lab_hours_workloads.py': 'd4c5e90e1638053c384657258164e8049204db7e2b31dc37df5e266f597121cc',
     'lab_hours_reserved_runner.py': 'f0f740d82e5312239b9553bffe0d009dc4608d0c0ab9def84d526505b69c3644',
 }
 

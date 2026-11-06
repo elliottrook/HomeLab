@@ -29,7 +29,7 @@ class WorkloadSpec:
     packet_sha256: str | None = None
     result_max_bytes: int | None = None
     retryable_session: bool = False
-    maximum_attempts: int = 1
+    maximum_attempts: int | None = 1
 
     @property
     def rescue_after_seconds(self) -> int:
@@ -215,11 +215,11 @@ WORKLOADS = {
             ("b60_musetalk_xpu_transaction.py",
              "a2c67006c3559ff86ab35dadfa6c7e511293d28b21d4a08589248608c053b58b"),
             ("b60_musetalk_xpu_adapter.py",
-             "f20944db89d3dd1c13290cc55ca7636cb2c25f348cd73de1de2efc0701981c20"),
+             "694c9b412cd769b62b5302679ff5453cb2a6b376a61b5583d7e78771d603308b"),
         ),
-        packet_sha256="51664f5aca80af98e0916fb6468ad8a66c56b1757f1d3cf7fdb119b52bee5e2e",
+        packet_sha256="224c7b45aab24076c15b5009efd77f679f0b271767d8bddbff64ab6309390209",
         result_max_bytes=65536,
-        retryable_session=True, maximum_attempts=3,
+        retryable_session=True, maximum_attempts=None,
     ),
 }
 
@@ -360,10 +360,10 @@ def validate_registry() -> None:
             or musetalk.runner_kind != "aster-news-video-musetalk-xpu"
             or len(musetalk.runtime_pins) != 2
             or musetalk.packet_sha256 !=
-                "51664f5aca80af98e0916fb6468ad8a66c56b1757f1d3cf7fdb119b52bee5e2e"
+                "224c7b45aab24076c15b5009efd77f679f0b271767d8bddbff64ab6309390209"
             or musetalk.result_max_bytes != 65536
             or not musetalk.retryable_session
-            or musetalk.maximum_attempts != 3):
+            or musetalk.maximum_attempts is not None):
         raise ValueError("MuseTalk XPU registration drift")
 
 

@@ -1,0 +1,57 @@
+{
+  "schema": "b60-independent-post-xe-incident-review.v1",
+  "scope": "offline/source-only; no LAN, model, GPU, credentials, raw journals or mutation",
+  "source_sha256": {
+    "/private/tmp/b60-prelab-20261106.dqj8a7cw/repo/docs/Project-Creation-Standard.md": "e36cabd0494929ae4b4d32452e73963a92a699248241ca370f4b7baf0a72a169",
+    "/private/tmp/b60-prelab-20261106.dqj8a7cw/repo/docs/projects/B60-Inference-Engineering/standing-coordination-authority-20261012.md": "10cbd07eaa1ffc99c61b9b616ca15fed156122df039e5ca136bff58a8cd38d32",
+    "/private/tmp/b60-resource-checkpoint-20261104/scripts/local-ai/llama_auth_probe.py": "93e78f8a9c40bb9808ac71c5215404c8f10b3e5116383095d196281293682582",
+    "/private/tmp/b60-resource-checkpoint-20261104/scripts/local-ai/test_llama_auth_probe.py": "06427a3e6ef20365300ffffe5f5700a10b38ba0d785289b6f5fac3a2fd10198c"
+  },
+  "incident_facts_provenance": "reported by parent from source-native sanitized live classifier; evaluator has not independently read the exact live incident artifact",
+  "reported_incident": {
+    "peer_booking": "aster-news-video-xpu-20261106-1430-r1",
+    "attempt": 2,
+    "xe_reset_epoch_us": 1794002063552040,
+    "xe_fault_epoch_us": [
+      1794002063556039,
+      1794002063563480
+    ],
+    "attempt_terminal_finished_epoch": 1794002173,
+    "final_session_finished_epoch": 1794002208,
+    "final_session_state": "failed",
+    "production_restored": true,
+    "owner_and_guardian_absent": true,
+    "shared_markers_absent": true,
+    "OOM_reported": false
+  },
+  "verdict": "WILL NOT RUN the next model trial while this genuine device incident remains unqualified",
+  "findings": [
+    "A genuine xe reset/fault is materially different from an HTTP token-limit/capture failure; changing from News Torch to the accepted SYCL stack does not itself close the shared-device recovery gap.",
+    "The accepted source-local auth probe is explicitly metadata-only GET /v1/models, with authentication and model identity checks and no inference body. Its FULL_WARMUP_COMMAND label is not a known-answer GPU test.",
+    "R4 owner-loss and R5 bounded CPU/private-mount recovery proofs did not force GPU reset and cannot manufacture this missing recovery qualification.",
+    "Read-only inspection may establish accepted bytes/services/health, device binding, no surviving owner and source-cause attribution; it must not be represented as post-reset semantic/GPU correctness proof.",
+    "No documented already-accepted post-reset qualification criterion and matching retained evidence have been presented to this evaluator."
+  ],
+  "safe_readonly_closure_options": [
+    "Disprove an actual reset/fault through exact source-native classification review, retaining original event identities plus tested correction; not merely a quieter recent window.",
+    "Find independently retained post-incident qualification evidence meeting a recovery criterion accepted before this incident, with exact source/device/correctness lineage. It must already exist; do not generate it by an unapproved test and then call that read-only reconciliation."
+  ],
+  "safe_continuation_under_current_StreamA": [
+    "Preserve immutable incident and terminal/source hashes; retain a protected open incident gate so time, journal rotation or new booking cannot erase it.",
+    "Finish additive registration/bridge/helper integration inactive after genuine peer release and refreshed exact predecessor review; do not arm a known-NO-GO model timer.",
+    "Inspect sanitized source-cause, accepted restoration identity/health and root ownership metadata without any model/device enumeration or GPU call.",
+    "Prepare and independently review a concrete one-use booked post-incident qualification plan/source with exact bounded public checks, guardian, restoration and abort-on-any-new-fault controls."
+  ],
+  "authority_gap_if_no_existing_closure": "Incident-specific explicit risk decision for a bounded post-xe recovery qualification is required; general Stream A and per-model approval are already present.",
+  "excluded_shortcuts": [
+    "blind GPU retry",
+    "age-out or delete the fault",
+    "infer recovery from lease ready",
+    "infer GPU correctness from models/health metadata",
+    "global reset/reboot/driver/package changes",
+    "claim actual35B result from inactive integration"
+  ],
+  "broader_programme_complete": false,
+  "model_calls_by_evaluator": 0,
+  "final_installed_readiness_audit_still_pending": true
+}

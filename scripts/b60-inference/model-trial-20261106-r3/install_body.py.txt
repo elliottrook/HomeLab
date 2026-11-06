@@ -83,13 +83,22 @@ with host_exclusion(ROOT):
   result=backup(a,prestore,card,date_prefix='2026_11_06',lease_issued_epoch=int(time.time()));assert result.source_observed and result.integrity_verified
  finally:os.close(fd)
  # No model, health generation, claim, isolation or current service stop has
- # occurred. Only a future date-specific one-shot clock is installed here.
+ # occurred. Only a disabled future date-specific clock is installed here. No clock is armed while the protected device incident is OPEN.
  units=Path('/etc/systemd/system');name='b60-model-trial-'+B;day=datetime.fromtimestamp(start,ZoneInfo('America/Vancouver'))
  files={name+'.service':'[Unit]\nDescription=B60 R3 fixed failure-preserving model trial\n\n[Service]\nType=oneshot\nUser=root\nRestart=no\nKillMode=control-group\nTimeoutStartSec=30\nExecStart=/usr/bin/python3 -B '+str(BASE.parent/'full-inference-pilot/lab_hours_reserved_runner.py')+' --booking-id '+B+'\n',name+'.timer':'[Unit]\nDescription=B60 R3 exact booked model clock\n\n[Timer]\nOnCalendar='+day.strftime('%Y-%m-%d %H:%M:%S')+' America/Vancouver\nPersistent=false\nAccuracySec=1s\nRandomizedDelaySec=0\nUnit='+name+'.service\n\n[Install]\nWantedBy=timers.target\n'}
  assert time.time()+120<start and not any((units/n).exists() or (units/n).is_symlink() for n in files)
  for n,v in files.items():create(units/n,v.encode(),0o644)
  call(['systemd-analyze','verify',*[str(units/n) for n in files]])
- call(['systemctl','daemon-reload']);call(['systemctl','enable','--now',name+'.timer'])
- receipt={'schema':'b60-model-trial-arming.v3','booking_id':B,'start_epoch':start,'end_epoch':end,'recovery_reserve_until_epoch':end+900,'source_sha256':MANIFEST,'guest_plan_sha256':plans,'backup_history_sha256':HISTORY_SHA,'retained_scan_finished_epoch':retained['finished_epoch'],'archive_receipt':proof,'model_card_sha256':hashlib.sha256(canonical(card)).hexdigest(),'activation_sha256':hashlib.sha256(canonical(profile)).hexdigest(),'unit_sha256':{n:hashlib.sha256(v.encode()).hexdigest() for n,v in files.items()},'prepared_epoch':int(time.time()),'model_run_claimed':False,'peer_release_rechecked_at_admission':True,'registered_workload':'b60-qwen36-35b-failure-capture-v1','global_registration_file_sha256':REG_SHA,'registration_receipt_sha256':hashlib.sha256(canonical(registration_receipt)).hexdigest()}
- create(ROOT/'arming-receipts'/(B+'-model.json'),canonical(receipt))
+ call(['systemctl','daemon-reload'])
+ enabled=subprocess.run(['systemctl','is-enabled',name+'.timer'],capture_output=True,text=True,timeout=10)
+ assert enabled.stdout.strip()=='disabled'
+ fields=dict(l.split('=',1) for l in call(['systemctl','show',name+'.timer','--property=ActiveState,SubState']).splitlines())
+ assert fields=={'ActiveState':'inactive','SubState':'dead'}
+ incident_raw=protected_bytes(ROOT/'device-incidents/b60-xe-20261106-1794002063/open.json')
+ assert hashlib.sha256(incident_raw).hexdigest()=='7c1355adec390764cd970036233c1a70325d224b387e751dff4ef06db0e5cc6e' and json.loads(incident_raw)['state']=='OPEN'
+
+ receipt={'schema':'b60-model-trial-integration.v1','state':'installed-inactive-device-incident-open','model_clock_armed':False,'device_incident_sha256':'7c1355adec390764cd970036233c1a70325d224b387e751dff4ef06db0e5cc6e','booking_id':B,'start_epoch':start,'end_epoch':end,'recovery_reserve_until_epoch':end+900,'source_sha256':MANIFEST,'guest_plan_sha256':plans,'backup_history_sha256':HISTORY_SHA,'retained_scan_finished_epoch':retained['finished_epoch'],'archive_receipt':proof,'model_card_sha256':hashlib.sha256(canonical(card)).hexdigest(),'activation_sha256':hashlib.sha256(canonical(profile)).hexdigest(),'unit_sha256':{n:hashlib.sha256(v.encode()).hexdigest() for n,v in files.items()},'prepared_epoch':int(time.time()),'model_run_claimed':False,'peer_release_rechecked_at_admission':True,'registered_workload':'b60-qwen36-35b-failure-capture-v1','global_registration_file_sha256':REG_SHA,'registration_receipt_sha256':hashlib.sha256(canonical(registration_receipt)).hexdigest()}
+ integration=ROOT/'integration-receipts';integration.mkdir(mode=0o700,exist_ok=True)
+ assert integration.stat().st_uid==0 and integration.stat().st_mode&0o777==0o700 and not integration.is_symlink()
+ create(integration/(B+'-model-inactive.json'),canonical(receipt))
  print(json.dumps({'receipt':receipt,'sha256':hashlib.sha256(canonical(receipt)).hexdigest()},sort_keys=True))

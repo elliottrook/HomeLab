@@ -21,6 +21,8 @@ PACKAGE = Path('/usr/local/libexec/local-ai-lease/model-trial-20261106-r3')
 BASE = Path('/usr/local/libexec/local-ai-lease/exclusive-session')
 BASE_SHA = 'e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2'
 MODEL_SHA = '671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7'
+INCIDENT = 'b60-xe-20261106-1794002063'
+INCIDENT_SHA = '7c1355adec390764cd970036233c1a70325d224b387e751dff4ef06db0e5cc6e'
 FILES = {'model_trial.py', 'namespace_mount.py', 'fixed_command.py',
          'guest_requests.py', 'guest_supervisor.py', 'backup_chain_history.py',
          'legacy_requests.py', 'request_failure_capture.py', 'news_xpu_boundary.py'}
@@ -97,9 +99,23 @@ def validate_card(row, *, root=ROOT, package=PACKAGE, base=BASE, expected_uid=0)
     return hashlib.sha256(raw).hexdigest()
 
 
+def require_incident_closed():
+    # Immutable OPEN evidence cannot age out with the journal, disappear on a
+    # new booking, or be cleared by deletion. This release deliberately has NO
+    # incident override. A separately reviewed post-incident qualification and
+    # source-bound closure route are required before GPU dispatch can resume.
+    raw = protected(ROOT/'device-incidents'/INCIDENT/'open.json')
+    require(hashlib.sha256(raw).hexdigest() == INCIDENT_SHA, 'DEVICE_INCIDENT_EVIDENCE_DRIFT')
+    incident = json.loads(raw)
+    require(incident.get('incident_id') == INCIDENT and incident.get('state') == 'OPEN',
+            'DEVICE_INCIDENT_EVIDENCE_INVALID')
+    raise RuntimeError('DEVICE_INCIDENT_OPEN')
+
+
 def dispatch(row, spec, *, clock=time.time, runner=subprocess.run):
     require(os.geteuid() == 0 and os.uname().nodename == 'proxmox', 'BRIDGE_HOST_IDENTITY')
     validate_row(row, spec, int(clock()))
+    require_incident_closed()
     card_sha = validate_card(row)
     # Atomic once-only intent: the normal minute dispatcher never sees reserved
     # records, and a repeated dedicated-clock invocation cannot relaunch them.

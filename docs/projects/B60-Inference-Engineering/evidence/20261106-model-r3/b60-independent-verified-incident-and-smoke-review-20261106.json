@@ -1,0 +1,123 @@
+{
+  "schema": "b60-independent-verified-incident-and-smoke-review.v1",
+  "incident_artifact": "/private/tmp/b60-prelab-20261106.dqj8a7cw/repo/docs/projects/B60-Inference-Engineering/evidence/20261106-model-r3/device-incident-open.json",
+  "incident_artifact_sha256": "7c1355adec390764cd970036233c1a70325d224b387e751dff4ef06db0e5cc6e",
+  "incident_producer_sha256": "95ccad92e5edb2df3536e2f8269351ace2b728df0f3340951c269bc52c85a3cf",
+  "incident_artifact_and_source_independently_read": true,
+  "source_native_incident_state": "OPEN",
+  "events": [
+    {
+      "categories": [
+        "xe_engine_reset"
+      ],
+      "epoch_microseconds": 1794002063552040,
+      "priority": "6"
+    },
+    {
+      "categories": [
+        "xe_fault"
+      ],
+      "epoch_microseconds": 1794002063556039,
+      "priority": "6"
+    },
+    {
+      "categories": [
+        "xe_fault"
+      ],
+      "epoch_microseconds": 1794002063556348,
+      "priority": "6"
+    }
+  ],
+  "accepted_restoration_evidence_present": true,
+  "post_reset_known_answer_qualification_present": false,
+  "verdict": "WILL NOT RUN a model trial while this genuine OPEN device incident remains unqualified",
+  "actual_smoke_source": {
+    "guest_path": "/usr/local/sbin/aster-llama-lab-smoke",
+    "sha256": "fec8b0a07a3d13a35a04eea80e460e4422de288ef69f9a2b18a00f3ebb228870",
+    "independent_source_copy": "/private/tmp/b60-independent-actual-smoke-wrapper-20261106.py",
+    "source_only_read_performed": true,
+    "executed": false,
+    "known_answer_checks": false,
+    "finish_reason_checked": false,
+    "final_content_checked": false,
+    "max_tokens": 8,
+    "prompts": [
+      "Reply with the word ready.",
+      "Count from one to three.",
+      "Name the current model."
+    ],
+    "local_server_port": 11436,
+    "lab_alias": "aster-qwen3.5-9b",
+    "wrapper_timeout_seconds": 600,
+    "request_timeout_seconds": 60,
+    "ephemeral_new_key_generated_by_wrapper": true,
+    "offline_fake_bad_responses_accepted": [
+      "wrong-answer",
+      "truncated",
+      "missing-message"
+    ],
+    "real_network_or_model_calls_in_fake_test": 0,
+    "reuse_unchanged_for_correctness_qualification": false
+  },
+  "actual_accepted_unit_metadata": {
+    "unit_sha256": "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3",
+    "active": "active",
+    "sub": "running",
+    "model_path": "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf",
+    "alias_flag_present": false,
+    "accepted_api_model_identity": "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf",
+    "host": "192.168.70.12",
+    "port": 11435,
+    "reasoning": "off",
+    "reasoning_budget": "0",
+    "context": 8192,
+    "slots": 1,
+    "threads": 4,
+    "batch": 256,
+    "microbatch": 128,
+    "flash_attention": "on",
+    "key_value_cache": "q4_0/q4_0",
+    "Restart": "no",
+    "KillMode": "control-group",
+    "NRestarts": 0,
+    "MemoryMax": "infinity",
+    "MemorySwapMax": "infinity",
+    "RuntimeMaxUSec": "infinity",
+    "CPUQuotaPerSecUSec": "infinity",
+    "TasksMax": 89037,
+    "TimeoutStartUSec": "5min30s",
+    "TimeoutStopUSec": "30s",
+    "api_key_file_matches_existing": true,
+    "inline_api_key_present": false,
+    "raw_argv_or_environment_or_key_values_exported": false
+  },
+  "qualified_adapter_composition": {
+    "source_review_only": true,
+    "can_compose_conditionally": true,
+    "required_order": [
+      "all15 callers/timers/backend isolated and GPU empty",
+      "unmask-runtime/start ONLY accepted aster-llama SCOPE row",
+      "fixed public known-answer checks under exact approved incident capsule",
+      "qualified fence re-isolates ALL15 including temporarily running accepted backend",
+      "require no GPU holder/zero tasks before restoring entry",
+      "verify exact entry/schedules/accepted authentication then release"
+    ],
+    "base30_source_change_required": false,
+    "guardian_uses_same_source_bound_stop_before_restore": true,
+    "accepted_unit_has_no_enforced_memory_or_runtime_maximum": true,
+    "300s_cutoff_not_guaranteed_physical_gpu_stop": true,
+    "uncertain_fence_must_retain_exclusion": true
+  },
+  "recommended_next_source_capsule": [
+    "distinct fixed identity, source hash and exact incident-risk card; do not run old smoke unchanged",
+    "3 public tasks with HTTP200, exact accepted model identity, one choice, finish_stop, nonempty final and explicit content predicates",
+    "fixed128token/30s request ceilings and no retries, only after owner accepts exact incident risk",
+    "existing source-local key custody, no new credential or driver/reset/reboot/model artifact",
+    "source-native new-fault/OOM monitoring while request blocks, not only after all requests",
+    "one-use qualification authority; immutable separate closure only after qualified results plus complete restoration"
+  ],
+  "risk_decision_boundary": "General Stream A approval already exists. If no previously accepted recovery criterion plus already-retained post-reset GPU correctness evidence closes this incident, the exact new decision is risk acceptance for ONE booked post-incident recovery qualification, not general permission or a blind retry.",
+  "no_gpu_model_or_device_enumeration_calls": true,
+  "no_live_mutations": true,
+  "raw_logs_or_credentials_read": false
+}
