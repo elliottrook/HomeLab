@@ -320,6 +320,13 @@ or physical archive roots.
   physical Jellyfin libraries cannot express those exceptions; this is a
   current view-drift risk, not evidence that the old archiver jobs restarted.
   No media or ARR record was changed by this inspection.
+- **2026-11-06 — ARR-to-Kodi identity check:** AsterTV Bedroom exposes TVDB
+  IDs for 213 of 217 Kodi show entries and IMDb IDs for 1,055 of 1,067 movie
+  entries. Five TVDB and eight IMDb IDs occur more than once in the Kodi
+  library. Provider IDs can anchor a safer match than display title for most
+  entries, but missing and duplicate IDs must fail closed during the pilot;
+  a title-only bulk join could classify the wrong media. No Kodi record was
+  edited.
 - **2026-11-06 — M0 gate passed:** Forgejo main was still at the planning SHA
   at gate time;
   TrueNAS confirms legacy jobs 4 and 6 still disabled, with Radarr, Sonarr,
