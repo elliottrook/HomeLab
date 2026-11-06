@@ -19,6 +19,14 @@ with host_exclusion(ROOT):
  assert not any(p.exists() or p.is_symlink() for p in [ROOT/'lease.json',ROOT/'lease.lock',ROOT/'full-inference-drain.json',ROOT/'full-inference-drain.lock',Path('/run/local-ai-lab-operation.lock')])
  assert json.loads(call(['/usr/local/sbin/local-ai-lease','status']))=={'state':'ready'}
  bookings=ReservationStore(ROOT/'reservations',expected_uid=0);row=bookings.get(B)
+ peer=bookings.get('aster-news-video-xpu-20261106-1430-r1')
+ assert peer['state'] in {'complete','failed'} and type(peer.get('finished_epoch')) is int
+ claimant=peer.get('claimant');assert isinstance(claimant,str) and len(claimant)==23 and claimant.startswith('lh-') and all(c in '0123456789abcdef' for c in claimant[3:])
+ for unit in ('aster-local-ai-pilot-owner-'+claimant+'.scope','aster-local-ai-pilot-guardian-'+claimant+'.service'):
+  p=subprocess.run(['systemctl','show',unit,'--property=LoadState,ActiveState,MainPID,TasksCurrent'],capture_output=True,text=True,timeout=10)
+  fields=dict(l.split('=',1) for l in p.stdout.splitlines())
+  assert p.returncode==0 or fields.get('LoadState')=='not-found'
+  assert fields.get('ActiveState') in {'inactive','failed'} and fields.get('MainPID','0')=='0' and fields.get('TasksCurrent','0') in {'0','','[not set]'}
  assert row['state']=='reserved' and row['owner']=='b60-stream-a' and row['kind']=='exclusive-stack'
  start=row['start_epoch'];end=row['end_epoch'];assert (start,end)==(1794007200,1794009900)
  assert time.time()+600<start and not (ROOT/'exclusive-sessions'/B).exists()
