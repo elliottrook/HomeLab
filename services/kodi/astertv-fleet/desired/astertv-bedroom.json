@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "a44818a509d12a77ae856b0b2dbeb712afc0709c377cd7097774b3db2d094e6c",
+  "composition_sha256": "84b045b84a7d5c12478151d605c8acee35ef197c16b4e0d509a826861d4d27bb",
   "deployed": true,
   "device_id": "astertv-bedroom",
   "external_integrations": [
@@ -80,9 +80,9 @@
   "payloads": {
     "bedroom-stereo": [
       {
-        "bytes": 191,
+        "bytes": 374,
         "path": "services/kodi/astertv-fleet/payload-definitions/bedroom-stereo.json",
-        "sha256": "836517916c13c2f94fd7fa570a31ef997f00de35639c62067b45c01b0f02e080"
+        "sha256": "c76eb9ca94dd242830419c4a755e6a18df4126962a78500e7f758aad0c4c3207"
       }
     ],
     "bedroom-wifi-stability": [
@@ -267,14 +267,14 @@
     "youtube-bedroom-session"
   ],
   "source_hashes": {
-    "devices/astertv-bedroom.yaml": "fe03e25a59ff951f40e3458605b5e78a7a129c18857f155431067bc5e79a6f8a",
-    "hardware/intel-i5-9500t-bedroom.yaml": "7ad56e9cdf1463846c96a82f4b1a5c93606f1d1d0d81bc5adaea009671ee5a78",
-    "overlays/bedroom-stereo.yaml": "ccf156271d406d2e2b52e29e22f96fbad4469c12046cd14a0543eab88226ad39",
+    "devices/astertv-bedroom.yaml": "76c5d8600c6c0a9253971626e51ec2649a69944beca7e8b3cb15549aed441e35",
+    "hardware/intel-i5-9500t-bedroom.yaml": "8130fbcc20787e40edabea3ccd36416e0a9829be188e95d9a2c1aad1d3f7e37b",
+    "overlays/bedroom-stereo.yaml": "63dbfd498b2469428d9429a5adab9a101cb3323f1fe72a9d9b1b67f52948e2a9",
     "overlays/bedroom-wifi-stability.yaml": "a3b0a07925e4f54cefc3bd7e09f4c0aec760fe38f26b2ef2ba99a43efbdbafd9",
     "overlays/release-guard-v1.yaml": "a3afc7db25e4c295b3f4bd944f32e4cf47fa0ccefae2cbf182edbed38214c038",
     "overlays/remote-client-v3.yaml": "40267e62ec475ce2318ea20bf5f8771943a46b30b60ace77ac91ea96a8cc948a",
     "overlays/tv-details-v3.yaml": "717c1f44e8ee12804cd58f2513e275292c28bbd3eb50dfb2d22cd9ec17a6b03e",
-    "peripherals/bedroom-lg-stereo.yaml": "cda1a9ab37b3869467aad1190dd5c9632974e4f80070813f58e68a8872af2993",
+    "peripherals/bedroom-lg-stereo.yaml": "0c5cf53ae2cc971d8d4373643e329b582ed146a8db8eed5b11928bdd4aac670a",
     "releases/astertv-v2.0.7-2026-10-31.yaml": "204a004c9b099cedfbaa49ed5eed55185c0d33cd10d9d06942409fc7dd8add36"
   }
 }

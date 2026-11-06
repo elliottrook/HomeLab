@@ -13,8 +13,8 @@ external dependencies.
 
 This is deliberately a **candidate build gate**, not a deployment approval.
 All eighteen overlays now have complete contracts: Family restart, target-aware release
-guard, Bedroom Wi-Fi, Bedroom stereo assertions, Family Dolby/HDR assertions
-the target-aware Remote client, the reconciled TV-details tree, and target-aware
+guard, Bedroom Wi-Fi, Bedroom stereo PCM/AC3/EAC3 assertions, Family Dolby/HDR
+assertions, the target-aware Remote client, the reconciled TV-details tree, and target-aware
 News playback, Family media lifecycle, the Family equipment bridge, and Jen's
 immutable account-registry code, Jen's immutable Aster client, and Jen's exact
 News icon overlay, Jen's podcast-request surface, and Jen's Guest catalogue

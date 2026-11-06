@@ -13,9 +13,14 @@
   "payload_blockers": [],
   "apply_strategy": "preserve-and-verify",
   "assertions": [
-    {"authority": "kodi", "key": "audio.output-contract", "expected": "stereo", "sensitive": false},
-    {"authority": "kodi", "key": "audio.passthrough", "expected": false, "sensitive": false},
-    {"authority": "kodi", "key": "audio.channels", "expected": 2, "sensitive": false}
+    {"authority": "kodi", "key": "audio.output-contract", "expected": "stereo-pcm-with-ac3-eac3-passthrough", "sensitive": false},
+    {"authority": "kodi", "key": "audio.passthrough", "expected": true, "sensitive": false},
+    {"authority": "kodi", "key": "audio.channels", "expected": 2, "sensitive": false},
+    {"authority": "kodi", "key": "audio.ac3-passthrough", "expected": true, "sensitive": false},
+    {"authority": "kodi", "key": "audio.eac3-passthrough", "expected": true, "sensitive": false},
+    {"authority": "kodi", "key": "audio.dts-passthrough", "expected": false, "sensitive": false},
+    {"authority": "kodi", "key": "audio.truehd-passthrough", "expected": false, "sensitive": false},
+    {"authority": "kodi", "key": "audio.dtshd-passthrough", "expected": false, "sensitive": false}
   ],
   "secret_refs": [],
   "rollback_ref": "astertv-v2.0.7-release-20261031-bedroom",

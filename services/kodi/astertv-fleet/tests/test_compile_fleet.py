@@ -116,7 +116,7 @@ class FleetCompilerTests(unittest.TestCase):
             self.compile_to(Path(output))
             matrix = (Path(output) / "reports/release-matrix.md").read_text()
             self.assertIn("Dolby passthrough and HDR", matrix)
-            self.assertIn("Bedroom retains stereo", matrix)
+            self.assertIn("Bedroom retains stereo PCM, AC3/EAC3 passthrough", matrix)
             self.assertIn("Jen's 1080p-media/stereo limit belongs only", matrix)
             self.assertIn("Guest is a compiled candidate", matrix)
 

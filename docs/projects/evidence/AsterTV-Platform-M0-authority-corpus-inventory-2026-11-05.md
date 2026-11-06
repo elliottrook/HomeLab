@@ -38,7 +38,7 @@ architecture are the adopted publishing path. No wiki deployment was changed.
 | Device | Lifecycle | Address | Measured class and output | 2026-11-05 live envelope | Desired migration |
 |---|---|---|---|---|---|
 | AsterTV Family | production | `192.168.1.157` | Intel N95/Alder Lake-N; TCL QM8L through Onkyo TX-RZ30; HDMI Dolby/HDR | Hostname matched; LibreELEC `nightly-20261021-440640e`; guard enabled; accepted manifest 533 files, observation digest `b821c2a2…e61d` | v2.0.7 base + Family HDMI/HDR/audio + current shared runtime + Remote + Family equipment bridge |
-| AsterTV Bedroom | production | `192.168.1.140` | Intel i5-9500T/UHD 630; LG display; Wi-Fi; stereo | Hostname matched; same LibreELEC build; guard and Wi-Fi stability enabled; accepted manifest 535 files, digest `474c887d…f204` | v2.0.7 base + Bedroom stereo/Wi-Fi + current shared runtime + Remote |
+| AsterTV Bedroom | production | `192.168.1.140` | Intel i5-9500T/UHD 630; LG display; Wi-Fi; stereo PCM with AC3/EAC3 passthrough | Hostname matched; same LibreELEC build; guard and Wi-Fi stability enabled; accepted manifest 535 files, digest `474c887d…f204` | v2.0.7 base + Bedroom audio/Wi-Fi + current shared runtime + Remote |
 | AsterTV Jen | lab | `192.168.1.180` | Intel i5-4570T/Haswell; qualified for 1080p-media/stereo, with native-resolution GUI permitted and no fleet-wide 4K playback parity | Hostname matched; same LibreELEC build; guard enabled; accepted manifest 528 files, digest `dfc51bc8…c3ff` | v2.0.7 base + low-spec profile + accepted Jen v3 overlays + Remote |
 | AsterTV Guest | candidate | not assigned | Hardware and peripheral chain not yet selected | Not deployed; no address, identity, firewall path or credential exists | Candidate record only; compilation must not imply deployment |
 
@@ -72,7 +72,7 @@ not treated as unexplained drift.
 | HDMI 0 passthrough, HDR and PulseAudio mask | final v2 release/Family evidence | Family profile | `family-dolby-hdr` peripheral/runtime overlay |
 | Kodi Restart AsterTV control | v2 README/checkpointed repair | Family recovery UX | `family-kodi-restart` overlay |
 | Wi-Fi power-save stability and literal host-bound guard | `deploy/bedroom-wifi` | Bedroom OS profile | `bedroom-wifi-stability` overlay |
-| Stereo output contract | final v2 target-aware promoter | Bedroom profile | Bedroom peripheral profile |
+| Stereo PCM plus AC3/EAC3 passthrough output contract | final v2 target-aware promoter and sanitized live settings | Bedroom profile | Bedroom peripheral profile |
 | 1080p/stereo/Haswell limits | low-spec evidence | Jen hardware profile | `lenovo-m93p-low-spec` hardware profile; never global |
 | Account/profile registry and Guest catalogue isolation | M2 Jen evidence | Jen application overlay | `jen-account-registry` and `jen-guest-catalogue` overlays |
 | Capability-scoped Aster broker client | M3 evidence | Jen application overlay | `jen-aster-client` overlay plus broker integration ref |

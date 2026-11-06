@@ -31,7 +31,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-a44818a509d1"
+      "version": "composition-84b045b84a7d"
     },
     {
       "name": "bedroom-stereo",
@@ -46,7 +46,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-a44818a509d1"
+      "version": "composition-84b045b84a7d"
     },
     {
       "name": "bedroom-wifi-stability",
@@ -61,7 +61,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-a44818a509d1"
+      "version": "composition-84b045b84a7d"
     },
     {
       "name": "remote-client-v3",
@@ -76,7 +76,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-a44818a509d1"
+      "version": "composition-84b045b84a7d"
     },
     {
       "name": "tv-details-v3",
@@ -91,17 +91,17 @@
         }
       ],
       "type": "application",
-      "version": "composition-a44818a509d1"
+      "version": "composition-84b045b84a7d"
     }
   ],
   "metadata": {
     "component": {
       "name": "astertv-bedroom",
       "type": "device",
-      "version": "a44818a509d1"
+      "version": "84b045b84a7d"
     }
   },
-  "serialNumber": "urn:uuid:astertv-a44818a509d12a77ae856b0b2dbeb712",
+  "serialNumber": "urn:uuid:astertv-84b045b84a7d5c12478151d605c8acee",
   "specVersion": "1.5",
   "version": 1
 }

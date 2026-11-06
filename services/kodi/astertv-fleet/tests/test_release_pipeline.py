@@ -83,6 +83,39 @@ class ReleasePipelineTests(unittest.TestCase):
             self.assertFalse(assertions["audio.passthrough"])
             self.assertEqual(assertions["accepted-file-count"], 534)
 
+    def test_bedroom_audio_contract_preserves_accepted_passthrough_subset(self):
+        with tempfile.TemporaryDirectory() as destination:
+            self.build(destination)
+            bedroom = json.loads((Path(destination) / "plans/astertv-bedroom.json").read_text())
+            assertions = {row["key"]: row["expected"] for overlay in bedroom["overlays"]
+                          for row in overlay["assertions"]}
+            self.assertEqual(assertions["audio.output-contract"],
+                             "stereo-pcm-with-ac3-eac3-passthrough")
+            self.assertEqual(assertions["audio.channels"], 2)
+            self.assertTrue(assertions["audio.passthrough"])
+            self.assertTrue(assertions["audio.ac3-passthrough"])
+            self.assertTrue(assertions["audio.eac3-passthrough"])
+            self.assertFalse(assertions["audio.dts-passthrough"])
+            self.assertFalse(assertions["audio.truehd-passthrough"])
+            self.assertFalse(assertions["audio.dtshd-passthrough"])
+
+    def test_family_audio_contract_preserves_accepted_passthrough_subset(self):
+        with tempfile.TemporaryDirectory() as destination:
+            self.build(destination)
+            family = json.loads((Path(destination) / "plans/astertv-family.json").read_text())
+            assertions = {row["key"]: row["expected"] for overlay in family["overlays"]
+                          for row in overlay["assertions"]}
+            self.assertEqual(assertions["audio.route"], "hdmi0-exclusive")
+            self.assertEqual(assertions["audio.channels"], 2)
+            self.assertTrue(assertions["audio.dolby-passthrough"])
+            self.assertTrue(assertions["audio.ac3-passthrough"])
+            self.assertTrue(assertions["audio.eac3-passthrough"])
+            self.assertFalse(assertions["audio.dts-passthrough"])
+            self.assertTrue(assertions["audio.truehd-passthrough"])
+            self.assertFalse(assertions["audio.dtshd-passthrough"])
+            self.assertTrue(assertions["pulseaudio.masked"])
+            self.assertTrue(assertions["hdr"])
+
     def test_guard_classifies_clean_unknown_missing_and_dependency_drift(self):
         contract = {"schema_version": 1, "kind": "composition-guard-contract", "device_id": "box", "composition_sha256": "abc", "expected_resources": ["a", "b"], "registered_extras": ["c"]}
         clean = {"schema_version": 1, "kind": "composition-observation", "device_id": "box", "composition_sha256": "abc", "resources": ["a", "b"], "dependencies": {"jellyfin": "available"}}

@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "2299ff5d13677b4c62b816bda7d41d9bfdb518f5060737052a84e88d12a32648",
+  "composition_sha256": "c2a578002f94ab85ec9a9b4dac2459486b34deed0eaa580fba7285d7174d049d",
   "deployed": true,
   "device_id": "astertv-family",
   "external_integrations": [
@@ -113,9 +113,9 @@
   "payloads": {
     "family-dolby-hdr": [
       {
-        "bytes": 229,
+        "bytes": 401,
         "path": "services/kodi/astertv-fleet/payload-definitions/family-dolby-hdr.json",
-        "sha256": "a6fba02685c5a89bfc62bb3511a62d8569db3e83a04f7784c5db21414ae1ddb8"
+        "sha256": "542a394897f4384c50e4e0ca9d9d9e332a04d63bf876b2ecb43aa11ea277d6a4"
       }
     ],
     "family-equipment-bridge": [
@@ -445,7 +445,7 @@
   "source_hashes": {
     "devices/astertv-family.yaml": "93d22da168511fec85e4a51b01ffe695dce8fa0f7d65b29cc5e6712c2a2ca5b7",
     "hardware/intel-n95-family.yaml": "53ae62f6c3363356c390454e07219f18b50f12e4c87946eeaa0db04864f9f0ec",
-    "overlays/family-dolby-hdr.yaml": "5e3d4d71a769d47af52ca79739cded5c5715fbd22195c0838ce2fa92329fec5e",
+    "overlays/family-dolby-hdr.yaml": "9b57d3153ef87bc98449892035040fc50a34a607c80ca373cd8b716c61109b5b",
     "overlays/family-equipment-bridge.yaml": "79661acb86e76341e1029022f14f727279643faf66300345eb448dba813a83e7",
     "overlays/family-kodi-restart.yaml": "9901c11256920a09b1cd351f1b71c1ce65cfd164b09fe18f004455c4b696b521",
     "overlays/family-media-lifecycle.yaml": "0e6a77c62363e32ceaa70c801d07a7a5b79d297929abe99344c631ab02503e61",

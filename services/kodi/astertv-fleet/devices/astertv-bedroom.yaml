@@ -25,5 +25,5 @@
     "remote-bedroom-client", "jellyfin-bedroom-client", "youtube-bedroom-session",
     "seerr-bedroom-client", "audiobookshelf-bedroom-client"
   ],
-  "local_deviation": "Bedroom stereo and Wi-Fi stability only"
+  "local_deviation": "Bedroom stereo PCM with AC3/EAC3 passthrough and Wi-Fi stability only"
 }

@@ -5,6 +5,12 @@
   "settings": {
     "audio_route": "hdmi0-exclusive",
     "dolby_passthrough": true,
+    "channels": 2,
+    "ac3_passthrough": true,
+    "eac3_passthrough": true,
+    "dts_passthrough": false,
+    "truehd_passthrough": true,
+    "dtshd_passthrough": false,
     "hdr": true,
     "pulseaudio": "masked"
   }

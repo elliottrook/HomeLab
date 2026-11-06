@@ -1,18 +1,18 @@
 {
-  "composition_sha256": "a44818a509d12a77ae856b0b2dbeb712afc0709c377cd7097774b3db2d094e6c",
+  "composition_sha256": "84b045b84a7d5c12478151d605c8acee35ef197c16b4e0d509a826861d4d27bb",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-bedroom",
   "expected_assertions": [
     {
       "authority": "kodi",
-      "expected": "stereo",
+      "expected": "stereo-pcm-with-ac3-eac3-passthrough",
       "key": "audio.output-contract",
       "overlay": "bedroom-stereo",
       "sensitive": false
     },
     {
       "authority": "kodi",
-      "expected": false,
+      "expected": true,
       "key": "audio.passthrough",
       "overlay": "bedroom-stereo",
       "sensitive": false
@@ -21,6 +21,41 @@
       "authority": "kodi",
       "expected": 2,
       "key": "audio.channels",
+      "overlay": "bedroom-stereo",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": true,
+      "key": "audio.ac3-passthrough",
+      "overlay": "bedroom-stereo",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": true,
+      "key": "audio.eac3-passthrough",
+      "overlay": "bedroom-stereo",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": false,
+      "key": "audio.dts-passthrough",
+      "overlay": "bedroom-stereo",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": false,
+      "key": "audio.truehd-passthrough",
+      "overlay": "bedroom-stereo",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": false,
+      "key": "audio.dtshd-passthrough",
       "overlay": "bedroom-stereo",
       "sensitive": false
     },

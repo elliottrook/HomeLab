@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "2299ff5d13677b4c62b816bda7d41d9bfdb518f5060737052a84e88d12a32648",
+  "composition_sha256": "c2a578002f94ab85ec9a9b4dac2459486b34deed0eaa580fba7285d7174d049d",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [
@@ -14,6 +14,48 @@
       "authority": "kodi",
       "expected": true,
       "key": "audio.dolby-passthrough",
+      "overlay": "family-dolby-hdr",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": 2,
+      "key": "audio.channels",
+      "overlay": "family-dolby-hdr",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": true,
+      "key": "audio.ac3-passthrough",
+      "overlay": "family-dolby-hdr",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": true,
+      "key": "audio.eac3-passthrough",
+      "overlay": "family-dolby-hdr",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": false,
+      "key": "audio.dts-passthrough",
+      "overlay": "family-dolby-hdr",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": true,
+      "key": "audio.truehd-passthrough",
+      "overlay": "family-dolby-hdr",
+      "sensitive": false
+    },
+    {
+      "authority": "kodi",
+      "expected": false,
+      "key": "audio.dtshd-passthrough",
       "overlay": "family-dolby-hdr",
       "sensitive": false
     },

@@ -13,8 +13,9 @@
 The candidate extends the existing private `homelab-wiki` MkDocs repository and
 its Human Wiki Contract. It does not create a parallel wiki, alter the LXC 113
 collector, bypass provenance/quarantine, overwrite generated paths or edit the
-derived Aster mirror. The authored candidate is local wiki commit `1fdcf6a` and
-has not been pushed or published.
+derived Aster mirror. The authored foundation is local wiki commit `1fdcf6a`;
+the current reconciled candidate is `fc33f73`. It has not been pushed or
+published.
 
 ## Candidate content
 
@@ -32,7 +33,8 @@ has not been pushed or published.
 
 Every page declares owner, authority, applicability, review date, sources and
 recovery. Device pages preserve Family Dolby/HDR/equipment control, Bedroom
-stereo/Wi-Fi, Jen's device-only 1080p-media/stereo limit and Guest non-deployment.
+stereo PCM, AC3/EAC3 passthrough and Wi-Fi, Jen's device-only
+1080p-media/stereo limit and Guest non-deployment.
 
 ## Pinned intake candidates
 

@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-family-2299ff5d1367.tar.gz",
+    "name": "astertv-family-c2a578002f94.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "2299ff5d13677b4c62b816bda7d41d9bfdb518f5060737052a84e88d12a32648",
+  "composition_sha256": "c2a578002f94ab85ec9a9b4dac2459486b34deed0eaa580fba7285d7174d049d",
   "deployable": false,
   "device_id": "astertv-family",
   "kind": "release-plan",
@@ -130,6 +130,42 @@
           "sensitive": false
         },
         {
+          "authority": "kodi",
+          "expected": 2,
+          "key": "audio.channels",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": true,
+          "key": "audio.ac3-passthrough",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": true,
+          "key": "audio.eac3-passthrough",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": false,
+          "key": "audio.dts-passthrough",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": true,
+          "key": "audio.truehd-passthrough",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": false,
+          "key": "audio.dtshd-passthrough",
+          "sensitive": false
+        },
+        {
           "authority": "systemd",
           "expected": true,
           "key": "pulseaudio.masked",
@@ -158,9 +194,9 @@
       "payload_status": "complete",
       "payloads": [
         {
-          "bytes": 229,
+          "bytes": 401,
           "path": "services/kodi/astertv-fleet/payload-definitions/family-dolby-hdr.json",
-          "sha256": "a6fba02685c5a89bfc62bb3511a62d8569db3e83a04f7784c5db21414ae1ddb8"
+          "sha256": "542a394897f4384c50e4e0ca9d9d9e332a04d63bf876b2ecb43aa11ea277d6a4"
         }
       ],
       "rollback_ref": "astertv-v2.0.7-release-20261031-family",

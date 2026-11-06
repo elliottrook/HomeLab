@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-bedroom-a44818a509d1.tar.gz",
+    "name": "astertv-bedroom-84b045b84a7d.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "a44818a509d12a77ae856b0b2dbeb712afc0709c377cd7097774b3db2d094e6c",
+  "composition_sha256": "84b045b84a7d5c12478151d605c8acee35ef197c16b4e0d509a826861d4d27bb",
   "deployable": false,
   "device_id": "astertv-bedroom",
   "kind": "release-plan",
@@ -119,13 +119,13 @@
       "assertions": [
         {
           "authority": "kodi",
-          "expected": "stereo",
+          "expected": "stereo-pcm-with-ac3-eac3-passthrough",
           "key": "audio.output-contract",
           "sensitive": false
         },
         {
           "authority": "kodi",
-          "expected": false,
+          "expected": true,
           "key": "audio.passthrough",
           "sensitive": false
         },
@@ -133,6 +133,36 @@
           "authority": "kodi",
           "expected": 2,
           "key": "audio.channels",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": true,
+          "key": "audio.ac3-passthrough",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": true,
+          "key": "audio.eac3-passthrough",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": false,
+          "key": "audio.dts-passthrough",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": false,
+          "key": "audio.truehd-passthrough",
+          "sensitive": false
+        },
+        {
+          "authority": "kodi",
+          "expected": false,
+          "key": "audio.dtshd-passthrough",
           "sensitive": false
         }
       ],
@@ -150,9 +180,9 @@
       "payload_status": "complete",
       "payloads": [
         {
-          "bytes": 191,
+          "bytes": 374,
           "path": "services/kodi/astertv-fleet/payload-definitions/bedroom-stereo.json",
-          "sha256": "836517916c13c2f94fd7fa570a31ef997f00de35639c62067b45c01b0f02e080"
+          "sha256": "c76eb9ca94dd242830419c4a755e6a18df4126962a78500e7f758aad0c4c3207"
         }
       ],
       "rollback_ref": "astertv-v2.0.7-release-20261031-bedroom",

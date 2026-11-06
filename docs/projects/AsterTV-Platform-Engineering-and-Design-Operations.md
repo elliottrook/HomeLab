@@ -72,7 +72,7 @@ and authority used for each decision.
 ## Current state and evidence
 
 - AsterTV v2 has an immutable final release and target-aware promoter. Family
-  retains HDMI Dolby/HDR; Bedroom retains stereo.
+  retains HDMI Dolby/HDR; Bedroom retains stereo PCM with AC3/EAC3 passthrough.
 - A host-bound pre-Kodi guard restores an accepted snapshot for seven Kodi
   roots. It deliberately ignores extra files and cannot classify approved,
   stale and experimental overlays.
@@ -508,7 +508,7 @@ with no live appliance changed.
 **Gate:** a new engineer safely plans a synthetic repair from Start Here alone.
 
 The additive local candidate passes its automated gate at wiki commit
-`1fdcf6a`. Human content acceptance, remote synchronization, the established
+`fc33f73` (foundation `1fdcf6a`). Human content acceptance, remote synchronization, the established
 LXC 113 site build/publication and post-acceptance mirror derivation remain
 deliberately pending; no live wiki or mirror changed in M2 preparation.
 
@@ -547,13 +547,14 @@ deliberately pending; no live wiki or mirror changed in M2 preparation.
 
 ### M7 — Jen lab migration and recovery rehearsal
 
-- [ ] Adopt Jen as first compiled composition without changing its limits.
-- [ ] Prove rebuild, reboot, drift and rollback; run training exercises.
+- [x] Adopt Jen as first compiled composition without changing its limits.
+- [x] Prove rebuild, reboot, drift and rollback; run training exercises.
 
 ### M8 — Bedroom then Family migration
 
-- [ ] Promote Bedroom preserving stereo/Wi-Fi, then Family preserving Dolby/HDR
-  and equipment control; run full physical and recovery acceptance.
+- [ ] Promote Bedroom preserving stereo PCM, AC3/EAC3 passthrough and Wi-Fi,
+  then Family preserving Dolby/HDR and equipment control; run full physical
+  and recovery acceptance.
 
 ### M9 — Graduation
 
@@ -616,7 +617,7 @@ media mutation, playback interruption, unknown identity or broader firewall.
 
 **Milestone:** M2/M3 owner acceptance and publication gates; M4 composition,
 bundle and fleet-Doctor foundation complete; M7 Jen migration/recovery rehearsal
-complete with owner acceptance still pending.
+complete with owner acceptance still pending; M8 read-only preflight complete.
 
 **Verified:** M0 accepted pinned identities for Family, Bedroom and Jen, recorded
 Guest as not deployed, classified the existing wiki/reference/NetBox/release
@@ -665,7 +666,10 @@ unobserved. No other appliance changed.
 build the wiki through the established LXC 113 path only after content
 acceptance. Separately, perform the short physical Jen navigation and
 representative Jellyfin movie/television owner check. Bedroom and Family
-observation/migration must each use their own later bounded plan.
+observation/migration must each use their own later bounded plan. The M8
+preflight is recorded and requires Bedroom first, preserving stereo PCM,
+AC3/EAC3 passthrough and Wi-Fi, followed only after acceptance by Family with
+Dolby/HDR and equipment control preserved.
 
 ## Evidence log
 
@@ -677,13 +681,14 @@ observation/migration must each use their own later bounded plan.
 | 2026-11-05 | Owner approved the recorded Stream A envelope | Explicit approval in the project thread; repository rules still require immediate approval before each push | Opened M0/M1 with local/read-only work only |
 | 2026-11-05 | Completed M0 authority/corpus/fleet inventory | `docs/projects/evidence/AsterTV-Platform-M0-authority-corpus-inventory-2026-11-05.md`; pinned read-only checks found Family, Bedroom and Jen on the recorded LibreELEC build with enabled guards | All active differences have a migration destination; Guest remains a non-deployed candidate; no live system changed |
 | 2026-11-05 | Completed M1 lifecycle and composition foundation | `docs/Environment-and-Release-Lifecycle.md`; `services/kodi/astertv-fleet/`; `docs/projects/evidence/AsterTV-Platform-M1-composition-foundation-2026-11-05.md` | Four devices compile deterministically; three remain deployed unchanged and Guest remains candidate; 8/8 gates pass including deliberate conflicts and secret rejection |
-| 2026-11-05 | Built and validated the additive M2 HomeLab Wiki candidate | Local `homelab-wiki` commit `1fdcf6a`; `docs/projects/evidence/AsterTV-Platform-M2-wiki-candidate-2026-11-05.md`; two pinned intake sources | 25 pages, 3/3 tests and real bounded source fetches pass; human acceptance/push/LXC publication/mirror remain pending; no live system changed |
+| 2026-11-05 | Built and validated the additive M2 HomeLab Wiki candidate | Local `homelab-wiki` commit `fc33f73` (foundation `1fdcf6a`); `docs/projects/evidence/AsterTV-Platform-M2-wiki-candidate-2026-11-05.md`; two pinned intake sources | 25 pages, 3/3 tests and real bounded source fetches pass; human acceptance/push/LXC publication/mirror remain pending; no live system changed |
 | 2026-11-05 | Built M3–M6 platform foundations | `docs/projects/evidence/AsterTV-Platform-M3-M6-foundations-2026-11-05.md`; design, release-plan, onboarding and skill packages | Hash-bound design assets and fixtures, plan-only SBOM/guards, least-privilege Guest planning and two independently tested skills; no appliance/wiki publication |
 | 2026-11-05 | Verified the immutable base and transaction recovery | v2.0.7 archive hash, 17/17 fleet/release tests, synthetic interruption and rollback fixture | All plans now prove the base artifact; deployment remains blocked until every overlay declares exact payload paths/hashes and guard/Doctor integration is complete |
 | 2026-11-05 | Built the M4 deterministic bundle foundation | `docs/projects/evidence/AsterTV-Platform-M4-bundle-foundation-2026-11-05.md`; exact overlay source inventories; 39/39 fleet/release tests | All eighteen contracts are complete; Bedroom, Family and Jen are build-eligible but not deployed; Jen's 1080p-media/stereo constraints remain device-local and Guest remains a non-deployed candidate |
 | 2026-11-05 | Completed the M4 fleet Doctor foundation | Timestamped observation schema, collector, fail-closed Doctor and 40/40 fleet/release tests | Missing live observations correctly report attention for Bedroom, Family and Jen; no device was changed and no false healthy state was emitted |
 | 2026-11-05 | Prepared the M7 Jen migration and recovered two lifecycle interactions | `docs/projects/evidence/AsterTV-Platform-M7-Jen-preflight-2026-11-05.md`; deterministic normalized install artifact and bounded transaction runner; 44/44 tests | Runtime masking and superseded boot units were both caught before acceptance; exact rollback restored each predecessor, and guard isolation plus typed systemd reconciliation are ready for retry |
 | 2026-11-05 | Completed the M7 Jen migration and recovery rehearsal | Final composition `bccdac5a…eda1`; bundle `1df94e92…4b8b`; checkpoints r4-r6; 45/45 tests; clean Jen Doctor observation | Native GUI resolution preserved; media remains 1920px/18 Mb/s stereo with passthrough off; 534-file guard and 124/124 payloads clean; reboot, News playback, exact rollback and immutable reinstall passed; Family/Bedroom unchanged; owner physical acceptance pending |
+| 2026-11-05 | Completed M8 Bedroom/Family read-only preflight | `docs/projects/evidence/AsterTV-Platform-M8-Bedroom-Family-preflight-2026-11-05.md`; exact identities, guards, audio state, build hashes and installed deltas | Both predecessors are clean and deltas are declared; corrected stale Bedroom desired audio description without changing it; Bedroom must migrate before Family after Jen owner acceptance |
 
 ## Close-out
 
