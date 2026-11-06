@@ -1689,10 +1689,11 @@ fails safely without exposing a service credential or creating a public route.
 
 ### M9 — Page-aware idle presentation and visual reconciliation
 
-- [ ] Retain the accepted balanced TV/movie presentation.
-- [ ] Add a Music presentation using random album artwork when the last active
+- [x] Retain the accepted balanced TV/movie presentation in the repository-only
+  page-aware candidate.
+- [x] Add a Music presentation using random album artwork when the last active
   page is Music, with the AsterTV mark bottom right.
-- [ ] Define neutral fallbacks for other pages and unknown state.
+- [x] Define neutral fallbacks for other pages and unknown state.
 - [ ] Verify burn-in movement, wake return, playback/Home-timer suppression and
   absolute exclusion of cameras, household/account data and sound.
 - [ ] Review every changed surface against the Aster internal UI guide and
@@ -1980,6 +1981,7 @@ explicit user acceptance.
 | 2026-11-05 | Reconciled Remote Select with the physical Aster route | Family's accepted TV-details package was intact; Aster Remote used JSON-RPC `Input.Select`, bypassing the physical G20's bounded dispatcher and exposing Kodi's retired native series page. | Remote Select now uses the same dispatcher on Family, Bedroom and Jen. All three idle add-on-only installs match live/stable hash `c28bf36e…a5d49`; Kodi remained active and Doctor passes. Host-bound installation, automatic rollback, rematerialized guards and 27 Remote plus 47 fleet tests prevent a later global release from restoring the bypass. Evidence: `docs/projects/evidence/AsterTV-v3-M8-remote-select-parity-2026-11-05.md`. |
 | 2026-11-05 | Audited every v3 page against the approved design contract | Checked all synthetic page XML and shared authority for icon context, closed remote focus, artwork/control semantics, stable Gold Rim/jade selection, top-rail/search treatment, and semantic player controls. | All 15 pages and 127 focusable controls pass with zero structural failures; 12 design-authority and 25 shared-language gates pass. The new fail-closed page audit remains in the release suite. Evidence: `docs/projects/evidence/AsterTV-v3-design-conformance-audit-2026-11-05.md`. |
 | 2026-11-05 | Reconciled the News-player candidate with the approved transport-control language | Replaced the synthetic Previous/Pause/Next/Stop text pills and the corresponding design-authority render with compact semantic icons, stable geometry, Gold Rim focus and jade active state; story artwork, progress, active-story following and Back behavior are unchanged. | Six News tests and the 15-page/127-control conformance audit now fail closed if an icon disappears or legacy text controls return; all 44 focused News, design and shared-language gates pass. This remains a local v3 candidate with no appliance deployment. Evidence: `docs/projects/evidence/AsterTV-v3-PA3-News-player-candidate-2026-11-05.md`. |
+| 2026-11-05 | Built the repository-only M9 page-aware idle foundation | One global Aster screensaver now has a local candidate dispatcher for coarse `media`, `music` and `neutral` context. Media retains four-source balanced fanart; Music uses centred local album art; private/unknown pages fail to a black Aster surface. The mark moves between four safe corners and the tracker freezes context while the saver is active. | Seven focused tests and Python/XML checks pass. The candidate reads no titles, accounts, HA values or cameras and has no sound/network path. It is not deployed; real Kodi classification, wake, suppression, missing-art and resource acceptance remain. Evidence: `docs/projects/evidence/AsterTV-v3-M9-page-aware-idle-candidate-2026-11-05.md`. |
 
 ## Close-out
 

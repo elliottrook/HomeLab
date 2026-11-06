@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="screensaver.asterhome.v3" name="AsterTV page-aware screensaver" version="0.1.0" provider-name="Aster">
+  <requires><import addon="xbmc.python" version="3.0.0" /></requires>
+  <extension point="xbmc.ui.screensaver" library="default.py" />
+  <extension point="xbmc.service" library="service.py" start="startup" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Private page-aware AsterTV idle presentation</summary>
+    <description lang="en_GB">Media fanart, Music album art or a neutral black Aster screen selected from the last reviewed page context. No cameras, household data, clocks or sound.</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
