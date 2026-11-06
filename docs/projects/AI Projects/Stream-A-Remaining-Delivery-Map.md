@@ -826,8 +826,8 @@ requires the exact accepted corpus, 32 unique cases balanced two per frozen
 label, trainer exclusion and zero normalized intersection. A create-only
 custody utility generates distinct RSA-2048 keys, canonical content-free
 receipts and immediately self-verifying detached proofs. Two copy-ready prompts
-and a deterministic content-free kit builder are complete. Seven new focused
-tests pass and the expanded J2 suite passes 104/104. The two source kits were
+and a deterministic content-free kit builder are complete. Nine focused
+custody/staging tests pass and the expanded J2 suite passes 104/104. The two source kits were
 built outside Git with manifests `91aefbe8…d5c9` and `14fccd1b…bb47`; they
 contain no private input. Next is Jason opening each kit in a fresh isolated
 Codex workspace, retaining each private key and the 32-case evaluation there,

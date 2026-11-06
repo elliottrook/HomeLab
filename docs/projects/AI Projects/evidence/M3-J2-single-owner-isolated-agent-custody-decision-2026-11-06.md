@@ -72,6 +72,13 @@ SHA-256 inventory. Private inputs must be placed into the resulting encrypted
 workspaces by Jason or by the isolated custodian session; they are never added
 to the kit manifest.
 
+The owner-side `stage_nlu_j2_isolated_custody_inputs_v1.py` command removes
+manual path selection from that step. It pins every accepted source digest,
+copies eleven exact corpus-role inputs or the one evaluation comparison input
+with create-only mode-0600 writes, rereads every copy and rolls back its own
+partial copies on failure. It returns paths and digests only. It does not copy
+either private key or any future sealed evaluation.
+
 ## Acceptance and exclusions
 
 Stream A may pin the returned public-key fingerprints only after checking that
