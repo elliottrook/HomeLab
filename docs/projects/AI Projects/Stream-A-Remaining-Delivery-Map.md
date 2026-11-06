@@ -640,6 +640,14 @@
 > restores v1 bindings afterward. The complete SA4 suite passes 266/266. No
 > authority or effect was attempted. A three-file create-exclusive inactive
 > install is now the next operational gate; repair remains separately gated.
+>
+> Jason approved that exact install and the [inactive installed-path result](evidence/SA4-distinct-registry-fix-inactive-install-result-2026-11-06.md)
+> passed. All three files and 16 dependencies are exact. The old validator
+> rejects the target; complete and nested v2 bindings accept it and restore v1;
+> the final runner fails before input. Transaction state and processes remain
+> absent, the canary is unchanged, the lease is ready and production is
+> healthy. No repair or authority ran. A fresh release and unsigned authority
+> boundary are next.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
