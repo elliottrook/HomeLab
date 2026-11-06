@@ -9,14 +9,13 @@ from unittest.mock import patch
 import sa4_atomic_repair_owner_v1 as repair_owner
 import sa4_atomic_rollback_owner_v1 as rollback_owner
 import sa4_authenticated_authority_v1 as rsa
-import sa4_effect_admission_v1 as effect_admission
 import sa4_inactive_checkpoint_owner_v1 as checkpoint_owner
 import sa4_inactive_measurement_owner_v1 as measurement_owner
 import sa4_independent_postcheck_receipt_v1 as observer
 import sa4_independent_receipt_producer_v1 as postcheck_producer
 import sa4_independent_rollback_receipt_producer_v1 as rollback_producer
 import sa4_one_use_grant_ledger_v1 as ledger_module
-import sa4_receipt_ledger_reconciler_v1 as reconciler
+import sa4_root_transaction_owner_v1 as root_owner
 import sa4_single_file_repair_contract_v1 as contract
 import sa4_target_registry_v1 as registry
 from test_sa4_independent_postcheck_receipt_v1 import KEY, sign
@@ -78,17 +77,6 @@ class SA4FullTransactionRehearsalTests(unittest.TestCase):
         value["change"]["artifact_sha256"] = hashlib.sha256(candidate).hexdigest()
         plan_raw = contract.canonical(value); plan_sha = hashlib.sha256(plan_raw).hexdigest()
         registration = registry.registration_sha256(self.target)
-        with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
-             patch.multiple(measurement_owner, LOCAL_HOST_ID=self.target.host_id,
-                            EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()):
-            measurement = measurement_owner.measure(plan_raw, measurement_epoch=100)
-        measurement_raw = contract.canonical(measurement)
-        with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
-             patch.multiple(checkpoint_owner, LOCAL_HOST_ID=self.target.host_id,
-                            EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()):
-            checkpoint = checkpoint_owner.create(
-                plan_raw, measurement_raw, checkpoint_epoch=105)
-        checkpoint_raw = contract.canonical(checkpoint)
         grant_id = "sa4-full-rehearsal-grant"
         grant_sha = "1" * 64
         self.ledger.initialize(
@@ -96,26 +84,6 @@ class SA4FullTransactionRehearsalTests(unittest.TestCase):
             target_registration_sha256=registration,
             target_sha256=hashlib.sha256(self.before).hexdigest(),
             now_epoch=90, expires_epoch=180)
-        claim = self.ledger.claim(
-            grant_id, claimant="sa4-full-rehearsal-operation",
-            now_epoch=110, deadline_epoch=170)
-        claim_raw = contract.canonical(claim)
-        source_admission_raw = contract.canonical({
-            "schema": "aster-sa4-source-preflight-composition.v1",
-            "plan_sha256": plan_sha, "approval_sha256": "2" * 64,
-            "approval_proof_sha256": "3" * 64, "grant_id": grant_id,
-            "grant_sha256": grant_sha, "grant_proof_sha256": "4" * 64,
-            "filesystem_evidence_sha256": "5" * 64,
-            "target_registration_sha256": registration,
-            "target_before_sha256": hashlib.sha256(self.before).hexdigest(),
-            "checkpoint_sha256": hashlib.sha256(self.before).hexdigest(),
-            "authority_authenticated": True, "ledger_state": "ready",
-            "grant_consumed": False, "filesystem_evidence_valid": True,
-            "shared_lock_proven": True, "emergency_stop_proven": True,
-            "status": "live-measurement-checkpoint-complete",
-            "maximum_effects": 0, "preflight_eligible": False,
-            "owner_effect_approval_required": True,
-            "automatic_retry": False, "automatic_routing": "off"})
         authenticated = {
             "approval_sha256": "2" * 64,
             "approval_proof_sha256": "3" * 64,
@@ -124,77 +92,62 @@ class SA4FullTransactionRehearsalTests(unittest.TestCase):
             "approval_expires_epoch": 180, "grant_expires_epoch": 180,
             "grant_consumed": False, "maximum_effects": 0,
             "preflight_eligible": False}
-        with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
-             patch.object(effect_admission.authority, "verify",
-                          return_value=authenticated):
-            effect_admission_raw = effect_admission.admit(
-                plan_raw, b"approval\n", b"approval-proof\n",
-                b"grant\n", b"grant-proof\n", source_admission_raw,
-                checkpoint_raw, claim_raw, candidate, effect_epoch=120)
-        with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
-             patch.multiple(repair_owner, LOCAL_HOST_ID=self.target.host_id,
-                            EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()):
-            terminal = repair_owner.execute(
-                plan_raw, effect_admission_raw, checkpoint_raw, claim_raw,
-                candidate, operation_id="sa4-full-rehearsal-operation",
-                effect_epoch=120)
-        terminal_raw = contract.canonical(terminal)
-
         original_metadata = postcheck_producer.metadata_check.check
         def metadata(value):
             return original_metadata(dict(value, uid=0, gid=0))
+        controls_raw = contract.canonical({
+            "schema": "aster-sa4-live-runtime-controls.v1",
+            "plan_sha256": plan_sha, "observed_epoch": 120,
+            "shared_operation_lock": "held",
+            "lock_path": "/run/aster-sa4-operation.lock",
+            "lock_owner": value["plan_id"],
+            "lock_regular_file": True, "lock_link_count": 1,
+            "emergency_stop": "armed",
+            "emergency_stop_owner": value["plan_id"],
+            "automatic_retry": False, "automatic_routing": "off"})
         with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
+             patch.object(rsa, "verify", return_value=authenticated), \
+             patch.multiple(measurement_owner, LOCAL_HOST_ID=self.target.host_id,
+                            EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
+             patch.multiple(checkpoint_owner, LOCAL_HOST_ID=self.target.host_id,
+                            EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
+             patch.multiple(repair_owner, LOCAL_HOST_ID=self.target.host_id,
+                            EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
              patch.multiple(postcheck_producer,
+                            LOCAL_HOST_ID=self.target.host_id,
+                            EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
+             patch.multiple(rollback_owner,
+                            LOCAL_HOST_ID=self.target.host_id,
+                            EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
+             patch.multiple(rollback_producer,
                             LOCAL_HOST_ID=self.target.host_id,
                             EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
              patch.object(postcheck_producer, "_snapshot",
                           side_effect=self._root_snapshot(
                               postcheck_producer._snapshot)), \
+             patch.object(rollback_producer, "_snapshot",
+                          side_effect=self._root_snapshot(
+                              rollback_producer._snapshot)), \
              patch.object(postcheck_producer.metadata_check, "check",
-                          side_effect=metadata):
-            postcheck_raw = postcheck_producer.observe(
-                plan_raw, effect_admission_raw, claim_raw, terminal_raw,
-                observed_epoch=130)
-        postcheck_proof = proof_for(postcheck_raw)
-        postcheck = contract.decode_unique_json(postcheck_raw)
-
-        rollback_terminal_raw = rollback_receipt_raw = rollback_proof = None
-        if any(row["state"] != "pass" for row in postcheck["checks"]):
-            with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
-                 patch.multiple(rollback_owner,
-                                LOCAL_HOST_ID=self.target.host_id,
-                                EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
-                 patch.object(observer, "TRUSTED_OBSERVERS", self.trusted):
-                rollback_terminal = rollback_owner.restore(
-                    plan_raw, checkpoint_raw, terminal_raw,
-                    postcheck_raw, postcheck_proof,
-                    rollback_attempt_id="sa4-full-rehearsal-rollback",
-                    not_before_epoch=110, deadline_epoch=170,
-                    rollback_epoch=140)
-            rollback_terminal_raw = contract.canonical(rollback_terminal)
-            with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
-                 patch.multiple(rollback_producer,
-                                LOCAL_HOST_ID=self.target.host_id,
-                                EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
-                 patch.object(rollback_producer, "_snapshot",
-                              side_effect=self._root_snapshot(
-                                  rollback_producer._snapshot)), \
-                 patch.object(observer, "TRUSTED_OBSERVERS", self.trusted):
-                rollback_receipt_raw = rollback_producer.observe(
-                    plan_raw, effect_admission_raw, claim_raw, checkpoint_raw,
-                    postcheck_raw, postcheck_proof, rollback_terminal_raw,
-                    observed_epoch=150)
-            rollback_proof = proof_for(rollback_receipt_raw)
-
-        with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
+                          side_effect=metadata), \
              patch.object(observer, "TRUSTED_OBSERVERS", self.trusted):
-            result = reconciler.reconcile(
-                plan_raw, source_admission_raw, effect_admission_raw,
-                checkpoint_raw, terminal_raw, postcheck_raw, postcheck_proof,
-                self.ledger, now_epoch=155,
-                rollback_terminal_raw=rollback_terminal_raw,
-                rollback_receipt_raw=rollback_receipt_raw,
-                rollback_proof_raw=rollback_proof)
+            owner = root_owner.RootTransactionOwner(
+                self.ledger, operation_id="sa4-full-rehearsal-operation")
+            owner.prepare(
+                plan_raw, b"approval\n", b"approval-proof\n",
+                b"grant\n", b"grant-proof\n", candidate,
+                measurement_epoch=100, checkpoint_epoch=105)
+            owner.execute_once(
+                controls_raw, claim_epoch=110, claim_deadline_epoch=170,
+                effect_epoch=120)
+            postcheck_raw = owner.observe(observed_epoch=130)
+            branch = owner.accept_postcheck_proof(proof_for(postcheck_raw))
+            if branch == "rollback-required":
+                rollback_receipt_raw = owner.rollback_once(
+                    rollback_attempt_id="sa4-full-rehearsal-rollback",
+                    rollback_epoch=140, observed_epoch=150)
+                owner.accept_rollback_proof(proof_for(rollback_receipt_raw))
+            result = owner.finish(now_epoch=155)
         return result, self.path.read_bytes()
 
     def test_success_branch_repairs_once_observes_and_burns_uncertain(self):
