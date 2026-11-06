@@ -20,6 +20,15 @@
 > imports and disposable keygen probes. Fresh revision-3 sessions are the only
 > valid next attempts; revisions 1 and 2 are closed.
 
+> **M3 J2 custody external-review boundary, 2026-11-06:** the revision-3
+> evaluation wrapper was rejected before archive access because it delegated to
+> an unseen downloaded `PROMPT.md` and proposed an unspecified directory-wide
+> upload. No custody command ran. Revision 4 now states every permitted action,
+> exact command, output schema and individually named return file in the prompt
+> itself; executing downloaded instructions and broad transfers are forbidden.
+> Both revision-4 archives pass all 26 manifest hashes, isolated imports and the
+> exact 11/1 input split. Fresh fully bounded revision-4 sessions are next.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.

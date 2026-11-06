@@ -71,6 +71,33 @@ The only valid next attempts use the
 and the
 [evaluation revision-3 prompt](M3-J2-EVALUATION-CUSTODIAN-REMOTE-R3-PROMPT-2026-11-06.md).
 
+## Revision-3 authorization-boundary failure and revision 4
+
+The external evaluation session's automatic approval review rejected the
+revision-3 wrapper before archive access. It correctly treated “execute
+`PROMPT.md`” as an unknown downloaded instruction and the directory-wide
+`export/` upload as unspecified. No custody command ran and no archive or
+private input was accessed. Revision 3 is therefore closed as `NO-GO` for the
+external workflow.
+
+Revision 4 removes both ambiguities. Its self-contained wrappers disclose the
+archive purpose, every permitted action, exact keygen/custody command, exact
+output schemas and every named file allowed to cross back to the Mac mini.
+They explicitly prohibit executing downloaded instructions and transfer
+individual content-free files rather than a directory. The persistent source
+and return roots use revision-4 names. Both archives independently pass all 26
+manifest hashes, isolated imports and the exact 11/1 input split.
+
+- corpus archive SHA-256:
+  `80f178bbc516ecb265a1a54da8a733b3e39c20bdc4c810cec6c3d5fd0f8e2dde`;
+- evaluation archive SHA-256:
+  `faea67bba0fbb72bbea724bf9ea9d4140abd431eb2f46ceeeefd86448a963565`.
+
+The controlling wrappers are the
+[fully bounded corpus revision-4 prompt](M3-J2-CORPUS-CUSTODIAN-REMOTE-R4-PROMPT-2026-11-06.md)
+and the
+[fully bounded evaluation revision-4 prompt](M3-J2-EVALUATION-CUSTODIAN-REMOTE-R4-PROMPT-2026-11-06.md).
+
 ## Authority and exclusions
 
 This recovery changes custody transport and durable staging only. It does not
