@@ -8,6 +8,11 @@ It supplements the repository's general security, authorization and evidence rul
 
 ## Systems of record
 
+For shared storage, agent bootstrap and recovery requirements, read
+[Shared brand asset library](BRAND-ASSET-LIBRARY.md). Observe its migration status;
+a proposed remote destination is not authoritative until retrieval and backup
+verification pass.
+
 | Material | Canonical home |
 |---|---|
 | Workflow and routing instructions | Installed `$brand-design` skill |

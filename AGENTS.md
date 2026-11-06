@@ -10,6 +10,12 @@ to the repository and platform controls below.
 
 ## Repository authorization
 
+For brand work, first read
+`docs/standards/brand-design/BRAND-ASSET-LIBRARY.md` and its current migration
+status. Brand artwork belongs in the separate private asset library; HomeLab
+contains its entry point, reusable workflow and templates. Do not assume an
+agent has access to a particular Mac's Documents folder.
+
 All authorization in this file applies only within what OpenAI and Codex
 permit. It never overrides applicable safety or security policies, product
 safeguards, sandbox and permission controls, or required approval flows. If a
