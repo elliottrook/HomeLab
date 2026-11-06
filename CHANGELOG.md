@@ -1,5 +1,41 @@
 # Changelog
 
+## 2026-11-06 — Aster News video presenter and wardrobe design
+
+- Prepared Aster's accepted fictional 2026 visual baseline and a candidate-only
+  annual ageing contract; no real presenter's likeness or voice was cloned.
+- Added ten hash-pinned British broadcast wardrobe looks with a deterministic
+  daily shuffle that uses every outfit once per ten-day cycle and prevents
+  adjacent repeats.
+- Added an annual wardrobe evidence gate requiring current official UK
+  broadcaster and UK tailoring sources before a human-approved refresh.
+- Kept all rendering and scheduling disabled. The independent News Digest
+  text/audio path and whichever speech authority is currently accepted remain
+  required.
+- Added a 16:9 studio candidate derived from the current reconciled AsterTV r7
+  limestone/ink/jade/gold design authority. The first blue app-icon-derived
+  draft was rejected as obsolete. Annual review resolves the then-current
+  AsterTV design release instead of freezing the 2026 palette; activation remains manual.
+- Revised the studio candidate's story display to a conventional rectangular
+  monitor and made that geometry an annual-review invariant; all other set
+  language remains AsterTV-derived.
+- Recorded Jason's acceptance of that exact studio and added a hash-pinned,
+  2.08-second local SadTalker evaluation clip initially using Kokoro
+  `bm_daniel` speech. The candidate has lip, eye and restrained head/upper-body
+  micro-motion but no independent hand/arm gestures; it remains synthetic,
+  human-gated and production-disabled.
+- Recorded acceptance of the facial lip synchronization and rejection of the
+  v1 Kokoro sound. Re-rendered the same synthetic line and motion parameters
+  with Aster's current accepted Mac/Qwen 1.7B voice as a 1.68-second v2
+  candidate; the rejected v1 remains pinned as superseded evidence.
+- Added the model-facing `Aster` → `Asster` pronunciation candidate and a v3
+  full-image still-mode render to address the detached-head artifact. Measured
+  SadTalker capacity is about 43–57 hours for a 15–20 minute digest, excluding
+  it from twice-daily production and motivating a reusable-motion plus
+  mouth-only-renderer benchmark.
+- Recorded owner acceptance of the v3 pronunciation. Written text and captions
+  remain “Aster”; only the Qwen model-facing input uses “Asster”.
+
 ## 2026-10-26 — EPUB narration compiler M3/M4 pilot
 
 - Deployed a content-silent daily EPUB monitor and disabled-by-default

@@ -52,6 +52,17 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(body["seed"], 20261104)
 
     @mock.patch("urllib.request.urlopen")
+    def test_qwen_uses_model_facing_aster_pronunciation(self, open_url):
+        open_url.return_value = FakeResponse(wav_bytes(), "audio/wav")
+        qwen_renderer_client.QwenRendererPool()._render(
+            "Aster, ASTER and aster; not Asterix."
+        )
+        body = json.loads(open_url.call_args.args[0].data)
+        self.assertEqual(
+            body["input"], "Asster, ASSTER and asster; not Asterix."
+        )
+
+    @mock.patch("urllib.request.urlopen")
     def test_whisper_builds_bounded_multipart(self, open_url):
         open_url.return_value = FakeResponse(b'{"text":" hello "}')
         self.assertEqual(mac_whisper_client.transcribe_wav(wav_bytes()), "hello")

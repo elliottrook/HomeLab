@@ -1,0 +1,116 @@
+{
+  "schema": "aster.presenter-wardrobe.v1",
+  "identity_id": "aster-presenter-v1",
+  "collection_year": 2026,
+  "status": "accepted",
+  "selection_policy": {
+    "method": "deterministic-ten-day-shuffle",
+    "epoch_date": "2026-11-06",
+    "seed": "aster-presenter-v1-wardrobe-v1",
+    "same_outfit_all_day": true,
+    "no_immediate_repeat": true
+  },
+  "annual_review_policy": {
+    "anniversary_month": 11,
+    "anniversary_day": 6,
+    "research_max_age_days": 90,
+    "minimum_official_uk_broadcaster_sources": 2,
+    "minimum_current_uk_tailoring_sources": 2,
+    "candidate_only": true,
+    "human_acceptance_required": true,
+    "activate_automatically": false
+  },
+  "research": {
+    "accessed": "2026-11-06",
+    "summary": "British broadcast dress remains authoritative and restrained while 2026 tailoring is softer, slightly roomier and more textured. The collection keeps camera-safe navy, charcoal and grey at its centre, then adds controlled brown, olive, glen check, chalk stripe and one double-breasted silhouette.",
+    "sources": [
+      {
+        "kind": "official-uk-broadcaster",
+        "title": "Sky News profiles",
+        "url": "https://news.sky.com/sky-news-profiles"
+      },
+      {
+        "kind": "official-uk-broadcaster",
+        "title": "ITV: 70 years of making what matters",
+        "url": "https://www.itv.com/presscentre/sites/default/files/2025-09/70_years_of_making_what_matters.pdf"
+      },
+      {
+        "kind": "current-uk-tailoring",
+        "title": "British GQ: Best suits for men 2026",
+        "url": "https://www.gq-magazine.co.uk/gallery/best-suits-for-men"
+      },
+      {
+        "kind": "current-uk-tailoring",
+        "title": "Harrods: Autumn/Winter 2026 menswear trends",
+        "url": "https://www.harrods.com/en-gb/c/stories/men/new-season-fashion-trends"
+      },
+      {
+        "kind": "current-uk-tailoring",
+        "title": "Suit Direct: Men's suit trends Autumn/Winter 2026",
+        "url": "https://www.suitdirect.co.uk/styleguide/features/mens-suit-trends-autumn-winter"
+      }
+    ]
+  },
+  "outfits": [
+    {
+      "id": "outfit-01",
+      "description": "Charcoal suit, pale blue shirt, burgundy tie",
+      "asset": "../../docs/assets/news-video/wardrobe/aster-outfit-01.png",
+      "sha256": "a1b477f132c75f3e54bd9efa4b9b304baf1b9143b39971d589f78e14a6b0c3c5"
+    },
+    {
+      "id": "outfit-02",
+      "description": "Midnight navy suit, white shirt, bottle-green tie",
+      "asset": "../../docs/assets/news-video/wardrobe/aster-outfit-02.png",
+      "sha256": "0cc988c9b9c7911def161eafdffc1e4dc1499c37e48fc17cc02d68bc7f455bd0"
+    },
+    {
+      "id": "outfit-03",
+      "description": "Medium-grey sharkskin suit, sky-blue shirt, navy tie",
+      "asset": "../../docs/assets/news-video/wardrobe/aster-outfit-03.png",
+      "sha256": "58fa5b89d3c6f3196c7b893db045a9bd4826f2b5e8b0d9a36e5fd38a0b4a715e"
+    },
+    {
+      "id": "outfit-04",
+      "description": "Navy chalk-stripe suit, white shirt, burgundy tie",
+      "asset": "../../docs/assets/news-video/wardrobe/aster-outfit-04.png",
+      "sha256": "45d13148aea44ff51cbc0b7d9fd5a1a5be4903b9422aa5897cc572717c2fe7df"
+    },
+    {
+      "id": "outfit-05",
+      "description": "Charcoal glen-check suit, pale blue shirt, plum tie",
+      "asset": "../../docs/assets/news-video/wardrobe/aster-outfit-05.png",
+      "sha256": "79021cb26f5a8683c32514f70a16b4f38a0244bda36b67996ad042f8421664b6"
+    },
+    {
+      "id": "outfit-06",
+      "description": "Espresso-brown suit, ivory shirt, dark teal tie",
+      "asset": "../../docs/assets/news-video/wardrobe/aster-outfit-06.png",
+      "sha256": "d12e6dd6038ec64bb0193cf739743d31a70ca491f581aac7907b749284792e9a"
+    },
+    {
+      "id": "outfit-07",
+      "description": "Midnight navy double-breasted suit, white shirt, silver-blue tie",
+      "asset": "../../docs/assets/news-video/wardrobe/aster-outfit-07.png",
+      "sha256": "a86d00f4072101b3cbabc037e1d198ec43b8a29c7c3d278cb05c7f4637860f25"
+    },
+    {
+      "id": "outfit-08",
+      "description": "Deep forest-olive suit, ivory shirt, copper-rust tie",
+      "asset": "../../docs/assets/news-video/wardrobe/aster-outfit-08.png",
+      "sha256": "feb2ae03e49d2146b7c5a70f547cf29d4d64d77c99e8f8345c3d105d8c631442"
+    },
+    {
+      "id": "outfit-09",
+      "description": "Deep broadcast-blue suit, white shirt, midnight-navy tie",
+      "asset": "../../docs/assets/news-video/wardrobe/aster-outfit-09.png",
+      "sha256": "fac5332ef626d9ec320e4e7d0243ee9eca537d82d2bb65f4bcb6b84b1c528f35"
+    },
+    {
+      "id": "outfit-10",
+      "description": "Warm grey flannel suit, pale lavender shirt, burgundy-navy tie",
+      "asset": "../../docs/assets/news-video/wardrobe/aster-outfit-10.png",
+      "sha256": "d54ad7645db46b32e91009515e8daf33bff2b536e71300b3fa00196f479a1604"
+    }
+  ]
+}

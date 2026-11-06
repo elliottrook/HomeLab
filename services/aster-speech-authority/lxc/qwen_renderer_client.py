@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import re
 import urllib.error
 import urllib.request
 import wave
@@ -14,6 +15,16 @@ TIMEOUT_SECONDS = float(os.environ.get("ASTER_QWEN_RENDERER_TIMEOUT", "45"))
 VOICE = os.environ.get("ASTER_QWEN_VOICE", "aster")
 SEED = int(os.environ.get("ASTER_QWEN_SEED", "20261104"))
 MAX_WAV_BYTES = 32 * 1024 * 1024
+
+
+def pronunciation_text(text: str) -> str:
+    """Apply the accepted synthetic presenter's model-facing name spelling."""
+    replacements = {"Aster": "Asster", "ASTER": "ASSTER", "aster": "asster"}
+    return re.sub(
+        r"\b(?:Aster|ASTER|aster)\b",
+        lambda match: replacements[match.group(0)],
+        text,
+    )
 
 
 def _wav_to_pcm(payload: bytes) -> tuple[bytes, int]:
@@ -43,7 +54,7 @@ class QwenRendererPool:
 
     def _render(self, text: str) -> tuple[bytes, int]:
         body = json.dumps({
-            "input": text,
+            "input": pronunciation_text(text),
             "voice": VOICE,
             "language": "English",
             "response_format": "wav",

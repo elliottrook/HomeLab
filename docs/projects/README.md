@@ -19,6 +19,7 @@ upstream version identifiers remain unchanged.
 
 | Project | Status | Project document | Supporting material |
 |---|---|---|---|
+| Aster News video briefing | Proposed — Stream M; visual design accepted, renderer evaluation started | [Aster News video briefing](Aster-News-Video-Briefing.md) | Fictional presenter identity, ten-look deterministic wardrobe and accepted studio; first synthetic lip-sync/micro-motion candidate awaits human quality review |
 | Production service placement and release registry | Active — Stream A; registry milestone complete | [Production service placement and release registry](Production-Service-Placement-and-Release-Registry.md) | V1 inventory, environment classification, [durable release registry](../service-release-registry.md), promotion procedure and migration order for mature services |
 | Local AI platform — lab/production split | Active — Stream A; baseline reconciliation paused on release identity | [Local AI platform split](Local-AI-Platform-Split.md) | `ai-lab`/`ai-prod`, stable Aster identity contract, model/release manifest and tested fallback |
 | Aster TTS model experiment | Active — Stream A; CPU screening authorized, B60 execution held at revised GPU-risk gate | [Aster TTS model experiment](Aster-TTS-Model-Experiment.md) | Blind Kokoro versus Qwen3-TTS pronunciation comparison; production speech and Arc A380 unchanged; B60 Vulkan requires a separate explicit risk decision after same-day reset evidence |

@@ -1,0 +1,96 @@
+{
+  "schema": "aster.news-video-render-pilot.v1",
+  "status": "candidate",
+  "created": "2026-11-06",
+  "scope": "synthetic local evaluation only",
+  "production_enabled": false,
+  "source": {
+    "asset": "../../../docs/assets/news-video/studio/aster-studio-2026-candidate-v3.png",
+    "sha256": "fe85bb5cb3966661cc87827f42fb0a5672364873a6a818ece3a01da159a3bf64",
+    "studio_status": "accepted"
+  },
+  "speech": {
+    "text": "Good evening. This is Aster.",
+    "model_facing_text": "Good evening. This is Asster.",
+    "pronunciation_rule": "Replace the whole spoken word Aster with Asster; preserve written text as Aster.",
+    "engine": "qwentts.cpp",
+    "model": "qwen3-tts-1.7b-base-q8-metal",
+    "voice": "aster",
+    "language": "English",
+    "seed": 20261104,
+    "authority": "Mac Aster Speech Authority loopback service",
+    "wav_asset": "../../../docs/assets/news-video/pilot/aster-lipsync-motion-pilot-v3.wav",
+    "wav_sha256": "f35338879433e2982fcffea358b2219a456cfa79cf607f1607989bd6bbf0934f",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 1.84
+  },
+  "renderer": {
+    "name": "SadTalker",
+    "upstream": "https://github.com/OpenTalker/SadTalker",
+    "revision": "cd4c0465ae0b54a6f85af57f5c65fec9fe23e7f8",
+    "license": "Apache-2.0",
+    "device": "Apple Silicon CPU",
+    "parameters": {
+      "size": 256,
+      "preprocess": "full",
+      "pose_style": 12,
+      "expression_scale": 0.85,
+      "batch_size": 1,
+      "still": true
+    },
+    "models": {
+      "SadTalker_V0.0.2_256.safetensors": "c211f5d6de003516bf1bbda9f47049a4c9c99133b1ab565c6961e5af16477bff",
+      "SadTalker_V0.0.2_512.safetensors": "0e063f7ff5258240bdb0f7690783a7b1374e6a4a81ce8fa33456f4cd49694340",
+      "mapping_00109-model.pth.tar": "84a8642468a3fcfdd9ab6be955267043116c2bec2284686a5262f1eaf017f64c"
+    },
+    "temporary_compatibility_patches": [
+      "use torchvision.transforms.functional in place of removed functional_tensor import",
+      "replace removed numpy.float alias",
+      "convert one-element alignment arrays to scalar values"
+    ]
+  },
+  "motion_contract": {
+    "kind": "audio-driven facial motion with the original head pose locked to the static torso",
+    "selection": "fixed pose style plus still mode for this reproducible corrective candidate",
+    "articulated_hands_or_arms": false,
+    "random_motion_not_yet_accepted": true
+  },
+  "output": {
+    "asset": "../../../docs/assets/news-video/pilot/aster-lipsync-motion-pilot-v3.mp4",
+    "sha256": "fb5c28d3b2907520facf2478c577b4b2e6f03e8d829e3a3ba540b654faa89ba2",
+    "container": "MP4",
+    "video": "H.264 High, yuv420p, 1670x942, 25 fps, 46 frames",
+    "audio": "AAC LC, 24000 Hz, mono",
+    "duration_seconds": 1.84,
+    "fast_start": true
+  },
+  "observations": {
+    "face_animation_seconds": 300,
+    "final_compositing_seconds_approximate": 16,
+    "face_animation_seconds_per_frame": 6.54,
+    "decode_check": "passed",
+    "sampled_frame_check": "passed; identity, wardrobe, hands, desk and studio remained visually stable",
+    "human_lip_sync_assessment": "accepted by Jason on 2026-11-06",
+    "human_voice_assessment": "accepted by Jason on 2026-11-06, including the v3 Asster model-facing pronunciation",
+    "human_head_attachment_assessment": "v2 rejected as visually disconnected from the torso; v3 still-mode correction awaits review",
+    "known_limits": [
+      "The 256-pixel face pass is an evaluation setting, not an accepted production resolution.",
+      "The static source does not provide independent arm or hand gestures.",
+      "CPU throughput is far below real time.",
+      "Human viewing and listening are still required to judge lip timing and naturalness."
+    ]
+  },
+  "superseded_evidence": {
+    "v1_video": "../../../docs/assets/news-video/pilot/aster-lipsync-motion-pilot-v1.mp4",
+    "v1_video_sha256": "cd2e71d1c8a6bb4d2d3ad7aaec6ae29a4618377addf38e9246b6e3352b593aea",
+    "v1_audio": "../../../docs/assets/news-video/pilot/aster-lipsync-motion-pilot-v1.wav",
+    "v1_audio_sha256": "154049f1cb26ad94a8388aadede184c135c195b6dda1496ed770376dda491ed6",
+    "v1_reason": "Facial lip synchronization accepted; obsolete Kokoro voice render rejected.",
+    "v2_video": "../../../docs/assets/news-video/pilot/aster-lipsync-motion-pilot-v2.mp4",
+    "v2_video_sha256": "f0707d1addfc8b61f1463be765471a9690b19e1661a541cea337dec4cfdf0a1e",
+    "v2_audio": "../../../docs/assets/news-video/pilot/aster-lipsync-motion-pilot-v2.wav",
+    "v2_audio_sha256": "10a07ee6b1a013793335c1f390a448f9d047f3e859c8effb69926a9118c1d930",
+    "v2_reason": "Voice identity and lip timing accepted; name pronunciation and moving-head/static-torso seam rejected."
+  }
+}

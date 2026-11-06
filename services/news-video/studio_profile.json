@@ -1,0 +1,78 @@
+{
+  "schema": "aster.presenter-studio.v1",
+  "identity_id": "aster-presenter-v1",
+  "collection_year": 2026,
+  "status": "accepted",
+  "accepted_on": "2026-11-06",
+  "studio_asset": {
+    "asset": "../../docs/assets/news-video/studio/aster-studio-2026-candidate-v3.png",
+    "sha256": "fe85bb5cb3966661cc87827f42fb0a5672364873a6a818ece3a01da159a3bf64"
+  },
+  "brand_snapshot": {
+    "captured": "2026-11-06",
+    "authority": {
+      "release": "astertv-v2-lab-reconciled-2026-10-30-r7",
+      "archive": "../kodi/dist/astertv-v2-lab-reconciled-2026-10-30-r7.tar.gz",
+      "sha256": "62a7540744242119a6513b1d4e74a7d2e05d53e402996fa99f249a4f31649fe5"
+    },
+    "members": [
+      {
+        "role": "canonical-colour-tokens",
+        "member": "./lab-addon-snapshot/skin.asterhome/colors/defaults.xml",
+        "sha256": "a32f1a257a8c4c5b9a3e31c57508cd4540ce8355b7317d10cdcba2ee324cd999"
+      },
+      {
+        "role": "limestone-background-reference",
+        "member": "./lab-addon-snapshot/skin.asterhome/media/aster-home-palette-v1/background.png",
+        "sha256": "943cc85adf48adfad524f881a9070573702929c0ea2b18bf97907d47fdc9f50f"
+      },
+      {
+        "role": "jade-focus-surface-reference",
+        "member": "./lab-addon-snapshot/skin.asterhome/media/aster-home-palette-v1/row-focus.png",
+        "sha256": "58a35760c895c1982db729978d33edbba51b06db5ba9971c457e3866ff5359d5"
+      },
+      {
+        "role": "aster-media-material-reference",
+        "member": "./lab-addon-snapshot/skin.asterhome/media/27-aster-media-logo.png",
+        "sha256": "8ed332a41b4ce1ed3679daffef130ced492fc961ac06b4c78724225c8ef7073c"
+      }
+    ],
+    "derived_palette": {
+      "ivory": "#f2ede4",
+      "stone": "#e6dac8",
+      "paper": "#f8f5ef",
+      "charcoal": "#292721",
+      "ink": "#1e241f",
+      "green": "#1f513b",
+      "sage": "#9bc9a8",
+      "gold": "#c2a06b",
+      "muted": "#706b62",
+      "rail_text": "#ece8df"
+    },
+    "rule": "The current reconciled AsterTV skin package is the design authority. Older blue/cyan Aster app-icon and HomeLab web palettes are not studio authority."
+  },
+  "design_contract": {
+    "target_canvas": "1920x1080",
+    "aspect_ratio": "16:9",
+    "presenter_region": "left-to-centre-left",
+    "graphics_safe_region": "right side, approximately 43 to 96 percent of canvas width",
+    "story_monitor_geometry": "traditional horizontal rectangle with straight edges, modest corner radius and thin gold frame",
+    "baked_text": false,
+    "literal_compass_icon_in_set": false,
+    "tv_viewing_distance_required": true,
+    "preserve_audio_text_fallback": true
+  },
+  "annual_review_policy": {
+    "anniversary_month": 11,
+    "anniversary_day": 6,
+    "first_due_date": "2027-11-06",
+    "last_review_year": 2026,
+    "current_brand_snapshot_required": true,
+    "current_broadcast_design_research_required": true,
+    "research_max_age_days": 90,
+    "candidate_only": true,
+    "human_acceptance_required": true,
+    "activate_automatically": false,
+    "production_schedule_enabled": false
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "aster.presenter-profile.v1",
+  "identity_id": "aster-presenter-v1",
+  "display_name": "Aster",
+  "identity_anchor": {
+    "asset": "../../docs/assets/news-video/aster-presenter-identity-v1.png",
+    "sha256": "e087c097ae2546bb4cc3be9b94cbd89863de62690f94c3dd818e8d1b51d8b5c4"
+  },
+  "accepted_appearance": {
+    "year": 2026,
+    "apparent_age": 42,
+    "asset": "../../docs/assets/news-video/aster-presenter-2026-candidate-v1.png",
+    "sha256": "a1b477f132c75f3e54bd9efa4b9b304baf1b9143b39971d589f78e14a6b0c3c5",
+    "status": "accepted"
+  },
+  "age_policy": {
+    "epoch_date": "2026-11-06",
+    "epoch_apparent_age": 42,
+    "anniversary_month": 11,
+    "anniversary_day": 6,
+    "first_due_date": "2027-11-06",
+    "last_render_year": 2026,
+    "candidate_only": true,
+    "human_acceptance_required": true
+  },
+  "render_contract": {
+    "provider": "unbound",
+    "identity_strength": "preserve",
+    "output_pattern": "aster-presenter-{year}-candidate-v1.png",
+    "wardrobe_review_required": true,
+    "activate_automatically": false,
+    "production_schedule_enabled": false
+  }
+}
