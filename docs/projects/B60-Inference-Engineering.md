@@ -15,7 +15,7 @@
 ## Current coordination status
 
 [Operational R3 capture/News reconciliation is continuing](B60-Inference-Engineering/model-r3-capture-and-news-plan-20261106.md).
-The failure-preserving transport/host persistence path passes167 offline tests.
+The failure-preserving transport/host persistence path passes168 offline tests.
 A distinct actual16:20–17:05 November6 booking, reserve17:20 UTC−07, follows
 News-XPU's separate14:30–16:00 booking and reserve. Source/card/clock arming
 and actual model/result/restoration checks remain mandatory; no result is

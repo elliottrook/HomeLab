@@ -47,6 +47,10 @@ def transport_for(key, opener):
             except urllib.error.HTTPError as error:
                 # Do not read an error body or follow a redirect with a key.
                 return error.code, b''
+            except urllib.error.URLError as error:
+                if isinstance(error.reason, TimeoutError):
+                    raise TimeoutError() from None
+                raise OSError() from None
         finally:
             signal.setitimer(signal.ITIMER_REAL, 0)
             signal.signal(signal.SIGALRM, previous)

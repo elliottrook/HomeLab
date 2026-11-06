@@ -34,8 +34,8 @@ Both success and request-failure packets exit the guest capture normally. The
 host validates an explicit bounded schema and durably fsyncs model-result.json
 **before** converting failed capture into trial failure. Kernel checks run
 after packet persistence as well. Storage/validation failure cannot become
-success. No retry or increased thinking budget is introduced.167 B60 tests pass,
-including seven tests of the exact new transport/retention and News peer gate.
+success. No retry or increased thinking budget is introduced.168 B60 tests pass,
+including eight tests of the exact new transport/retention and News peer gate.
 Fake tests are not model, quality, human-review or restoration evidence.
 
 The unchanged base30 controller, R4/R5 source-bound independent recovery proofs,

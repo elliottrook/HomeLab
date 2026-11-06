@@ -85,6 +85,11 @@ class Integration(unittest.TestCase):
         self.packet([TimeoutError()])
         self.assertEqual(signal.getsignal(signal.SIGALRM), before)
         self.assertEqual(signal.getitimer(signal.ITIMER_REAL)[0], 0)
+    def test_url_timeout_is_bounded_timeout_metadata(self):
+        packet, calls = self.packet([urllib.error.URLError(TimeoutError('synthetic private error'))])
+        self.assertEqual(packet['records'][0]['outcome'], 'timeout')
+        self.assertEqual(len(calls), 1)
+        self.assertNotIn('synthetic private', json.dumps(packet))
     def test_arbitrary_fields_rejected_before_store(self):
         packet, _ = self.packet([answer(), answer()])
         packet['secret'] = 'must not persist'
