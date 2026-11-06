@@ -13,6 +13,8 @@ or exports the observer private key itself.
 
 Four focused tests cover the exact command sequence, custody/duplicate drift,
 pull failure and response-delivery failure. The complete SA4 suite passes
-180/180. The source is not installed. Next is a joined disposable rehearsal of
-the LXC exchange, Proxmox bridge and one-shot controller, followed by an exact
-inactive-install packet and review.
+180/180. A joined concurrent disposable rehearsal then proves that a blocked
+LXC request is pulled, validated, signed, returned and accepted through the
+fixed protocol without another channel; the expanded suite passes 181/181.
+The source is not installed. Next is an exact reversible inactive-install
+packet and review.

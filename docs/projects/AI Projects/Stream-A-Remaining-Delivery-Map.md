@@ -337,8 +337,9 @@
 > is now source-complete with fixed VMID/paths and only fixed `pct pull`,
 > bounded observer signing and fixed `pct push`. It accepts no command or key;
 > pull failure cannot sign and push failure retains evidence. The full suite
-> passes 180/180. Next is joined disposable protocol rehearsal and the exact
-> reversible inactive-install packet.
+> passes 180/180. A joined concurrent disposable rehearsal then completes the
+> fixed request/pull/sign/push/accept loop end to end; the suite passes 181/181.
+> Next is the exact reversible inactive-install packet and result verifier.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
