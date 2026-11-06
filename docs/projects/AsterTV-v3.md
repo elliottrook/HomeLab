@@ -1823,6 +1823,18 @@ pass. Two further 10-second Jen runs remained on Home with zero players, 2.78% /
 2.61% CPU, stable 556,324 KiB Kodi RSS, 27.8°C and zero swap. Evidence:
 `docs/projects/evidence/AsterTV-v3-M10-Jen-idle-snapshot-2026-11-06.md`.
 
+The content-free Jen page harness now measures two bounded passes across Books,
+News, Home, Music and Cameras without opening content or starting the camera
+feed. All ten activations completed in 33.5–85.9 ms; Books was data-ready in
+269.0–521.3 ms, News in 96.0–96.7 ms and Music in 985.9–1,017.6 ms. Per-route
+receive traffic peaked at 73,882 bytes, no player appeared and the verified
+final window was Media Home. The reusable gate handles Kodi's concatenated
+JSON-RPC notifications and fails unless late page workers have settled before
+Home restoration. Home's intentional refresh debounce and Cameras' unopened
+feed are reported as activation-only rather than converted into invented data
+readiness. Evidence:
+`docs/projects/evidence/AsterTV-v3-M10-Jen-page-latency-2026-11-06.md`.
+
 The M7 content rollout read-only preflight also confirms the accepted
 predecessor hashes and healthy services on Aster Agent, Home Assistant and idle
 Bedroom. Family's recorded MAC still matches `192.168.1.157`, but its presented
@@ -2132,6 +2144,7 @@ explicit user acceptance.
 | 2026-11-05 | Extracted the retained narration pronunciation contract | Represented the five embedded pronunciation rules as a strict ordered `en-CA` data lexicon and added a synthetic positive/boundary/false-positive corpus. | Twelve outputs are byte-identical to canonical cleanup hash `0476a393…350b9` and idempotent. This is repository-only compatibility groundwork: no private text, new pronunciation, synthesis, reader or generation changed. Evidence: `docs/projects/evidence/AsterTV-v3-M5-pronunciation-candidate-2026-11-05.md`. |
 | 2026-11-06 | Closed the authorized M5B benchmark without promoting timing | Two attempts failed closed before inference on normal pinned-cache/interpreter symlinks and restored production. After exact custody corrections, the final authoritative booking completed with 159 measured words but exact alignment rejected `alignment-count`. | The result is a valid negative benchmark, not permission to infer timestamps. Lease/locks restored, worker inactive and Aster Speech active; no reader/catalogue timing changed. Evidence: `docs/projects/evidence/AsterTV-v3-M5B-word-alignment-benchmark-2026-11-05.md`. |
 | 2026-11-06 | Accepted and deployed the new AsterTV and Aster Remote brand placements | Verified the exact private Forgejo SVG masters, rendered fixed consumer-specific PNGs without raster resizing, and installed through checkpointed hash-bound paths. Remote validation initially exposed an incorrect test URL and restored cleanly before the corrected install. | Remote launcher assets are live and healthy. Jen, Bedroom and Family carry the R5 splash under separate local rollback checkpoints; Bedroom Wi-Fi/audio and Family Dolby/HDR settings remain intact. Design, Remote and fleet gates pass. Evidence: `docs/projects/evidence/AsterTV-v3-brand-asset-deployment-2026-11-06.md`. |
+| 2026-11-06 | Measured repeatable low-spec page and data readiness | A target-bound, content-free harness activated Books, News, Home, Music and Cameras twice on the released Jen display, emitted only aggregate timings/traffic and restored Media Home. It starts no content or camera feed and fails on any active player. | All activations took 33.5–85.9 ms; declared data readiness remained below 1.02 s; per-route receive traffic stayed below 74 KiB; no player appeared and exact Home restoration passed. Artwork visibility, camera-stream cost, speech, playback and the non-author walkthrough remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Jen-page-latency-2026-11-06.md`. |
 
 ## Close-out
 

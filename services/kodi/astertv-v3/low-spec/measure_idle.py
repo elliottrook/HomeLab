@@ -63,16 +63,41 @@ def kodi_pid(proc: Path) -> int:
     return values[0]
 
 
-def rpc(method: str, params: dict | None = None, address=RPC):
+def _rpc_once(method: str, params: dict | None = None, address=RPC):
     request = {"jsonrpc": "2.0", "id": 1, "method": method,
                "params": params or {}}
     with socket.create_connection(address, timeout=3) as client:
         client.settimeout(5)
         client.sendall((json.dumps(request) + "\n").encode())
-        response = json.loads(client.recv(65536))
-    if response.get("error") or "result" not in response:
-        raise RuntimeError("idle-kodi-rpc")
-    return response["result"]
+        buffer = ""
+        deadline = time.monotonic() + 5
+        decoder = json.JSONDecoder()
+        while time.monotonic() < deadline:
+            buffer += client.recv(65536).decode()
+            while buffer.lstrip():
+                buffer = buffer.lstrip()
+                try:
+                    response, end = decoder.raw_decode(buffer)
+                except json.JSONDecodeError:
+                    break
+                buffer = buffer[end:]
+                if response.get("id") == 1:
+                    if response.get("error") or "result" not in response:
+                        raise RuntimeError("idle-kodi-rpc")
+                    return response["result"]
+    raise RuntimeError("idle-kodi-rpc")
+
+
+def rpc(method: str, params: dict | None = None, address=RPC):
+    for attempt in range(3):
+        try:
+            return _rpc_once(method, params, address)
+        except (OSError, UnicodeError, json.JSONDecodeError,
+                RuntimeError, socket.timeout):
+            if attempt == 2:
+                break
+            time.sleep(0.1)
+    raise RuntimeError("idle-kodi-rpc")
 
 
 def active_players(address=RPC) -> list:
