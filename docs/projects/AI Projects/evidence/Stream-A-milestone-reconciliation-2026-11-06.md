@@ -44,7 +44,9 @@ observation are ready. Routing, tools and promotion remain off.
    development rejection closes this K2 candidate instead.
 3. **M5 no-effect shadow:** compare the qualified candidate with the current
    deterministic route on representative traffic without executing either
-   proposed route. Measure abstention, privacy, latency and cost.
+   proposed route. Measure abstention, privacy, latency and cost. The
+   K2-specific non-authorizing route selector is now source-ready; the
+   representative shadow release remains conditional on qualification.
 4. **M6 decision:** apply the preregistered criteria to development, sealed
    evaluation and shadow evidence and make one explicit promote-or-reject
    decision. A promotion here means only a bounded read-only route; it grants
