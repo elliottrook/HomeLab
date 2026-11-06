@@ -1,0 +1,35 @@
+{
+  "acceptance_sha256": "3825ae8d34db463d59ccac8197e69af687994bc185034506ef60c483edb742f4",
+  "cases": [
+    {
+      "accepted": true,
+      "case": "absent-collected"
+    },
+    {
+      "accepted": true,
+      "case": "loaded-inactive"
+    },
+    {
+      "accepted": false,
+      "case": "loaded-active"
+    },
+    {
+      "accepted": false,
+      "case": "notfound-active"
+    },
+    {
+      "accepted": false,
+      "case": "notfound-tasks"
+    },
+    {
+      "accepted": false,
+      "case": "notfound-no-pid"
+    }
+  ],
+  "embedded_exact": true,
+  "no_live_effects": true,
+  "postcheck_sha256": "c91c455407425ab451baacf9b4b9c8c4e9573e5d919aec98ba18c3f8464a5485",
+  "schema": "b60-independent-empty-unit-source-review.v1",
+  "scope": "offline only; armed qualification unaffected",
+  "verdict": "PASS: loaded active, missing-file active, nonzero task, and absent PID observations refused; genuine collected scope accepted"
+}

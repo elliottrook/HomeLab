@@ -21,6 +21,8 @@ PINS = {
 }
 GUEST = '/opt/aster-news-video-xpu/b60_musetalk_xpu_guest.py'
 GUEST_SHA = '224c7b45aab24076c15b5009efd77f679f0b271767d8bddbff64ab6309390209'
+OV_GUEST = '/opt/aster-news-video-xpu/b60_musetalk_openvino_guest.py'
+OV_GUEST_SHA = '9ebfacfcb006b8f2729fac19c161b587ed55d77eff73b9152d5c515c240a39aa'
 
 
 def peer_released(row, start):
@@ -83,11 +85,15 @@ def observe(adapter, store, booking):
     rows = [line for line in raw.splitlines() if line.startswith('mp0:')]
     assert len(rows) == 1 and hashlib.sha256(rows[0].encode()).hexdigest() == MOUNT_SHA, 'NEWS_MOUNT_DRIFT'
     assert adapter._call(('pct', 'exec', '110', '--', 'sha256sum', GUEST), deadline, 10).split()[0] == GUEST_SHA, 'NEWS_GUEST_SOURCE_DRIFT'
+    assert adapter._call(('pct','exec','110','--','sha256sum',OV_GUEST),deadline,10).split()[0]==OV_GUEST_SHA,'NEWS_OV_GUEST_SOURCE_DRIFT'
     # No command line leaves the guest. Match an exact argv element, avoiding
     # this metadata observer's own embedded query text.
-    code = "import json;from pathlib import Path;n=0;\nfor p in Path('/proc').glob('[0-9]*/cmdline'):\n try:a=p.read_bytes().split(b'\\0')\n except (FileNotFoundError,PermissionError):continue\n if b'/opt/aster-news-video-xpu/b60_musetalk_xpu_guest.py' in a:n+=1\nprint(json.dumps({'news_process_count':n}))"
+    code = "import json;from pathlib import Path;n=0;\nfor p in Path('/proc').glob('[0-9]*/cmdline'):\n try:a=p.read_bytes().split(b'\\0')\n except (FileNotFoundError,PermissionError):continue\n if any(v in a for v in (b'/opt/aster-news-video-xpu/b60_musetalk_xpu_guest.py',b'/opt/aster-news-video-xpu/b60_musetalk_openvino_guest.py')):n+=1\nprint(json.dumps({'news_process_count':n}))"
     value = json.loads(adapter._call(('pct', 'exec', '110', '--', 'python3', '-B', '-c', code), deadline, 10))
     assert value == {'news_process_count': 0}, 'NEWS_PROCESS_ACTIVE'
+    code="import subprocess,json;rows=subprocess.run(['systemctl','list-units','--all','--no-legend','--plain','aster-musetalk-xpu-*'],capture_output=True,text=True,timeout=5);assert rows.returncode==0;n=0;\nfor l in rows.stdout.splitlines():\n unit=l.split()[0];p=subprocess.run(['systemctl','show',unit,'--property=ActiveState,MainPID,TasksCurrent'],capture_output=True,text=True,timeout=5);v=dict(x.split('=',1) for x in p.stdout.splitlines());assert p.returncode==0;\n if v.get('ActiveState') in {'active','activating','deactivating'} or v.get('MainPID')!='0' or v.get('TasksCurrent') not in {'0','','[not set]'}:n+=1\nprint(json.dumps({'live_news_scopes':n}))"
+    scopes=json.loads(adapter._call(('pct','exec','110','--','python3','-B','-c',code),deadline,15));assert scopes=={'live_news_scopes':0},'NEWS_SCOPE_NOT_EMPTY'
+
     store.write('news-xpu-admission.json', {
         'schema': 'b60-news-xpu-preservation.v1', 'booking_id': booking['booking_id'],
         'peer_booking_id': NEWS, 'peer_state': peer['state'], 'peer_terminal_attempt':attempt,
@@ -96,7 +102,7 @@ def observe(adapter, store, booking):
         'kernel_hazards_since_peer_start': historical,
         'unresolved_kernel_hazards':0,'source_bound_incident_closure':closure,'later_news_releases':peer_rows,
         'host_source_sha256': PINS, 'guest_script_sha256': GUEST_SHA,
-        'news_process_count': 0, 'news_volume_modified': False,
+        'news_process_count': 0,'live_news_scopes':0,'openvino_guest_sha256':OV_GUEST_SHA, 'news_volume_modified': False,
         'owner_publication_received': False,
         'authority': 'current installed sources and actual shared booking ledger',
     }, immutable=True)

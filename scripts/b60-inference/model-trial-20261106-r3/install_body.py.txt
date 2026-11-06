@@ -47,6 +47,7 @@ with host_exclusion(ROOT):
  for n,sha in NEWS['PINS'].items():
   if n not in REG_FILES:assert hashlib.sha256(protected_bytes(BASE.parent/'full-inference-pilot'/n,executable=True,maximum=262144)).hexdigest()==sha
  assert call(['pct','exec','110','--','sha256sum',NEWS['GUEST']]).split()[0]==NEWS['GUEST_SHA']
+ assert call(['pct','exec','110','--','sha256sum',NEWS['OV_GUEST']]).split()[0]==NEWS['OV_GUEST_SHA']
  mrows=[l for l in call(['pct','config','110','--current']).splitlines() if l.startswith('mp0:')]
  assert len(mrows)==1 and hashlib.sha256(mrows[0].encode()).hexdigest()==NEWS['MOUNT_SHA']
  assert not DEST.exists()

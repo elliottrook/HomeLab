@@ -9,7 +9,7 @@ import hashlib,json,os,time
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from pathlib import Path
-CAPTURE_SHA='edbf5f4a126d27770dd11d4107c4845329d6a2729ee1a591d3dd34e1559a60d8'
+CAPTURE_SHA='939f87c674cb99ab153a6bc7926d8ec552c8bbadcf85b6ad931a17d7270de094'
 ZONE=ZoneInfo('America/Vancouver')
 
 def require(v):
