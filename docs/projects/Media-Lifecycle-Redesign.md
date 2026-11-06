@@ -39,6 +39,10 @@ genuine upgrade exists.
 ## Agreed intent
 
 - Keep existing playable files in Radarr or Sonarr, monitored while a better release is sought.
+- Jason clarified on 2026-11-06 that older 480p/720p or stereo titles remain
+  visible in Archive once old enough while their arr entries stay monitored
+  for a genuine upgrade. Their legacy quality is not, by itself, a reason to
+  fill Current with old titles.
 - Prefer genuine 1080p, HDR and 5.1 audio for new acquisitions. Do not manufacture HDR or surround sound by upscaling or upmixing older sources.
 - Retain Current and Archive views in Jellyfin. Preferred layout: one physical `tv` root and one physical `movies` root, with age-based views rather than file moves. This needs a client-specific view pilot before migration.
 - Preserve genuine HDR and a usable 5.1 track when compressing. Preserve 4K if it remains visually sound under the limit; if it cannot, a good 1080p version is authorized. Never upscale or upmix an older source.
@@ -102,7 +106,16 @@ separate verified quarantine because arr cannot infer corruption.
    - If it exceeds 5 GB, try a quality-led encode and assess its final size. Do not force an output to 5 GB by continually lowering bitrate or resolution. If the quality floor fails, keep the original in Current and report the exception.
    - For a 4K HDR source, first assess 4K output under the ceiling. If its picture quality is inadequate, test a 1080p version with original aspect ratio, valid HDR signaling, multichannel audio, and all English subtitles. Test the output on AsterTV before any unattended replacement. If neither version passes, keep the source in Current.
    - Compare English subtitle tracks and flags before and after encoding. Stage and verify sidecars with the video. A missing or unsupported track blocks replacement.
-4. Keep files in the two arr-managed roots and calculate archive status from the original import date, not filesystem modification time. For TV, the youngest episode in a season must be at least four months old before that season can be called Archive; a later episode resets only its own season. If exact rolling views are needed inside Jellyfin, pilot API-managed collections or tags and verify their presentation on the actual client. Jellyfin's ordinary Latest Media view is useful but does not enforce the four-month rule.
+4. Keep files in the two arr-managed roots and calculate archive status from a
+   persisted first-seen import date, not filesystem modification time. The
+   existing physical Archive roots seed a separate, one-time legacy Archive
+   flag because ARR's migration `dateAdded` does not preserve their original
+   age. For TV, the youngest new episode in a season must be at least four
+   calendar months old before that season can be called Archive; a later
+   episode resets only its own season. If exact rolling views are needed
+   inside Jellyfin, pilot API-managed collections or tags and verify their
+   presentation on the actual client. Jellyfin's ordinary Latest Media view
+   is useful but does not enforce the four-month rule.
 5. If physical archive folders are retained instead, move a whole movie through Radarr. Sonarr manages a series under one folder, so season-by-season moves are incompatible with a single Sonarr-managed series path. An entire series can move only when no season needs to remain Current.
 6. Never classify an output over the archive size ceiling as Archive. Oversized or unverifiable files stay in Current and appear in an actionable report.
 7. Detect genuinely missing or corrupt files separately. A missing monitored file may be reacquired through arr; corruption must first be verified and quarantined, since arr cannot infer it from resolution or file size alone.
@@ -238,7 +251,77 @@ or physical archive roots.
 
 ## Evidence log
 
-- **2026-11-06 — M0 gate passed:** Forgejo main remains at the planning SHA;
+- **2026-11-06 — M0 synchronized and M1 lab probe:** Jason approved the
+  specific M0 evidence push. Forgejo had first advanced to unrelated brand
+  documentation commit `d9fe346`; the media-only commit was rebased without
+  conflict, pushed as `00fc34dba141c29c6b38f4a5bdb8a11b1c119c0e`, and
+  both Forgejo and its GitHub mirror reported that exact SHA. On AsterTV
+  Bedroom, a disposable Kodi smart-playlist pilot selected one Current movie
+  and two seasons of one series through client-native rules. Read-only
+  `Files.GetDirectory` returned one movie and 20/26 episodes for the two season
+  lists. Every temporary playlist was removed, with no home-menu, library,
+  watch-state or ARR mutation. An aggregate playlist referring to a nested
+  season playlist returned zero items, so this alone does not establish a
+  usable whole-library season view. M1 remains open. Kodi's official smart
+  [playlist rules](https://kodi.wiki/view/Smart_playlists/Rules_and_groupings)
+  support episode `tvshow` and `season` filters, but
+  its `match` mode combines rules only as all or one; further client design is
+  needed for a union of exact eligible seasons.
+- **2026-11-06 — M1 client-node feasibility:** a second disposable pilot on
+  AsterTV Bedroom used Kodi video nodes instead of an aggregate smart
+  playlist. A nested `Archive TV` → `Series` → `Season` hierarchy returned
+  one series folder, two season folders and the same 20/26 episode counts
+  through the client's own read-only JSON-RPC directory API. The node files
+  were automatically removed; the home menu, Kodi database, Jellyfin, ARR
+  records, media and watch state were not edited. This supports a generated
+  client presentation over two ARR-managed physical roots. It does not yet
+  prove the four-calendar-month eligibility calculation, the 5 GB ceiling,
+  Jellyfin-web presentation or visual navigation on the TV. The next pilot
+  must use real ARR import dates and checked file sizes, then verify the
+  displayed Current and Archive paths on the client. Kodi's
+  [video-node format](https://kodi.wiki/view/Video_nodes) documents the
+  nested folder structure used here.
+- **2026-11-06 — M1 policy candidate:** Jason chose to keep older low-resolution
+  titles visible in Archive while seeking upgrades. Added pure, undeployed
+  age-and-size and Kodi TV-node renderers under `scripts/video-archiver` with
+  fourteen synthetic tests. The policy uses four calendar months, the exact
+  5,000,000,000-byte ceiling, the youngest first-seen import in a TV season,
+  and fails closed on missing
+  time or size. Tests cover month-end rollover, size boundary and a new
+  episode resetting only its own season, a grandfathered legacy Archive
+  title and a new episode resetting a grandfathered season. The node tests
+  validate a series split across Current and Archive seasons, XML escaping
+  and ambiguous-title rejection. All fourteen tests pass. Stream quality
+  and subtitle acceptance remain independent gates for new encodes. This
+  code does not move, rewrite, tag or schedule any media.
+- **2026-11-06 — Import-time provenance risk:** Radarr has 821 movie files and
+  Sonarr has 5,646 episode files; all expose `dateAdded`, size and the fields
+  needed for season grouping. But every recorded `dateAdded` falls in
+  August–November 2026 after the ARR/Jellyfin migration. A direct four-month
+  rule therefore classifies **zero** movies and **zero** of 535 seasons as
+  Archive, despite 742 movies and 4,329 episode files currently living in
+  physical Archive roots. The existing Archive roots provide a one-time
+  provenance baseline: 723 of those movies and 394 whole seasons are at or
+  below the 5,000,000,000-byte ceiling. Nineteen movies already in the
+  physical Archive exceed the ceiling and must be treated as Current view
+  exceptions until a safe optimization or accepted resolution. No series has
+  files split across Current and Archive physical roots. The policy candidate
+  retains a separate legacy-Archive flag instead of falsifying the import
+  time. A new episode in such a season resets only that season's view age.
+  The baseline and replacement ledger need to be persisted and verified
+  before any bulk view migration; this read-only count does not authorize one.
+- **2026-11-06 — Live import drift since Stream A start:** 31 movie files were
+  newly imported into the physical Archive Movies root, but none is a newly
+  added Radarr movie record; these are upgrades of existing titles. Two of
+  those new files exceed 5 GB. Sixteen TV episode files were newly imported,
+  two of them into the physical Archive TV root within one season. A legacy
+  Archive flag should persist for an upgraded movie, while a new episode
+  must make its own season Current for four calendar months. The existing
+  physical Jellyfin libraries cannot express those exceptions; this is a
+  current view-drift risk, not evidence that the old archiver jobs restarted.
+  No media or ARR record was changed by this inspection.
+- **2026-11-06 — M0 gate passed:** Forgejo main was still at the planning SHA
+  at gate time;
   TrueNAS confirms legacy jobs 4 and 6 still disabled, with Radarr, Sonarr,
   Bazarr and Profilarr healthy and Jellyfin running. AsterTV Bedroom's installed
   Aster skin has four separate home playlists: TV Shows, Movies, Archive TV
@@ -325,12 +408,16 @@ or physical archive roots.
 - M1 must prove a season-level Current/Archive client representation without
   disturbing concurrent AsterTV/Jellyfin work. Kodi's existing tag-based
   show playlists cannot split one series by season because its episode API
-  has no tag setter. Profile design must resolve ARR's disabled upgrades;
+  has no tag setter. A disposable per-season playlist worked on AsterTV
+  Bedroom, while a playlist-of-playlists aggregator did not; the full view
+  and four-month eligibility calculation remain unproven. Profile design
+  must resolve ARR's disabled upgrades;
   the three unmonitored movies are missing files, not playable archive files.
   No media file or ARR profile has been changed yet.
-- This local evidence is not pushed to Forgejo. Repository instructions require
-  immediate authorization for each further Forgejo push; the planning push
-  approval does not cover it.
+- M0 evidence is synchronized to Forgejo and its GitHub mirror at `00fc34d`.
+  The later M1 pilot evidence is local only. Repository instructions require
+  immediate authorization for each further Forgejo push; the M0 approval
+  does not cover a later push.
 - The user wants the best file below 5 GB, with no compression solely to minimize size. They authorize a good 1080p version when 4K cannot meet the ceiling. The user prefers moving whole seasons after their youngest episode reaches four months, or keeping only two physical folders with separate Current/Archive views; the latter is recommended pending a Jellyfin client pilot.
 
 ## Close-out
