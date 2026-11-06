@@ -31,7 +31,7 @@ CHANGES = (
         "compiled-and-ad-hoc-signed:sa4_owner_keychain_signer_v1.swift",
         MAC_NEW_BINARY,
         None,
-        "045674f63c018864f28fbaa39c72b83b511e1741c9a70cc98f2f9bbf4a7d947d",
+        "ecf91f6356c368777a5910d8e4c228418ebc05728f3c11f1d7b0b53ed6288836",
         "jelliott", "staff", "0755", "create-exclusive",
     ),
     Change(

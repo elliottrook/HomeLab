@@ -13,8 +13,8 @@ mode-0600 file and `/usr/bin/openssl` remains a root-owned mode-0755 regular
 file. No private key bytes or Keychain item were read.
 
 Two independent builds of the corrected owner source produced the same
-ad-hoc-signed binary SHA-256
-`045674f63c018864f28fbaa39c72b83b511e1741c9a70cc98f2f9bbf4a7d947d`.
+ad-hoc-signed binary SHA-256 when compiled under its versioned installed name:
+`ecf91f6356c368777a5910d8e4c228418ebc05728f3c11f1d7b0b53ed6288836`.
 Strict code-sign verification and the no-Keychain self-test passed.
 
 ## Exact install packet
