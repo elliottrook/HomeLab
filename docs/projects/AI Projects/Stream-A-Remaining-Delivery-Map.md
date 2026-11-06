@@ -125,6 +125,10 @@
 > evidence. The suite remains 97/97. Neither source is installed or invoked;
 > next is their reversible inactive installation and a read-only live
 > measurement proof.
+> The exact [two-file install review](evidence/SA4-measurement-checkpoint-inactive-install-review-2026-11-05.md)
+> matches fresh installed predecessors, retains both old sources and invokes
+> only one read-only measurement postcheck. Checkpoint creation and all repair
+> state are excluded. The expanded suite passes 99/99.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
