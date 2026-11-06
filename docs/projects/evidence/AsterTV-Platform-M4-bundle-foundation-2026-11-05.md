@@ -40,6 +40,9 @@ future promotion transaction. No promotion was performed.
 - Fleet/release suite: 39/39 passing, including typed assertion drift and
   target isolation.
 - Four deterministic bundles build from the locally verified immutable release.
+  The current composition hashes are Bedroom `e1cdac8a...d632`, Family
+  `17536fc3...13e7`, Guest candidate `54a585dd...7864`, and Jen
+  `e139edc2...8b87`; only Bedroom, Family and Jen are deployable plans.
 - Repeated builds are byte-identical.
 - Guest stays non-deployable.
 - The Family restart overlay is reproducibly rendered from exact predecessor
