@@ -141,11 +141,17 @@ def news_player_render(page: dict, tokens: dict) -> str:
             f'<text x="1770" y="{y+82}" fill="{c["champagne_gold"]}" font-family="sans-serif" font-size="17">{"PLAYING" if active else ""}</text></g>'
         )
     controls = []
+    glyphs = {
+        "Previous": '<path d="M45 17 L25 29 L45 41 Z M20 16 V42"/>',
+        "Pause": '<rect x="24" y="16" width="7" height="26" rx="2"/><rect x="39" y="16" width="7" height="26" rx="2"/>',
+        "Next": '<path d="M25 17 L45 29 L25 41 Z M50 16 V42"/>',
+        "Stop": '<rect x="24" y="17" width="24" height="24" rx="4"/>',
+    }
     for index, label in enumerate(("Previous", "Pause", "Next", "Stop")):
-        x = 122 + index * 148
+        x = 150 + index * 126
         controls.append(
-            f'<rect x="{x}" y="900" width="126" height="58" rx="28" fill="{c["jade"] if label == "Pause" else c["charcoal"]}" stroke="{c["champagne_gold"]}" stroke-width="{4 if label == "Pause" else 2}"/>'
-            f'<text x="{x+63}" y="936" text-anchor="middle" fill="{c["warm_white"]}" font-family="sans-serif" font-size="19">{label}</text>'
+            f'<g transform="translate({x} 900)" fill="{c["warm_white"]}" stroke="{c["warm_white"]}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">'
+            f'<title>{label}</title><rect width="82" height="58" rx="24" fill="{c["jade"] if label == "Pause" else c["charcoal"]}" stroke="{c["champagne_gold"]}" stroke-width="{4 if label == "Pause" else 2}"/>{glyphs[label]}</g>'
         )
     body = (
         f'<rect x="70" y="165" width="900" height="810" rx="30" fill="{c["charcoal"]}" fill-opacity=".66"/>'

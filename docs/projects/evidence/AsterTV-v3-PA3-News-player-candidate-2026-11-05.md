@@ -22,7 +22,8 @@ the approved AsterTV language:
 - automatic selection/following through the runtime's existing
   `selectItem(row)` and `publish(row)` behavior;
 - gold current-but-unfocused story state and jade remote focus;
-- Previous, Play/Pause, Next, Stop and Back to News controls;
+- compact semantic Previous, Play/Pause, Next and Stop icons using the approved
+  Gold Rim focus and jade active treatment, plus Back to News;
 - missing artwork falls back to the Aster News mark.
 
 The list is deliberately limited to five visible images at once and uses no
@@ -43,17 +44,23 @@ runtime mapping is held separately under `services/kodi/astertv-v3/news_player/`
 
 The deterministic design authority includes
 `services/kodi/astertv-design/generated/renders/pages/news-player.svg` with
-status `candidate-v3-review`. It is not labelled accepted until owner review.
+status `candidate-v3-review`. The design-authority render and Kodi pilot now
+use the same icon-only transport language as the accepted Movie and TV
+surfaces; a fail-closed page audit rejects missing semantic icons or a return to
+the legacy Previous/Pause/Next/Stop text buttons. It is not labelled accepted
+until owner review.
 
 ## Verification
 
-- Five focused News-player mapping tests pass.
+- Six focused News-player mapping and semantic-control tests pass.
 - Twelve deterministic design-authority tests pass and all 29 generated files
   are current.
 - Twenty-five shared-language/Kodi overlay tests pass, including the updated
   fail-closed inventory of 303 visible buttons.
-- All 37 discoverable AsterTV v3 tests pass.
-- Both new XML files parse and the symbolic focus graph is closed.
+- The 15-page conformance audit passes all 127 focusable controls with zero
+  failures, including the new News semantic-control rule.
+- All 44 focused News, conformance, design-authority and shared-language tests
+  pass; both XML files parse and the symbolic focus graph is closed.
 
 ## Next gate
 

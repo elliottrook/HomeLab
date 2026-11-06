@@ -62,6 +62,15 @@ class NewsPlayerTests(unittest.TestCase):
         self.assertIn("Back to News", text)
         self.assertIn("ActivateWindow(1198)", text)
 
+    def test_pilot_player_uses_semantic_icon_controls(self):
+        text = PILOT.read_text()
+        for icon in ("previous.svg", "pause.svg", "next.svg", "stop.svg"):
+            self.assertIn(f"player-controls/{icon}", text)
+        for old_label in ("<label>Previous</label>", "<label>Pause</label>",
+                          "<label>Next</label>", "<label>Stop</label>"):
+            self.assertNotIn(old_label, text)
+        self.assertEqual(text.count("ui-button-focus-gold-rim.png"), 4)
+
 
 if __name__ == "__main__":
     unittest.main()

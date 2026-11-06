@@ -49,6 +49,30 @@
       "sha256": "d47ea44ac18910d1ebebb7fc686174d90e472855bc63f19a2b01d2dd64c7fe18"
     },
     {
+      "bytes": 170,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/player-controls/next.svg",
+      "sha256": "03da9b6084be4b3e3ccc7d41e4c199af1b201d5b5947a06c634648802c18f1a5"
+    },
+    {
+      "bytes": 191,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/player-controls/pause.svg",
+      "sha256": "4b984f6e5096f25fa48a58943a39b6aa36e8aeaaf66be4877a6ea137d2193bf4"
+    },
+    {
+      "bytes": 170,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/player-controls/previous.svg",
+      "sha256": "d2f79a099065246728679e1cab30d43c578d59293698028832f17e5de59b6573"
+    },
+    {
+      "bytes": 133,
+      "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
+      "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/player-controls/stop.svg",
+      "sha256": "c5fdc286a6d09043bbc5400db065a2d7da2b9d175f8ab60c49c795e6fe80ad78"
+    },
+    {
       "bytes": 1889,
       "consumer": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media",
       "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/player-controls/trailer.png",

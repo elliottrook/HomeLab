@@ -411,7 +411,7 @@ class SharedLanguageTests(unittest.TestCase):
                         continue
                     self.assertEqual(node.attrib.get("border"), "20")
                     focus_refs += 1
-            self.assertEqual(focus_refs, 212)
+            self.assertEqual(focus_refs, 216)
 
             tile = ET.parse(skin / "1080i/custom_1192_tile_gallery.xml").getroot()
             art_buttons = {

@@ -23,6 +23,7 @@ MEDIA_DETAIL_PAGES = {
     "custom_1194_movie_rework.xml",
     "custom_1196_tv_rework.xml",
 }
+NEWS_PLAYER_PAGE = "custom_1204_news_player.xml"
 
 
 def audit(root: Path = PAGES) -> dict:
@@ -68,6 +69,13 @@ def audit(root: Path = PAGES) -> dict:
             for icon in ("play.png", "forward.png", "trailer.png"):
                 if f"player-controls/{icon}" not in text:
                     failures.append("missing-semantic-control:" + icon)
+        if path.name == NEWS_PLAYER_PAGE:
+            for icon in ("previous.svg", "pause.svg", "next.svg", "stop.svg"):
+                if f"player-controls/{icon}" not in text:
+                    failures.append("missing-semantic-control:" + icon)
+            for label in ("Previous", "Pause", "Next", "Stop"):
+                if f"<label>{label}</label>" in text:
+                    failures.append("legacy-text-player-control:" + label.casefold())
         rows.append({"page": path.name, "focus_controls": len(focus),
                      "failures": sorted(set(failures))})
     failures = sum(len(row["failures"]) for row in rows)
