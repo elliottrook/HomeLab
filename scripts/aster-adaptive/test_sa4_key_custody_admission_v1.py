@@ -1,4 +1,5 @@
 import copy
+from pathlib import Path
 import unittest
 
 import sa4_key_custody_admission_v1 as admission
@@ -41,6 +42,18 @@ def candidate():
 
 
 class SA4KeyCustodyAdmissionTests(unittest.TestCase):
+    def test_retained_public_candidate_is_admitted_for_review(self):
+        raw = (Path(__file__).with_name("fixtures")
+               / "sa4-key-custody-candidate-v1.json").read_bytes()
+        result = admission.validate_candidate(raw)
+        self.assertEqual({
+            "owner-approval": "17738e78d92b3ba4fff496f4d51904b6c6dd18d4acf80b3ef2a34a27ea6de946",
+            "ai-pam-grant": "f9ff0e192840dc0794e4adb65dad91a608e32e5d1d389bccbeac3612f54e9cb0",
+            "independent-observer": "a8b5e876898ddcd7882a51c74d8b8388bb26160c96f87ab23dbeeecab9c0892b",
+        }, result["public_key_sha256_by_role"])
+        self.assertTrue(result["ready_for_owner_review"])
+        self.assertFalse(result["ready_for_installation"])
+
     def test_exact_three_way_candidate_is_review_only(self):
         result = admission.validate_candidate(contract.canonical(candidate()))
         self.assertEqual(3, len(result["public_key_sha256_by_role"]))
