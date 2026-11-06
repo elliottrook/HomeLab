@@ -20,20 +20,24 @@ closed instead of silently shrinking the inventory.
 
 ## Result
 
-After the gateway-bundle test was added, two consecutive clean-tree executions
-at commit `51e7b01c9e18ed870fbff7b62a830b6fc7bbccd4` emitted byte-identical JSON
+After the operations-readiness audit was added, two consecutive clean-tree
+executions at commit `746ade8f47fd8454c4926aec0d0f41a48de9e5b7`
+emitted byte-identical JSON
 with SHA-256
-`b4b7ee4705eca2fd989abd23c430d4e562b6e4b889f20cb8977d19c5270d8a55`:
+`8c2996f2c9ac570172a291ba7e8d574cf7b86f8e48e2fed9aebe16bb852fe901`:
 
 - outcome: `pass-with-connected-gates-open`;
-- 50 local test files passed;
+- 51 local test files passed;
 - 93 candidate files passed the existing private-key/credential-assignment
   scan;
 - immutable v2 release remained
   `e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7`;
 - all 15 v3 pages and 127 focus controls passed with zero failures; and
 - two M9 candidate builds matched
-  `254ac8bdb8b49989e4157d42824e06ed7ced3bd25836e9d8fa412a295345bc16`.
+  `254ac8bdb8b49989e4157d42824e06ed7ced3bd25836e9d8fa412a295345bc16`;
+  and
+- the operational-readiness projection remained fail-closed at `attention`
+  with 13 named gaps.
 
 M9 is now part of the normal page candidate source/secret scan and focused
 candidate gate, preventing a later release build from omitting it silently.
@@ -51,6 +55,9 @@ candidate gate, preventing a later release build from omitting it silently.
 The former gateway item passed under the separately authorized SA-M10-C1
 envelope. See
 `docs/projects/evidence/AsterTV-v3-M10-gateway-environment-2026-11-05.md`.
+The operations item now has a deterministic gap audit and evidence at
+`docs/projects/evidence/AsterTV-v3-M10-operations-readiness-2026-11-05.md`;
+it remains open until those gaps are actually closed.
 
 No appliance, service, account, network rule or remote system changed while
 building or running this local gate. The separate gateway run staged and then
