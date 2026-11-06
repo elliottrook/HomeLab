@@ -2295,6 +2295,9 @@ is unverified.
 
 ## Remaining milestones, in delivery order
 
+The current concise milestone state and post-K2 continuation branches are
+recorded in the [November 6 milestone reconciliation](evidence/Stream-A-milestone-reconciliation-2026-11-06.md).
+
 | Milestone | What changes for Jason | Evidence needed to finish | Current state |
 |---|---|---|---|
 | **1. Decide the limited manual Codex release (D3)** | A reliable, explicitly chosen “Ask Codex” path in the Mac Companion pilot, still without infrastructure tools. | Verify the installed composite's flagged UI and explicit consent without another unnecessary Codex question; retain a verified signed rollback and monitor session/Keychain behavior. A failed observation means **hold**, not repeated question trials. | **DEFERRED / SAFE HOLD.** Independent Orion judgment is a qualified pass, and [v16 completed nine natural persisted refreshes](evidence/D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md). The supervised installed surface failed closed on an exact metadata-manifest mismatch without sending a question. The [priority reconciliation](evidence/D3-manual-pilot-priority-reconciliation-2026-10-25.md) records that the hidden manual button is no longer on the active critical path while NLU-based automatic directing is formalized. Resume only if Jason requests this fallback as a supported product path; do not repin or repeat questions merely to clear the row. Ordinary Companion reliability remains in scope. |
