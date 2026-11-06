@@ -1,0 +1,4 @@
+interface:
+  display_name: "B60 Lab Hours"
+  short_description: "Safely assess, reserve, and verify B60 workloads"
+  default_prompt: "Assess this B60 workload, obtain a valid Lab Hours reservation, and verify that it will execute and restore production safely."
