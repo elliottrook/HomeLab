@@ -1702,11 +1702,11 @@ fails safely without exposing a service credential or creating a public route.
 Gate: page-aware behaviour is deterministic, private and reversible, with a
 black branded fallback on missing or malformed artwork.
 
-### Proposed SA-M9-JEN — page-aware idle canary
+### SA-M9-JEN — page-aware idle canary
 
-This envelope is **proposed, not authorized**. It becomes active only if Jason
-explicitly approves `SA-M9-JEN` after confirming playback is stopped and the
-Jen display is free.
+Jason authorized this envelope and confirmed playback stopped/display free on
+2026-11-05. The canary is installed on Jen with automated gates passed; owner
+visual acceptance and the remaining live suppression/fallback checks are open.
 
 Target is only AsterTV-Jen (`192.168.1.180`). The bounded canary may:
 
@@ -2013,6 +2013,8 @@ explicit user acceptance.
 | 2026-11-05 | Audited every v3 page against the approved design contract | Checked all synthetic page XML and shared authority for icon context, closed remote focus, artwork/control semantics, stable Gold Rim/jade selection, top-rail/search treatment, and semantic player controls. | All 15 pages and 127 focusable controls pass with zero structural failures; 12 design-authority and 25 shared-language gates pass. The new fail-closed page audit remains in the release suite. Evidence: `docs/projects/evidence/AsterTV-v3-design-conformance-audit-2026-11-05.md`. |
 | 2026-11-05 | Reconciled the News-player candidate with the approved transport-control language | Replaced the synthetic Previous/Pause/Next/Stop text pills and the corresponding design-authority render with compact semantic icons, stable geometry, Gold Rim focus and jade active state; story artwork, progress, active-story following and Back behavior are unchanged. | Six News tests and the 15-page/127-control conformance audit now fail closed if an icon disappears or legacy text controls return; all 44 focused News, design and shared-language gates pass. This remains a local v3 candidate with no appliance deployment. Evidence: `docs/projects/evidence/AsterTV-v3-PA3-News-player-candidate-2026-11-05.md`. |
 | 2026-11-05 | Built the repository-only M9 page-aware idle foundation | One global Aster screensaver now has a local candidate dispatcher for coarse `media`, `music` and `neutral` context. Media retains four-source balanced fanart; Music uses centred local album art; private/unknown pages fail to a black Aster surface. The mark moves between four safe corners and the tracker freezes context while the saver is active. | Eight focused tests and Python/XML checks pass. Two builds produced identical 3,922-byte non-release archives at `5623c09a…a1055a`, with every payload and accepted skin dependency declared. The candidate reads no titles, accounts, HA values or cameras and has no sound/network path. It is not deployed; real Kodi classification, wake, suppression, missing-art and resource acceptance remain. Evidence: `docs/projects/evidence/AsterTV-v3-M9-page-aware-idle-candidate-2026-11-05.md`. |
+| 2026-11-05 | Installed the authorized M9 page-aware idle canary on Jen | Exact v2 hashes and idle state were rechecked; the host-bound installer checkpointed settings/database/log, installed the five-file non-release candidate side-by-side and selected it after Kodi-only restart. | Media, Music and neutral activation/wake passed; a synthetic Home-timer state suppressed activation; guard result is successful; deployed hashes match; no Kodi errors appeared; RSS was 529–550 MiB. Checkpoint `astertv-v3-m9-jen-20261106T030453Z` retains exact rollback. Owner visual and real playback/missing-art checks remain; Family/Bedroom unchanged. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
+| 2026-11-05 | Corrected the M9 canary to section-aware Aster branding | Owner rejected the generic Media mark on Music. The coarse dispatcher now selects only approved Media, Books, Music, News, Home or plain-compass assets; no page title/account/state enters the saver. | Twelve tests pass; deterministic 4,129-byte archive `254ac8bd…45bc16` installed atomically under checkpoint `astertv-v3-m9-branding-20261106T031300Z`. Kodi retained v3 selection and loaded the Music candidate without error. A hash-pinned 15-second silent fixture proved playback suppression (`1 → 1` loads), then stopped; black/logo missing-art behavior is pinned. Owner visual acceptance remains open; Family/Bedroom unchanged. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
 
 ## Close-out
 

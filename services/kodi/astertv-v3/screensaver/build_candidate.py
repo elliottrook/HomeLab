@@ -22,6 +22,11 @@ PAYLOAD = (
 SKIN_DEPENDENCIES = (
     "special://skin/media/ui-solid.png",
     "special://skin/media/27-aster-media-logo.png",
+    "special://skin/media/28-aster-books-logo.png",
+    "special://skin/media/29-aster-music-logo.png",
+    "special://skin/media/30-aster-news-logo.png",
+    "special://skin/media/aster-home-logo-512.png",
+    "special://skin/media/aster-compass-128.png",
 )
 
 

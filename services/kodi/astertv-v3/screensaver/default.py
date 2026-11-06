@@ -9,7 +9,7 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 
-from policy import MEDIA, MUSIC, NEUTRAL, context_for_launch, mark_position
+from policy import MEDIA, MUSIC, context_for_launch, mark_position
 
 
 IDENTITY = "screensaver.asterhome.v3"
@@ -23,6 +23,14 @@ MEDIA_SOURCES = (
 MEDIA_ART = ("fanart", "landscape", "thumb", "poster")
 MUSIC_ART = ("thumb", "fanart")
 ALLOWED_HOSTS = ("AsterTV-Family", "AsterTV-Bedroom", "AsterTV-Jen")
+LOGOS = {
+    "media": "special://skin/media/27-aster-media-logo.png",
+    "books": "special://skin/media/28-aster-books-logo.png",
+    "music": "special://skin/media/29-aster-music-logo.png",
+    "news": "special://skin/media/30-aster-news-logo.png",
+    "home": "special://skin/media/aster-home-logo-512.png",
+    "neutral": "special://skin/media/aster-compass-128.png",
+}
 
 
 def rpc(method, params=None):
@@ -166,6 +174,7 @@ def main():
                     target.setVisible(True)
                     previous = art
                 mark = window.getControl(11)
+                mark.setImage(LOGOS[context], True)
                 mark.setPosition(*mark_position(change_index))
                 change_index += 1
                 next_change = now + CHANGE_SECONDS

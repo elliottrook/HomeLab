@@ -21,11 +21,24 @@ class ScreensaverPolicyTests(unittest.TestCase):
     def test_music_pages_select_music_and_media_pages_select_media(self):
         for window in (11113, 11114, 11115, 11116, 11117):
             self.assertEqual(POLICY.context_for_window(window), POLICY.MUSIC)
-        for window in (10000, 11110, 11121, 11125, 11130):
+        for window in (10000, 11121, 11125, 11130):
             self.assertEqual(POLICY.context_for_window(window), POLICY.MEDIA)
 
+    def test_section_pages_select_their_approved_brand_context(self):
+        for window in (11110, 11118, 11119, 11120):
+            self.assertEqual(POLICY.context_for_window(window), POLICY.BOOKS)
+        for window in (11111, 1122):
+            self.assertEqual(POLICY.context_for_window(window), POLICY.NEWS)
+        for window in (11112, 11134):
+            self.assertEqual(POLICY.context_for_window(window), POLICY.HOME)
+        source = (HERE / "default.py").read_text()
+        for asset in ("27-aster-media-logo.png", "28-aster-books-logo.png",
+                      "29-aster-music-logo.png", "30-aster-news-logo.png",
+                      "aster-home-logo-512.png", "aster-compass-128.png"):
+            self.assertIn(asset, source)
+
     def test_private_or_unknown_pages_fail_closed_to_neutral(self):
-        for window in (None, "", "bad", 11111, 11112, 11118, 11120, 11134, 1201):
+        for window in (None, "", "bad", 1201, 10016, 11133):
             self.assertEqual(POLICY.context_for_window(window), POLICY.NEUTRAL)
         self.assertEqual(POLICY.context_for_launch("cameras", 11113), POLICY.NEUTRAL)
 
@@ -45,6 +58,16 @@ class ScreensaverPolicyTests(unittest.TestCase):
         self.assertEqual(controls["10"].findtext("width"), "1920")
         self.assertEqual(controls["12"].findtext("width"), "760")
         self.assertEqual(controls["12"].findtext("height"), "760")
+
+    def test_missing_art_keeps_black_surface_and_section_logo(self):
+        source = (HERE / "default.py").read_text()
+        self.assertIn("self.getControl(10).setVisible(False)", source)
+        self.assertIn("self.getControl(12).setVisible(False)", source)
+        self.assertIn("self.getControl(11).setVisible(True)", source)
+        self.assertIn("if art:", source)
+        self.assertIn("mark.setImage(LOGOS[context], True)", source)
+        xml = (HERE / "resources/skins/Default/1080i/AsterIdle.xml").read_text()
+        self.assertIn("<backgroundcolor>ff000000</backgroundcolor>", xml)
 
     def test_candidate_excludes_sensitive_sources_and_sound(self):
         source = (HERE / "default.py").read_text().casefold()
@@ -85,6 +108,30 @@ class ScreensaverPolicyTests(unittest.TestCase):
             self.assertEqual(
                 [row["path"] for row in record["files"]], list(BUILDER.PAYLOAD))
             self.assertEqual(record["skin_dependencies"], list(BUILDER.SKIN_DEPENDENCIES))
+
+    def test_jen_installer_is_host_bound_checkpointed_and_rollback_first(self):
+        source = (HERE / "install_jen_canary.py").read_text()
+        self.assertIn('HOST = "AsterTV-Jen"', source)
+        self.assertIn('OLD_ID = "screensaver.asterhome.v2lab"', source)
+        self.assertIn('NEW_ID = "screensaver.asterhome.v3"', source)
+        self.assertIn("EXPECTED_OLD", source)
+        self.assertIn("candidate-manifest-boundary", source)
+        self.assertIn("v2-baseline-drift", source)
+        self.assertIn("unexpected-current-screensaver", source)
+        self.assertIn("shutil.copy2(settings, checkpoint", source)
+        self.assertIn("shutil.copy2(database, checkpoint", source)
+        self.assertIn("shutil.rmtree(new)", source)
+        self.assertNotIn("release-guard", source.casefold())
+
+    def test_branding_upgrade_is_exact_hash_and_atomic_rollback(self):
+        source = (HERE / "upgrade_jen_branding.py").read_text()
+        self.assertIn("EXPECTED_CURRENT", source)
+        self.assertIn("current-canary-drift", source)
+        self.assertIn("shutil.copytree(target, checkpoint", source)
+        self.assertIn("os.rename(target, displaced)", source)
+        self.assertIn("os.rename(temporary, target)", source)
+        self.assertIn("os.rename(displaced, target)", source)
+        self.assertIn("v3-selection-not-retained", source)
 
 
 if __name__ == "__main__":
