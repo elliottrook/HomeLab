@@ -15,6 +15,7 @@ chmod 700 "${LOG_DIR}"
 cd "${ROOT}"
 
 /usr/bin/shasum -a 256 -c artifacts.sha256
+python3 scripts/verify_runtime.py --root "${ROOT}"
 
 children=()
 cleanup() {

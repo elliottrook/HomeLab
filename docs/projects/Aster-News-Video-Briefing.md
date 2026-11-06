@@ -237,6 +237,22 @@ and all production changes have their required authorization.
   the work be pushed and feasibility continue. The written identity remains
   “Aster”; production deployment of the speech-gateway rule remains a separate
   remote change from this repository push.
+- The first community MuseTalk/MLX feasibility probe used 64 frames at batch
+  size 8 on the 16 GiB M4 while Adobe Lightroom Classic was also open. Jetsam
+  evidence recorded Lightroom as the largest individual process and two Python
+  processes at roughly 11–12 GiB each; compressor exhaustion culminated in a
+  watchdog panic. The probe produced no accepted result and will not be
+  repeated in that form.
+- Future renderer probes must fail closed if Lightroom is open, continuously
+  monitor system memory and workload RSS, use a small batch-1 resource ladder,
+  and stop before swap/compressor pressure. No further inference may run until
+  its exact command and artifacts are a registered hash-pinned Lab Hours
+  workload with a clear reservation, host lease and shared operation lock.
+- After the reboot, the Mac speech authority exposed a pre-existing temporary
+  library-path deployment defect. Its exact accepted Qwen and Whisper builds
+  were repackaged with separate durable library directories and relative
+  runtime paths; authenticated production validation passed. A real OS-reboot
+  recovery test remains deliberately deferred.
 
 ## Close-out
 

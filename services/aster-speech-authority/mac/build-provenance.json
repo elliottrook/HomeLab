@@ -1,0 +1,25 @@
+{
+  "schema": "aster.speech-mac-runtime.v1",
+  "built_on": "2026-11-06",
+  "architecture": "arm64",
+  "qwen": {
+    "repository": "https://github.com/ServeurpersoCom/qwentts.cpp.git",
+    "revision": "5916bf7c79dbb4e66fc059cdc507a79a23a28bb4",
+    "ggml_revision": "cc5df49a6b878db2b68b9a7b45976e279594627d",
+    "ggml_version": "0.27.0",
+    "runtime_directory": "lib/qwen"
+  },
+  "whisper": {
+    "repository": "https://github.com/ggml-org/whisper.cpp.git",
+    "revision": "d1be6fde11ac6e0407606b4e42fe72d34add8037",
+    "tag": "v1.9.5",
+    "ggml_version": "0.26.0",
+    "runtime_directory": "lib/whisper"
+  },
+  "runtime_contract": {
+    "relative_rpaths_only": true,
+    "temporary_build_paths_forbidden": true,
+    "separate_ggml_versions": true,
+    "symlinked_libraries_forbidden": true
+  }
+}

@@ -15,9 +15,13 @@ Accepted engines:
   silent fallback.
 
 `mac/run-authority.sh` is the LaunchAgent program.  It verifies every artifact
-against `mac/artifacts.sha256`, starts both model servers on loopback, registers
-the fixed voice, proves health, then holds the restricted reverse tunnel.  Any
-child failure exits the supervisor so launchd restarts the whole coherent set.
+against `mac/artifacts.sha256`, verifies that Qwen and Whisper each use their
+own complete durable library bundle through a relative `@loader_path` runtime
+path, starts both model servers on loopback, registers the fixed voice, proves
+health, then holds the restricted reverse tunnel. Any child failure exits the
+supervisor so launchd restarts the whole coherent set. Temporary build paths,
+symlinked libraries, missing libraries and unbundled non-system dependencies
+fail closed before either model is loaded.
 
 No model, executable, reference audio, private key or production secret belongs
 in Git.  The accepted local root is:
