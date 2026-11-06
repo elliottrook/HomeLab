@@ -45,6 +45,15 @@ class CandidateTests(unittest.TestCase):
         keys = {page["key"] for page in data["pages"]}
         self.assertTrue({"F1", "F2", "F3", "F4", "F5", "F6", "F8", "F9", "F10", "F11", "F12"} <= keys)
 
+    def test_page_candidate_inventory_includes_m9_screensaver(self):
+        paths = {path.relative_to(candidate.V3).as_posix()
+                 for path in candidate.source_files()}
+        self.assertIn("screensaver/addon.xml", paths)
+        self.assertIn("screensaver/default.py", paths)
+        self.assertIn("screensaver/policy.py", paths)
+        self.assertIn("screensaver/service.py", paths)
+        self.assertIn("screensaver/test_screensaver.py", paths)
+
 
 if __name__ == "__main__":
     unittest.main()

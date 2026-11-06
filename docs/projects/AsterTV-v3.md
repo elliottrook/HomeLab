@@ -1738,6 +1738,12 @@ candidate and a separate promotion decision is required.
 
 ### M10 — Integrated validation, recovery and efficiency review
 
+The repository-local half is now a single fail-closed gate. It runs 49 test
+files, scans 93 candidate inputs, verifies immutable v2, audits 15 pages/127
+focus controls and double-builds M9. It reports connected/environment work as
+open rather than converting absence into a pass. Evidence:
+`docs/projects/evidence/AsterTV-v3-M10-local-integrated-gate-2026-11-05.md`.
+
 - [ ] Run functional, account-isolation, failure, security, focus/navigation,
   playback, audio/video and secret-pattern suites on the low-spec client.
 - [ ] Prove interrupted install, corrupt package, dependency outage, reboot and
@@ -2019,6 +2025,7 @@ explicit user acceptance.
 | 2026-11-05 | Installed the authorized M9 page-aware idle canary on Jen | Exact v2 hashes and idle state were rechecked; the host-bound installer checkpointed settings/database/log, installed the five-file non-release candidate side-by-side and selected it after Kodi-only restart. | Media, Music and neutral activation/wake passed; a synthetic Home-timer state suppressed activation; guard result is successful; deployed hashes match; no Kodi errors appeared; RSS was 529–550 MiB. Checkpoint `astertv-v3-m9-jen-20261106T030453Z` retains exact rollback. Owner visual and real playback/missing-art checks remain; Family/Bedroom unchanged. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
 | 2026-11-05 | Corrected the M9 canary to section-aware Aster branding | Owner rejected the generic Media mark on Music. The coarse dispatcher now selects only approved Media, Books, Music, News, Home or plain-compass assets; no page title/account/state enters the saver. | Twelve tests pass; deterministic 4,129-byte archive `254ac8bd…45bc16` installed atomically under checkpoint `astertv-v3-m9-branding-20261106T031300Z`. Kodi retained v3 selection and loaded the Music candidate without error. A hash-pinned 15-second silent fixture proved playback suppression (`1 → 1` loads), then stopped; black/logo missing-art behavior is pinned. Owner visual acceptance remains open; Family/Bedroom unchanged. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
 | 2026-11-05 | Accepted the M9 Jen page-aware idle canary | Owner confirmed the corrected Music logo, centred artwork, 18-second changes, corner movement and wake return. | M9's five checks are complete on Jen: Media/Music/neutral routing, section branding, black fallback, playback/timer suppression, privacy, guard integrity and 529–550 MiB observed RSS all pass. Both rollback checkpoints remain. This is not Family/Bedroom promotion authority. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
+| 2026-11-05 | Established the M10 local integrated gate | Recursive v3, design and fleet tests now run from one fail-closed command; candidate secret scanning includes M9; immutable v2, page conformance and deterministic idle packaging are verified together. | Two runs produced identical JSON `852eb49f…12a61`: 49 test files pass, 93 files scan clean, 15 pages/127 controls have zero failures and M9 double-builds identically. One connected HEVC test and five environment/operational gates remain explicit. No live system changed. Evidence: `docs/projects/evidence/AsterTV-v3-M10-local-integrated-gate-2026-11-05.md`. |
 
 ## Close-out
 
