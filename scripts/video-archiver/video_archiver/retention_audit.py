@@ -1,0 +1,93 @@
+"""Read-only aggregate M4 audit. No ARR or media mutation capability."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sqlite3
+import subprocess
+from collections import Counter
+from contextlib import closing
+from datetime import date
+from pathlib import Path
+
+from .retention_reclaim import estimate_unprotected_file, snapshot_names
+from .retention_years_live import LiveYearConfig, _host_path, collect_movie_years
+
+
+def _pool_usage() -> tuple[int, int, int]:
+    result = subprocess.run(
+        ["zpool", "list", "-H", "-p", "-o", "size,alloc,cap", "Media"],
+        capture_output=True, text=True, timeout=30, check=True,
+    )
+    fields = result.stdout.strip().split()
+    if len(fields) != 3:
+        raise RuntimeError("unexpected pool accounting")
+    size, allocated = (int(fields[0]), int(fields[1]))
+    cap = int(fields[2].rstrip("%"))
+    if size <= 0 or allocated < 0 or allocated > size or not 0 <= cap <= 100:
+        raise RuntimeError("invalid pool accounting")
+    return size, allocated, cap
+
+
+def audit(radarr_db: Path, jellyfin_db: Path, data_root: Path,
+          jellyfin_url: str, jellyfin_key: str) -> dict:
+    size, allocated, cap = _pool_usage()
+    years = collect_movie_years(LiveYearConfig(
+        radarr_db, jellyfin_db, data_root, jellyfin_url, jellyfin_key,
+    ), today=date.today())
+    snapshots = tuple(reversed(snapshot_names()))
+    coverage: Counter[str] = Counter()
+    with closing(sqlite3.connect(f"{jellyfin_db.as_uri()}?mode=ro", uri=True)) as db:
+        for path, kind in db.execute(
+            "SELECT Path,Type FROM BaseItems WHERE Type IN (?,?) AND Path LIKE '/media/%'",
+            ("MediaBrowser.Controller.Entities.Movies.Movie",
+             "MediaBrowser.Controller.Entities.TV.Episode"),
+        ):
+            host_path = _host_path(str(path), data_root)
+            if host_path is None or not host_path.is_file():
+                coverage["missing_or_invalid"] += 1
+                continue
+            item = "movie" if kind.endswith(".Movie") else "episode"
+            coverage[item + "_present"] += 1
+            estimate = estimate_unprotected_file(host_path, data_root=data_root,
+                                                 snapshots=snapshots)
+            if estimate.reason == "file retained by snapshot":
+                coverage[item + "_snapshot_covered"] += 1
+            elif estimate.bytes > 0:
+                coverage[item + "_potentially_reclaimable"] += 1
+            else:
+                coverage[item + "_held_other"] += 1
+    return {
+        "pool_size_bytes": size,
+        "pool_allocated_bytes": allocated,
+        "pool_cap_percent": cap,
+        "triggered": 100 * allocated >= 60 * size,
+        "urgent_alert": 100 * allocated >= 62 * size,
+        "movie_year_inventory": {
+            "examined": years.examined, "certified": years.counted,
+            "held": years.held, "years": len(years.counts),
+            "singleton_years": sum(count == 1 for count in years.counts.values()),
+        },
+        "media_data_snapshot_count": len(snapshots),
+        "physical_inventory": dict(sorted(coverage.items())),
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--radarr-db", type=Path, required=True)
+    parser.add_argument("--jellyfin-db", type=Path, required=True)
+    parser.add_argument("--data-root", type=Path, required=True)
+    parser.add_argument("--jellyfin-url", required=True)
+    args = parser.parse_args()
+    key = os.environ.get("JELLYFIN_API_KEY")
+    if not key:
+        raise SystemExit("JELLYFIN_API_KEY is required")
+    print(json.dumps(audit(args.radarr_db, args.jellyfin_db,
+                           args.data_root, args.jellyfin_url, key), sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()

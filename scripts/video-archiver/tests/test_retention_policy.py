@@ -29,6 +29,7 @@ def movie(provider_id: str, year: int, **overrides) -> MediaUnit:
         subtitle_manifest_verified=True,
         recovery_ready=True,
         estimated_pool_reclaim_bytes=15,
+        watch_history_verified=True,
         movie_release_year=year,
     )
     return replace(facts, **overrides)
@@ -74,6 +75,11 @@ class RetentionSafetyTests(TestCase):
         self.assertEqual(result.selected_provider_ids, ())
         self.assertEqual({h.provider_id for h in result.held}, {"partial", "missing", "last-played"})
         self.assertEqual(result.remaining_to_target_bytes, 10)
+
+    def test_currently_unwatched_legacy_file_stays_held_without_history_continuity(self):
+        result = plan(movie("legacy", 1950, watch_history_verified=False))
+        self.assertEqual(result.selected_provider_ids, ())
+        self.assertEqual(result.held[0].reason, "watch history continuity unverified")
 
     def test_identity_recovery_and_missing_media_date_hold(self):
         units = (

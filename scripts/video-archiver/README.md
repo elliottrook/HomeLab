@@ -1,5 +1,27 @@
 # video-archiver
 
+## Retention M4 audit (read-only prototype)
+
+`video_archiver.retention_audit` inspects the raw `Media` pool, all seven
+user-scoped Jellyfin movie views, exact Radarr/Jellyfin movie identity and
+`Media/data` snapshot coverage. It prints only aggregate JSON. Run it on
+TrueNAS with the existing `JELLYFIN_API_KEY` environment variable and explicit
+source-local database paths:
+
+```bash
+python3 -m video_archiver.retention_audit \
+  --radarr-db /path/to/radarr.db \
+  --jellyfin-db /path/to/jellyfin.db \
+  --data-root /mnt/Media/data \
+  --jellyfin-url http://127.0.0.1:8096
+```
+
+The separate `retention_controller` is an adapter-neutral prototype. It has no
+production ARR executor or schedule. Its movie-year count excludes ambiguous
+and absent files; its policy also holds unknown watch-history continuity and
+snapshot-covered files that cannot release pool blocks immediately. Existing
+archiver/compactor cron jobs 4 and 6 remain disabled.
+
 Downconverts aged Radarr/Sonarr current-library video (movies/TV) to roughly 1–2 GB and hands the
 result to the `archive-movies`/`archive-tv` roots created by the Plex-to-Jellyfin migration
 project. Design and safety rationale: [`Video-Library-Archiving.md`](<../../docs/projects/completed projects/Video-Library-Archiving.md>).

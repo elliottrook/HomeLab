@@ -57,6 +57,7 @@ class MediaUnit:
     subtitle_manifest_verified: bool
     recovery_ready: bool
     estimated_pool_reclaim_bytes: int
+    watch_history_verified: bool = False
     movie_release_year: int | None = None
     has_identity_conflict: bool = False
     active_playback_or_download: bool = False
@@ -127,6 +128,8 @@ def _hold_reason(
             return None, "younger than three calendar months"
     if not expected_user_ids or len(unit.watch) != len(expected_user_ids):
         return None, "household watch state incomplete"
+    if not unit.watch_history_verified:
+        return None, "watch history continuity unverified"
     watch_ids = [row.user_id for row in unit.watch]
     if len(set(watch_ids)) != len(watch_ids) or set(watch_ids) != expected_user_ids:
         return None, "household watch identities incomplete"
