@@ -19,16 +19,16 @@ UNIT_PREFIX = "aster-lab-hours-booking-m3-k2-shortlist-arbitration-development-v
 HOST_REPLACE = {
     "lab_hours_workloads.py": (
         "24ebdcacb4f1a950985360cf400c97742346568b280e30f83c36c12dbb7adf1e",
-        "15cee88fc1f423b78b692e7ffdc30cfa6ff4835ebd3fd63ddeaaf03d0235cc3b", 0o755),
+        "15cee88fc1f423b78b692e7ffdc30cfa6ff4835ebd3fd63ddeaaf03d0235cc3b", 0o644),
     "lab_hours_reserved_runner.py": (
         "e7da5a1bdefb02e8611398ea4a6b4f0a3ab30d666a5ca2c867bb01185aded51e",
-        "418e521ed77de6e86ffc9361f7f121f57d3adb9866bfdf6fe30749fcc15c3b3b", 0o755),
+        "418e521ed77de6e86ffc9361f7f121f57d3adb9866bfdf6fe30749fcc15c3b3b", 0o644),
     "full_inference_lab_runtime.py": (
         "59d3547b2efd291545c143da1b8a48781f31f704845366b60398c49c0c474537",
-        "dab19afb5e01f8c9659d8209ed824f77f606c7d2f3ca0a4f67c9a6c37a2ecba3", 0o755),
+        "dab19afb5e01f8c9659d8209ed824f77f606c7d2f3ca0a4f67c9a6c37a2ecba3", 0o644),
     "lab_hours_release_manifest.json": (
         "f697e2e085052e5b3b179d74882ebcc3e3bd1f5ce928ed469c23a17a509ac0ee",
-        "090e49ac4fb18937f3b9287535bcd9df102d1fc0780d940eecb5bd61a4b3942d", 0o600),
+        "090e49ac4fb18937f3b9287535bcd9df102d1fc0780d940eecb5bd61a4b3942d", 0o644),
 }
 HOST_ADD = {
     "m3_k2_development_transaction.py":
