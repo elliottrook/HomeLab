@@ -333,6 +333,12 @@
 > Duplicate, malformed and symlinked exchanges fail closed; no key or command
 > surface exists. The full suite passes 176/176. Next is the matching fixed
 > Proxmox bridge, joined protocol rehearsal and inactive-install review.
+> The matching [Proxmox observer bridge](evidence/SA4-Proxmox-observer-bridge-source-2026-11-05.md)
+> is now source-complete with fixed VMID/paths and only fixed `pct pull`,
+> bounded observer signing and fixed `pct push`. It accepts no command or key;
+> pull failure cannot sign and push failure retains evidence. The full suite
+> passes 180/180. Next is joined disposable protocol rehearsal and the exact
+> reversible inactive-install packet.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
