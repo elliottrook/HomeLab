@@ -1,4 +1,5 @@
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -24,6 +25,17 @@ class KitBuilderTests(unittest.TestCase):
                 self.assertEqual(list((root / "inputs").iterdir()), [])
                 self.assertEqual(list((root / "private").iterdir()), [])
                 self.assertEqual(list((root / "export").iterdir()), [])
+                isolated = subprocess.run(
+                    [sys.executable, "-I", "-c",
+                     "import sys; sys.path.insert(0, '.'); "
+                     "import nlu_j2_custody_kit_v1"],
+                    cwd=root, stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE, check=False,
+                )
+                self.assertEqual(
+                    isolated.returncode, 0,
+                    isolated.stderr.decode(errors="replace"),
+                )
             with self.assertRaisesRegex(ValueError, "already exists"):
                 builder.build(repository, output)
 

@@ -10,6 +10,7 @@ import shutil
 
 
 SOURCE_FILES = (
+    "nlu_deterministic_guard_v1.py",
     "nlu_j2_corpus_v1.py",
     "nlu_j2_custody_kit_v1.py",
     "nlu_j2_custody_receipt_v1.py",
@@ -18,6 +19,7 @@ SOURCE_FILES = (
     "nlu_j2_external_proof_v1.py",
     "nlu_j2_label_review_v1.py",
     "nlu_j2_quality_review_v1.py",
+    "nlu_local_model_adapter.py",
     "nlu_threshold_policy.py",
     "nlu_whole_label_choice_v1.py",
 )

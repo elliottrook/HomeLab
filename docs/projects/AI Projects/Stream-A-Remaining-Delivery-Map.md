@@ -12,6 +12,14 @@
 > new destination names are required. No key, receipt, proof, training effect
 > or promotion was accepted from the failed attempts.
 
+> **M3 J2 custody dependency closure, 2026-11-06:** both revision-2 roles
+> failed closed before export because the kit omitted
+> `nlu_deterministic_guard_v1.py` and `nlu_local_model_adapter.py`. The builder
+> now includes both and isolated-import tests the built entry point. Revision 3
+> passes 5/5 focused tests, all 26 extracted manifest hashes, both isolated
+> imports and disposable keygen probes. Fresh revision-3 sessions are the only
+> valid next attempts; revisions 1 and 2 are closed.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.
