@@ -14,6 +14,11 @@
 
 ## Current coordination status
 
+[The fixed 35B trial extension is installed and armed](B60-Inference-Engineering/model-trial-armed-20261106.md)
+for November6 11:12–11:57 Vancouver, reserve through12:12, integrity10:17.
+Actual timer/source/card verification passed; no model result yet. Continue
+through actual execution and independent restoration postcheck.
+
 [November 6 nightly recovery composition](B60-Inference-Engineering/nightly-recovery-boundary-20261106.md)
 adds durable-intent and fence/mount/custody-before-base-restore composition;
 133 offline tests pass. It is local and undeployed; no model result or live

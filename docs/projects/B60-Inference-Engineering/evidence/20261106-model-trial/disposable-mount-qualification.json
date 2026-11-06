@@ -1,0 +1,9 @@
+{
+  "state": "disposable-mount-transfer-pass",
+  "readonly_enforced": true,
+  "host_namespace_unchanged": true,
+  "target_namespace_mount_removed": true,
+  "guest_ai_stack_touched": false,
+  "helper_sha256": "92bbe0b5ba0c4405fd47dc57f489e2ab7c91344c6b72283bb18c1ed87c53c109",
+  "fixture_sha256": "e4aa264bba5b8e28f62dca8eeb1a7e8b5be79f4b1d6bc4ff94031d49577b29a7"
+}
