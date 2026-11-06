@@ -1,0 +1,89 @@
+{
+  "history_sha256": "d52d58ba411df6bcc32ab4cdbf35e2f91511372a808d54182a717a8eac24a96c",
+  "observed_epoch": 1793989670,
+  "r1_terminal": {
+    "admission_failure_sha256": "a4a8d9f6a565559f6cf53b208fae39318aacb930eb5aec7950fca8871800add2",
+    "booking_id": "b60-exclusive-20261106-day-r1",
+    "failure_code": "FRESH_BACKUP_SOURCE_TASK_CHAIN_FAILED",
+    "no_lease_claim": true,
+    "no_model_called": true,
+    "no_stack_drain": true,
+    "observed_epoch": 1793989532,
+    "schema": "b60-model-preclaim-no-go.v1",
+    "state": "NO_GO_BEFORE_CLAIM"
+  },
+  "receipt": {
+    "activation_sha256": "5764ab647f08ef40ce89cd75c5fdd9492d38bda2bc2dd18809a546fc9d1352d2",
+    "archive_receipt": "retained-archive-integrity-sha256:52e794e5579308735183618733c79f154ce79a416d2df58b57b637ce12868416",
+    "backup_history_sha256": "d52d58ba411df6bcc32ab4cdbf35e2f91511372a808d54182a717a8eac24a96c",
+    "booking_id": "b60-exclusive-20261106-day-r2",
+    "end_epoch": 1793992860,
+    "guest_plan_sha256": {
+      "104": "7a8f1f81476b59b193d6fe6e601b4eb55ef71cecf2b06806149fc26c5368fc34",
+      "110": "71aa5f835b90f6ce2e506882e14837ad583b7c905e10ef3b2e78f5424ca0f122",
+      "114": "a96363f469cdf25ed50067cd90e4ab37722f83f19d04a56e6fa5d7178a157413",
+      "115": "8b1aed9f7feba2d537fb48253a508f2004950c03258b2b0db9e69cfeea303a86",
+      "116": "37e50e5ea0a7803473f14777ce5322407dd385657bda304a8d7fac3721251d0e"
+    },
+    "model_card_sha256": "5fe3ec5bc61fb53d3899608b3c2b52aab347289312ce83f96b9eb7bed6958afb",
+    "model_run_claimed": false,
+    "original_attempt_preserved": "b60-exclusive-20261106-day-r1",
+    "prepared_epoch": 1793989611,
+    "recovery_reserve_until_epoch": 1793993760,
+    "retained_scan_finished_epoch": 1793986120,
+    "schema": "b60-model-trial-arming.v2",
+    "source_sha256": {
+      "backup_chain_history.py": "0ac13cfd6fe1565e6e4421cbf2ad862d52c14dd444d365e5491530e822a389d2",
+      "fixed_command.py": "9fd4e5746363e7cbdcac0d121d15cdac4ce990c24a1e988bc8b98faad8bcf260",
+      "guest_requests.py": "dbc596c5b77a8ea9359868798d621ff951c331754b2b4968c177b80d079e3dca",
+      "guest_supervisor.py": "ca23df9ec859044cee61737be476a8eab53f4b30a30efbf3b1421863e8fe0449",
+      "model_trial.py": "1a0419d47f1ec2054b4628d66a2ad473305cdbfeb05dbb53aae24ff5b85f1e18",
+      "namespace_mount.py": "031df2fb964c264c168cfd313de816391cb49d735701b17821edae2077a72566"
+    },
+    "start_epoch": 1793990160,
+    "unit_sha256": {
+      "b60-model-trial-b60-exclusive-20261106-day-r2.service": "6f9ff31c068dce2289176f42550dc7df347f817805e60a2ae4fef6d14d14ba31",
+      "b60-model-trial-b60-exclusive-20261106-day-r2.timer": "b23e46a7953d04ba9fa17f0040fb5988cf9491472853ef89a30c2a76bbaa0fed"
+    }
+  },
+  "sha256": "90d309526c3ec84a171025acfddf2311da1536e7eaf7d5f0bfde183297576d8f",
+  "source_card_match": true,
+  "source_precheck": {
+    "admission_epoch": 1793989606,
+    "archive_receipt": "retained-archive-integrity-sha256:52e794e5579308735183618733c79f154ce79a416d2df58b57b637ce12868416",
+    "booking_id": "b60-exclusive-20261106-day-r2",
+    "current_latest_jobs_exactly_match_capture": true,
+    "current_mirror_verified": true,
+    "historical_source_sha256": "d52d58ba411df6bcc32ab4cdbf35e2f91511372a808d54182a717a8eac24a96c",
+    "latest_job_ids": [
+      62427,
+      61395,
+      61255
+    ],
+    "schema": "b60-backup-historical-admission.v1",
+    "selected_job_ids": [
+      61113,
+      61255,
+      61395
+    ],
+    "source_observed_epoch": 1793989381
+  },
+  "units": {
+    "b60-model-trial-b60-exclusive-20261106-day-r2.service": {
+      "ActiveState": "inactive",
+      "ExecMainStartTimestamp": "",
+      "LoadState": "loaded",
+      "MainPID": "0",
+      "SubState": "dead",
+      "UnitFileState": "static"
+    },
+    "b60-model-trial-b60-exclusive-20261106-day-r2.timer": {
+      "ActiveState": "active",
+      "LastTriggerUSec": "",
+      "LoadState": "loaded",
+      "NextElapseUSecRealtime": "Fri 2026-11-06 11:36:00 MST",
+      "SubState": "waiting",
+      "UnitFileState": "enabled"
+    }
+  }
+}

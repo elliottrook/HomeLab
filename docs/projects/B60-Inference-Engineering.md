@@ -14,18 +14,18 @@
 
 ## Current coordination status
 
-[Final production model-trial integration](B60-Inference-Engineering/model-trial-final-integration-20261106.md)
-is installed and independently verified at revision5. Actual fresh integrity
-passed10:28:44. The real November6 11:12–11:57 Vancouver booking remains armed,
-with recovery reserve12:12. The candidate uses its own private service mount
-namespace; production namespace/mount configuration remain unchanged. Continue
-through actual execution and restoration/postcheck; no model result yet.
+[Distinct R2 is installed, source-checked and armed](B60-Inference-Engineering/model-r2-armed-20261106.md)
+for November6 11:36–12:21 Vancouver, reserve12:36. Actual backup-only source
+rehearsal passed; exact source/card/timer pins are independently verified.
+[R1 stopped before claim or model](B60-Inference-Engineering/model-r1-backup-no-go-r2-plan-20261106.md)
+after a late redundant TrueNAS pull replaced the latest-job cache. R2 proves
+the genuine ordered historical chain and separately requires exact fresh
+current metadata/mirror/archive gates. No backup jobs/schedules/credentials
+changed. Continue through actual R2 result and independent restoration check.
 
-[Normal, owner-loss and bounded resource gates passed](B60-Inference-Engineering/owner-resource-gates-completed-20261105.md).
-[The owner-frozen benchmark metadata is integrated](B60-Inference-Engineering/benchmark-contract-integration-20261106.md).
-Final capability/latency acceptance and fresh measured baseline remain open.
-The acceptance sampling/class/session question does not block the bounded
-compatibility trial or independent implementation work.
+[The base normal/owner-loss/resource gates passed](B60-Inference-Engineering/owner-resource-gates-completed-20261105.md).
+[The candidate mount belongs only to its private service namespace](B60-Inference-Engineering/model-trial-final-integration-20261106.md).
+The final capability/latency milestone and fresh accepted9B baseline remain open.
 
 ## Historical coordination snapshots — superseded by the current result above
 

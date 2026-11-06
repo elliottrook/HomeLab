@@ -67,7 +67,10 @@ with host_exclusion(ROOT):
  from lab_hours_exclusive_cli import runner
  class A:pass
  a=A();a.runner=runner;prestore=SessionStore(ROOT/'model-source-prechecks'/B,expected_uid=0)
- result=backup(a,prestore,card,date_prefix=cycle,lease_issued_epoch=int(time.time()));assert result.source_observed and result.integrity_verified
+ fd=prestore.lock()
+ try:
+  result=backup(a,prestore,card,date_prefix=cycle,lease_issued_epoch=int(time.time()));assert result.source_observed and result.integrity_verified
+ finally:os.close(fd)
  units=Path('/etc/systemd/system');name='b60-model-trial-'+B
  files={name+'.service':'[Unit]\nDescription=B60 distinct source-bound model trial R2\n\n[Service]\nType=oneshot\nUser=root\nRestart=no\nKillMode=control-group\nTimeoutStartSec=30\nExecStart=/usr/bin/python3 -B '+str(DEST/'model_trial.py')+' launch --booking-id '+B+'\n',name+'.timer':'[Unit]\nDescription=B60 distinct booked model clock R2\n\n[Timer]\nOnCalendar='+day.strftime('%Y-%m-%d %H:%M:%S')+' America/Vancouver\nPersistent=false\nAccuracySec=1s\nRandomizedDelaySec=0\nUnit='+name+'.service\n\n[Install]\nWantedBy=timers.target\n'}
  assert time.time()+120<start and not any((units/n).exists() or (units/n).is_symlink() for n in files)
