@@ -1,0 +1,46 @@
+{
+  "ai_administration": {
+    "design_skill_manifested": true,
+    "fleet_skill_manifested": true,
+    "forward_tests_passed": true
+  },
+  "backup": {
+    "appliance_restore_proven": [
+      "astertv-jen"
+    ],
+    "forgejo_restore_proven": true,
+    "wiki_restore_proven": true
+  },
+  "doctor": {
+    "astertv-bedroom": "unobserved",
+    "astertv-family": "unobserved",
+    "astertv-jen": "drift"
+  },
+  "kind": "astertv-m10-operations-observation",
+  "mirror": {
+    "derived_with_provenance": false,
+    "source_registered": false
+  },
+  "monitoring": {
+    "astertv-bedroom": "absent",
+    "astertv-family": "absent",
+    "astertv-jen": "absent"
+  },
+  "netbox": {
+    "astertv-jen": {
+      "mac": "registered",
+      "primary_ip": "registered"
+    }
+  },
+  "observed_local_date": "2026-11-05",
+  "reference": {
+    "astertv_page_count": 0
+  },
+  "schema_version": 1,
+  "wiki": {
+    "candidate_commit": "fc33f735c8e1338e1409d2f81933192ff9578351",
+    "candidate_page_count": 25,
+    "live_page_count": 0,
+    "published": false
+  }
+}

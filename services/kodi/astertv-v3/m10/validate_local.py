@@ -16,6 +16,8 @@ ROOT = Path(__file__).resolve().parents[4]
 V3 = ROOT / "services/kodi/astertv-v3"
 DESIGN = ROOT / "services/kodi/astertv-design"
 FLEET_TESTS = ROOT / "services/kodi/astertv-fleet/tests"
+OPERATIONS_OBSERVATION = (
+    ROOT / "docs/projects/evidence/AsterTV-v3-M10-operations-observation-2026-11-05.json")
 CONNECTED_ONLY = {
     "services/kodi/astertv-v3/low-spec/test_hevc_decode.py":
         "requires AsterTV-Jen, retained HEVC fixture, idle player and local JSON-RPC",
@@ -90,6 +92,11 @@ def validate() -> dict:
     if page_result["outcome"] != "pass":
         raise RuntimeError("page-conformance-failed")
 
+    operations = load("astertv_m10_operations", V3 / "m10/audit_operations.py")
+    operations_result = operations.audit(json.loads(OPERATIONS_OBSERVATION.read_text()))
+    if operations_result["outcome"] not in {"pass", "attention"}:
+        raise RuntimeError("operations-audit-invalid")
+
     screensaver = load("astertv_m10_screensaver", V3 / "screensaver/build_candidate.py")
     with tempfile.TemporaryDirectory() as directory:
         temporary = Path(directory)
@@ -114,6 +121,7 @@ def validate() -> dict:
             "failures": page_result["failure_count"],
         },
         "screensaver_candidate_sha256": one["sha256"],
+        "operations_readiness": operations_result,
         "local_test_files": len(tests),
         "tests": tests,
         "connected_tests": connected,
