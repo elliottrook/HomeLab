@@ -1401,6 +1401,58 @@ REMOTE
     fi
 }
 
+check_media_retention_audit() {
+    local output mtime cap reclaimable snapshot_covered age_hours now_epoch
+    if ! output="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas /bin/bash -s <<'REMOTE'
+python3 - <<'PY'
+import json
+import os
+
+path = '/mnt/Media/data/tools/media-retention-audit/status.json'
+if not os.path.isfile(path):
+    print('missing=1')
+else:
+    report = json.load(open(path))
+    physical = report['physical_inventory']
+    print('mtime=' + str(int(os.stat(path).st_mtime)))
+    print('cap=' + str(int(report['pool_cap_percent'])))
+    print('reclaimable=' + str(int(physical.get('movie_potentially_reclaimable', 0)) + int(physical.get('episode_potentially_reclaimable', 0))))
+    print('snapshot_covered=' + str(int(physical.get('movie_snapshot_covered', 0)) + int(physical.get('episode_snapshot_covered', 0))))
+PY
+REMOTE
+    )"; then
+        warn "Unable to collect media retention audit"
+        return
+    fi
+    while IFS='=' read -r key value; do
+        case "$key" in
+            missing) warn "media retention audit has no status yet"; return ;;
+            mtime) mtime="$value" ;;
+            cap) cap="$value" ;;
+            reclaimable) reclaimable="$value" ;;
+            snapshot_covered) snapshot_covered="$value" ;;
+        esac
+    done <<< "$output"
+    if [[ ! "${mtime:-}" =~ ^[0-9]+$ || ! "${cap:-}" =~ ^[0-9]+$ || ! "${reclaimable:-}" =~ ^[0-9]+$ ]]; then
+        warn "media retention audit status is incomplete"
+        return
+    fi
+    now_epoch="$(date +%s)"
+    age_hours=$(( (now_epoch - mtime) / 3600 ))
+    if (( age_hours > 36 || age_hours < -1 )); then
+        warn "media retention audit is stale (${age_hours}h)"
+    elif (( cap >= 62 )); then
+        fail "Media pool ${cap}% full (retention urgent threshold); read-only audit only"
+    elif (( cap >= 60 && reclaimable == 0 )); then
+        fail "Media pool ${cap}% full; audit found no immediately reclaimable files"
+    elif (( cap >= 60 )); then
+        warn "Media pool ${cap}% full (retention trigger); live controller not enabled"
+    else
+        pass "media retention audit fresh (${age_hours}h); pool ${cap}%, ${snapshot_covered:-0} snapshot-covered files"
+    fi
+}
+
 check_video_archiver() {
     local output
     local log_path=""
@@ -2210,6 +2262,7 @@ check_netbox
 check_observability
 check_frigate
 check_jellyfin_integrity
+check_media_retention_audit
 check_video_archiver
 check_news_aggregator
 check_paperless

@@ -22,6 +22,10 @@ and absent files; its policy also holds unknown watch-history continuity and
 snapshot-covered files that cannot release pool blocks immediately. Existing
 archiver/compactor cron jobs 4 and 6 remain disabled.
 
+The read-only audit is installed at `/mnt/Media/data/tools/media-retention-audit`
+on TrueNAS. Cron 9 runs `run-retention-audit.sh` at 10:45 daily and writes only a
+root-readable `status.json`. This schedule does not run the deletion controller.
+
 Downconverts aged Radarr/Sonarr current-library video (movies/TV) to roughly 1–2 GB and hands the
 result to the `archive-movies`/`archive-tv` roots created by the Plex-to-Jellyfin migration
 project. Design and safety rationale: [`Video-Library-Archiving.md`](<../../docs/projects/completed projects/Video-Library-Archiving.md>).
