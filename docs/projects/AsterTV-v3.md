@@ -4,6 +4,8 @@
 > the M5 eBook
 > word-alignment benchmark is registered and booked, with reader promotion
 > still gated.
+> M9 page-aware idle presentation is accepted on the Jen canary with
+> section-specific branding; Family/Bedroom promotion remains excluded.
 > The completed r8 Guest adapter remains retained on AsterTV-Jen.
 > The earlier page-design pilot is accepted and closed; no PA3
 > synthetic surface is promoted. TV-series presentation remains deployed
@@ -1694,9 +1696,9 @@ fails safely without exposing a service credential or creating a public route.
 - [x] Add a Music presentation using random album artwork when the last active
   page is Music, with the AsterTV mark bottom right.
 - [x] Define neutral fallbacks for other pages and unknown state.
-- [ ] Verify burn-in movement, wake return, playback/Home-timer suppression and
+- [x] Verify burn-in movement, wake return, playback/Home-timer suppression and
   absolute exclusion of cameras, household/account data and sound.
-- [ ] Review every changed surface against the Aster internal UI guide and
+- [x] Review every changed surface against the Aster internal UI guide and
   accepted AsterTV green/gold/stone interaction language.
 
 Gate: page-aware behaviour is deterministic, private and reversible, with a
@@ -1705,8 +1707,9 @@ black branded fallback on missing or malformed artwork.
 ### SA-M9-JEN — page-aware idle canary
 
 Jason authorized this envelope and confirmed playback stopped/display free on
-2026-11-05. The canary is installed on Jen with automated gates passed; owner
-visual acceptance and the remaining live suppression/fallback checks are open.
+2026-11-05. The canary is installed and accepted on Jen after automated gates,
+real playback/timer suppression and owner visual review. This authority is
+complete and does not extend to promotion.
 
 Target is only AsterTV-Jen (`192.168.1.180`). The bounded canary may:
 
@@ -2015,6 +2018,7 @@ explicit user acceptance.
 | 2026-11-05 | Built the repository-only M9 page-aware idle foundation | One global Aster screensaver now has a local candidate dispatcher for coarse `media`, `music` and `neutral` context. Media retains four-source balanced fanart; Music uses centred local album art; private/unknown pages fail to a black Aster surface. The mark moves between four safe corners and the tracker freezes context while the saver is active. | Eight focused tests and Python/XML checks pass. Two builds produced identical 3,922-byte non-release archives at `5623c09a…a1055a`, with every payload and accepted skin dependency declared. The candidate reads no titles, accounts, HA values or cameras and has no sound/network path. It is not deployed; real Kodi classification, wake, suppression, missing-art and resource acceptance remain. Evidence: `docs/projects/evidence/AsterTV-v3-M9-page-aware-idle-candidate-2026-11-05.md`. |
 | 2026-11-05 | Installed the authorized M9 page-aware idle canary on Jen | Exact v2 hashes and idle state were rechecked; the host-bound installer checkpointed settings/database/log, installed the five-file non-release candidate side-by-side and selected it after Kodi-only restart. | Media, Music and neutral activation/wake passed; a synthetic Home-timer state suppressed activation; guard result is successful; deployed hashes match; no Kodi errors appeared; RSS was 529–550 MiB. Checkpoint `astertv-v3-m9-jen-20261106T030453Z` retains exact rollback. Owner visual and real playback/missing-art checks remain; Family/Bedroom unchanged. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
 | 2026-11-05 | Corrected the M9 canary to section-aware Aster branding | Owner rejected the generic Media mark on Music. The coarse dispatcher now selects only approved Media, Books, Music, News, Home or plain-compass assets; no page title/account/state enters the saver. | Twelve tests pass; deterministic 4,129-byte archive `254ac8bd…45bc16` installed atomically under checkpoint `astertv-v3-m9-branding-20261106T031300Z`. Kodi retained v3 selection and loaded the Music candidate without error. A hash-pinned 15-second silent fixture proved playback suppression (`1 → 1` loads), then stopped; black/logo missing-art behavior is pinned. Owner visual acceptance remains open; Family/Bedroom unchanged. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
+| 2026-11-05 | Accepted the M9 Jen page-aware idle canary | Owner confirmed the corrected Music logo, centred artwork, 18-second changes, corner movement and wake return. | M9's five checks are complete on Jen: Media/Music/neutral routing, section branding, black fallback, playback/timer suppression, privacy, guard integrity and 529–550 MiB observed RSS all pass. Both rollback checkpoints remain. This is not Family/Bedroom promotion authority. Evidence: `docs/projects/evidence/AsterTV-v3-M9-Jen-canary-2026-11-05.md`. |
 
 ## Close-out
 

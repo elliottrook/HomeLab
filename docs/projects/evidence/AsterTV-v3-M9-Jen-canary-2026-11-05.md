@@ -4,8 +4,7 @@ Date: 2026-11-05
 
 Target: AsterTV-Jen (`192.168.1.180`) only
 
-Status: installed with section-aware branding and automated gates passed; owner
-visual acceptance pending
+Status: accepted on Jen; not promoted to Family or Bedroom
 
 ## Authorization and preflight
 
@@ -52,7 +51,7 @@ v3 directory and restarts Kodi. The v2 add-on was neither changed nor deleted.
 - Add-on database retains enabled v2 and v3 rows; only v3 is selected.
 - Family and Bedroom were not contacted or changed.
 
-## Remaining acceptance
+## Owner acceptance and residual boundary
 
 Owner review found the first canary's generic Media mark was wrong for Music
 and other sections. The corrected candidate maps only the coarse page class to
@@ -84,7 +83,13 @@ path uses the same black/logo base.
 
 Jen is left on that Music idle presentation for owner review. Confirm centred
 album art, Aster Music branding, acceptable 18-second changes and mark movement. A
-The remaining gate is owner confirmation of the corrected section logo,
-acceptable 18-second changes, corner movement and wake return. Until then this
-is a canary, not a release or promotion authority.
+Jason confirmed the corrected Music logo, centred artwork, 18-second rotation,
+corner movement and wake behavior on the Jen display. Together with the
+automated Media/Music/neutral activation, Home-timer and real playback
+suppression, black/logo fallback contract, hash verification, guard result and
+resource readings, this closes the M9 Jen canary gate.
+
+The accepted state remains a Jen canary, not a household release. Family and
+Bedroom were not contacted or changed. Their promotion remains part of the
+later immutable release/soak decision and requires its own authorization.
 
