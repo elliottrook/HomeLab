@@ -72,11 +72,23 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
             "synthetic-grant", claimant="sa4-synthetic-operation",
             now_epoch=100, deadline_epoch=140)
         self.claim_sha = reconciler.sha256(contract.canonical(self.claim))
+        self.effect_admission = {
+            "schema": "aster-sa4-effect-admission.v1",
+            "plan_sha256": reconciler.sha256(self.plan_raw),
+            "checkpoint_sha256": reconciler.sha256(self.checkpoint_raw),
+            "claim_sha256": self.claim_sha,
+            "candidate_sha256": "3" * 64,
+            "target_registration_sha256": self.registration,
+            "owner_effect_approval_sha256": "7" * 64,
+            "expires_epoch": 140, "effect_authorized": True,
+            "maximum_effects": 1, "automatic_retry": False,
+            "automatic_routing": "off"}
+        self.effect_admission_raw = contract.canonical(self.effect_admission)
         self.terminal = {
             "schema": "aster-sa4-operation-terminal.v1",
             "operation_id": "sa4-synthetic-operation",
             "plan_sha256": reconciler.sha256(self.plan_raw),
-            "admission_sha256": reconciler.sha256(self.admission_raw),
+            "admission_sha256": reconciler.sha256(self.effect_admission_raw),
             "claim_sha256": self.claim_sha,
             "checkpoint_owner_sha256": reconciler.sha256(self.checkpoint_raw),
             "checkpoint_sha256": "2" * 64,
@@ -99,7 +111,7 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
         value, _, _ = values(states)
         value.update(
             plan_sha256=reconciler.sha256(self.plan_raw),
-            admission_sha256=reconciler.sha256(self.admission_raw),
+            admission_sha256=reconciler.sha256(self.effect_admission_raw),
             claim_sha256=self.claim_sha,
             effect_terminal_sha256=reconciler.sha256(self.terminal_raw),
             target_registration_sha256=self.registration)
@@ -117,7 +129,7 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
             "rollback_attempt_id": "sa4-synthetic-rollback"})
         value.update(
             plan_sha256=reconciler.sha256(self.plan_raw),
-            admission_sha256=reconciler.sha256(self.admission_raw),
+            admission_sha256=reconciler.sha256(self.effect_admission_raw),
             claim_sha256=self.claim_sha,
             trigger_postcheck_receipt_sha256=reconciler.sha256(postcheck_raw),
             rollback_terminal_sha256=reconciler.sha256(rollback_terminal_raw),
@@ -131,7 +143,8 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
     def reconcile(self, postcheck_raw, proof_raw, **kwargs):
         with patch.object(observer, "TRUSTED_OBSERVERS", self.trusted):
             return reconciler.reconcile(
-                self.plan_raw, self.admission_raw, self.checkpoint_raw,
+                self.plan_raw, self.admission_raw, self.effect_admission_raw,
+                self.checkpoint_raw,
                 self.terminal_raw, postcheck_raw, proof_raw, self.ledger,
                 now_epoch=130, **kwargs)
 
@@ -162,7 +175,8 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
         with patch.object(observer, "TRUSTED_OBSERVERS", self.trusted), \
                 self.assertRaises(ValueError):
             reconciler.reconcile(
-                self.plan_raw, self.admission_raw, self.checkpoint_raw,
+                self.plan_raw, self.admission_raw, self.effect_admission_raw,
+                self.checkpoint_raw,
                 self.terminal_raw, raw, proof, self.ledger, now_epoch=130)
         self.assertEqual("claimed", self.ledger.get("synthetic-grant")["state"])
         rollback_terminal, _, rollback_raw, rollback_proof = self.rollback(
@@ -177,14 +191,16 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
         value, raw, proof = self.postcheck()
         with self.assertRaises(ValueError):
             reconciler.reconcile(
-                self.plan_raw, self.admission_raw, self.checkpoint_raw,
+                self.plan_raw, self.admission_raw, self.effect_admission_raw,
+                self.checkpoint_raw,
                 self.terminal_raw, raw, proof, self.ledger, now_epoch=130)
         value["claim_sha256"] = "0" * 64
         changed = contract.canonical(value)
         with patch.object(observer, "TRUSTED_OBSERVERS", self.trusted), \
                 self.assertRaises(ValueError):
             reconciler.reconcile(
-                self.plan_raw, self.admission_raw, self.checkpoint_raw,
+                self.plan_raw, self.admission_raw, self.effect_admission_raw,
+                self.checkpoint_raw,
                 self.terminal_raw, changed, proof_for(changed), self.ledger,
                 now_epoch=130)
         self.assertEqual("claimed", self.ledger.get("synthetic-grant")["state"])
@@ -196,13 +212,15 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
         with patch.object(observer, "TRUSTED_OBSERVERS", self.trusted), \
                 self.assertRaises(ValueError):
             reconciler.reconcile(
-                self.plan_raw, self.admission_raw, self.checkpoint_raw,
+                self.plan_raw, self.admission_raw, self.effect_admission_raw,
+                self.checkpoint_raw,
                 duplicate, raw, proof, self.ledger, now_epoch=130)
         changed = copy.deepcopy(self.terminal); changed["retry_count"] = 1
         with patch.object(observer, "TRUSTED_OBSERVERS", self.trusted), \
                 self.assertRaises(ValueError):
             reconciler.reconcile(
-                self.plan_raw, self.admission_raw, self.checkpoint_raw,
+                self.plan_raw, self.admission_raw, self.effect_admission_raw,
+                self.checkpoint_raw,
                 contract.canonical(changed), raw, proof, self.ledger,
                 now_epoch=130)
 

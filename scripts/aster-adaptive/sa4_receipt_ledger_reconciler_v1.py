@@ -109,6 +109,34 @@ def _checkpoint(raw: bytes, plan_raw: bytes, target: registry.Target,
     return value
 
 
+def _effect_admission(raw: bytes, *, plan_raw: bytes,
+                      checkpoint_owner_raw: bytes, claim_raw: bytes,
+                      target: registry.Target) -> dict[str, object]:
+    value = decode_unique_json(raw)
+    fields = {"schema", "plan_sha256", "checkpoint_sha256", "claim_sha256",
+              "candidate_sha256", "target_registration_sha256",
+              "owner_effect_approval_sha256", "expires_epoch",
+              "effect_authorized", "maximum_effects", "automatic_retry",
+              "automatic_routing"}
+    if (not isinstance(value, dict) or set(value) != fields
+            or value["schema"] != "aster-sa4-effect-admission.v1"
+            or value["plan_sha256"] != sha256(plan_raw)
+            or value["checkpoint_sha256"] != sha256(checkpoint_owner_raw)
+            or value["claim_sha256"] != sha256(claim_raw)
+            or value["candidate_sha256"]
+            != contract.validate_plan(plan_raw)["change"]["artifact_sha256"]
+            or value["target_registration_sha256"]
+            != registry.registration_sha256(target)
+            or not _digest(value["owner_effect_approval_sha256"])
+            or type(value["expires_epoch"]) is not int
+            or value["effect_authorized"] is not True
+            or value["maximum_effects"] != 1
+            or value["automatic_retry"] is not False
+            or value["automatic_routing"] != "off"):
+        raise ValueError("SA4 effect admission changed")
+    return value
+
+
 def _terminal(raw: bytes) -> dict[str, object]:
     value = decode_unique_json(raw)
     fields = {"schema", "operation_id", "plan_sha256", "admission_sha256",
@@ -135,7 +163,8 @@ def _terminal(raw: bytes) -> dict[str, object]:
     return value
 
 
-def reconcile(plan_raw: bytes, admission_raw: bytes,
+def reconcile(plan_raw: bytes, source_admission_raw: bytes,
+              effect_admission_raw: bytes,
               checkpoint_owner_raw: bytes, terminal_raw: bytes,
               postcheck_receipt_raw: bytes, postcheck_proof_raw: bytes,
               ledger: object, *, now_epoch: int,
@@ -148,13 +177,18 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
     plan = contract.validate_plan(plan_raw)
     target = _registration(plan["target_id"])
     registration_sha256 = registry.registration_sha256(target)
-    admission = _admission(admission_raw, plan_raw, registration_sha256)
+    admission = _admission(
+        source_admission_raw, plan_raw, registration_sha256)
     checkpoint = _checkpoint(
         checkpoint_owner_raw, plan_raw, target, registration_sha256)
     terminal = _terminal(terminal_raw)
     claim = ledger.get(admission["grant_id"])
     claim_raw = contract.canonical(claim)
     claim_sha256 = sha256(claim_raw)
+    effect_admission = _effect_admission(
+        effect_admission_raw, plan_raw=plan_raw,
+        checkpoint_owner_raw=checkpoint_owner_raw, claim_raw=claim_raw,
+        target=target)
     if (claim["state"] != "claimed" or claim["use_count"] != 1
             or claim["plan_sha256"] != sha256(plan_raw)
             or claim["grant_sha256"] != admission["grant_sha256"]
@@ -165,7 +199,7 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
             or checkpoint["checkpoint_sha256"] != claim["target_sha256"]
             or terminal["operation_id"] != claim["claimant"]
             or terminal["plan_sha256"] != sha256(plan_raw)
-            or terminal["admission_sha256"] != sha256(admission_raw)
+            or terminal["admission_sha256"] != sha256(effect_admission_raw)
             or terminal["claim_sha256"] != claim_sha256
             or terminal["checkpoint_owner_sha256"]
             != sha256(checkpoint_owner_raw)
@@ -185,7 +219,8 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
     postcheck_value = decode_unique_json(postcheck_receipt_raw)
     if (postcheck_value["operation_id"] != terminal["operation_id"]
             or postcheck_value["plan_sha256"] != sha256(plan_raw)
-            or postcheck_value["admission_sha256"] != sha256(admission_raw)
+            or postcheck_value["admission_sha256"]
+            != sha256(effect_admission_raw)
             or postcheck_value["claim_sha256"] != claim_sha256
             or postcheck_value["effect_terminal_sha256"] != sha256(terminal_raw)
             or postcheck_value["target_id"] != target.target_id
@@ -215,7 +250,8 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
         rollback_value = decode_unique_json(rollback_receipt_raw)
         if (rollback_value["operation_id"] != terminal["operation_id"]
                 or rollback_value["plan_sha256"] != sha256(plan_raw)
-                or rollback_value["admission_sha256"] != sha256(admission_raw)
+                or rollback_value["admission_sha256"]
+                != sha256(effect_admission_raw)
                 or rollback_value["claim_sha256"] != claim_sha256
                 or rollback_value["trigger_postcheck_receipt_sha256"]
                 != sha256(postcheck_receipt_raw)
@@ -233,7 +269,8 @@ def reconcile(plan_raw: bytes, admission_raw: bytes,
     summary = {
         "schema": "aster-sa4-receipt-ledger-reconciliation-evidence.v1",
         "plan_sha256": sha256(plan_raw),
-        "admission_sha256": sha256(admission_raw),
+        "source_admission_sha256": sha256(source_admission_raw),
+        "effect_admission_sha256": sha256(effect_admission_raw),
         "checkpoint_owner_sha256": sha256(checkpoint_owner_raw),
         "claim_sha256": claim_sha256,
         "terminal_sha256": sha256(terminal_raw),

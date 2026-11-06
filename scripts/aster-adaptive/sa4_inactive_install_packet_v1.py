@@ -49,7 +49,7 @@ _PROGRAMS = (
     ("sa4_one_use_grant_ledger_v1.py", "4babcb5bd08d13788c4f0fb52447ad35e892fb2264b7b7bcadddabfd88e738b0"),
     ("sa4_preflight_composition_v1.py", "d96fcba0bda17ae48f2061a9c7977bbc70c67271a16d02ed11530b05d0a2ea06"),
     ("sa4_public_trust_candidate_v1.py", "3c1f02bba3985033157977d6810192888b09595ec3af0c55ef1e1c15e135195e"),
-    ("sa4_receipt_ledger_reconciler_v1.py", "85f008f006c780d05755c746f0e13f8011ac40c5c5f09611c84c9f9bfcff72b0"),
+    ("sa4_receipt_ledger_reconciler_v1.py", "d69ef159146aca6ce3830a400c41b17ce794b3c0b7c259b86869c3c3bc29aefc"),
     ("sa4_single_file_repair_contract_v1.py", "c260e6d8f5ce0546bf4a2f3754bda02a55731bbb69a6c869917840cf3ebb9467"),
     ("sa4_single_file_repair_receipt_v1.py", "14ce759948a7a39f9da4ee7651f97a2a4ed42885e61047bbf84def76172a42c1"),
     ("sa4_target_registry_v1.py", "0091a90f60eb57e4776bd1e73e85286d7a00bf026b21255361d618e2713b9d83"),

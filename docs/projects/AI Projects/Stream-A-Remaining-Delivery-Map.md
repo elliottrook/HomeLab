@@ -171,6 +171,16 @@
 > are covered; the suite passes 118/118. Next is the joined disposable
 > success-plus-failure transaction rehearsal. The first live repair remains an
 > exact immediate approval gate.
+> The [joined disposable full-transaction rehearsal](evidence/SA4-joined-disposable-full-transaction-rehearsal-2026-11-05.md)
+> now passes both complete postcheck and failed-postcheck/rollback branches
+> using the real measurement, checkpoint, ledger, repair, observer, rollback
+> and reconciliation components. It found and closed the source-preflight vs
+> final-effect-admission composition defect; both records are now separately
+> validated and cross-bound. One replacement occurs per branch, the failure
+> branch restores once, both claims burn terminally, retry count stays zero and
+> no temporary file remains. The suite passes 120/120. Next is an exact
+> reversible inactive-install packet plus live zero-effect dry preflight; the
+> first real repair remains separately and immediately approval-gated.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
