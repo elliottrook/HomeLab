@@ -96,6 +96,32 @@ class J2TrainingAdmissionTests(unittest.TestCase):
                 "46685b0ebd4e1bcf65bfae35df4858373b2f928fe3f81ab267bfa58cedfa9498",
         })
 
+    def test_exact_retained_result_is_the_only_valid_training_input(self):
+        raw = admission.canonical(admission.EXPECTED_RESULT)
+        result = admission.validate_result(raw)
+        self.assertEqual(hashlib.sha256(raw).hexdigest(),
+                         result["training_admission_sha256"])
+        self.assertEqual("eligible-for-owner-training-effect-review",
+                         result["status"])
+        self.assertFalse(result["training_authorized"])
+        self.assertFalse(result["sealed_evaluation_access"])
+        self.assertFalse(result["deployment"])
+
+        for field, changed_value in (
+                ("status", "eligible"),
+                ("intersection_count", 1),
+                ("training_authorized", True),
+                ("sealed_evaluation_access", True),
+                ("automatic_routing", "on")):
+            changed = copy.deepcopy(admission.EXPECTED_RESULT)
+            changed[field] = changed_value
+            with self.assertRaisesRegex(ValueError, "result changed"):
+                admission.validate_result(admission.canonical(changed))
+
+        noncanonical = (b'{"schema":"aster-nlu-j2-training-admission.v1"}\n')
+        with self.assertRaisesRegex(ValueError, "result changed"):
+            admission.validate_result(noncanonical)
+
     @patch("nlu_j2_training_admission_v1.disjointness.verify")
     @patch("nlu_j2_training_admission_v1.external.verify")
     def test_complete_chain_reaches_owner_review_without_authority(self, ext, dis):

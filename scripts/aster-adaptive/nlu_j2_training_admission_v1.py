@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 
 import nlu_j2_custody_receipt_v1 as custody
 import nlu_j2_disjointness_proof_v1 as disjointness
@@ -23,6 +24,70 @@ TRUSTED_KEYS: dict[str, str] = {
     "independent-j2-evaluation-custodian":
         "46685b0ebd4e1bcf65bfae35df4858373b2f928fe3f81ab267bfa58cedfa9498",
 }
+
+EXPECTED_RESULT: dict[str, object] = {
+    "schema": "aster-nlu-j2-training-admission.v1",
+    "status": "eligible-for-owner-training-effect-review",
+    "manifest_sha256": custody.MANIFEST_SHA256,
+    "training_recipe_sha256":
+        "419a42c166d08e92084178ac897d3f011dc565ca1474ae8a4fba8be68c9aa0e9",
+    "corpus_release_file_sha256":
+        "1f0e7d3777746e23472b0daa85dc7d103da0ac7ce09fe192e1c0f44dd0abe710",
+    "owner_acceptance_file_sha256": OWNER_ACCEPTANCE_FILE_SHA256,
+    "corpus_receipt_file_sha256":
+        "43a9820a6438405ab010b6e358db4800c02d4ac5df8c3569db24325f1c2e284e",
+    "evaluation_receipt_file_sha256":
+        "0600a78eadb171fe710764a47ea8c549e9180a112ac05bdea91bcecc0353ddc3",
+    "disjointness_receipt_file_sha256":
+        "05da5fa23f203d773101567c78bb31f431c0ec3b1049de2e729c323f0af007f0",
+    "corpus_signer_key_sha256": TRUSTED_KEYS["independent-j2-corpus-custodian"],
+    "evaluation_signer_key_sha256":
+        TRUSTED_KEYS["independent-j2-evaluation-custodian"],
+    "corpus_proof_file_sha256":
+        "ef2a8a6dd7f205e04c505b2c3eba2ed599bb55ba9a38aeeba98edb7d91d48fa4",
+    "evaluation_proof_file_sha256":
+        "912a87368315a1fe64d390a94dc9fb25c7dbf53dbdff795def6a2132991261cb",
+    "disjointness_proof_file_sha256":
+        "27bbc168b347c6839fe3200c46c0cf582ae3d08f856caece8ab83c3299b68fc6",
+    "intersection_count": 0,
+    "declared_roles_distinct": True,
+    "signatures_verified": True,
+    "training_authorized": False,
+    "sealed_evaluation_access": False,
+    "authority": "not-granted",
+    "automatic_routing": "off",
+    "deployment": False,
+}
+
+
+def canonical(value: object) -> bytes:
+    return (json.dumps(value, sort_keys=True, separators=(",", ":"),
+                       allow_nan=False) + "\n").encode()
+
+
+def validate_result(raw: bytes) -> dict[str, object]:
+    """Validate the exact retained, content-free admission result.
+
+    This is intentionally stricter than re-running admission: a training
+    transaction must consume the reviewed record byte-for-byte and may not
+    substitute a newly constructed object with equivalent-looking fields.
+    """
+    value = decode_unique_json(raw)
+    if value != EXPECTED_RESULT or raw != canonical(value):
+        raise ValueError("J2 retained training admission result changed")
+    return {
+        "schema": "aster-nlu-j2-training-admission-validation.v1",
+        "training_admission_sha256": hashlib.sha256(raw).hexdigest(),
+        "status": value["status"],
+        "signatures_verified": True,
+        "declared_roles_distinct": True,
+        "intersection_count": 0,
+        "training_authorized": False,
+        "sealed_evaluation_access": False,
+        "authority": "not-granted",
+        "automatic_routing": "off",
+        "deployment": False,
+    }
 
 
 def _release(raw: bytes, custody_raw: bytes) -> dict[str, object]:

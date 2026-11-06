@@ -72,6 +72,19 @@
 > Training remains closed because an end-to-end transaction owner, output
 > custody and effect review packet are not yet complete.
 
+> **M3 J2 training transaction source complete, 2026-11-06:** the
+> [inert transaction owner](evidence/M3-J2-training-transaction-source-boundary-2026-11-06.md)
+> now validates the exact retained admission (`9994f4a2…00fd1`), admitted
+> corpus/release and frozen recipe before composing 40 deterministic CPU
+> epochs, checkpoint selection, threshold selection, quantized artifact
+> emission and two separate clean-interpreter replay checks. Outputs are
+> create-only; any failure retains a bounded content-free `NO-GO` record and
+> cannot retry into the same directory. The real input preflight passes at
+> 768/192 rows and the full J2 suite passes 113/113. No training worker was
+> started. Next is a source/effect review that pins this owner, selects a host,
+> proves resource/runtime controls and decides the required Lab Hours booking;
+> only that later exact gate may authorize the costly training effect.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.
