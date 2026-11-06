@@ -359,6 +359,11 @@
 > The independent installed-result verifier now accepts exactly three canonical
 > rows at digest `27f5dfef…f057` and rejects effect/custody drift. The suite
 > passes 187/187. Next is live zero-effect protocol preflight only.
+> The [installed live zero-effect preflight](evidence/SA4-installed-controller-live-zero-effect-preflight-2026-11-05.md)
+> then imported all three final-path modules while creating no runtime exchange,
+> control or ledger state. No controller/signer ran, the canary is unchanged
+> and the lease remains ready. Next is a fresh post-controller release packet
+> and a new exact repair approval; prior approval and authority are not reused.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
