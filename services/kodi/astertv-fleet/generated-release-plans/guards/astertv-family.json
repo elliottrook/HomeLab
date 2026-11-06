@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "c2a578002f94ab85ec9a9b4dac2459486b34deed0eaa580fba7285d7174d049d",
+  "composition_sha256": "8826ef75184d38a79ef00758acf71ec34f43e01f28bee4d06c920fe95612cdcb",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [
@@ -241,7 +241,7 @@
       "mode": "0600",
       "overlay": "remote-client-v3",
       "path": "/storage/.aster-v3/m8-remote/manifest.json",
-      "sha256": "ed85c7cd0432958feb610da598ac7f46496310c20a12fb8779b3f10c1eff8902"
+      "sha256": "59c1b6ab3a380397cfe559feb3524678f800f3259913e7ec74bdd972a5bf78ab"
     },
     {
       "bytes": 661,
@@ -251,11 +251,11 @@
       "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
     },
     {
-      "bytes": 9629,
+      "bytes": 10098,
       "mode": "0644",
       "overlay": "remote-client-v3",
       "path": "/storage/.aster-v3/m8-remote/service.asterremote/service.py",
-      "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+      "sha256": "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49"
     },
     {
       "bytes": 202,
@@ -272,11 +272,11 @@
       "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
     },
     {
-      "bytes": 9629,
+      "bytes": 10098,
       "mode": "0644",
       "overlay": "remote-client-v3",
       "path": "/storage/.kodi/addons/service.asterremote/service.py",
-      "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+      "sha256": "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49"
     },
     {
       "bytes": 4090,

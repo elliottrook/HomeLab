@@ -1,4 +1,4 @@
-const CACHE = 'aster-remote-shell-v7';
+const CACHE = 'aster-remote-shell-v8';
 const SHELL = ['/remote/', '/remote/app.js', '/remote/styles.css', '/remote/aster-compass.png', '/remote/manifest.webmanifest', '/aster-app-icon.png'];
 self.addEventListener('install', event => event.waitUntil(
   caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting())

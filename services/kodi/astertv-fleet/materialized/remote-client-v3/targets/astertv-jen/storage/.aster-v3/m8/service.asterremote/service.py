@@ -28,9 +28,12 @@ WINDOWS = {
 NAVIGATION = {
     "nav.up": "Input.Up", "nav.down": "Input.Down",
     "nav.left": "Input.Left", "nav.right": "Input.Right",
-    "nav.select": "Input.Select", "nav.back": "Input.Back",
+    "nav.back": "Input.Back",
     "nav.home": "Input.Home", "nav.context": "Input.ContextMenu",
 }
+SELECT_DISPATCH = (
+    "RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)"
+)
 
 
 class InputMirror:
@@ -217,6 +220,12 @@ def execute(command):
         return "expired"
     action = command.get("action")
     text = command.get("text")
+    if action == "nav.select":
+        # Keep the web remote on the same semantic path as the physical G20
+        # remote. Kodi's JSON-RPC Input.Select bypasses Aster's bounded
+        # dispatcher and can therefore open the retired native TV-series view,
+        # skip movie details, or ignore script-populated Music/Books rows.
+        xbmc.executebuiltin(SELECT_DISPATCH); return "completed"
     if action in NAVIGATION:
         rpc(NAVIGATION[action]); return "completed"
     if action == "playback.toggle":

@@ -93,7 +93,7 @@ class MaterializationTests(unittest.TestCase):
     def test_remote_client_materializes_current_accepted_lineage_for_each_target(self):
         files, manifest = REMOTE_MODULE.render()
         self.assertEqual(manifest["lineage"]["current_sha256"],
-                         "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec")
+                         "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49")
         self.assertEqual(set(manifest["targets"]), {"astertv-family", "astertv-bedroom", "astertv-jen"})
         destinations = {(row["scope"], row["destination"]) for row in manifest["files"]}
         self.assertIn(("astertv-jen", "/storage/.config/system.d/astertv-v3-m8-jen.service"), destinations)

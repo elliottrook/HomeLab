@@ -66,6 +66,14 @@ class RemoteClientTests(unittest.TestCase):
         self.assertIn('home.setProperty("AsterSearch.VoiceQuery", text)', SOURCE)
         self.assertIn('home.setProperty("AsterSearch.Command", "voice")', SOURCE)
 
+    def test_remote_select_uses_the_physical_remote_dispatcher(self):
+        self.assertIn('if action == "nav.select"', SOURCE)
+        self.assertIn(
+            "RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)",
+            SOURCE,
+        )
+        self.assertNotIn('"nav.select": "Input.Select"', SOURCE)
+
 
 if __name__ == "__main__":
     unittest.main()

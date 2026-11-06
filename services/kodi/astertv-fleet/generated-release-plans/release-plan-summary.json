@@ -1,55 +1,44 @@
 {
-  "built_bundles": 0,
-  "deployable_devices": 0,
+  "built_bundles": 4,
+  "deployable_devices": 3,
   "devices": [
     {
-      "artifact_verified": false,
-      "blockers": [
-        "release-artifact-not-locally-verified",
-        "composition-bundle-not-built"
-      ],
-      "bundle_built": false,
-      "bundle_sha256": null,
+      "artifact_verified": true,
+      "blockers": [],
+      "bundle_built": true,
+      "bundle_sha256": "5008c9bb1ebc93e45f0aef36b67d8250fa147a1951a420029613b88e8f0210e9",
       "components": 6,
       "device_id": "astertv-bedroom"
     },
     {
-      "artifact_verified": false,
-      "blockers": [
-        "release-artifact-not-locally-verified",
-        "composition-bundle-not-built"
-      ],
-      "bundle_built": false,
-      "bundle_sha256": null,
+      "artifact_verified": true,
+      "blockers": [],
+      "bundle_built": true,
+      "bundle_sha256": "b5dd1f36eadc68441ffe90d8a45e968944b8c5845d877308cffa3a36123c336b",
       "components": 9,
       "device_id": "astertv-family"
     },
     {
-      "artifact_verified": false,
+      "artifact_verified": true,
       "blockers": [
-        "release-artifact-not-locally-verified",
-        "composition-bundle-not-built",
         "candidate-not-deployable"
       ],
-      "bundle_built": false,
-      "bundle_sha256": null,
+      "bundle_built": true,
+      "bundle_sha256": "4d79b20a782b8767b8008403c8932eeaed8296489634ec563a100506735201e0",
       "components": 1,
       "device_id": "astertv-guest"
     },
     {
-      "artifact_verified": false,
-      "blockers": [
-        "release-artifact-not-locally-verified",
-        "composition-bundle-not-built"
-      ],
-      "bundle_built": false,
-      "bundle_sha256": null,
+      "artifact_verified": true,
+      "blockers": [],
+      "bundle_built": true,
+      "bundle_sha256": "732b627055a58844bb3cbb7831f923ede8c7f64d257cd38395a23d25ae8353a8",
       "components": 13,
       "device_id": "astertv-jen"
     }
   ],
   "kind": "release-plan-summary",
-  "mode": "plan-only",
+  "mode": "bundle-build",
   "schema_version": 1,
-  "verified_artifacts": 0
+  "verified_artifacts": 4
 }

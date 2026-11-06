@@ -52,7 +52,7 @@ def render() -> tuple[dict[str, tuple[bytes, int]], dict]:
     addon = {path.relative_to(ADDON).as_posix(): path.read_bytes()
              for path in sorted(ADDON.rglob("*")) if path.is_file()}
     current_service = sha(addon["service.py"])
-    if current_service != "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec":
+    if current_service != "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49":
         raise RuntimeError("remote-current-service-drift")
     addon_digest = tree_sha(addon)
     files: dict[str, tuple[bytes, int]] = {}
@@ -88,7 +88,7 @@ def render() -> tuple[dict[str, tuple[bytes, int]], dict]:
         "targets": sorted(TARGETS),
         "files": sorted(rows, key=lambda row: (row["scope"], row["destination"])),
         "lineage": {
-            "accepted_predecessor_sha256": "1a4d52f37f73290c21456342543ab871311d14031656dedafa22793ee46cfbce",
+            "accepted_predecessor_sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec",
             "current_sha256": current_service,
             "evidence": "repository commit 90f2b3a8 and read-only parity on Family, Bedroom and Jen",
         },

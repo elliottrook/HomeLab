@@ -3,7 +3,18 @@ const $ = value => document.querySelector(value);
 const errorBox = $('#error');
 let rooms = [], selectedRoom = '', statusTimer = null, recorder = null, mediaStream = null;
 let inputRevision = '', inputDirty = false;
+const ROOM_PREFERENCE_KEY = 'aster_remote_last_room_v1';
 if (location.search || location.hash) history.replaceState({}, '', '/remote/');
+
+function roomPreference() {
+  try { return localStorage.getItem(ROOM_PREFERENCE_KEY) || ''; }
+  catch (_) { return ''; }
+}
+function rememberRoom(roomId) {
+  if (!rooms.some(item => item.room_id === roomId)) return;
+  try { localStorage.setItem(ROOM_PREFERENCE_KEY, roomId); }
+  catch (_) { /* Room persistence is optional in restricted browser modes. */ }
+}
 
 function searchText(value) {
   return value.trim().replace(/[.!?,;:]+$/u, '').trim();
@@ -31,12 +42,13 @@ async function send(action, text = null) {
 }
 function renderSession(session) {
   rooms = session.rooms || [];
-  const select = $('#room'), prior = selectedRoom || select.value;
+  const select = $('#room'), prior = selectedRoom || roomPreference() || select.value;
   select.replaceChildren(...rooms.map(item => {
     const option = document.createElement('option'); option.value = item.room_id; option.textContent = item.label; return option;
   }));
   selectedRoom = rooms.some(item => item.room_id === prior) ? prior : (rooms[0]?.room_id || '');
   select.value = selectedRoom;
+  if (selectedRoom) rememberRoom(selectedRoom);
   const active = rooms.find(item => item.room_id === selectedRoom);
   $('#roomLabel').textContent = active?.label || 'No AsterTV assigned';
   const connection = $('#connection');
@@ -80,7 +92,8 @@ document.addEventListener('click', event => {
   if (control && !control.disabled) send(control.dataset.action);
 });
 $('#room').addEventListener('change', event => {
-  selectedRoom = event.target.value; inputDirty = false; inputRevision = ''; refresh();
+  selectedRoom = event.target.value; rememberRoom(selectedRoom);
+  inputDirty = false; inputRevision = ''; refresh();
 });
 const moreSheet = $('#moreSheet'), moreOpen = $('#moreOpen');
 function setMore(open) {

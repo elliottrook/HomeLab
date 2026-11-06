@@ -34,11 +34,11 @@
     },
     {
       "authority": "aster-agent",
-      "bytes": 9026,
+      "bytes": 9540,
       "destination": "/opt/aster-agent/static/remote/app.js",
       "mode": "0644",
       "scope": "external",
-      "sha256": "c4b3b371c18a7b3f53dad298ad8440f303b47f8c9c96cafbbb5c4c364e0df52b"
+      "sha256": "76a14595af2da756a72975eb02afe45cd21ac035d8b118dfc67a2635258e0762"
     },
     {
       "authority": "aster-agent",
@@ -78,7 +78,7 @@
       "destination": "/opt/aster-agent/static/remote/sw.js",
       "mode": "0644",
       "scope": "external",
-      "sha256": "4011c0bd123a743937a6d9053ad44d1da15c7ac646ddc50cbf401b38cbd94968"
+      "sha256": "9be36dd12a332cf22c71c3364479b23623b2a10abb07b8be0a5f8c27bc0f2bc8"
     }
   ],
   "id": "family-equipment-bridge",

@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "c2a578002f94ab85ec9a9b4dac2459486b34deed0eaa580fba7285d7174d049d",
+  "composition_sha256": "8826ef75184d38a79ef00758acf71ec34f43e01f28bee4d06c920fe95612cdcb",
   "deployed": true,
   "device_id": "astertv-family",
   "external_integrations": [
@@ -122,7 +122,7 @@
       {
         "bytes": 4351,
         "path": "services/kodi/astertv-fleet/materialize_family_equipment_bridge.py",
-        "sha256": "8a5f8e434d4b0e15e3723322b77ef8098bdb4884c3a8713532afbb0334a41b66"
+        "sha256": "65f74dec91e9cf12bfeedf4cbea4cbc4bd2275f4bd36ca0491f5c6722e39af1b"
       },
       {
         "bytes": 4911,
@@ -145,9 +145,9 @@
         "sha256": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983"
       },
       {
-        "bytes": 9026,
+        "bytes": 9540,
         "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/app.js",
-        "sha256": "c4b3b371c18a7b3f53dad298ad8440f303b47f8c9c96cafbbb5c4c364e0df52b"
+        "sha256": "76a14595af2da756a72975eb02afe45cd21ac035d8b118dfc67a2635258e0762"
       },
       {
         "bytes": 22093,
@@ -172,12 +172,12 @@
       {
         "bytes": 978,
         "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/sw.js",
-        "sha256": "4011c0bd123a743937a6d9053ad44d1da15c7ac646ddc50cbf401b38cbd94968"
+        "sha256": "9be36dd12a332cf22c71c3364479b23623b2a10abb07b8be0a5f8c27bc0f2bc8"
       },
       {
         "bytes": 3643,
         "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/materialization-manifest.json",
-        "sha256": "3ae01b1a644ee3ed1768f4579db5b111f1f01f4986ef15d0dab35cebf3c22e65"
+        "sha256": "91c2ec74f27440c0a5cb5624669b08753fb8827a50b5a68f2aa022847b32915a"
       }
     ],
     "family-kodi-restart": [
@@ -317,7 +317,7 @@
       {
         "bytes": 6244,
         "path": "services/kodi/astertv-fleet/materialize_remote_client.py",
-        "sha256": "391f98a0d1f9b20692130475ff8cbfa0ab383c2190d5452acc5df75cb668cb03"
+        "sha256": "fbe261684231c61c6685822fab7ba20d7e0e86153d5e5ce91842aa8d92992693"
       },
       {
         "bytes": 661,
@@ -325,14 +325,14 @@
         "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
       },
       {
-        "bytes": 9629,
+        "bytes": 10098,
         "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/common/storage/.kodi/addons/service.asterremote/service.py",
-        "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+        "sha256": "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49"
       },
       {
-        "bytes": 5072,
+        "bytes": 5076,
         "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/materialization-manifest.json",
-        "sha256": "c3d60d4716fe936811dfa6ccebd8e5a29d47fe12e11eb536117e5f1819157b03"
+        "sha256": "bf0f83ce706c5ca864a6afcb8354d70bdf8b2b440aed5c86d0a4e4b337de5d31"
       },
       {
         "bytes": 1639,
@@ -342,7 +342,7 @@
       {
         "bytes": 98,
         "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-family/storage/.aster-v3/m8-remote/manifest.json",
-        "sha256": "ed85c7cd0432958feb610da598ac7f46496310c20a12fb8779b3f10c1eff8902"
+        "sha256": "59c1b6ab3a380397cfe559feb3524678f800f3259913e7ec74bdd972a5bf78ab"
       },
       {
         "bytes": 661,
@@ -350,9 +350,9 @@
         "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
       },
       {
-        "bytes": 9629,
+        "bytes": 10098,
         "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-family/storage/.aster-v3/m8-remote/service.asterremote/service.py",
-        "sha256": "0eba8fc5deaa22805a11c88b1fb402de552dcb876095cafd1610f9a4a5ab75ec"
+        "sha256": "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49"
       },
       {
         "bytes": 202,
