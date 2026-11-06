@@ -146,6 +146,10 @@
 > signed-receipt validation, zero accepted effects and fail-closed ledger burn.
 > The suite passes 105/105. These changes are source-only; next is the inactive
 > receipt producer and rollback owner.
+> The [bounded observer signer](evidence/SA4-bounded-observer-signer-source-2026-11-05.md)
+> is now source-complete with a fixed Proxmox key path, exact accepted identity
+> and canonical receipt-proof-only input. Tests do not invoke the key; the full
+> suite passes 109/109. It remains uninstalled and grants no effect.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
