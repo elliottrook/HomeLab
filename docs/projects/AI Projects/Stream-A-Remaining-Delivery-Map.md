@@ -439,6 +439,13 @@
 > authority, ledger rewrite, target effect, service action, route or promotion
 > occurred. Next is installed-path zero-effect validation and a distinct inert
 > canary design; the repaired v6 target and grant are not reused.
+> A [distinct v2 canary proposal](evidence/SA4-distinct-canary-v2-proposed-registry-2026-11-06.md)
+> is now source-complete: separate fixed path and 85-byte drifted/healthy
+> artifacts, existing generic postcheck/rollback programs, and a canonical
+> owner card that remains explicitly pending. The separate proposal registry is
+> not imported by production, and production rejects the new target ID. The
+> complete SA4 suite passes 237/237. Next is exact owner acceptance or rejection
+> of this inert target; no installation or repair is included.
 > The [installed v2 zero-effect preflight](evidence/SA4-terminal-reconciliation-v2-installed-zero-effect-preflight-2026-11-06.md)
 > then exercised the final-path runner with one unexpected argument. It failed
 > closed before reading inputs or creating state. Every retained v6 input,
