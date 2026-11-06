@@ -291,6 +291,10 @@
 > provides hash-guarded rollback without invoking any control or transaction.
 > The suite passes 155/155. The inactive two-file installation is now the sole
 > next gate; the prior repair approval remains spent by the NO-GO.
+> The independent [upgrade-result verifier](evidence/SA4-runtime-control-inactive-upgrade-verifier-2026-11-05.md)
+> now rejects any row/hash/metadata drift, retained control state, prohibited
+> invocation, unhealthy production or incomplete rollback. The suite passes
+> 158/158. Offline preparation is exhausted before the inactive-install gate.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
