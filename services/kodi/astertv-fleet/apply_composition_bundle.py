@@ -119,7 +119,7 @@ def plan(root: Path, manifest: dict) -> dict:
 
 
 def checkpoint(root: Path, manifest: dict, checkpoint_root: Path,
-               checkpoint_id: str) -> Path:
+               checkpoint_id: str, systemd_state: list[dict] | None = None) -> Path:
     if not CHECKPOINT_RE.fullmatch(checkpoint_id):
         raise ValueError("checkpoint-id")
     target = checkpoint_root / checkpoint_id
@@ -156,7 +156,8 @@ def checkpoint(root: Path, manifest: dict, checkpoint_root: Path,
                    "device_id": manifest["device_id"],
                    "composition_sha256": manifest["composition_sha256"],
                    "checkpoint_id": checkpoint_id, "status": "checkpointed",
-                   "files": rows, "recovery": recovery}
+                   "files": rows, "recovery": recovery,
+                   "systemd": systemd_state or []}
         atomic_json(temporary / "checkpoint.json", journal)
         os.replace(temporary, target)
         return target
@@ -252,6 +253,57 @@ def run(command: list[str]) -> None:
     subprocess.run(command, check=True)
 
 
+def systemctl_state(unit: str, property_name: str) -> str:
+    result = subprocess.run(["systemctl", f"is-{property_name}", unit],
+                            check=False, capture_output=True, text=True)
+    return result.stdout.strip() or "unknown"
+
+
+def collect_systemd_state(guard: dict) -> list[dict]:
+    rows = []
+    for assertion in guard.get("expected_assertions", []):
+        if assertion.get("authority") != "systemd":
+            continue
+        rows.append({"unit": assertion["key"], "desired": assertion["expected"],
+                     "enabled": systemctl_state(assertion["key"], "enabled"),
+                     "active": systemctl_state(assertion["key"], "active")})
+    return rows
+
+
+def reconcile_systemd(guard: dict) -> None:
+    for assertion in guard.get("expected_assertions", []):
+        if assertion.get("authority") != "systemd":
+            continue
+        unit, desired = assertion["key"], assertion["expected"]
+        if desired == "enabled":
+            run(["systemctl", "enable", unit])
+        elif desired == "enabled-active":
+            run(["systemctl", "enable", "--now", unit])
+        elif desired == "disabled":
+            run(["systemctl", "disable", unit])
+        elif desired == "disabled-inactive":
+            run(["systemctl", "disable", "--now", unit])
+        else:
+            raise ValueError("unsupported-systemd-assertion")
+
+
+def restore_systemd(rows: list[dict]) -> None:
+    for row in rows:
+        unit = row["unit"]
+        if row["enabled"] == "enabled":
+            run(["systemctl", "enable", unit])
+        elif row["enabled"] == "disabled":
+            run(["systemctl", "disable", unit])
+        else:
+            raise ValueError("unsupported-checkpointed-unit-state")
+        if row["active"] == "active":
+            run(["systemctl", "start", unit])
+        elif row["active"] in {"inactive", "failed"}:
+            run(["systemctl", "stop", unit])
+        else:
+            raise ValueError("unsupported-checkpointed-active-state")
+
+
 def suspend_guard() -> None:
     """Stop Kodi and remove the persistent boot edge before candidate start."""
     run(["systemctl", "stop", "kodi.service"])
@@ -300,6 +352,8 @@ def main(argv=None) -> int:
             suspend_guard()
         result = restore(args.root, checkpoint_path)
         if not args.offline:
+            journal = json.loads((checkpoint_path / "checkpoint.json").read_text())
+            restore_systemd(journal.get("systemd", []))
             resume_guard()
         print(json.dumps(result, sort_keys=True)); return 0
     if args.action == "accept":
@@ -328,14 +382,16 @@ def main(argv=None) -> int:
                          sort_keys=True)); return 0
     if not args.offline and not idle_players():
         raise ValueError("playback-active")
+    systemd_state = [] if args.offline else collect_systemd_state(guard)
     checkpoint_path = checkpoint(args.root, manifest, args.checkpoint_root,
-                                 args.checkpoint_id)
+                                 args.checkpoint_id, systemd_state)
     staged = stage(args.root, manifest, payloads, args.stage_root, args.checkpoint_id)
     try:
         if not args.offline:
             suspend_guard()
         changed = install(args.root, manifest, staged)
         if not args.offline:
+            reconcile_systemd(guard)
             run(["systemctl", "daemon-reload"])
             run(["systemctl", "start", "kodi.service"])
         update_status(checkpoint_path, "candidate-running", changed=changed,
@@ -343,6 +399,7 @@ def main(argv=None) -> int:
     except Exception:
         restore(args.root, checkpoint_path)
         if not args.offline:
+            restore_systemd(systemd_state)
             resume_guard()
         raise
     print(json.dumps({"outcome": "candidate-running", "changed": len(changed),

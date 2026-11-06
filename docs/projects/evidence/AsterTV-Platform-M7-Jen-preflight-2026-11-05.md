@@ -66,6 +66,20 @@ runner now removes the persistent guard boot edge and reloads systemd before
 candidate startup, then restores that edge during accept or rollback. A focused
 command-sequence regression raises the fleet suite to 43/43.
 
+The second candidate start proved that guard isolation, checkpointing and file
+installation were correct, but two superseded Movie/YouTube boot units remained
+enabled. They rewrote three account-registry files and one YouTube helper after
+the 124-file install, leaving 120 matches and four replacements. The contract
+already declares the old units disabled and the composed unit enabled; the
+runner simply had not applied or checkpointed typed systemd assertions. The
+candidate again remained unaccepted, and the `r2` checkpoint restored all 124
+paths, predecessor accepted state, guard enablement and Kodi service.
+
+The runner now checkpoints every declared unit's enablement/activity, applies
+only the exact systemd assertions in the guard contract, and restores the prior
+unit state during rollback. Its focused assertion test raises the suite to
+44/44 before a third attempt.
+
 ## Authorized rehearsal sequence when approved
 
 1. Reconfirm hostname/build, playback idle and artifact hash.

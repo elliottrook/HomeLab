@@ -40,7 +40,7 @@ future promotion transaction. No promotion was performed.
 
 ## Verification
 
-- Fleet/release suite: 43/43 passing, including typed assertion drift, target
+- Fleet/release suite: 44/44 passing, including typed assertion drift, target
   isolation, install-path containment, offline checkpoint/apply/rollback and
   fail-closed missing/stale/drifted observation handling.
 - Four deterministic bundles build from the locally verified immutable release.
@@ -119,6 +119,9 @@ future promotion transaction. No promotion was performed.
   rehearsal proved that a runtime mask alone was insufficient on LibreELEC;
   exact rollback succeeded and the corrected disable/enable sequence is now a
   regression fixture.
+- Typed systemd assertions are now operational gates rather than documentation:
+  the transaction checkpoints current unit state, reconciles only declared
+  enable/disable/activity values and restores the predecessor state on rollback.
 - No live appliance, wiki, network, Home Assistant or remote repository changed.
 
 ## Next

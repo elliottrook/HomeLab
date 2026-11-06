@@ -234,6 +234,24 @@ class ReleasePipelineTests(unittest.TestCase):
                 unittest.mock.call(["systemctl", "start", "kodi.service"]),
             ])
 
+    def test_bundle_runner_reconciles_only_declared_systemd_assertions(self):
+        guard = {"expected_assertions": [
+            {"authority": "systemd", "key": "new.service", "expected": "enabled"},
+            {"authority": "systemd", "key": "old.service", "expected": "disabled"},
+            {"authority": "systemd", "key": "camera.service", "expected": "disabled-inactive"},
+            {"authority": "systemd", "key": "policy.path", "expected": "enabled-active"},
+            {"authority": "kodi", "key": "unrelated", "expected": True},
+        ]}
+        from unittest.mock import patch
+        with patch.object(APPLY, "run") as command:
+            APPLY.reconcile_systemd(guard)
+            self.assertEqual(command.call_args_list, [
+                unittest.mock.call(["systemctl", "enable", "new.service"]),
+                unittest.mock.call(["systemctl", "disable", "old.service"]),
+                unittest.mock.call(["systemctl", "disable", "--now", "camera.service"]),
+                unittest.mock.call(["systemctl", "enable", "--now", "policy.path"]),
+            ])
+
     def test_guard_detects_payload_and_required_dependency_drift(self):
         contract = {
             "schema_version": 1, "kind": "composition-guard-contract",
