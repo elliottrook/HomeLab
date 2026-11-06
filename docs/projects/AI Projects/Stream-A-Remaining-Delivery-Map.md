@@ -446,6 +446,13 @@
 > not imported by production, and production rejects the new target ID. The
 > complete SA4 suite passes 237/237. Next is exact owner acceptance or rejection
 > of this inert target; no installation or repair is included.
+> Jason accepted the exact target. The [acceptance and seed-install review](evidence/SA4-distinct-canary-v2-acceptance-and-seed-install-review-2026-11-06.md)
+> binds canonical acceptance `53070fd5…1422`, preserves the v1 registry and
+> prepares exactly two absent create-only files: an inactive accepted registry
+> and the fixed 85-byte drifted seed. Strict postchecks and exact reverse
+> removal forbid runner, signer, ledger, existing-canary, service, route or
+> promotion effects. The complete suite passes 245/245. The two-file inactive
+> seed installation is the next explicit deployment gate; no repair is included.
 > The [installed v2 zero-effect preflight](evidence/SA4-terminal-reconciliation-v2-installed-zero-effect-preflight-2026-11-06.md)
 > then exercised the final-path runner with one unexpected argument. It failed
 > closed before reading inputs or creating state. Every retained v6 input,
