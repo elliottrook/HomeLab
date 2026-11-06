@@ -720,6 +720,15 @@
 > authority identity and v8 on fresh v5 paths. The complete SA4 suite passes
 > 322/322. Next is the two-file create-exclusive inert install, exact pre-claim
 > reconciliation, and a fresh v8 release packet; v7 is not retried.
+>
+> The [inert install and exact reconciliation](evidence/SA4-unique-checkpoint-inactive-install-and-v7-reconciliation-2026-11-06.md)
+> passed. Receipt `a0ff3a18…a8c4e` proves zero checkpoint creations, claims,
+> repairs and observer requests; only the exact stale controls were released.
+> The target and retained checkpoint remain byte-identical, lease ready and
+> production healthy. The [v5 release review](evidence/SA4-distinct-canary-v5-release-candidate-review-2026-11-06.md)
+> binds unique plan/checkpoint identity, fresh v5 paths, a fourth fresh grant
+> and the exact installed v8. The suite passes 324/324. One fresh v8
+> transaction is the next version test; any failure stops that version.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
