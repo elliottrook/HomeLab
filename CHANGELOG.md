@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-06 — Media retention M1 dry-run policy completed
+
+- Added a local-only 60–62% retention selector with whole movie/season scope,
+  explicit release-date provenance and fail-closed ARR/Jellyfin/watch/recovery
+  holds. Added a durable SQLite observation and interrupted-action journal.
+- All 55 video-archiver tests passed. This milestone made no production media,
+  ARR, Jellyfin, scheduler or pool change; M2 must prove live adapters and
+  restore before any deletion pilot.
+
 ## 2026-11-06 — Media retention M0 discovery completed with holds
 
 - Verified the live 41% pool baseline, disabled legacy jobs, recent ZFS
