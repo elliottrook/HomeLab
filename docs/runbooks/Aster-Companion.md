@@ -85,17 +85,18 @@ Aster chat never grants approval or adds repair authority.
 | Component | Location | Dependency |
 |---|---|---|
 | Companion and Aster API | LXC 104, `192.168.70.10:9120` | Existing B60 inference service on LXC 110 |
-| Canonical speech | LXC 116, `192.168.70.14:9131`; Wyoming `10300` | Kokoro `bm_daniel`; isolated A380 interactive and LXC 114 CPU batch renderers |
-| Legacy speech/STT | LXC 116, `192.168.70.14:9130` | Whisper `base.en`; retained Piper rollback |
+| Canonical speech gateway | LXC 128, `192.168.20.37:9131`; Wyoming `10300` | Authenticated/scheduled boundary; Mac mini Qwen3-TTS 1.7B Q8 and whisper.cpp `base.en` over restricted loopback reverse forwards |
+| Speech rollback | LXC 128 local renderer/STT; legacy LXC 116 remains separately retained | Kokoro ONNX and faster-whisper `base.en` are the tested operator rollback; never selected automatically |
 | HTTPS proxy | NPM LXC 107, `192.168.50.23` | `/voice/v2/` forwards streaming TTS to canonical 9131; `/voice/` retains STT and legacy rollback on 9130; other routes to Aster |
 | Sign-in and signing keys | Authentik, `auth.elliottrook.com` | Public client `aster-companion`, PKCE, passkey-only flow |
 
-Run `python3 /opt/aster-speech/health_check.py` inside LXC 116. It checks both
-speech APIs, the canonical identity, Wyoming, HTTPS/OIDC/JWKS and a discarded
-fixed synthesis canary. A healthy speech `/health` alone is insufficient: both
-application servers must fetch signing keys via NPM TCP 443. Speech's permit
-is source `.70.14` to `.50.23:443` only, OPNsense UUID
-`bc811346-6714-44b4-bc65-46e7430f46a8`.
+Canonical health is `http://192.168.20.37:9131/health` and must report
+`qwen3-tts-1.7b-base-q8-metal`, policy `2`, and
+`whisper.cpp-base.en-metal`. A plain `status=ok` with another model is drift.
+On the Mac, `launchctl print gui/501/com.elliottrook.aster-speech-authority`
+must be running; Qwen and Whisper listen only on `127.0.0.1:18140/18141`.
+Inside LXC 128 those same ports are SSH reverse forwards. No LAN listener or
+server-to-Mac firewall permit is part of this design.
 
 For a stalled voice turn, check that dependency, then request status and
 sanitized journal errors. Do not collect microphone recordings or transcript

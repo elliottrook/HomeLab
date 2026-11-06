@@ -19,7 +19,7 @@ do not hard-code an inference guest address or call llama.cpp directly.
 |---|---|---|
 | `ai-prod` text gateway | Aster Agent LXC 104, `192.168.70.10:9120/v1` | Stable Aster gateway in `ai-prod` |
 | `ai-prod` inference backend | LXC 110, `192.168.70.12:11435/v1`, internal only | Private `ai-prod` backend |
-| `ai-prod` speech | Aster canonical voice candidate LXC 116, `192.168.70.14:9131` through the controlled `/voice/v2/` route; legacy `9130` remains rollback/Companion STT | Stable speech endpoint in `ai-prod` |
+| `ai-prod` speech | LXC 128, `192.168.20.37:9131`, remains the authenticated gateway; M4 Mac mini is authoritative Qwen/Whisper compute through loopback reverse forwards | Stable speech endpoint in `ai-prod` |
 | `ai-lab` | Whole-host exclusive maintenance lease; no concurrent lab/prod GPU runtime | Separately identified lab endpoint and state |
 
 The transitional mappings are implementation facts, not permission to treat
@@ -44,20 +44,22 @@ implementation details or internal guest addresses.
 
 ## Speech API
 
-The canonical spoken identity is Kokoro ONNX `bm_daniel`, `en-gb`, speed `0.95`.
-Piper is a rollback implementation, not a second canonical voice. A speech
+The canonical spoken identity is Qwen3-TTS 1.7B Base Q8 on the M4 Metal GPU,
+using the pinned synthetic Aster reference and fixed production seed. Kokoro
+ONNX is the tested local rollback implementation, not a second canonical voice. A speech
 consumer must accept a successful response, a bounded timeout, or an explicit
 content-free degraded/failure result. Recovery to Piper is an operator-
-controlled rollback to the retained 9130 service; consumers must never switch
+controlled rollback in LXC 128 (with the older 9130 service additionally
+retained); consumers must never switch
 voices or environments automatically or present Piper as equivalent to the
 canonical voice.
 
-The canonical voice service remains at LXC 116 on TCP 9131, with the controlled
-HTTPS `/voice/v2/` route and its existing service identity. Legacy TCP 9130
-remains active for rollback and Companion STT during migration. The canonical
-service uses the pinned Kokoro candidate runtime and renderer boundary; its
-model assets are not copied into the legacy service. STT/TTS credentials are
-environment-specific and never enter this contract document.
+The canonical client boundary remains TCP 9131 on LXC 128 and preserves its
+existing authenticated HTTP, AVS1 batch and Wyoming contracts. Qwen and
+whisper.cpp bind only to Mac loopback; a dedicated restricted SSH key exposes
+only LXC loopback ports 18140/18141. The gateway fails health when either Mac
+engine or the tunnel is unavailable and never silently changes voice. STT/TTS
+credentials are environment-specific and never enter this contract document.
 
 ## Authentication and identity
 
@@ -77,7 +79,7 @@ The initial V1 envelope is deliberately conservative:
 
 | Area | Contract behavior |
 |---|---|
-| GPU concurrency | One serving slot; lab experiments require the exclusive maintenance lease |
+| GPU concurrency | One Mac Qwen serving slot; central-stack lab experiments still require their reservation, lease and lock |
 | Context | 8,192 tokens at the accepted inference baseline |
 | Tool use | Gateway-owned bounded allowlist and finite tool rounds; no generic shell/admin access |
 | Timeout | Caller supplies a bounded request deadline; the gateway's existing 180-second upstream ceiling remains the hard upper bound until measured otherwise |
@@ -91,7 +93,7 @@ healthy capacity.
 ## Fallback and recovery
 
 Text consumers degrade to a clear unavailable state and preserve the stable
-human/operator path. Speech consumers use Kokoro on the canonical 9131 path.
+human/operator path. Speech consumers use Qwen on the canonical 9131 path.
 If it fails, the candidate returns an explicit content-free error or
 cancellation; an operator may then roll back to the retained Piper/Whisper
 9130 service using the documented release procedure. The UI must identify the

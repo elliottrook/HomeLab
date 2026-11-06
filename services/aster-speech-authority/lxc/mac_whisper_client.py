@@ -12,6 +12,16 @@ ENDPOINT = os.environ.get("ASTER_MAC_STT_URL", "http://127.0.0.1:18141/inference
 TIMEOUT = float(os.environ.get("ASTER_MAC_STT_TIMEOUT", "45"))
 
 
+def healthy() -> bool:
+    if not ENDPOINT.startswith("http://127.0.0.1:"):
+        return False
+    try:
+        with urllib.request.urlopen(ENDPOINT.rsplit("/", 1)[0] + "/health", timeout=2) as response:
+            return response.status == 200
+    except (TimeoutError, urllib.error.URLError):
+        return False
+
+
 def transcribe_wav(data: bytes, filename: str = "audio.wav") -> str:
     if not ENDPOINT.startswith("http://127.0.0.1:"):
         raise RuntimeError("Mac STT must use the loopback tunnel")

@@ -1,7 +1,6 @@
 # Aster speech Mac authority
 
-> **Status:** Active — staged and validated; persistent activation blocked at
-> the Lab Hours policy exception gate; production route not flipped
+> **Status:** Pilot — Mac authority live; first scheduled briefing pending
 >
 > **Owner:** Jason
 >
@@ -13,6 +12,15 @@
 > tests and rollback described here. It does not authorize public ingress,
 > broader firewall trust, unrelated Mac administration, model changes, remote
 > Git writes, or removal of the accepted Kokoro/faster-whisper rollback.
+>
+> **Lab Hours exception:** On 2026-11-05, after being informed that the normal
+> ledger cannot represent an indefinite always-on execution/recovery window,
+> Jason explicitly approved a project-specific exception for this Mac-only
+> speech service. The exception is limited to the M4's local Metal GPU, the two
+> loopback model servers and their restricted tunnel. It does not cover the
+> B60, Arc A380, central inference stack, experiments, batch jobs on another
+> host, or any future shared-hardware placement; those remain subject to the
+> ordinary ledger, reservation, lease and lock rules.
 
 ## Purpose and desired outcome
 
@@ -95,11 +103,11 @@ rollback failure.
 
 - [x] M0: record Jason's listening decision, architecture and risk envelope.
 - [x] M1: add hash manifest, Mac supervisor/LaunchAgent template and LXC clients.
-- [ ] M2: install immutable Mac artifacts and credentials; prove restart and
+- [x] M2: install immutable Mac artifacts and credentials; prove restart and
   loopback-only listeners.
-- [ ] M3: install restricted tunnel identity and stage LXC adapters without
+- [x] M3: install restricted tunnel identity and stage LXC adapters without
   changing production routing.
-- [ ] M4: check the complete affected scheduled window in Lab Hours, checkpoint
+- [x] M4: check the complete affected scheduled window in Lab Hours, checkpoint
   production, flip the route, and validate two TTS and STT production passes.
 - [ ] M5: prove explicit rollback, restore Qwen authority, reconcile Doctor,
   Beszel, NetBox, wiki/reference/mirror and complete intent/efficiency review.
@@ -135,4 +143,9 @@ TTS/STT. The Mac service may then be stopped independently.
 | 2026-11-05 | Added accepted SHA-256 manifest, fail-closed supervisor, voice registration, LaunchAgent template and loopback-only LXC clients. | Local staging complete; no production route changed. |
 | 2026-11-05 | Installed the immutable payload in the Mac user Library, created a dedicated LXC 128 tunnel account whose key permits only reverse loopback ports 18140/18141, and ran the supervisor manually. Both model health checks passed through the tunnel; the Mac had no LAN listener; shell access and an unapproved port 18142 forward were denied. Qwen-to-Whisper returned “Aster Speech Authority Validation” after applying the existing Aster hotword prompt. | M2 functional/security staging passed. The manual service was stopped and production remained Kokoro. |
 | 2026-11-05 | Attempted to install and enable the user LaunchAgent. The platform rejected the operation before execution because the repository Lab Hours rule requires an authoritative check covering the complete execution/recovery window, while an always-on authority has no finite end. | No LaunchAgent was installed or enabled. Persistent activation and every downstream route/schedule change are blocked until Jason explicitly decides a documented Lab Hours exception or supplies a finite reservation model. |
+| 2026-11-05 | Jason explicitly approved the documented project-specific Lab Hours exception after the indefinite-window conflict and residual risk were explained. | Persistent Mac-only activation may proceed. B60, Arc and all other shared-stack work remain governed by normal Lab Hours admission. |
+| 2026-11-05 | Enabled the user LaunchAgent, installed a restricted reverse-tunnel identity, checkpointed LXC 128, staged the tested adapters, and selected Qwen/Whisper with a reversible systemd drop-in. Health now reports `qwen3-tts-1.7b-base-q8-metal`, policy `2`, and `whisper.cpp-base.en-metal`. | The Mac is the live authoritative compute host; client URLs and authentication remain unchanged. |
+| 2026-11-05 | The first News-path check exposed mismatched 64-character batch-key fingerprints. Reconciled News to the gateway's existing dedicated identity source-to-source with a root-only backup and no secret output. The real News client then returned 24 kHz Qwen audio before and after a Mac service restart. | Existing least-privilege News authentication restored; no new privilege or shared credential introduced. |
+| 2026-11-05 | Removed the Mac drop-in, restarted LXC 128 and produced local Kokoro speech; restored the drop-in and completed two authenticated Qwen/Whisper passes. Restarted the Mac LaunchAgent and revalidated gateway plus News batch paths. | Rollback, restoration and service restart recovery passed. The first normal scheduled briefing remains the pilot acceptance gate. |
+| 2026-11-05 | Replaced the stale VLAN-70/Kokoro Doctor probe with a current LXC 128 identity-aware check. Canonical health, authenticated Qwen synthesis, Wyoming, HTTPS, JWKS and OIDC all returned `ok`. Updated the Companion runbook, Local AI contract, portfolio and News post-graduation evidence. | Operational monitoring now detects a healthy-but-wrong backend as drift. Beszel/NetBox/mirror reconciliation and the first scheduled briefing remain before graduation. |
 
