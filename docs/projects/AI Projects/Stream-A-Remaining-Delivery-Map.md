@@ -648,6 +648,14 @@
 > absent, the canary is unchanged, the lease is ready and production is
 > healthy. No repair or authority ran. A fresh release and unsigned authority
 > boundary are next.
+>
+> The [fresh distinct-canary v2 release candidate](evidence/SA4-distinct-canary-v2-release-candidate-review-2026-11-06.md)
+> is now complete. It binds the corrected installed result, exact v4 sources,
+> plan `e708b2f7…647b`, drifted-to-healthy canary digests and a new single-use
+> grant identity. Its owner/AI-PAM inputs are unsigned and confer no effect;
+> prior approvals are non-reusable. The complete SA4 suite passes 277/277.
+> The next and only SA4 gate is one exact live repair approval with fresh
+> lease, lock, absence, hash and production checks; no run is scheduled.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
