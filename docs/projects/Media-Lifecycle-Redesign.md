@@ -1,7 +1,7 @@
 # Aster media lifecycle redesign
 
-> Status: Ready — planning record only; implementation starts no earlier than
-> Wednesday 2026-11-04 01:00 America/Vancouver (PST)
+> Status: In progress — M0 live discovery began after the
+> Wednesday 2026-11-04 01:00 America/Vancouver (PST) start gate
 >
 > Owner: Jason | Proposed and authorized: 2026-11-02 | Stream A — Autonomous
 >
@@ -130,11 +130,20 @@ the HomeLab Aster UI style guide.
 | Secrets enter logs or Git | Low / high | Use redacted discovery and a pre-commit secret review. |
 
 Affected systems: TrueNAS media, Radarr, Sonarr, Jellyfin, Bazarr, Doctor and
-their backups. Current versions, job health, free space, exact mounts,
-credentials, backup status and household client behavior are unverified.
+their backups. At planning time, current versions, job health, free space,
+exact mounts, backup status and household client behavior were unverified.
 Stream A is authorized for the bounded scope above from the scheduled start;
-the live M0 assessment must resolve these unknowns before any production
-mutation. The non-waivable stop conditions still apply.
+the live M0 assessment must resolve these unknowns before media replacement.
+The non-waivable stop conditions still apply.
+
+**Live risk update, 2026-11-05:** Radarr 6.4.4.10685, Sonarr 4.0.20.3014 and
+Jellyfin 12.1.0 are responding; Bazarr and Profilarr are healthy. `Media/data`
+has approximately 14.1 TB available. The media, Jellyfin and Docker-volume
+datasets now have fresh named snapshots with proportional isolated restore
+proof. The disabled legacy jobs are the only project production mutation.
+Jellyfin was recently restarted amid separate AsterTV checkpoint activity, so
+the M1 view pilot must avoid concurrent client/server changes. No new network
+path, public exposure, credential transfer or irreversible action is needed.
 
 ## Persistence and resume plan
 
@@ -146,7 +155,7 @@ resumption reread this project, Git status and live state before replay.
 
 ## Milestones and completion gates
 
-- [ ] **M0 — Live discovery and risk acceptance:** inspect arr profiles, roots,
+- [x] **M0 — Live discovery and risk acceptance:** inspect arr profiles, roots,
   schedules, sample streams/subtitles, backup health and Jellyfin client.
   Gate: evidence resolves ownership and recovery unknowns.
 - [ ] **M1 — Current/Archive view pilot:** one movie and two seasons of one
@@ -229,6 +238,77 @@ or physical archive roots.
 
 ## Evidence log
 
+- **2026-11-06 — M0 gate passed:** Forgejo main remains at the planning SHA;
+  TrueNAS confirms legacy jobs 4 and 6 still disabled, with Radarr, Sonarr,
+  Bazarr and Profilarr healthy and Jellyfin running. AsterTV Bedroom's installed
+  Aster skin has four separate home playlists: TV Shows, Movies, Archive TV
+  and Archive Movies. They filter Kodi library tags inherited from the four
+  current Jellyfin libraries. Kodi's read-only API counted 83 Current shows,
+  134 Archive shows, 80 Current movies and 987 Archive movies. This proves the
+  actual client displays separate views today. The same Kodi 22 schema has a
+  `tag` field for shows but no episode-level `tag` setter, so a four-month
+  season-level virtual view needs a different client representation or a
+  Jellyfin collection/plugin pilot; simply retagging whole series would not
+  satisfy the season rule. M0 ownership and recovery questions are resolved
+  sufficiently for a bounded M1 lab pilot. No media, ARR profile, Jellyfin
+  library or Kodi setting changed during this gate. Local commit and remote
+  synchronization are recorded separately; Forgejo push still needs immediate
+  approval under `AGENTS.md`.
+- **2026-11-05 — M0 resume:** Forgejo `main` still points to planning commit
+  `67efb28b015630a8ce3b3baf9b612c17bb719fe7`; local M0 evidence remains
+  unpushed. TrueNAS confirmed both old cron jobs disabled. Radarr, Sonarr,
+  Bazarr and Profilarr were healthy; Jellyfin was running but had restarted
+  within the preceding five hours. The three unmonitored Radarr entries all
+  lack files and are in the Current root; none is a playable file that was
+  accidentally left unmonitored. Sonarr now reports 5,634 episode files, two
+  more than the prior baseline. Jellyfin's six configured libraries remain
+  Movies, Shows, Music, Archive Movies, Archive TV and Collections. Separate
+  AsterTV/Jellyfin checkpoint activity was observed, so changes to Jellyfin
+  views need coordination with that concurrent work. No profile, media or
+  Jellyfin change was made during this check.
+- **2026-11-05 — AsterTV Bedroom read-only check:** the client at
+  `192.168.1.140` is reachable over established SSH and Kodi 22.0 RC1 responds
+  to its local TCP JSON-RPC endpoint. Its video library reports 1,065 movies
+  and 6,313 episodes. This establishes a usable lab client for the view pilot,
+  but library counts do not prove that Current and Archive appear as distinct
+  household views. The client was not navigated or changed.
+- **2026-11-04 — M0 started and legacy rewrite jobs paused:** the start gate
+  had passed before live access. Forgejo `main` remained at planning commit
+  `67efb28b015630a8ce3b3baf9b612c17bb719fe7`; local checkout was clean.
+  TrueNAS clock showed MST (`-07:00`), one hour ahead of Vancouver PST. The
+  age-based archiver cron job 4 (01:30, Mon–Sat) processed zero items in its
+  latest run. The archive compactor cron job 6 (08:00 daily) had replaced three
+  files on 2026-11-03, reducing 11,347,356,468 bytes to 4,464,060,680 bytes
+  under the superseded ~1.9 GB-per-file target and `--no-snapshot` policy.
+  Disabled job 6 before its 08:00 TrueNAS run and job 4 afterward; verified
+  both `enabled=false` and no helper process active. These reversible schedule
+  changes prevent further legacy media rewrites while the replacement policy
+  is built. Do not re-enable either job under its old settings.
+- **2026-11-04 — ARR baseline:** Radarr 6.4.4.10685 has 954 movies, 951
+  monitored, 819 with files and 132 monitored/missing. Sonarr 4.0.20.3014 has
+  223 monitored series and 5,632 episode files. Both still register Current
+  and Archive roots. Every listed quality profile has `upgradeAllowed=false`,
+  contrary to the desired upgrade policy. Three Radarr titles are unmonitored;
+  their reason must be reviewed before changing them. No mass search or
+  profile mutation occurred.
+- **2026-11-04 — Recovery baseline:** the daily `Media@auto` snapshot does not
+  cover the child `Media/data` dataset. Existing Radarr/Sonarr built-in backups
+  were dated 2026-11-02. Created and verified fresh named ZFS snapshots of
+  `Media/data`, `Media/appdata/jellyfin`, and `Media/ix-apps/docker` at 08:10
+  TrueNAS time. Verified isolated temporary restores of a Radarr config file,
+  a Jellyfin config file and a complete media subtitle sidecar by byte
+  comparison; no restored file was put back into production. A client-visible
+  Jellyfin pilot remains open before any media replacement.
+- **2026-11-04 — Read-only stream sample:** Radarr reports 83 movie files over
+  5,000,000,000 bytes. Of these, 28 are labeled 1080p remux, 25 1080p WEBDL,
+  19 BR-DISK, seven 1080p Blu-ray, three unknown and one 2160p WEBDL. This
+  disproves the assumption that oversized files are only 4K Blu-ray rips.
+  A sampled 20.1 GB 4K HDR file has PQ/BT.2020 and English 5.1 audio but no
+  English subtitle stream or sidecar. A sampled 44.8 GB 1080p remux has
+  multiple English audio tracks and English PGS tracks including forced; the
+  optimizer must retain those PGS tracks and flags in a compatible container.
+  A sampled ~2.0 GB SD file has 720×404 video, stereo audio and no subtitles;
+  it remains playable pending a genuine upgrade. No file was modified.
 - **2026-11-02 — Planning and authorization:** inspected the helper code,
   portfolio and `Project-Creation-Standard.md`; cloned Forgejo main for this
   planning commit. Jason authorized Stream A completion with a hard execution
@@ -239,8 +319,18 @@ or physical archive roots.
 
 ## Open decisions and blockers
 
-- This Codex workspace cannot reach `ssh truenas` (`Operation not permitted`), so live arr settings and job health have not been inspected.
-- The project plan is being prepared in a fresh Forgejo clone; no production code or configuration has been changed.
+- Live TrueNAS access is available through an approved SSH path. The legacy
+  rewrite schedules are disabled; this is the only live configuration change
+  so far. Fresh snapshots and proportional isolated restore proofs exist.
+- M1 must prove a season-level Current/Archive client representation without
+  disturbing concurrent AsterTV/Jellyfin work. Kodi's existing tag-based
+  show playlists cannot split one series by season because its episode API
+  has no tag setter. Profile design must resolve ARR's disabled upgrades;
+  the three unmonitored movies are missing files, not playable archive files.
+  No media file or ARR profile has been changed yet.
+- This local evidence is not pushed to Forgejo. Repository instructions require
+  immediate authorization for each further Forgejo push; the planning push
+  approval does not cover it.
 - The user wants the best file below 5 GB, with no compression solely to minimize size. They authorize a good 1080p version when 4K cannot meet the ceiling. The user prefers moving whole seasons after their youngest episode reaches four months, or keeping only two physical folders with separate Current/Archive views; the latter is recommended pending a Jellyfin client pilot.
 
 ## Close-out
