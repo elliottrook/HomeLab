@@ -1,8 +1,29 @@
 {
-  "composition_sha256": "8826ef75184d38a79ef00758acf71ec34f43e01f28bee4d06c920fe95612cdcb",
+  "composition_sha256": "5959c121ad682d761653af3a6bca465b5a90bb37598bea5ee98c01ac75d2c6e1",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [
+    {
+      "authority": "systemd",
+      "expected": "enabled-active",
+      "key": "beszel-agent.service",
+      "overlay": "beszel-client-v1",
+      "sensitive": false
+    },
+    {
+      "authority": "filesystem",
+      "expected": "99e7f48df6bde635285f1bb28f93b4280d62289b4b94850a54afdcbf110f3158",
+      "key": "beszel-agent.sha256",
+      "overlay": "beszel-client-v1",
+      "sensitive": false
+    },
+    {
+      "authority": "filesystem",
+      "expected": "0600",
+      "key": "beszel-agent.env.mode",
+      "overlay": "beszel-client-v1",
+      "sensitive": false
+    },
     {
       "authority": "kodi",
       "expected": "hdmi0-exclusive",
@@ -230,6 +251,13 @@
       "sha256": "e47f5e1d4e2f13cf3efc3bdf7d65f88c37532467a92a8c3d3ecd6ff7feaf720e"
     },
     {
+      "bytes": 731,
+      "mode": "0644",
+      "overlay": "beszel-client-v1",
+      "path": "/storage/.config/system.d/beszel-agent.service",
+      "sha256": "1cc85c58936b60a3588d97c74f5e4c04f71ebe914854d9e627503857ff1b4b06"
+    },
+    {
       "bytes": 1639,
       "mode": "0700",
       "overlay": "remote-client-v3",
@@ -455,6 +483,8 @@
     "kodi-runtime:kodi/script.asterruntime/news-playback-lifecycle",
     "kodi-service:kodi/native-input-sync",
     "kodi-service:kodi/service.asterremote",
+    "libreelec-system:monitoring/beszel-agent-0.18.7",
+    "libreelec-system:systemd/beszel-agent.service",
     "recovery:state/accepted-manifest-envelope",
     "recovery:systemd/astertv-release-guard.service"
   ],

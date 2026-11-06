@@ -1,8 +1,29 @@
 {
-  "composition_sha256": "070d903dc8f001e86b475315cb370b36f0f12f6d867eeaeb32ce677094609e71",
+  "composition_sha256": "6d54c85fbb6d2cef3eef2f4511c8591f5497d55066286a03b91952b7dd37ff5b",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-jen",
   "expected_assertions": [
+    {
+      "authority": "systemd",
+      "expected": "enabled-active",
+      "key": "beszel-agent.service",
+      "overlay": "beszel-client-v1",
+      "sensitive": false
+    },
+    {
+      "authority": "filesystem",
+      "expected": "99e7f48df6bde635285f1bb28f93b4280d62289b4b94850a54afdcbf110f3158",
+      "key": "beszel-agent.sha256",
+      "overlay": "beszel-client-v1",
+      "sensitive": false
+    },
+    {
+      "authority": "filesystem",
+      "expected": "0600",
+      "key": "beszel-agent.env.mode",
+      "overlay": "beszel-client-v1",
+      "sensitive": false
+    },
     {
       "authority": "kodi",
       "expected": true,
@@ -357,6 +378,13 @@
       "overlay": "release-guard-v1",
       "path": "/storage/.kodi/addons/service.aster.reliability/service.py",
       "sha256": "e47f5e1d4e2f13cf3efc3bdf7d65f88c37532467a92a8c3d3ecd6ff7feaf720e"
+    },
+    {
+      "bytes": 728,
+      "mode": "0644",
+      "overlay": "beszel-client-v1",
+      "path": "/storage/.config/system.d/beszel-agent.service",
+      "sha256": "259daa1256cff556d9ad67e2d40307adc7b2a51c8fad7fa3aea9651d652d3fa1"
     },
     {
       "bytes": 4190,
@@ -1215,6 +1243,8 @@
     "kodi-service:kodi/podcast-request-client",
     "kodi-service:kodi/service.asterremote",
     "kodi-service:kodi/service.astertv-broker-client",
+    "libreelec-system:monitoring/beszel-agent-0.18.7",
+    "libreelec-system:systemd/beszel-agent.service",
     "recovery:state/accepted-manifest-envelope",
     "recovery:systemd/astertv-release-guard.service"
   ],

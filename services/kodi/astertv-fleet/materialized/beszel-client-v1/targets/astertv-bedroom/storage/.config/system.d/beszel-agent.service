@@ -1,0 +1,25 @@
+[Unit]
+Description=AsterTV Beszel Agent
+Wants=network-online.target
+After=network-online.target
+ConditionHost=AsterTV-Bedroom
+ConditionPathExists=/storage/.aster-monitoring/beszel-agent
+ConditionPathExists=/storage/.aster-private/beszel-agent.env
+
+[Service]
+Type=simple
+Environment=HOME=/storage/.aster-monitoring
+Environment=PORT=45876
+Environment=HUB_URL=http://192.168.20.20:8090
+Environment="KEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK88pFyD1rFx1E7p5HnymBqvj6VV/90id8QejpCbwL94"
+EnvironmentFile=/storage/.aster-private/beszel-agent.env
+ExecStart=/storage/.aster-monitoring/beszel-agent
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

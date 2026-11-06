@@ -16,10 +16,12 @@ class OperationsAuditTests(unittest.TestCase):
     def test_current_observation_fails_closed_with_named_gaps(self):
         result = AUDIT.audit(json.loads(OBSERVATION.read_text()))
         self.assertEqual(result["outcome"], "attention")
-        self.assertIn("doctor:astertv-bedroom:unobserved", result["gaps"])
+        self.assertNotIn("doctor:astertv-bedroom:unobserved", result["gaps"])
         self.assertIn("doctor:astertv-family:unobserved", result["gaps"])
         self.assertNotIn("doctor:astertv-jen:drift", result["gaps"])
-        self.assertEqual(result["gap_count"], 11)
+        self.assertEqual(result["gap_count"], 8)
+        self.assertNotIn("monitoring:astertv-bedroom:missing-or-down", result["gaps"])
+        self.assertNotIn("monitoring:astertv-jen:missing-or-down", result["gaps"])
         self.assertIn("wiki:live-astertv-department-absent", result["gaps"])
         self.assertIn("mirror:astertv-derived-source-absent", result["gaps"])
 

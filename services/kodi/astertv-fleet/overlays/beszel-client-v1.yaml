@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "beszel-client-v1",
+  "owner": "fleet-engineering",
+  "layer": "libreelec-system",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["release-guard-v1"],
+  "targets": ["astertv-family", "astertv-bedroom", "astertv-jen"],
+  "owns": ["systemd/beszel-agent.service", "monitoring/beszel-agent-0.18.7"],
+  "payload_sources": [
+    "services/kodi/astertv-fleet/materialized/beszel-client-v1/materialization-manifest.json",
+    "services/kodi/astertv-fleet/materialize_beszel_client.py"
+  ],
+  "payload_target_sources": {
+    "astertv-family": ["services/kodi/astertv-fleet/materialized/beszel-client-v1/targets/astertv-family"],
+    "astertv-bedroom": ["services/kodi/astertv-fleet/materialized/beszel-client-v1/targets/astertv-bedroom"],
+    "astertv-jen": ["services/kodi/astertv-fleet/materialized/beszel-client-v1/targets/astertv-jen"]
+  },
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "apply_strategy": "install",
+  "assertions": [
+    {"authority": "systemd", "key": "beszel-agent.service", "expected": "enabled-active", "sensitive": false},
+    {"authority": "filesystem", "key": "beszel-agent.sha256", "expected": "99e7f48df6bde635285f1bb28f93b4280d62289b4b94850a54afdcbf110f3158", "sensitive": false},
+    {"authority": "filesystem", "key": "beszel-agent.env.mode", "expected": "0600", "sensitive": false}
+  ],
+  "secret_refs": ["beszel-agent-per-device"],
+  "rollback_ref": "per-device M10 Beszel checkpoint and hub database checkpoint",
+  "tests": ["services/kodi/astertv-fleet/tests/test_beszel_materialization.py"]
+}

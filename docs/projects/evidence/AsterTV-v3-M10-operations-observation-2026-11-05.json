@@ -12,7 +12,7 @@
     "wiki_restore_proven": true
   },
   "doctor": {
-    "astertv-bedroom": "unobserved",
+    "astertv-bedroom": "clean",
     "astertv-family": "unobserved",
     "astertv-jen": "clean"
   },
@@ -22,9 +22,9 @@
     "source_registered": false
   },
   "monitoring": {
-    "astertv-bedroom": "absent",
+    "astertv-bedroom": "up",
     "astertv-family": "absent",
-    "astertv-jen": "absent"
+    "astertv-jen": "up"
   },
   "netbox": {
     "astertv-bedroom": {

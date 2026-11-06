@@ -2,7 +2,7 @@
 
 Date: 2026-11-05
 
-Status: fail-closed audit installed; 11 named gaps remain
+Status: fail-closed audit installed; 8 named gaps remain
 
 ## Method
 
@@ -30,12 +30,15 @@ authority is absent.
 
 ## Result
 
-The audit correctly reports `attention` with 11 gaps:
+The audit correctly reports `attention` with 8 gaps:
 
-- Doctor: Bedroom and Family are unobserved. Jen's 124 declared payloads were
-  re-read without remote writes, all matched the current composition, and its
-  refreshed sanitized observation is clean;
-- Beszel: no AsterTV appliance is enrolled;
+- Doctor: Bedroom and Jen are clean; Family remains unobserved. Bedroom's 25
+  declared payloads, 13 non-secret assertions and nine dependencies were
+  independently checked. Two narrow drifts were checkpointed and corrected:
+  an older release-guard executable and the mode on a content-identical remote
+  apply helper. No credential value was read and Kodi was not restarted;
+- Beszel: Bedroom and Jen are enrolled and report `up`; Family remains absent
+  pending independent SSH identity verification;
 - NetBox: Jen and Bedroom now have complete primary-address and MAC records;
   Family remains absent pending independent SSH identity/chassis verification;
 - Wiki: all 25 AsterTV pages exist in the validated local candidate at
@@ -67,14 +70,28 @@ byte-identical at SHA-256
 They retain 51 passing test files, 93 clean candidate inputs and the current 12
 explicit operational gaps.
 
-The subsequent transaction-scoped Bedroom NetBox registration closes one more
+The subsequent transaction-scoped Bedroom NetBox registration closed one more
 gap, leaving 11. Its separate checkpoint and validation record is
 `docs/projects/evidence/AsterTV-v3-M10-Bedroom-NetBox-2026-11-05.md`.
 
+The Bedroom Doctor reconciliation closes the next gap, leaving 10. Its
+checkpoint, exact content-free checks and rollback boundary are recorded in
+`docs/projects/evidence/AsterTV-v3-M10-Bedroom-Doctor-2026-11-05.md`.
+
+The host-bound Beszel overlay and two-device enrollment close the Bedroom and
+Jen monitoring gaps, leaving 8. The hub checkpoint, private token custody,
+exact binary pin and service validation are recorded in
+`docs/projects/evidence/AsterTV-v3-M10-Beszel-clients-2026-11-05.md`.
+Two clean-tree integrated runs immediately before the evidence-only amend
+reported source commit `6ee63f2cbaff8addfd2692ffc6d2d11ecc4da352` and were byte-identical at SHA-256
+`cd3368b5715fca6530c55ffb70d6a17f9d6f302c28e74efb3507444c2d4fadc7`;
+54 test files pass and 93 candidate inputs remain free of credential/private-key
+assignments.
+
 ## Next bounded work
 
-The least disruptive sequence is: refresh Jen's sanitized observation; onboard
-Bedroom and Family into NetBox and Doctor; add the three appliances to Beszel;
+The least disruptive sequence is: independently establish Family identity,
+then reconcile it into NetBox, Doctor and Beszel;
 publish the already validated wiki candidate through the existing LXC 113
 workflow; add the reviewed reference and derived mirror source; then rehearse
 Bedroom and Family restore independently. Each remote write or appliance

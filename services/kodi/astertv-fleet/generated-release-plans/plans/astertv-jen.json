@@ -2,14 +2,14 @@
   "artifact": {
     "expected_sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7",
     "name": "astertv-v2.0.7-release-2026-10-31.tar.gz",
-    "observed_sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7",
-    "verified": true
+    "observed_sha256": null,
+    "verified": false
   },
   "bundle": {
-    "built": true,
-    "bytes": 27416013,
-    "name": "astertv-jen-070d903dc8f0.tar.gz",
-    "sha256": "732b627055a58844bb3cbb7831f923ede8c7f64d257cd38395a23d25ae8353a8"
+    "built": false,
+    "bytes": null,
+    "name": "astertv-jen-6d54c85fbb6d.tar.gz",
+    "sha256": null
   },
   "compatibility": {
     "kodi": "22.0-rc1-01d4146",
@@ -22,8 +22,8 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "070d903dc8f001e86b475315cb370b36f0f12f6d867eeaeb32ce677094609e71",
-  "deployable": true,
+  "composition_sha256": "6d54c85fbb6d2cef3eef2f4511c8591f5497d55066286a03b91952b7dd37ff5b",
+  "deployable": false,
   "device_id": "astertv-jen",
   "kind": "release-plan",
   "overlays": [
@@ -112,6 +112,70 @@
       "rollback_ref": "host-bound accepted payload and predecessor checkpoint",
       "tests": [
         "services/kodi/astertv-v3/reliability/test_reliability.py"
+      ]
+    },
+    {
+      "apply_strategy": "install",
+      "assertions": [
+        {
+          "authority": "systemd",
+          "expected": "enabled-active",
+          "key": "beszel-agent.service",
+          "sensitive": false
+        },
+        {
+          "authority": "filesystem",
+          "expected": "99e7f48df6bde635285f1bb28f93b4280d62289b4b94850a54afdcbf110f3158",
+          "key": "beszel-agent.sha256",
+          "sensitive": false
+        },
+        {
+          "authority": "filesystem",
+          "expected": "0600",
+          "key": "beszel-agent.env.mode",
+          "sensitive": false
+        }
+      ],
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "beszel-client-v1",
+      "installed_payloads": [
+        {
+          "bytes": 728,
+          "destination": "/storage/.config/system.d/beszel-agent.service",
+          "mode": "0644",
+          "sha256": "259daa1256cff556d9ad67e2d40307adc7b2a51c8fad7fa3aea9651d652d3fa1"
+        }
+      ],
+      "layer": "libreelec-system",
+      "owner": "fleet-engineering",
+      "owns": [
+        "systemd/beszel-agent.service",
+        "monitoring/beszel-agent-0.18.7"
+      ],
+      "payload_blockers": [],
+      "payload_status": "complete",
+      "payloads": [
+        {
+          "bytes": 3866,
+          "path": "services/kodi/astertv-fleet/materialize_beszel_client.py",
+          "sha256": "102499614e3ceee76fc5723b6b304ff2e1fa00dc45cc75cf143ec66acf49216d"
+        },
+        {
+          "bytes": 1498,
+          "path": "services/kodi/astertv-fleet/materialized/beszel-client-v1/materialization-manifest.json",
+          "sha256": "0fe4031d7eb48ca3bd3ec9a7de9813590ada4ad41cef77d70f6b405dcce2570d"
+        },
+        {
+          "bytes": 728,
+          "path": "services/kodi/astertv-fleet/materialized/beszel-client-v1/targets/astertv-jen/storage/.config/system.d/beszel-agent.service",
+          "sha256": "259daa1256cff556d9ad67e2d40307adc7b2a51c8fad7fa3aea9651d652d3fa1"
+        }
+      ],
+      "rollback_ref": "per-device M10 Beszel checkpoint and hub database checkpoint",
+      "tests": [
+        "services/kodi/astertv-fleet/tests/test_beszel_materialization.py"
       ]
     },
     {
@@ -2102,6 +2166,8 @@
     "kodi-service:kodi/podcast-request-client",
     "kodi-service:kodi/service.asterremote",
     "kodi-service:kodi/service.astertv-broker-client",
+    "libreelec-system:monitoring/beszel-agent-0.18.7",
+    "libreelec-system:systemd/beszel-agent.service",
     "recovery:state/accepted-manifest-envelope",
     "recovery:systemd/astertv-release-guard.service"
   ],
@@ -2112,7 +2178,10 @@
     "output_ceiling": "1080p-media-stereo-device-only",
     "page_open_ms_max": 2200
   },
-  "promotion_blockers": [],
+  "promotion_blockers": [
+    "release-artifact-not-locally-verified",
+    "composition-bundle-not-built"
+  ],
   "promotion_policy": {
     "artifact_policy": {
       "hash_required": true,

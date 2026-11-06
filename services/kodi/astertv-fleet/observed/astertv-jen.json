@@ -5,6 +5,8 @@
     "family-manifest:components.aster-global-search-ui22.manifest_sha256": "92e6026774c9cac14353bc155a38013da0bcb6e652ce3db0bb9e3a9abe604707",
     "family-manifest:skin.tools.select_dispatch.py": "d72d82630a5b0a172f5c8ba7b11d51ad04cadb80500fbcfbd48da9d7374397e3",
     "filesystem:asterremote-client-key.mode": "0600",
+    "filesystem:beszel-agent.env.mode": "0600",
+    "filesystem:beszel-agent.sha256": "99e7f48df6bde635285f1bb28f93b4280d62289b4b94850a54afdcbf110f3158",
     "filesystem:astertv-broker.key.mode": "0600",
     "filesystem:camera-viewer-client.mode": "0600",
     "filesystem:home-feed-client.mode": "0600",
@@ -40,6 +42,7 @@
     ],
     "release-guard:accepted-file-count": 534,
     "systemd:aster-camera.service": "disabled-inactive",
+    "systemd:beszel-agent.service": "enabled-active",
     "systemd:astertv-jen-jellyfin-policy.path": "enabled-active",
     "systemd:astertv-jen-jellyfin-policy.service": "enabled",
     "systemd:astertv-v3-m4-composed-jen.service": "enabled",
@@ -49,7 +52,7 @@
     "systemd:astertv-v3-m5p-jen.service": "enabled",
     "systemd:astertv-v3-m6-jen.service": "enabled"
   },
-  "composition_sha256": "070d903dc8f001e86b475315cb370b36f0f12f6d867eeaeb32ce677094609e71",
+  "composition_sha256": "6d54c85fbb6d2cef3eef2f4511c8591f5497d55066286a03b91952b7dd37ff5b",
   "dependencies": {
     "aster-broker": "available",
     "aster-remote": "available",
@@ -66,8 +69,15 @@
   },
   "device_id": "astertv-jen",
   "kind": "composition-observation",
-  "observed_at": "2026-11-06T04:14:01.000713+00:00",
+  "observed_at": "2026-11-06T04:43:00.000000+00:00",
   "payloads": [
+    {
+      "bytes": 728,
+      "mode": "0644",
+      "overlay": "beszel-client-v1",
+      "path": "/storage/.config/system.d/beszel-agent.service",
+      "sha256": "259daa1256cff556d9ad67e2d40307adc7b2a51c8fad7fa3aea9651d652d3fa1"
+    },
     {
       "bytes": 7455,
       "mode": "0700",
@@ -960,6 +970,8 @@
     "kodi-service:kodi/podcast-request-client",
     "kodi-service:kodi/service.asterremote",
     "kodi-service:kodi/service.astertv-broker-client",
+    "libreelec-system:monitoring/beszel-agent-0.18.7",
+    "libreelec-system:systemd/beszel-agent.service",
     "recovery:state/accepted-manifest-envelope",
     "recovery:systemd/astertv-release-guard.service"
   ],

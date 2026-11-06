@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "bbb19088c2a5a119d7f3ab776bcae241aa188e8f6330ff603a992cd00b2710e1",
+  "composition_sha256": "a927073cb6009611519b3dc18f39607acd9e0f34f4843be322e5b816fe946d5c",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-bedroom",
   "expected_assertions": [
@@ -64,6 +64,27 @@
       "expected": "disabled",
       "key": "wifi.power-save",
       "overlay": "bedroom-wifi-stability",
+      "sensitive": false
+    },
+    {
+      "authority": "systemd",
+      "expected": "enabled-active",
+      "key": "beszel-agent.service",
+      "overlay": "beszel-client-v1",
+      "sensitive": false
+    },
+    {
+      "authority": "filesystem",
+      "expected": "99e7f48df6bde635285f1bb28f93b4280d62289b4b94850a54afdcbf110f3158",
+      "key": "beszel-agent.sha256",
+      "overlay": "beszel-client-v1",
+      "sensitive": false
+    },
+    {
+      "authority": "filesystem",
+      "expected": "0600",
+      "key": "beszel-agent.env.mode",
+      "overlay": "beszel-client-v1",
       "sensitive": false
     },
     {
@@ -137,6 +158,13 @@
       "overlay": "bedroom-wifi-stability",
       "path": "/storage/.config/system.d/astertv-wifi-stability.service",
       "sha256": "6a829d42832076bb8ec2756c5cd577939af8ab0a900462376c5dbb98ab1f6b90"
+    },
+    {
+      "bytes": 732,
+      "mode": "0644",
+      "overlay": "beszel-client-v1",
+      "path": "/storage/.config/system.d/beszel-agent.service",
+      "sha256": "4cbdf0808078a6ea90c59ca7f28a272db430401f851a0300eecdf3bb664a1144"
     },
     {
       "bytes": 1639,
@@ -279,8 +307,10 @@
     "kodi-presentation:kodi/skin.asterhome/tv-details-window",
     "kodi-service:kodi/native-input-sync",
     "kodi-service:kodi/service.asterremote",
+    "libreelec-system:monitoring/beszel-agent-0.18.7",
     "libreelec-system:network/wifi-power-save-policy",
     "libreelec-system:systemd/astertv-wifi-stability.service",
+    "libreelec-system:systemd/beszel-agent.service",
     "recovery:state/accepted-manifest-envelope",
     "recovery:systemd/astertv-release-guard.service"
   ],

@@ -1,0 +1,49 @@
+{
+  "external_binary": {
+    "destination": "/storage/.aster-monitoring/beszel-agent",
+    "mode": "0755",
+    "platform": "linux-amd64-glibc",
+    "sha256": "99e7f48df6bde635285f1bb28f93b4280d62289b4b94850a54afdcbf110f3158",
+    "version": "0.18.7"
+  },
+  "files": [
+    {
+      "bytes": 732,
+      "destination": "/storage/.config/system.d/beszel-agent.service",
+      "mode": "0644",
+      "scope": "astertv-bedroom",
+      "sha256": "4cbdf0808078a6ea90c59ca7f28a272db430401f851a0300eecdf3bb664a1144",
+      "target": "astertv-bedroom"
+    },
+    {
+      "bytes": 731,
+      "destination": "/storage/.config/system.d/beszel-agent.service",
+      "mode": "0644",
+      "scope": "astertv-family",
+      "sha256": "1cc85c58936b60a3588d97c74f5e4c04f71ebe914854d9e627503857ff1b4b06",
+      "target": "astertv-family"
+    },
+    {
+      "bytes": 728,
+      "destination": "/storage/.config/system.d/beszel-agent.service",
+      "mode": "0644",
+      "scope": "astertv-jen",
+      "sha256": "259daa1256cff556d9ad67e2d40307adc7b2a51c8fad7fa3aea9651d652d3fa1",
+      "target": "astertv-jen"
+    }
+  ],
+  "id": "beszel-client-v1",
+  "kind": "astertv-materialized-overlay",
+  "rollback": "disable unit; restore device checkpoint; remove only its hub system and fingerprint",
+  "schema_version": 1,
+  "secret_custody": {
+    "mode": "0600",
+    "path": "/storage/.aster-private/beszel-agent.env",
+    "tracked": false
+  },
+  "targets": [
+    "astertv-bedroom",
+    "astertv-family",
+    "astertv-jen"
+  ]
+}

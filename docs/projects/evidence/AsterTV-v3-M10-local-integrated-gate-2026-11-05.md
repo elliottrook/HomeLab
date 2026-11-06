@@ -72,7 +72,20 @@ test and closed one more operations gap. Two clean-tree runs at
 SHA-256 `b93db1b2a103dc51a3ed8e3b9ee4a04d6aaafa5e3219c12f436af17cb15f883c`,
 with 52 passing test files and 11 remaining operations gaps.
 
-No appliance, service, account, network rule or remote system changed while
-building or running this local gate. The separate gateway run staged and then
-removed only a transient `/tmp` test bundle; it made no persistent change.
+Bedroom Doctor reconciliation plus the host-bound Beszel overlay added two
+more focused test files. Bedroom and Jen now carry clean observations for the
+new monitoring assertions and both report `up` in Beszel. Two consecutive
+post-deployment clean-tree runs immediately before the evidence-only amend
+reported source commit `6ee63f2cbaff8addfd2692ffc6d2d11ecc4da352` and emitted byte-identical JSON
+SHA-256
+`cd3368b5715fca6530c55ffb70d6a17f9d6f302c28e74efb3507444c2d4fadc7`,
+with 54 passing test files, 93 clean candidate inputs and 8 remaining
+operations gaps.
+
+The earlier local-gate runs changed no live state. The later M10 operations
+work is separately bounded and evidenced: Bedroom's two Doctor corrections
+were checkpointed, and the Beszel hub transaction plus Bedroom/Jen agent
+installs have their own rollback record. No Kodi restart or network-rule change
+occurred. The separate gateway run staged and then removed only a transient
+`/tmp` test bundle; it made no persistent change.
 

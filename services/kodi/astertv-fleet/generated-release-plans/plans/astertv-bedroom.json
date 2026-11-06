@@ -2,14 +2,14 @@
   "artifact": {
     "expected_sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7",
     "name": "astertv-v2.0.7-release-2026-10-31.tar.gz",
-    "observed_sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7",
-    "verified": true
+    "observed_sha256": null,
+    "verified": false
   },
   "bundle": {
-    "built": true,
-    "bytes": 27058338,
-    "name": "astertv-bedroom-bbb19088c2a5.tar.gz",
-    "sha256": "5008c9bb1ebc93e45f0aef36b67d8250fa147a1951a420029613b88e8f0210e9"
+    "built": false,
+    "bytes": null,
+    "name": "astertv-bedroom-a927073cb600.tar.gz",
+    "sha256": null
   },
   "compatibility": {
     "kodi": "22.0-rc1-01d4146",
@@ -22,8 +22,8 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "bbb19088c2a5a119d7f3ab776bcae241aa188e8f6330ff603a992cd00b2710e1",
-  "deployable": true,
+  "composition_sha256": "a927073cb6009611519b3dc18f39607acd9e0f34f4843be322e5b816fe946d5c",
+  "deployable": false,
   "device_id": "astertv-bedroom",
   "kind": "release-plan",
   "overlays": [
@@ -240,6 +240,70 @@
       "rollback_ref": "astertv-bedroom Wi-Fi and guard checkpoints",
       "tests": [
         "services/kodi/astertv-v3/deploy/bedroom-wifi/test_wifi_service.py"
+      ]
+    },
+    {
+      "apply_strategy": "install",
+      "assertions": [
+        {
+          "authority": "systemd",
+          "expected": "enabled-active",
+          "key": "beszel-agent.service",
+          "sensitive": false
+        },
+        {
+          "authority": "filesystem",
+          "expected": "99e7f48df6bde635285f1bb28f93b4280d62289b4b94850a54afdcbf110f3158",
+          "key": "beszel-agent.sha256",
+          "sensitive": false
+        },
+        {
+          "authority": "filesystem",
+          "expected": "0600",
+          "key": "beszel-agent.env.mode",
+          "sensitive": false
+        }
+      ],
+      "dependencies": [
+        "release-guard-v1"
+      ],
+      "id": "beszel-client-v1",
+      "installed_payloads": [
+        {
+          "bytes": 732,
+          "destination": "/storage/.config/system.d/beszel-agent.service",
+          "mode": "0644",
+          "sha256": "4cbdf0808078a6ea90c59ca7f28a272db430401f851a0300eecdf3bb664a1144"
+        }
+      ],
+      "layer": "libreelec-system",
+      "owner": "fleet-engineering",
+      "owns": [
+        "systemd/beszel-agent.service",
+        "monitoring/beszel-agent-0.18.7"
+      ],
+      "payload_blockers": [],
+      "payload_status": "complete",
+      "payloads": [
+        {
+          "bytes": 3866,
+          "path": "services/kodi/astertv-fleet/materialize_beszel_client.py",
+          "sha256": "102499614e3ceee76fc5723b6b304ff2e1fa00dc45cc75cf143ec66acf49216d"
+        },
+        {
+          "bytes": 1498,
+          "path": "services/kodi/astertv-fleet/materialized/beszel-client-v1/materialization-manifest.json",
+          "sha256": "0fe4031d7eb48ca3bd3ec9a7de9813590ada4ad41cef77d70f6b405dcce2570d"
+        },
+        {
+          "bytes": 732,
+          "path": "services/kodi/astertv-fleet/materialized/beszel-client-v1/targets/astertv-bedroom/storage/.config/system.d/beszel-agent.service",
+          "sha256": "4cbdf0808078a6ea90c59ca7f28a272db430401f851a0300eecdf3bb664a1144"
+        }
+      ],
+      "rollback_ref": "per-device M10 Beszel checkpoint and hub database checkpoint",
+      "tests": [
+        "services/kodi/astertv-fleet/tests/test_beszel_materialization.py"
       ]
     },
     {
@@ -549,8 +613,10 @@
     "kodi-presentation:kodi/skin.asterhome/tv-details-window",
     "kodi-service:kodi/native-input-sync",
     "kodi-service:kodi/service.asterremote",
+    "libreelec-system:monitoring/beszel-agent-0.18.7",
     "libreelec-system:network/wifi-power-save-policy",
     "libreelec-system:systemd/astertv-wifi-stability.service",
+    "libreelec-system:systemd/beszel-agent.service",
     "recovery:state/accepted-manifest-envelope",
     "recovery:systemd/astertv-release-guard.service"
   ],
@@ -561,7 +627,10 @@
     "output_ceiling": "measured-bedroom-chain",
     "page_open_ms_max": 1500
   },
-  "promotion_blockers": [],
+  "promotion_blockers": [
+    "release-artifact-not-locally-verified",
+    "composition-bundle-not-built"
+  ],
   "promotion_policy": {
     "artifact_policy": {
       "hash_required": true,
