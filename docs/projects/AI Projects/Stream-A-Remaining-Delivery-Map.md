@@ -631,6 +631,15 @@
 > the lease stayed ready and production stayed healthy. No repair, authority,
 > service action, route or promotion occurred. Next is a fresh distinct-target
 > release and unsigned-authority boundary; no live test is scheduled.
+>
+> The subsequent release review found a deterministic call-graph defect before
+> authority creation: the v3 owner switched its direct resolver, but the shared
+> validator and downstream transaction modules were still pinned to registry
+> v1. The [source-only v4 correction](evidence/SA4-distinct-registry-call-graph-correction-review-2026-11-06.md)
+> binds every registry consumer together for only the accepted v2 target and
+> restores v1 bindings afterward. The complete SA4 suite passes 266/266. No
+> authority or effect was attempted. A three-file create-exclusive inactive
+> install is now the next operational gate; repair remains separately gated.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
