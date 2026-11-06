@@ -1,0 +1,32 @@
+{
+  "schema": "b60-offline-failure-capture-preparation.v1",
+  "trigger": "2026-11-06T19:18:26.523Z",
+  "read_receipts": [
+    {
+      "commit": "1f1489554e1d70688c6f777ee0ef68e19600cffc",
+      "path": "docs/projects/AI Projects/evidence/Stream-A-24-hour-progress-report-2026-11-06.md",
+      "sha256": "7946d0cfbf83072ff347d5c08abfaa7cbf2853ae1286f79bb49be1a924b8500e"
+    },
+    {
+      "commit": "55888a388ac6b2e1b3968c4a21509648711b346b",
+      "path": "docs/projects/B60-Inference-Engineering/actual-35b-model-result-20261106.md",
+      "sha256": "974f0f1332bda693ab626be074cb2bbb45690ac96d9e2ca4121ba99f5780c19f"
+    },
+    {
+      "commit": "6fb0207fec5190e0c34ed3bc72ea38e128f06127",
+      "path": "docs/runbooks/Local-AI-Lease.md",
+      "sha256": "064b56ee8fca8aad37e9ae627cf119c581c3f8d8ad7d9782ccfeb0fa23b31d4c"
+    }
+  ],
+  "source_sha256": {
+    "request_failure_capture.py": "e4d935bcc7229c7a99431e5a6d2865e287ad06dc83182ba44368c3e61f096460",
+    "test_request_failure_capture.py": "7afe62643d1cac1f045a0d04f49f201d2158cac5299e16fd6ece7f2da7a482f4"
+  },
+  "focused_tests": 9,
+  "complete_tests": 160,
+  "exact_controller_source_root": "/private/tmp/b60-resource-checkpoint-20261104/scripts/local-ai",
+  "live_code_deployed": false,
+  "model_calls": 0,
+  "production_effects": false,
+  "actual_R2_failure_reclassified": false
+}

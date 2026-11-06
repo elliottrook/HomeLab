@@ -14,6 +14,10 @@
 
 ## Current coordination status
 
+[Failure-preserving capture is prepared offline](B60-Inference-Engineering/failure-capture-preparation-20261106.md):
+nine focused tests and160 B60 tests pass. Deployed R2 and its actual failure
+evidence remain unchanged; transport/durable-runner integration remains next.
+
 [An actual guarded35B reasoning-on trial ran](B60-Inference-Engineering/actual-35b-model-result-20261106.md).
 All41layers offloaded with19.14GiB GPU residency; the two-request workload
 failed, with the second generation reaching1024tokens. Automatic restoration
