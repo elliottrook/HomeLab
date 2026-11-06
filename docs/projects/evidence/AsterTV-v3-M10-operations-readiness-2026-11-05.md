@@ -60,6 +60,13 @@ SHA-256 `8c2996f2c9ac570172a291ba7e8d574cf7b86f8e48e2fed9aebe16bb852fe901`:
 the initial 13-gap snapshot; the refreshed Jen observation reduces the current
 audit to 12 without changing the fail-closed release result.
 
+After committing the refreshed observation at
+`15b662f8c8ff2e726638ebc45bd524ef38de2b47`, two further clean-tree runs were
+byte-identical at SHA-256
+`7da2a11199ba02b8403f3f1a5b8b6a6a1183d4d9d270d5e4dbef7fa3e62c80d5`.
+They retain 51 passing test files, 93 clean candidate inputs and the current 12
+explicit operational gaps.
+
 ## Next bounded work
 
 The least disruptive sequence is: refresh Jen's sanitized observation; onboard

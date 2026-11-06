@@ -60,6 +60,12 @@ The operations item now has a deterministic gap audit and evidence at
 `docs/projects/evidence/AsterTV-v3-M10-operations-readiness-2026-11-05.md`;
 it remains open until those gaps are actually closed.
 
+Jen's read-only 124-payload refresh then closed its observation drift. Two
+clean-tree runs at `15b662f8c8ff2e726638ebc45bd524ef38de2b47` emitted
+byte-identical JSON SHA-256
+`7da2a11199ba02b8403f3f1a5b8b6a6a1183d4d9d270d5e4dbef7fa3e62c80d5`,
+with 51 passing test files and 12 remaining operational gaps.
+
 No appliance, service, account, network rule or remote system changed while
 building or running this local gate. The separate gateway run staged and then
 removed only a transient `/tmp` test bundle; it made no persistent change.
