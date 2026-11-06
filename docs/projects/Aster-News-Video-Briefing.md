@@ -388,6 +388,31 @@ and all production changes have their required authorization.
   The PyTorch XPU MuseTalk route is rejected on this current B60 stack; a later
   evaluation should use a separately registered supported runtime such as an
   OpenVINO/ONNX path rather than retrying the same Level Zero stack.
+- Converted the fixed MuseTalk 1.5 positional encoder and UNet to a fixed-batch
+  OpenVINO 2026.3.1 IR. The alternative keeps Whisper, VAE and latent/decode
+  work on CPU and assigns only the converted UNet to OpenVINO `GPU`; the
+  transient unit remains private-networked, capped at 12 GiB and zero swap.
+  Exact OpenVINO Python, core, GPU-plugin, IR XML and IR BIN hashes are checked
+  before GPU compilation.
+- Booking `aster-news-video-ov-20261106-1525-r1` ran two short, safely restored
+  attempts. The first exposed an overly terse runtime-error envelope; the
+  second identified the concrete dependency failure: OpenVINO's GPU plugin
+  could not resolve `libOpenCL.so.1`. The diagnostic envelope now preserves a
+  bounded sanitized exception message.
+- The V2 time gate correctly refused a third launch once the complete 60-second
+  setup plus 900-second deadline no longer fit. The session was surrendered
+  early as `EARLY_RELEASE_FAILED_RESTORED`, and replacement booking
+  `aster-news-video-ov-20261106-1725-r2` was reserved for 17:25–17:50 with
+  recovery protected through 18:05.
+- Pinned the isolated OpenCL loader, Intel OpenCL ICD, GMM library, Level Zero
+  loader and Intel Level Zero driver. The adapter now supplies the isolated
+  runtime library paths and a direct `OCL_ICD_FILENAMES` reference to the
+  pinned Intel driver. Exact-environment `ldd` checks resolve the OpenVINO GPU
+  plugin, Intel OpenCL driver and Intel Level Zero driver without missing
+  dependencies. The fresh independent read-only evaluation returned
+  `LIKELY RUN`: every deterministic control and dependency is closed, with
+  first-use OpenVINO GPU discovery/compile/inference as the only remaining
+  experimental uncertainty.
 
 ## Close-out
 
