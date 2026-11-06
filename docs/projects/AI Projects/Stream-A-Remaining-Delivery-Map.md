@@ -690,6 +690,17 @@
 > v3 paths, a new operation identity and a new unsigned one-use grant identity.
 > The failed authority is non-reusable. The complete SA4 suite passes 297/297.
 > One fresh exact live repair is the next SA4 gate; no attempt has run.
+>
+> Under the standing Stream A version-test approval, that v3-path attempt ran
+> once and safely took the [verified rollback branch](evidence/SA4-v3-postcheck-rollback-and-v2-lineage-correction-2026-11-06.md).
+> The candidate bytes and metadata were exact, but registry v2 still named the
+> original v1 canary's three postcheck programs, so all three rejected the v2
+> artifact. Rollback restored `a9831e62…4da0`, the grant is terminally failed,
+> locks are absent and production is healthy; no retry occurred. A source-only
+> correction now provides v2-specific checks, registry v3, bounded observer
+> and graph bindings, owner v6 and runner v7 on fresh v4 paths. The full SA4
+> suite passes 309/309. Its eight-file create-exclusive inactive-install plan
+> is `219962e3…52f4`; installing it is the next zero-effect version gate.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
