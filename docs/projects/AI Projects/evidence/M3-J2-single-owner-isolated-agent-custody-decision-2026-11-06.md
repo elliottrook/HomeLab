@@ -33,11 +33,15 @@ only to calculate the preregistered exact normalized-set intersection. It may
 not inspect an existing sealed holdout, historical private evaluation result,
 J1 public failure set or another candidate's answer keys.
 
-For meaningful same-laptop separation, each private workspace should be a
-separately encrypted volume or a separately permissioned macOS account. Merely
-opening two Codex windows on the same directory does not satisfy this decision.
-The private volume is unmounted before its content-free outputs are returned to
-Stream A. The owner retains its recovery material offline.
+Jason subsequently chose the proportionate single-owner boundary: two dedicated
+directories, one fresh unrelated Codex session per directory, distinct keys and
+a receipts-only return path. Encrypted volumes or separate macOS accounts would
+provide stronger adversarial isolation but are not required for this private
+HomeLab release candidate. Two Codex windows on the **same** directory still do
+not qualify. Stream A and the later trainer must not open the evaluation
+workspace's `private/` directory or receive its case content. This is an
+operational non-access rule rather than a claim of OS-enforced separation, and
+that limitation is part of the retained release evidence.
 
 ## Source enforcement
 
@@ -78,6 +82,12 @@ copies eleven exact corpus-role inputs or the one evaluation comparison input
 with create-only mode-0600 writes, rereads every copy and rolls back its own
 partial copies on failure. It returns paths and digests only. It does not copy
 either private key or any future sealed evaluation.
+
+The two dedicated workspaces were staged successfully at the owner-approved
+paths under `/private/tmp/aster-j2-isolated-custody-kits-20261106/`. The corpus
+workspace contains the exact eleven hash-verified inputs; the evaluation
+workspace contains only the accepted corpus comparison input. Neither has a
+key, evaluation set or receipt before its isolated Codex session runs.
 
 ## Acceptance and exclusions
 

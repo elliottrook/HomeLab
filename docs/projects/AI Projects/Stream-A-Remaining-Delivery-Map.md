@@ -828,11 +828,16 @@ custody utility generates distinct RSA-2048 keys, canonical content-free
 receipts and immediately self-verifying detached proofs. Two copy-ready prompts
 and a deterministic content-free kit builder are complete. Nine focused
 custody/staging tests pass and the expanded J2 suite passes 104/104. The two source kits were
-built outside Git with manifests `91aefbe8…d5c9` and `14fccd1b…bb47`; they
-contain no private input. Next is Jason opening each kit in a fresh isolated
-Codex workspace, retaining each private key and the 32-case evaluation there,
-and returning only the public key and signed content-free outputs. No training,
-booking, local model call, routing, authority or deployment is authorized.
+built outside Git with manifests `91aefbe8…d5c9` and `14fccd1b…bb47`. Jason
+accepted dedicated same-laptop directories plus fresh unrelated Codex sessions
+as the proportionate single-owner boundary; this is procedural, not OS-enforced
+or organizational, independence. Exact input staging now passes: eleven pinned
+files are present in the corpus workspace and only the accepted corpus
+comparison input is present in the evaluation workspace. Next is opening each
+prepared path in its own fresh Codex instance, retaining each private key and
+the 32-case evaluation there, and returning only the public keys and signed
+content-free outputs. No training, booking, local model call, routing,
+authority or deployment is authorized.
 | Companion | Ordinary signed-in Aster use, persisted recovery and read-only OpenBao status passed. | Continue ordinary reliability monitoring. The hidden manual-Codex fallback remains deferred unless Jason asks to release it. |
 
 **D4 live update — 2026-11-04 12:51 America/Vancouver:** the D4 row's older
