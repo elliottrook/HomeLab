@@ -42,17 +42,47 @@ class DesignSystemTests(unittest.TestCase):
         for record in records:
             self.assertRegex(record["sha256"], r"^[0-9a-f]{64}$")
 
+    def test_asset_ingestion_policy_is_fail_closed(self):
+        catalogue = BUILD.load("catalogue.json")
+        policy = BUILD.load("asset-policy.json")
+        records = BUILD.runtime_assets()
+        self.assertEqual(BUILD.validate_asset_policy(catalogue, policy, records), [])
+        injected = records + [{
+            "path": "services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/media/unregistered.png",
+            "sha256": "0" * 64,
+            "bytes": 1,
+            "consumer": "test",
+        }]
+        self.assertIn(
+            "asset-policy: unregistered raster added or frozen legacy raster changed",
+            BUILD.validate_asset_policy(catalogue, policy, injected),
+        )
+
+    def test_semantic_assets_are_svg_first_and_exports_are_placement_bound(self):
+        catalogue = BUILD.load("catalogue.json")
+        for asset in catalogue["semantic_assets"]:
+            master = asset.get("master") or asset.get("repository_path")
+            self.assertEqual(Path(master).suffix.lower(), ".svg", asset["id"])
+            for export in asset.get("runtime_exports", []):
+                self.assertEqual(export["derived_from_svg_sha256"], asset["master_sha256"])
+                self.assertTrue(export["placement"])
+                self.assertEqual(len(export["dimensions"]), 2)
+                self.assertTrue(export["export_recipe"])
+                self.assertIs(export["runtime_resize_allowed"], False)
+
     def test_plain_compass_resolves_to_exact_approved_exports(self):
         catalogue = BUILD.load("catalogue.json")
         assets = {item["id"]: item for item in catalogue["semantic_assets"]}
         plain = assets["plain-compass"]
         self.assertEqual(plain["master"], "SVG/15-aster-compass.svg")
         self.assertRegex(plain["master_sha256"], r"^[0-9a-f]{64}$")
-        self.assertGreaterEqual(len(plain["runtime_exports"]), 4)
+        self.assertGreaterEqual(len(plain["runtime_exports"]), 3)
         self.assertNotIn("floating-side-rail", plain["allowed_contexts"])
         self.assertIn("floating-side-rail", plain["forbidden_contexts"])
         for export in plain["runtime_exports"]:
             self.assertRegex(export["sha256"], r"^[0-9a-f]{64}$")
+            self.assertEqual(len(export["dimensions"]), 2)
+            self.assertTrue(export["export_recipe"])
 
     def test_button_focus_does_not_change_geometry(self):
         tokens = BUILD.load("tokens.json")

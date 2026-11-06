@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "scope": "Aster-owned brand and interface assets",
+  "master_format": "svg",
+  "rules": {
+    "svg_master_required": true,
+    "raster_export_requires_exact_source_svg": true,
+    "raster_export_requires_named_placement": true,
+    "runtime_resizing_forbidden": true,
+    "raster_to_raster_derivation_forbidden": true
+  },
+  "content_exclusions": [
+    {
+      "path_fragment": "/media/fixtures/",
+      "classification": "synthetic-media-content",
+      "note": "Test posters and thumbnails are content, not reusable Aster interface assets."
+    }
+  ],
+  "placement_exports": [],
+  "legacy_raster_baseline": {
+    "count": 20,
+    "sha256": "26d56035f7daa690d1bb598c1d362e4e0e4ed65d23f5fde32eb234dc71f5a3e4",
+    "status": "frozen",
+    "rule": "These exact pre-policy files may remain but may not be resized, modified, copied into a new placement or used as a source. Replace each with an SVG master or a registered placement export."
+  }
+}

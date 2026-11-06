@@ -55,6 +55,67 @@ def runtime_assets() -> list[dict]:
     return records
 
 
+def raster_baseline_digest(records: list[dict], policy: dict) -> tuple[int, str]:
+    placement_paths = {item["output_path"] for item in policy["placement_exports"]}
+    exclusions = [item["path_fragment"] for item in policy["content_exclusions"]]
+    rows = []
+    for record in records:
+        path = record["path"]
+        if Path(path).suffix.lower() == ".svg" or path in placement_paths:
+            continue
+        if any(fragment in path for fragment in exclusions):
+            continue
+        rows.append({"path": path, "sha256": record["sha256"]})
+    payload = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()
+    return len(rows), hashlib.sha256(payload).hexdigest()
+
+
+def validate_asset_policy(catalogue: dict, policy: dict, records: list[dict]) -> list[str]:
+    errors: list[str] = []
+    if policy.get("master_format") != "svg":
+        errors.append("asset-policy: master format must be svg")
+    for asset in catalogue["semantic_assets"]:
+        master = asset.get("master") or asset.get("repository_path")
+        if not master or Path(master).suffix.lower() != ".svg":
+            errors.append(f'{asset["id"]}: semantic master is not SVG')
+        for export in asset.get("runtime_exports", []):
+            if export.get("derived_from_svg_sha256") != asset.get("master_sha256"):
+                errors.append(f'{asset["id"]}/{export.get("path")}: source SVG hash missing or mismatched')
+            if not export.get("placement"):
+                errors.append(f'{asset["id"]}/{export.get("path")}: placement missing')
+            dimensions = export.get("dimensions")
+            if not isinstance(dimensions, list) or len(dimensions) != 2 or not all(isinstance(value, int) and value > 0 for value in dimensions):
+                errors.append(f'{asset["id"]}/{export.get("path")}: fixed dimensions missing')
+            if not export.get("export_recipe"):
+                errors.append(f'{asset["id"]}/{export.get("path")}: SVG export recipe missing')
+            if export.get("runtime_resize_allowed") is not False:
+                errors.append(f'{asset["id"]}/{export.get("path")}: runtime resizing must be forbidden')
+        for export in asset.get("legacy_exports", []):
+            if export.get("status") != "frozen-pre-policy" or export.get("runtime_resize_allowed") is not False:
+                errors.append(f'{asset["id"]}/{export.get("path")}: legacy export must remain frozen')
+    runtime_by_path = {item["path"]: item for item in records}
+    for export in policy["placement_exports"]:
+        source = export.get("source_svg_path", "")
+        output = export.get("output_path", "")
+        if Path(source).suffix.lower() != ".svg" or not re.fullmatch(r"[0-9a-f]{64}", export.get("source_svg_sha256", "")):
+            errors.append(f"{output}: invalid source SVG provenance")
+        if not export.get("placement") or export.get("runtime_resize_allowed") is not False:
+            errors.append(f"{output}: placement export is not fixed to its consumer")
+        dimensions = export.get("dimensions")
+        if not isinstance(dimensions, list) or len(dimensions) != 2 or not all(isinstance(value, int) and value > 0 for value in dimensions):
+            errors.append(f"{output}: fixed dimensions missing")
+        if not export.get("export_recipe"):
+            errors.append(f"{output}: SVG export recipe missing")
+        record = runtime_by_path.get(output)
+        if not record or record["sha256"] != export.get("output_sha256"):
+            errors.append(f"{output}: placement export missing or hash mismatched")
+    count, digest = raster_baseline_digest(records, policy)
+    baseline = policy["legacy_raster_baseline"]
+    if count != baseline["count"] or digest != baseline["sha256"]:
+        errors.append("asset-policy: unregistered raster added or frozen legacy raster changed")
+    return errors
+
+
 def xml_controls(template: str) -> list[int]:
     path = ROOT / template
     if not path.exists():
@@ -204,15 +265,21 @@ def render(tokens: dict, catalogue: dict, asset_index: dict) -> str:
 def outputs() -> dict[Path, str]:
     tokens = load("tokens.json")
     catalogue = load("catalogue.json")
+    policy = load("asset-policy.json")
     graphs = load("focus-graphs.json")
     focus_errors = validate_focus(graphs)
     if focus_errors:
         raise SystemExit("\n".join(focus_errors))
+    records = runtime_assets()
+    asset_errors = validate_asset_policy(catalogue, policy, records)
+    if asset_errors:
+        raise SystemExit("\n".join(asset_errors))
     asset_index = {
         "schema_version": 1,
+        "asset_policy": policy,
         "source_releases": catalogue["asset_releases"],
         "semantic_assets": catalogue["semantic_assets"],
-        "runtime_assets": runtime_assets(),
+        "runtime_assets": records,
     }
     page_index = {
         "schema_version": 1,

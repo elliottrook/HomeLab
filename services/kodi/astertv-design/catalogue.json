@@ -49,10 +49,12 @@
       "master": "SVG/15-aster-compass.svg",
       "master_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9",
       "runtime_exports": [
-        {"path": "PNG/32/15-aster-compass.png", "sha256": "ebd08d8a6224120a0a8b873e1f469572578fe8167089d2baaa1d70f338642030"},
-        {"path": "PNG/64/15-aster-compass.png", "sha256": "ed358ae6370ed90a90e02e58ba4bcc3b787eec9b9798485c9909895868a51ad8"},
-        {"path": "PNG/128/15-aster-compass.png", "sha256": "6b8788ade5bcc3447d93f497a296e55354e15a4dd9a403b22268c907c0f67ddf"},
-        {"path": "WebP/15-aster-compass.webp", "sha256": "04d997da316c423da4a442ef75841e37531e6502d951bf3852327c5d8873b913"}
+        {"path": "PNG/32/15-aster-compass.png", "sha256": "ebd08d8a6224120a0a8b873e1f469572578fe8167089d2baaa1d70f338642030", "derived_from_svg_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9", "placement": "32px-icon", "dimensions": [32, 32], "export_recipe": "render-approved-svg-at-32x32", "runtime_resize_allowed": false},
+        {"path": "PNG/64/15-aster-compass.png", "sha256": "ed358ae6370ed90a90e02e58ba4bcc3b787eec9b9798485c9909895868a51ad8", "derived_from_svg_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9", "placement": "64px-icon", "dimensions": [64, 64], "export_recipe": "render-approved-svg-at-64x64", "runtime_resize_allowed": false},
+        {"path": "PNG/128/15-aster-compass.png", "sha256": "6b8788ade5bcc3447d93f497a296e55354e15a4dd9a403b22268c907c0f67ddf", "derived_from_svg_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9", "placement": "128px-icon", "dimensions": [128, 128], "export_recipe": "render-approved-svg-at-128x128", "runtime_resize_allowed": false}
+      ],
+      "legacy_exports": [
+        {"path": "WebP/15-aster-compass.webp", "sha256": "04d997da316c423da4a442ef75841e37531e6502d951bf3852327c5d8873b913", "status": "frozen-pre-policy", "runtime_resize_allowed": false}
       ],
       "allowed_contexts": ["top-rail", "pill", "player-control", "dialog", "remote"],
       "forbidden_contexts": ["floating-side-rail", "launcher"],

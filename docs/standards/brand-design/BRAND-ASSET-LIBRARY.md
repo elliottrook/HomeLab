@@ -37,6 +37,21 @@ the private Forgejo repository below; no Mac directory is authoritative.
 6. Record repository revision, brand ID, exact path, SHA-256, approval record,
    consumer context and output/export hashes in the consuming project.
 
+## AsterTV SVG-only ingestion rule
+
+An Aster-owned brand or interface asset may enter AsterTV only as an approved
+SVG master or as a deterministic, placement-specific export made directly
+from that exact SVG. The export record must bind source path/hash, output
+path/hash, named placement, dimensions/export recipe and `runtime_resize=false`.
+PNG, WebP, JPEG or another raster must never be resized, repurposed or used as
+the source for another AsterTV asset. Pre-policy rasters are frozen by exact
+path/hash until replaced; their presence is not precedent for new raster work.
+
+Externally supplied movie, television, album, book, podcast, news and camera
+imagery is dynamic content rather than an Aster interface asset. It may be
+masked/cropped by the content component but must not be promoted into the brand
+asset library or reused as interface artwork.
+
 The optional `BRAND_ASSET_ROOT` or `--root` resolver argument may select a
 checkout, but neither changes the authority: Forgejo `main` and its recorded
 approval state remain canonical.

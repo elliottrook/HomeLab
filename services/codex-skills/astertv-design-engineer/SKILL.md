@@ -41,6 +41,11 @@ work, read [Kodi mapping](references/kodi-mapping.md).
 
 ## Non-negotiable contexts
 
+- Every Aster-owned brand/interface asset must have an approved SVG master.
+  Use the SVG directly or create a deterministic, hash-recorded export for one
+  named placement. Never resize a PNG/WebP/JPEG for a new use, derive one raster
+  from another, or admit an unregistered raster. Dynamic media covers are
+  content and are not reusable Aster interface assets.
 - Limestone-backed compass icons appear only on the floating side rail or
   launcher. Top rails, pills, controls and the Remote use plain icons.
 - Resting artwork has no selection box. Focus adds narrow jade top/sides and a

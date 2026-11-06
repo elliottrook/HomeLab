@@ -6,6 +6,12 @@ Use the canonical token file. The television surface uses the accepted
 ink/charcoal, warm cream, champagne gold and jade language, not the navy/cyan
 HomeLab web-application guide.
 
+All Aster-owned identity and interface artwork is SVG-first. A raster is
+acceptable only as a deterministic export from the exact approved SVG for one
+recorded placement, with both hashes and the fixed consumer size recorded.
+Runtime or raster-to-raster resizing fails acceptance. Media-provider artwork
+is content rather than reusable interface artwork.
+
 ## State checklist
 
 | Family | Minimum evidence |

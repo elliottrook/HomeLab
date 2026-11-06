@@ -1,4 +1,30 @@
 {
+  "asset_policy": {
+    "content_exclusions": [
+      {
+        "classification": "synthetic-media-content",
+        "note": "Test posters and thumbnails are content, not reusable Aster interface assets.",
+        "path_fragment": "/media/fixtures/"
+      }
+    ],
+    "legacy_raster_baseline": {
+      "count": 20,
+      "rule": "These exact pre-policy files may remain but may not be resized, modified, copied into a new placement or used as a source. Replace each with an SVG master or a registered placement export.",
+      "sha256": "26d56035f7daa690d1bb598c1d362e4e0e4ed65d23f5fde32eb234dc71f5a3e4",
+      "status": "frozen"
+    },
+    "master_format": "svg",
+    "placement_exports": [],
+    "rules": {
+      "raster_export_requires_exact_source_svg": true,
+      "raster_export_requires_named_placement": true,
+      "raster_to_raster_derivation_forbidden": true,
+      "runtime_resizing_forbidden": true,
+      "svg_master_required": true
+    },
+    "schema_version": 1,
+    "scope": "Aster-owned brand and interface assets"
+  },
   "runtime_assets": [
     {
       "bytes": 551,
@@ -233,25 +259,53 @@
         "launcher"
       ],
       "id": "plain-compass",
+      "legacy_exports": [
+        {
+          "path": "WebP/15-aster-compass.webp",
+          "runtime_resize_allowed": false,
+          "sha256": "04d997da316c423da4a442ef75841e37531e6502d951bf3852327c5d8873b913",
+          "status": "frozen-pre-policy"
+        }
+      ],
       "master": "SVG/15-aster-compass.svg",
       "master_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9",
       "release": "aster-brand-v2-2026-10-14",
       "runtime_exports": [
         {
+          "derived_from_svg_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9",
+          "dimensions": [
+            32,
+            32
+          ],
+          "export_recipe": "render-approved-svg-at-32x32",
           "path": "PNG/32/15-aster-compass.png",
+          "placement": "32px-icon",
+          "runtime_resize_allowed": false,
           "sha256": "ebd08d8a6224120a0a8b873e1f469572578fe8167089d2baaa1d70f338642030"
         },
         {
+          "derived_from_svg_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9",
+          "dimensions": [
+            64,
+            64
+          ],
+          "export_recipe": "render-approved-svg-at-64x64",
           "path": "PNG/64/15-aster-compass.png",
+          "placement": "64px-icon",
+          "runtime_resize_allowed": false,
           "sha256": "ed358ae6370ed90a90e02e58ba4bcc3b787eec9b9798485c9909895868a51ad8"
         },
         {
+          "derived_from_svg_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9",
+          "dimensions": [
+            128,
+            128
+          ],
+          "export_recipe": "render-approved-svg-at-128x128",
           "path": "PNG/128/15-aster-compass.png",
+          "placement": "128px-icon",
+          "runtime_resize_allowed": false,
           "sha256": "6b8788ade5bcc3447d93f497a296e55354e15a4dd9a403b22268c907c0f67ddf"
-        },
-        {
-          "path": "WebP/15-aster-compass.webp",
-          "sha256": "04d997da316c423da4a442ef75841e37531e6502d951bf3852327c5d8873b913"
         }
       ],
       "verified_read_only": "Forgejo LXC 108 release attachment, 2026-11-05"

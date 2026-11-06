@@ -38,6 +38,13 @@ published immutable archive hashes; they are not copied into Git.
 
 ## Rules
 
+- Every Aster-owned brand or interface asset has an approved SVG master. A
+  consumer may use that SVG directly or an exact, hash-recorded raster export
+  generated from it for one named placement. Raster-to-raster derivation and
+  runtime resizing are forbidden. Existing unproven rasters are frozen by
+  aggregate path/hash baseline: they may remain unchanged but cannot be copied,
+  resized or used as sources. Dynamic media artwork is content, not an Aster
+  interface asset, and follows its separate artwork/masking contract.
 - Limestone-backed compass icons are reserved for the floating side rail.
 - Top rails, pills and navigation use the plain compass family.
 - Resting artwork has no selection box. Focus uses narrow jade top/sides and a
