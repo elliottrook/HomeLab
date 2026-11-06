@@ -55,10 +55,10 @@
       "sha256": "f492f52a8adf9615e5c5492b55795d11cceed077fa57f057fc6cd6f8b8f39a4f"
     },
     {
-      "bytes": 4396,
+      "bytes": 4988,
       "destination": "/storage/.aster-v3/m6/home_overlay.py",
       "mode": "0600",
-      "sha256": "bc0ecb160ef271ac3886c1f846e17f6b92bb7db3a533886794cd8e96dd9df496"
+      "sha256": "c74489911188c7263f9b30dd932f85429391721ea4cca6560f3dd5a4ed3e1f0c"
     },
     {
       "bytes": 246,
@@ -95,7 +95,7 @@
   "provenance": {
     "base_sha256": "ec3cae3a5bc7f2c687b2cd3d997947d3f2f76e195fb4b61243b1941db677266f",
     "checkpoint": "astertv-v3-m6-jen",
-    "renderer_sha256": "bc0ecb160ef271ac3886c1f846e17f6b92bb7db3a533886794cd8e96dd9df496"
+    "renderer_sha256": "c74489911188c7263f9b30dd932f85429391721ea4cca6560f3dd5a4ed3e1f0c"
   },
   "schema_version": 1
 }

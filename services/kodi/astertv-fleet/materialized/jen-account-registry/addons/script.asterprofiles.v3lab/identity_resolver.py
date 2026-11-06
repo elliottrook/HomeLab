@@ -18,6 +18,20 @@ class IdentityError(ValueError):
     pass
 
 
+def home_subject(identity):
+    if (not isinstance(identity, dict)
+            or set(identity) != {"schema", "kind", "authority"}
+            or identity.get("schema") != 1
+            or identity.get("kind") != "astertv-home-display"
+            or identity.get("authority") != "ha-home-dashboard-v4"):
+        raise IdentityError("home-identity-invalid")
+    # Identity is semantic. Whitespace and key order may differ between the
+    # installer and the fleet renderer, so never bind authority to raw JSON.
+    canonical = (json.dumps(identity, sort_keys=True) + "\n").encode()
+    return ("local:home-assistant:display:sha256:"
+            + hashlib.sha256(canonical).hexdigest())
+
+
 def _json(path):
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -41,15 +55,10 @@ def discover(root=Path("/")):
     home_identity = storage / ".aster-home/display-identity.json"
     if _private_file(home_identity):
         identity = _json(home_identity)
-        if (isinstance(identity, dict)
-                and set(identity) == {"schema", "kind", "authority"}
-                and identity.get("schema") == 1
-                and identity.get("kind") == "astertv-home-display"
-                and identity.get("authority") == "ha-home-dashboard-v4"):
-            subjects["home_assistant"] = (
-                "local:home-assistant:display:sha256:"
-                + hashlib.sha256(home_identity.read_bytes()).hexdigest()
-            )
+        try:
+            subjects["home_assistant"] = home_subject(identity)
+        except IdentityError:
+            pass
 
     guest_path = storage / ".aster-private/jellyfin-guest.json"
     if _private_file(guest_path):

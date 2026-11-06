@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import json
 import xml.etree.ElementTree as ET
 
 
@@ -75,7 +76,18 @@ def transform_home(payload):
 def display_subject(marker):
     if not isinstance(marker, bytes) or not marker or len(marker) > 4096:
         raise ValueError("display-marker-invalid")
-    return DISPLAY_SUBJECT_PREFIX + hashlib.sha256(marker).hexdigest()
+    try:
+        identity = json.loads(marker)
+    except (UnicodeError, json.JSONDecodeError, TypeError) as error:
+        raise ValueError("display-marker-invalid") from error
+    if (not isinstance(identity, dict)
+            or set(identity) != {"schema", "kind", "authority"}
+            or identity.get("schema") != 1
+            or identity.get("kind") != "astertv-home-display"
+            or identity.get("authority") != "ha-home-dashboard-v4"):
+        raise ValueError("display-marker-invalid")
+    canonical = (json.dumps(identity, sort_keys=True) + "\n").encode()
+    return DISPLAY_SUBJECT_PREFIX + hashlib.sha256(canonical).hexdigest()
 
 
 def extend_registry(registry, subject):

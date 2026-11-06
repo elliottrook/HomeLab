@@ -1,6 +1,6 @@
 {
   "channel": "v3-lab",
-  "composition_sha256": "175ef34dc1198afc9cd8aa1978e2bba88a5dc63aec9889b26da5eb93af286fbb",
+  "composition_sha256": "838a81406669dd072ac0f0a1a943f175ef8231c3674c7bcf974361ba9a3015ea",
   "deployed": true,
   "device_id": "astertv-jen",
   "external_integrations": [
@@ -213,9 +213,9 @@
         "sha256": "0ae2757ee1375a67206bf9f5e2da8f251aec7c7ac10baebd2209ad89fd20ab5f"
       },
       {
-        "bytes": 7403,
+        "bytes": 7733,
         "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/addons/script.asterprofiles.v3lab/identity_resolver.py",
-        "sha256": "131046f36532bac15c2a714f41bc4929c3fcc64f84ec7424318db95b49c0d872"
+        "sha256": "6c7f1ae41212f0c6360a6440b662a593c7286f79331e5d8cf0fcf2d7700900ef"
       },
       {
         "bytes": 8662,
@@ -240,7 +240,7 @@
       {
         "bytes": 2772,
         "path": "services/kodi/astertv-fleet/materialized/jen-account-registry/materialization-manifest.json",
-        "sha256": "d329f6ddfa899a5328a15a6eb10fda74e357f268421d074615e9e012d76e0f2f"
+        "sha256": "e8a8f74935104a13a956dfe96b53601209a2d9ed56545f681a8f40904b311b01"
       }
     ],
     "jen-aster-client": [
@@ -346,7 +346,7 @@
       {
         "bytes": 3236,
         "path": "services/kodi/astertv-fleet/materialized/jen-home-cameras/materialization-manifest.json",
-        "sha256": "f863f666a761fc8f6682e184e85cc43b36529703f1415bc03e3ab0b5620b8712"
+        "sha256": "674e918347bbd72e6962ca52bf5814b1a146c241c68de9da81b2177aec17606b"
       },
       {
         "bytes": 4409,
@@ -389,9 +389,9 @@
         "sha256": "f492f52a8adf9615e5c5492b55795d11cceed077fa57f057fc6cd6f8b8f39a4f"
       },
       {
-        "bytes": 4396,
+        "bytes": 4988,
         "path": "services/kodi/astertv-fleet/materialized/jen-home-cameras/stable/home_overlay.py",
-        "sha256": "bc0ecb160ef271ac3886c1f846e17f6b92bb7db3a533886794cd8e96dd9df496"
+        "sha256": "c74489911188c7263f9b30dd932f85429391721ea4cca6560f3dd5a4ed3e1f0c"
       },
       {
         "bytes": 246,

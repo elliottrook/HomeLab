@@ -25,10 +25,10 @@
       "sha256": "0ae2757ee1375a67206bf9f5e2da8f251aec7c7ac10baebd2209ad89fd20ab5f"
     },
     {
-      "bytes": 7403,
+      "bytes": 7733,
       "destination": "/storage/.kodi/addons/script.asterprofiles.v3lab/identity_resolver.py",
       "mode": "0644",
-      "sha256": "131046f36532bac15c2a714f41bc4929c3fcc64f84ec7424318db95b49c0d872"
+      "sha256": "6c7f1ae41212f0c6360a6440b662a593c7286f79331e5d8cf0fcf2d7700900ef"
     },
     {
       "bytes": 8662,

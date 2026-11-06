@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "2b80e39ae73501dab3051230eedad0a1747575db3cd94224f15db3c58ccfc371",
+  "composition_sha256": "8708b58de3afb37e58e68c52b11af21bccfadaccba0214e52ba86e3d7d31011f",
   "deployed": true,
   "device_id": "astertv-family",
   "external_integrations": [
@@ -150,12 +150,17 @@
       {
         "bytes": 4488,
         "path": "services/kodi/astertv-fleet/materialize_family_equipment_bridge.py",
-        "sha256": "14b631872f76d641971e3d8260d58e5b223a4e2c221a250a1c1e34d09c8a45a4"
+        "sha256": "1cb11a981887242db4cab6bb9ffc5a79273e47d2a91b142a0bd3203d1a5a59d7"
       },
       {
-        "bytes": 4911,
+        "bytes": 6720,
         "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/config/custom_components/aster_room_bridge/__init__.py",
-        "sha256": "213a813d3c6b71ab5b6208223060bd24ed7f4a030a247aebe43bc0b012d95fac"
+        "sha256": "cfcd02e48a15234b283be3815f5c692eccb32224116a64ebd3f5c82ccc328554"
+      },
+      {
+        "bytes": 6518,
+        "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/config/custom_components/aster_room_bridge/content_policy.py",
+        "sha256": "4ed19eade495e4d35f7b58cb3b8b54dc21de2158a3b782139dda3a1af21a82f8"
       },
       {
         "bytes": 2366,
@@ -168,9 +173,9 @@
         "sha256": "a0caa81000a091c6758de8e8135611970ecee3756d295c81aa3aaa40068c960a"
       },
       {
-        "bytes": 26669,
+        "bytes": 29892,
         "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/aster_remote.py",
-        "sha256": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983"
+        "sha256": "98c1a36caed3b31e06f29308e579337e2fea85b2628c67c81d476833588d6071"
       },
       {
         "bytes": 9540,
@@ -183,14 +188,24 @@
         "sha256": "6b8788ade5bcc3447d93f497a296e55354e15a4dd9a403b22268c907c0f67ddf"
       },
       {
-        "bytes": 6858,
-        "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/index.html",
-        "sha256": "21df9781d38e31423be9ac9b78508fe618ff9e1a6bdb877eec07818ab38e00c6"
+        "bytes": 66391,
+        "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/astertv-remote-180.png",
+        "sha256": "36eb73e019be374fbf4cb2fdf2e16de14b30e0dc470cbc5b19fae63bc4ba8379"
       },
       {
-        "bytes": 365,
+        "bytes": 480340,
+        "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/astertv-remote-512.png",
+        "sha256": "07880f3fb4e791b6383cabfe3c77a5218c184e84073c8cb89037e9b9c5a16074"
+      },
+      {
+        "bytes": 6976,
+        "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/index.html",
+        "sha256": "54d11f133fcfd341487dcbbe190479b13451458a7c19041075c35db257949df5"
+      },
+      {
+        "bytes": 374,
         "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/manifest.webmanifest",
-        "sha256": "1f60d65e19b010afcf11e58b1184341f39e98a59f768419c28a41832e7a5795b"
+        "sha256": "2cef646afa075a39e4f1316ae5e9d91b9f644a14b3d68b14cf48dc78077b5e8d"
       },
       {
         "bytes": 10073,
@@ -198,14 +213,14 @@
         "sha256": "6d3d4ad4f068d0344987c7fee3e4a771af6343bcd2b08bcb4733cda38a3f8738"
       },
       {
-        "bytes": 978,
+        "bytes": 1023,
         "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/static/remote/sw.js",
-        "sha256": "9be36dd12a332cf22c71c3364479b23623b2a10abb07b8be0a5f8c27bc0f2bc8"
+        "sha256": "b72b204d8220cbf5f122aac9e8d384a91bb10c8613cd5b54a46d774fd74ebfa7"
       },
       {
-        "bytes": 3643,
+        "bytes": 4492,
         "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/materialization-manifest.json",
-        "sha256": "91c2ec74f27440c0a5cb5624669b08753fb8827a50b5a68f2aa022847b32915a"
+        "sha256": "c0daa3a05588571797d84b11915a8093c5f29d592348c8fcc9e51be5da7e7080"
       }
     ],
     "family-kodi-restart": [

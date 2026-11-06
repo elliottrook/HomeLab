@@ -98,6 +98,19 @@ class HomeOverlayTests(unittest.TestCase):
             self.assertEqual(set(subjects), {"home_assistant"})
             self.assertEqual(subjects["home_assistant"], overlay.display_subject(marker.read_bytes()))
 
+    def test_display_identity_ignores_json_serialization(self):
+        value = {"schema": 1, "kind": "astertv-home-display",
+                 "authority": "ha-home-dashboard-v4"}
+        compact = (json.dumps(value, sort_keys=True) + "\n").encode()
+        rendered = (json.dumps(value, sort_keys=True, indent=2) + "\n").encode()
+        reordered = b'{"schema":1,"authority":"ha-home-dashboard-v4","kind":"astertv-home-display"}'
+        self.assertEqual(overlay.display_subject(compact),
+                         overlay.display_subject(rendered))
+        self.assertEqual(overlay.display_subject(compact),
+                         overlay.display_subject(reordered))
+        with self.assertRaisesRegex(ValueError, "display-marker-invalid"):
+            overlay.display_subject(b'{"schema":1,"kind":"astertv-home-display"}')
+
     def test_camera_runtime_targets_only_separate_window(self):
         source = (ROOT / "addon/aster-camera2/view.py").read_text()
         self.assertIn("11134", source)

@@ -216,6 +216,37 @@ class RegistryTests(unittest.TestCase):
             self.assertEqual(status, "identity-mismatch")
             self.assertFalse(resolved["profiles"][0]["service_mappings"][0]["enabled"])
 
+    def test_home_identity_is_semantic_and_rejects_invalid_markers(self):
+        value = {
+            "schema": 1,
+            "kind": "astertv-home-display",
+            "authority": "ha-home-dashboard-v4",
+        }
+        expected = resolver.home_subject(value)
+        serializations = (
+            json.dumps(value, sort_keys=True) + "\n",
+            json.dumps(value, sort_keys=True, indent=2) + "\n",
+            '{"authority":"ha-home-dashboard-v4","kind":"astertv-home-display","schema":1}',
+        )
+        for payload in serializations:
+            with self.subTest(payload=payload):
+                with tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    marker = root / "storage/.aster-home/display-identity.json"
+                    marker.parent.mkdir(parents=True)
+                    marker.write_text(payload)
+                    marker.chmod(0o600)
+                    self.assertEqual(
+                        resolver.discover(root)["home_assistant"], expected
+                    )
+        for value in (
+                {"schema": 1, "kind": "astertv-home-display"},
+                {"schema": 1, "kind": "astertv-home-display",
+                 "authority": "unexpected"}):
+            with self.subTest(invalid=value), self.assertRaisesRegex(
+                    resolver.IdentityError, "home-identity-invalid"):
+                resolver.home_subject(value)
+
 
 if __name__ == "__main__":
     unittest.main()
