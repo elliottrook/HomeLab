@@ -14,6 +14,7 @@ import string
 
 TARGETS = {
     "astertv-bedroom": {"name": "AsterTV Bedroom", "host": "192.168.1.140"},
+    "astertv-family": {"name": "AsterTV Family", "host": "192.168.1.157"},
     "astertv-jen": {"name": "AsterTV Jen", "host": "192.168.1.180"},
 }
 ALPHABET = string.ascii_lowercase + string.digits

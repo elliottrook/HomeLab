@@ -37,8 +37,8 @@ class BeszelRegistrationTests(unittest.TestCase):
             self.assertEqual({row["state"] for row in first.values()}, {"created"})
             self.assertEqual({row["state"] for row in second.values()}, {"existing"})
             self.assertEqual(before, after)
-            self.assertEqual(connection.execute("select count(*) from systems").fetchone()[0], 2)
-            self.assertEqual(connection.execute("select count(*) from fingerprints").fetchone()[0], 2)
+            self.assertEqual(connection.execute("select count(*) from systems").fetchone()[0], 3)
+            self.assertEqual(connection.execute("select count(*) from fingerprints").fetchone()[0], 3)
             self.assertTrue(all((os.stat(path).st_mode & 0o777) == 0o600
                                 for path in root.iterdir()))
 

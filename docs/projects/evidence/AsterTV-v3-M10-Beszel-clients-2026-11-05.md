@@ -2,7 +2,7 @@
 
 Date: 2026-11-05
 
-Status: Bedroom and Jen up; Family deliberately deferred
+Status: Bedroom, Family and Jen up
 
 ## Design
 
@@ -24,31 +24,34 @@ already deployed fleet binary.
 
 Before inserting records, the live PocketBase SQLite database was backed up to
 `/opt/beszel/backups/astertv-m10-before-20261105.db`, mode `0600`; both backup
-and live `integrity_check` returned `ok`. One immediate transaction created
-only `AsterTV Bedroom` (`192.168.1.140`) and `AsterTV Jen`
-(`192.168.1.180`) plus their fingerprint/token rows. The registration helper is
-idempotent and refuses name/address conflicts.
+and live `integrity_check` returned `ok`. A later Family enrollment retained a
+second pre-change checkpoint at
+`/opt/beszel/backups/astertv-m10-family-before-20261105.db`. Immediate
+transactions created only `AsterTV Bedroom` (`192.168.1.140`), `AsterTV Family`
+(`192.168.1.157`) and `AsterTV Jen` (`192.168.1.180`) plus their
+fingerprint/token rows. The registration helper is idempotent and refuses
+name/address conflicts.
 
 Bedroom was installed and validated first. An initially malformed quoted
 public-key assignment caused the service to fail closed before connection; the
 unit renderer and its regression test were corrected, then only the agent was
 restarted. Bedroom reported `up` before the identical contract was installed
-on Jen. Kodi was never restarted.
+on Jen. Family was enrolled only after its live Ed25519 identity, hostname,
+hardware serial, MAC and address independently matched the pinned fleet
+record. Kodi was never restarted for monitoring enrollment.
 
 All transient enrollment files were removed from LXC 100, Proxmox and the
 administration workstation after each persistent client file was installed.
 
 ## Validation and exclusions
 
-- Bedroom and Jen agents are enabled and active;
-- Beszel reports both systems `up` with populated metrics;
-- both binaries match the pinned SHA-256 and both private environment files
+- Bedroom, Family and Jen agents are enabled and active;
+- Beszel reports all three systems `up` with populated metrics;
+- all binaries match the pinned SHA-256 and all private environment files
   remain mode `0600`;
-- Kodi remains active on both appliances;
+- Kodi remains active on all appliances;
 - composition guards include the unit payload plus service, binary and
-  credential-mode assertions and report both devices clean; and
-- Family was not registered or changed because its SSH host identity is not
-  independently trusted on this workstation.
+  credential-mode assertions and report every deployed device clean.
 
 Beszel owns host resource history and availability only. Existing Doctor and
 service-native checks retain application drift and functional failure

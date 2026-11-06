@@ -13,18 +13,11 @@ OBSERVATION = ROOT / "docs/projects/evidence/AsterTV-v3-M10-operations-observati
 
 
 class OperationsAuditTests(unittest.TestCase):
-    def test_current_observation_fails_closed_with_named_gaps(self):
+    def test_current_observation_passes_with_all_integrations_reconciled(self):
         result = AUDIT.audit(json.loads(OBSERVATION.read_text()))
-        self.assertEqual(result["outcome"], "attention")
-        self.assertNotIn("doctor:astertv-bedroom:unobserved", result["gaps"])
-        self.assertIn("doctor:astertv-family:unobserved", result["gaps"])
-        self.assertNotIn("doctor:astertv-jen:drift", result["gaps"])
-        self.assertEqual(result["gap_count"], 5)
-        self.assertNotIn("monitoring:astertv-bedroom:missing-or-down", result["gaps"])
-        self.assertNotIn("monitoring:astertv-jen:missing-or-down", result["gaps"])
-        self.assertNotIn("wiki:live-astertv-department-absent", result["gaps"])
-        self.assertNotIn("reference:astertv-operations-absent", result["gaps"])
-        self.assertNotIn("mirror:astertv-derived-source-absent", result["gaps"])
+        self.assertEqual(result["outcome"], "pass")
+        self.assertEqual(result["gap_count"], 0)
+        self.assertEqual(result["gaps"], [])
 
     def test_complete_synthetic_observation_passes(self):
         devices = list(AUDIT.DEVICES)

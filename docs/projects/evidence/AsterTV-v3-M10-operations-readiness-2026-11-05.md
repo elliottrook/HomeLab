@@ -102,7 +102,19 @@ stale Synology installation guides. Evidence is
 
 ## Next bounded work
 
-The least disruptive sequence is: independently establish Family identity,
-then reconcile it into NetBox, Doctor and Beszel; then rehearse Bedroom and
-Family restore independently. Each remote write or appliance rehearsal retains
-its normal authorization and recovery gate.
+Completed after the opening audit: Family identity was independently pinned,
+then reconciled into NetBox, Beszel and Doctor. A failed first composition
+transaction restored Family exactly and exposed the missing masked-unit runner
+case; the corrected runner was regression-tested and the candidate accepted.
+Bedroom and Family hash-bound bundles then passed disposable-root corrupt-file,
+interrupted-install and accepted-state restore rehearsals. The final operations
+observation passes with zero gaps. Detailed evidence is in
+`docs/projects/evidence/AsterTV-v3-M10-Family-operations-and-restore-2026-11-05.md`.
+
+Two final integrated runs were byte-identical at SHA-256
+`70389670d184312b7f8fe3a2a84eee156e3b5d890f2146faa9363eb910563e59`.
+All 56 local test files pass; 93 candidate inputs scan clean; all 15 pages and
+127 focus controls conform; the screensaver double-build is identical; and the
+operations gate remains `pass` with zero gaps. Connected playback,
+performance and owner-walkthrough acceptance remain explicit later project
+gates rather than being inferred from this repository result.

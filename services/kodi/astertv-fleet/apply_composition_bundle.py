@@ -259,14 +259,23 @@ def systemctl_state(unit: str, property_name: str) -> str:
     return result.stdout.strip() or "unknown"
 
 
+def systemd_assertion_target(assertion: dict) -> tuple[str, str]:
+    key, desired = assertion["key"], assertion["expected"]
+    if key.endswith(".masked") and isinstance(desired, bool):
+        return key.removesuffix(".masked") + ".service", "masked"
+    return key, "unit-state"
+
+
 def collect_systemd_state(guard: dict) -> list[dict]:
     rows = []
     for assertion in guard.get("expected_assertions", []):
         if assertion.get("authority") != "systemd":
             continue
-        rows.append({"unit": assertion["key"], "desired": assertion["expected"],
-                     "enabled": systemctl_state(assertion["key"], "enabled"),
-                     "active": systemctl_state(assertion["key"], "active")})
+        unit, assertion_type = systemd_assertion_target(assertion)
+        rows.append({"unit": unit, "assertion_type": assertion_type,
+                     "desired": assertion["expected"],
+                     "enabled": systemctl_state(unit, "enabled"),
+                     "active": systemctl_state(unit, "active")})
     return rows
 
 
@@ -274,8 +283,13 @@ def reconcile_systemd(guard: dict) -> None:
     for assertion in guard.get("expected_assertions", []):
         if assertion.get("authority") != "systemd":
             continue
-        unit, desired = assertion["key"], assertion["expected"]
-        if desired == "enabled":
+        unit, assertion_type = systemd_assertion_target(assertion)
+        desired = assertion["expected"]
+        if assertion_type == "masked" and desired is True:
+            run(["systemctl", "mask", unit])
+        elif assertion_type == "masked" and desired is False:
+            run(["systemctl", "unmask", unit])
+        elif desired == "enabled":
             run(["systemctl", "enable", unit])
         elif desired == "enabled-active":
             run(["systemctl", "enable", "--now", unit])
@@ -292,7 +306,9 @@ def restore_systemd(rows: list[dict]) -> None:
         unit = row["unit"]
         if row["enabled"] == "not-found":
             continue
-        if row["enabled"] == "enabled":
+        if row["enabled"] == "masked":
+            run(["systemctl", "mask", unit])
+        elif row["enabled"] == "enabled":
             run(["systemctl", "enable", unit])
         elif row["enabled"] == "disabled":
             run(["systemctl", "disable", unit])

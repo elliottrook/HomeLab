@@ -6,6 +6,8 @@
   },
   "backup": {
     "appliance_restore_proven": [
+      "astertv-bedroom",
+      "astertv-family",
       "astertv-jen"
     ],
     "forgejo_restore_proven": true,
@@ -13,7 +15,7 @@
   },
   "doctor": {
     "astertv-bedroom": "clean",
-    "astertv-family": "unobserved",
+    "astertv-family": "clean",
     "astertv-jen": "clean"
   },
   "kind": "astertv-m10-operations-observation",
@@ -23,11 +25,15 @@
   },
   "monitoring": {
     "astertv-bedroom": "up",
-    "astertv-family": "absent",
+    "astertv-family": "up",
     "astertv-jen": "up"
   },
   "netbox": {
     "astertv-bedroom": {
+      "mac": "registered",
+      "primary_ip": "registered"
+    },
+    "astertv-family": {
       "mac": "registered",
       "primary_ip": "registered"
     },
@@ -42,7 +48,7 @@
   },
   "schema_version": 1,
   "wiki": {
-    "candidate_commit": "fc33f735c8e1338e1409d2f81933192ff9578351",
+    "candidate_commit": "6871100c54feda505a40170d85b09e26731d8acc",
     "candidate_page_count": 25,
     "live_page_count": 25,
     "published": true

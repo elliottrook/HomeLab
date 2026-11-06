@@ -281,6 +281,7 @@ class ReleasePipelineTests(unittest.TestCase):
             {"authority": "systemd", "key": "old.service", "expected": "disabled"},
             {"authority": "systemd", "key": "camera.service", "expected": "disabled-inactive"},
             {"authority": "systemd", "key": "policy.path", "expected": "enabled-active"},
+            {"authority": "systemd", "key": "pulseaudio.masked", "expected": True},
             {"authority": "kodi", "key": "unrelated", "expected": True},
         ]}
         from unittest.mock import patch
@@ -291,6 +292,27 @@ class ReleasePipelineTests(unittest.TestCase):
                 unittest.mock.call(["systemctl", "disable", "old.service"]),
                 unittest.mock.call(["systemctl", "disable", "--now", "camera.service"]),
                 unittest.mock.call(["systemctl", "enable", "--now", "policy.path"]),
+                unittest.mock.call(["systemctl", "mask", "pulseaudio.service"]),
+            ])
+
+    def test_bundle_runner_collects_and_restores_masked_systemd_assertion(self):
+        guard = {"expected_assertions": [
+            {"authority": "systemd", "key": "pulseaudio.masked", "expected": True},
+        ]}
+        from unittest.mock import patch
+        with patch.object(APPLY, "systemctl_state", side_effect=["masked", "inactive"]):
+            self.assertEqual(APPLY.collect_systemd_state(guard), [{
+                "unit": "pulseaudio.service", "assertion_type": "masked",
+                "desired": True, "enabled": "masked", "active": "inactive",
+            }])
+        with patch.object(APPLY, "run") as command:
+            APPLY.restore_systemd([{
+                "unit": "pulseaudio.service", "assertion_type": "masked",
+                "desired": True, "enabled": "masked", "active": "inactive",
+            }])
+            self.assertEqual(command.call_args_list, [
+                unittest.mock.call(["systemctl", "mask", "pulseaudio.service"]),
+                unittest.mock.call(["systemctl", "stop", "pulseaudio.service"]),
             ])
 
     def test_bundle_runner_rollback_allows_predecessor_unit_absence(self):
