@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-06 — Media retention and recall Stream A started
+
+- Created a separate project under the HomeLab project standard for a 1080p,
+  45 MB/minute soft Archive reference, three-month eligibility, 60–62% raw-pool
+  retention controller and explicit AsterTV/Seerr recall path.
+- Started M0 read-only discovery. TrueNAS `Media` is ONLINE at 41% raw use;
+  Radarr, Sonarr, Seerr, Bazarr and Jellyfin are running; old archiver and
+  compactor cron IDs 4 and 6 remain disabled.
+- Production deletion, unmonitoring, scheduler activation and client changes
+  remain behind ownership, watch-state, recovery and bounded-pilot gates.
+
 ## 2026-11-02 — Aster media lifecycle redesign authorized for a scheduled Stream A start
 
 - Added the project plan and portfolio entry. Jason authorized Stream A

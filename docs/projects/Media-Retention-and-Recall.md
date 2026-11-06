@@ -1,0 +1,101 @@
+# Media retention and recall
+
+> Status: Active — Stream A; M0 read-only discovery started 2026-11-06
+>
+> Owner: Jason | Authorized: 2026-11-06 | Governing process: [HomeLab Project Creation Standard](../Project-Creation-Standard.md)
+
+## Purpose and desired outcome
+
+Keep a useful, good-quality film and TV Archive without filling the `Media` pool. Existing Radarr/Sonarr acquisition profiles continue. A movie or whole TV season enters the Archive view and is eligible for quality-led optimization after three calendar months. Archive media has a 1080p maximum, genuine HDR and 5.1 when the source has them, one suitable English audio track, and all English subtitle variants. **45 decimal MB/minute (0.75 MB/s, 6 Mb/s total)** is a soft planning and anomaly reference, not a hard size cap or an instruction to recompress satisfactory files. Preserve playable legacy sources until a genuine upgrade exists.
+
+At 60% raw `Media` pool allocation, remove the oldest eligible Archive media that no household user has watched, partly watched, favorited or marked to keep. Aim back near 60%; alert at 62% if intake outruns safe reclamation. Keep each removed title in ARR but unmonitor the selected movie or season so it is not immediately reacquired. Offer an explicit household request path for unavailable titles, with an AsterTV card and short local status clip as the preferred first client; test a native Jellyfin marker separately.
+
+## Authorization, scope and exclusions
+
+Jason asked to create this as a **Stream A** project and start it on 2026-11-06 after reviewing the [read-only retention and recall analysis](Media-Lifecycle-Retention-and-Recall-Plan-2026-11-06.md). This authorizes the bounded discovery, local implementation, lab fixtures, dry runs, recovery proofs, reversible pilots and staged production changes enumerated below. A destructive pilot or production deletion still must pass the standard's non-waivable risk decision when it would remove the last recovery copy or its effect has not been tested. Stop on a failed recovery checkpoint, identity/watch-state uncertainty, a materially different system, or a likely blast radius beyond the assessment here. User authorization for the older Stream A project to push completed milestones does **not** automatically authorize pushes for this new project; the repository's immediate Forgejo write rule applies.
+
+Systems: TrueNAS `Media` pool and datasets; Radarr, Sonarr, Jellyfin, Seerr and Bazarr; lifecycle helper, scheduler and Doctor; AsterTV/Kodi client paths; backup/restore and operator docs. Allowed changes are a source-local ledger and policy controller, quality/view helper updates, private API integration, bounded test media and UI candidate, and monitoring. No public ingress, credential export, downloader replacement, whole-library forced upgrade or mass ARR search. Never re-enable legacy cron jobs 4 or 6. Never run two deletion authorities. The existing [media lifecycle redesign](Media-Lifecycle-Redesign.md) remains owner of ARR reconciliation, acquisition profiles and Current/Archive view rollout; this project owns capacity retention and recall, and consumes its accepted identity/view contracts. AsterTV v3 remains separately governed by [its Stream M project](AsterTV-v3.md); changes to that client require its own approval.
+
+## Current state and evidence
+
+The 2026-11-06 [capacity analysis](Media-Lifecycle-Capacity-Analysis-2026-11-06.md) measured 6,004 physical Archive videos and 306,876 minutes for 6,002 with runtimes. At a uniform 45 MB/min they would occupy about 13.809 TB versus the present 5.263 TB, assuming genuine upgrades that do not exist for many legacy files. A read-only seven-user Jellyfin audit found 5,997 indexed Archive files. Its 4.527 TB apparently unplayed, non-favorite inventory is an **upper bound**, not a deletion list. Seven physical files were unindexed; watch history and first-ever acquisition dates for legacy media are not proven. ARR ownership reconciliation has a remaining backlog from the original 929-file gap. Unknown identity, watch state or age is protected.
+
+M0 live recheck on 2026-11-06: `zpool list` reports `Media` ONLINE, 36.4 TiB size, 15.2 TiB allocated and **41%** raw use; `Media/data` reports 13.9 TiB ZFS available. `docker ps` shows Radarr, Sonarr, Seerr, Bazarr and Jellyfin running (the first four report healthy). TrueNAS cron IDs **4 and 6 are disabled**. These are read-only observations, not proof of backups, household request behavior or candidate safety. Earlier import history showed roughly 2 TB/month observed dataset growth; three months of acquired-size Current residence must be modeled before claiming retained-space savings. The 60–62% band is about 0.53 TB usable at today's pool ratio and can be consumed quickly.
+
+## Authority model and architecture
+
+| Fact/action | Authority and boundary |
+|---|---|
+| Pool allocation, snapshots, actual freed bytes | TrueNAS ZFS; raw `Media` pool is the trigger |
+| Title, file and monitoring state; bounded search | Radarr/Sonarr; server-side restricted adapter only |
+| Watch/progress/favorite state and real playback | Jellyfin, queried across all seven household users; fail closed on missing data |
+| Household request | Seerr; AsterTV is a client, never an ARR-key holder |
+| Age, candidate decision, cooldown and audit | Durable source-local lifecycle ledger/controller, keyed by provider, ARR and file identity |
+| English subtitles | Probed file and sidecar manifest; Bazarr is an additive source |
+| Current/Archive and requestable UI | Accepted lifecycle view contract and AsterTV/Jellyfin client evidence |
+
+Persist **first-ever title acquisition** separately from **current-file import**. The first orders eviction; the second starts a three-calendar-month movie or youngest-present-episode season clock. An optimizer replacement must not reset its own clock; a genuine upgrade or fulfilled re-request does. Mark legacy age unknown when provenance is absent and exclude it from automatic oldest-first deletion. Inventory and compare exact file paths, provider IDs, ARR file records, user watch state and subtitle sidecars before any action.
+
+Run one policy controller daily with an exclusive lock. At 60% select prevalidated, never-watched Archive candidates in first-acquisition order. Movie is one unit; TV is whole-season scope while other seasons remain monitored. Recheck all facts immediately before a bounded action; unmonitor the selected ARR scope, remove its file through ARR, then verify ARR tombstone, physical bytes, Jellyfin rescan and actual ZFS use. Stop near 60%, with 62% as an urgent alert and intake-review threshold. Do not continue deleting merely because snapshots or a recycle bin retain blocks. No watched, partial, favorite, keep, unknown, duplicate/conflicted, active playback or active download item may be selected. A request grants a cooldown and cannot be evicted immediately on return.
+
+For recall, prefer an authenticated AsterTV catalog card backed by retained provider/ARR identity. A deliberate **Request again** action asks the server-side adapter to validate headroom, cooldown and idempotence, lodge/restore the Seerr request, re-monitor the correct ARR scope and issue one bounded search. Only then play a locally generated reusable six-to-ten-second status clip using Aster's canonical Kokoro ONNX `bm_daniel` en-gb voice at 0.95 speed, with the accepted speech cleanup/cadence. Remove the card after ARR, Jellyfin and playback verify the real file. A native Jellyfin placeholder is a separate lab experiment because a fake playable item can corrupt availability and watch semantics.
+
+## Privacy and security design
+
+Keep household watch data and title-level deletion logs source-local; put only aggregate, sanitized evidence in Git. Use existing private service paths and least-privilege server-side credentials outside Git. A playback GET or preview must never trigger an ARR write; require explicit authenticated request intent, rate limit, idempotency and an operator recovery route. No DNS, firewall, certificate or public-path change is planned. Follow the [Aster internal UI style guide](../design/HomeLab-UI-Style-Guide.md) for the request card and the repository's canonical voice standard for the clip.
+
+## Pre-start risk assessment and accepted boundary
+
+| Risk (likelihood/impact) | Control, abort and recovery |
+|---|---|
+| Last-copy loss or wrong-title deletion (medium/critical) | No production removal until exact identity, ARR ownership, subtitle manifest, protected checkpoint and isolated restore prove; one movie and one season pilot, then capped batches. Abort on mismatch. |
+| Incomplete watch history, unknown original age or shared series identity (high/high) | Fail closed for all unknowns; compare seven users and migration evidence; preserve legacy-date-unknown. No automatic ranking by mtime. |
+| Pool use fails to fall because of snapshots/recycle bin (high/medium) | Verify actual ZFS allocation between batches; alert and stop rather than cascade deletion. Account for Current intake and pending downloads. |
+| ARR reacquires deleted items or fails to reacquire on request (medium/high) | Verify per-movie/season monitoring and RSS/search behavior in a disposable lab, then reversible pilot; rollback monitoring and file from checkpoint. |
+| Missing media card falsely shows availability or clip triggers a request (medium/medium) | Prefer AsterTV explicit action; no write on playback; test real Kodi/Jellyfin clients and Seerr state. |
+| Credential or private viewing-history leakage (low/high) | Source-local ledger, restricted adapter, secret-pattern review, aggregate Git logs. |
+| Household browsing disruption or backup contention (medium/medium) | Run bounded off-peak jobs, retain old views and client rollback, Doctor alert and abort on unhealthy dependencies. |
+
+No planned network or external-service change. A controller cannot guarantee the 60–62% band when safe candidates are exhausted, downloads surge, or snapshots retain blocks. It must report this and stop; it must never relax protection automatically. Before destructive production work, inspect current application versions, backups, snapshot coverage, restore space, ARR/Jellyfin recovery order, dataset accounting, request consumers and the AsterTV v3 candidate. The pre-start assessment is accepted for M0 read-only discovery and local implementation under Jason's Stream A direction; the untested last-copy deletion stop condition remains in force.
+
+## Milestones and gates
+
+- [ ] **M0 — Truth and recovery baseline:** reconcile current Git and live pool/services/jobs; audit ARR ownership, watch-history continuity, first-acquisition provenance, snapshots/backups and one-copy identity. Gate: sanitized candidate inventory, capacity model and explicit holds; no deletion.
+- [ ] **M1 — Durable policy prototype:** ledger, first/current dates, user-protection rules, 60–62% capacity logic, exact movie/season scope and dry-run output. Gate: fixtures for unknowns, repeats, concurrent intake, snapshots and interrupted jobs; zero production writes.
+- [ ] **M2 — Lab integration and recovery:** disposable ARR/Jellyfin/Seerr fixtures, monitor/delete/search behavior, simulated 60–62% decisions, proportional isolated restore and secret review. Compare Maintainerr and other tools; choose one deletion authority. Gate: reproducible recovery and fail-closed outcome.
+- [ ] **M3 — Reversible production pilot:** one movie and one whole season only after current checkpoint, validated candidates and the standard's explicit risk decision for any last-copy removal. Gate: actual bytes, watch state, ARR tombstones, no accidental reacquisition and rollback proven.
+- [ ] **M4 — Bounded retention rollout:** daily locked controller, caps, Doctor/alerts, household notice/grace and measured pool response. Gate: repeated runs inside policy or explicit safe failure when no candidates exist.
+- [ ] **M5 — Recall pilot:** AsterTV v3 coordination under its own Stream M authorization, explicit request card, Seerr/ARR idempotence, canonical local clip, real-client playback/regression and marker removal. Native Jellyfin marker only if separate proof passes.
+- [ ] **M6 — Graduation:** two production-path passes, recovery, security, performance, efficiency and household handover; update systems of record and accepted limitations.
+
+Checkboxes are evidence claims. Do not close M0 until ARR/watch provenance and recovery status are verified; do not begin production deletion because a planning checkbox exists.
+
+## Validation, observability and maintenance
+
+Use synthetic titles and disposable storage first. Exercise watched, partial, favorite, unknown user, mismatched provider/path, alternate cut, missing subtitle, missing snapshot, ARR API failure, Jellyfin scan lag, concurrent download, stalled ZFS reclaim, restart and cooldown. Prove monitor/search on the exact movie or season and test both AsterTV clients before client graduation. Measure encoded picture/audio/subtitle preservation and actual post-snapshot pool allocation; a 45 MB/min exception may be retained for quality. Doctor owns last-success, candidate backlog, unknown holds, space pressure, snapshot-held bytes and failed request transitions with non-secret alerts; reconcile Beszel service coverage without duplicate alerts. Review rates, pool headroom, authentication, manual override and recovery after major application updates. User handover must explain Archive, deleted/requestable status, Request again, Pending/Ready/Failed, limits and admin recovery in ordinary language.
+
+## Backup, restore, rollback and persistence
+
+Before a production write, verify named protected checkpoints for `Media/data`, ARR and Jellyfin state plus ledger and Seerr request state; prove a proportional isolated restore. Same-pool snapshots are rollback protection but not reclaimed capacity. Keep a durable per-action journal and idempotent resume. Stop and disable the new schedule on surprise; restore files and ARR/Jellyfin/Seerr state in tested order, then re-scan and verify household visibility. Retain the old Current/Archive client route as fallback until the new one passes acceptance. Never remove the last recoverable copy under Stream A alone.
+
+## Integration impact and documentation
+
+| Integration | Planned treatment |
+|---|---|
+| Doctor, monitoring and Beszel | Add capacity, stale run, stuck reclaim and recall checks; reconcile service inventory. |
+| Backup/recovery | Protect and restore-test media, ARR, Jellyfin, Seerr and ledger; document release order. |
+| NetBox | Reconcile affected service facts if a new controller/container is deployed; no address change assumed. |
+| Human wiki and operational reference | Add user request and operator safe-recovery procedures. |
+| Aster mirror | Refresh derived policy only after authoritative project/operations records are accepted. |
+| Repository portfolio/changelog | Track each completed milestone and the policy supersession. |
+| Diagram/rack, Homepage | No physical change; dashboard link only if a useful private status page is deployed. |
+| Authentication, DNS, certificates, firewall | Private existing paths; any new identity gets least privilege, no public exposure. |
+| Automation/security/AI administration | One scheduler/deletion authority; restricted credentials and broker mapping; no client ARR key. |
+
+## Evidence and resume log
+
+- **2026-11-06, M0 started:** Read repository `AGENTS.md`, `Project-Creation-Standard.md`, portfolio, changelog, existing lifecycle and AsterTV v3 projects, plus the retention and capacity analyses. Local `main` was ahead of `origin/main` by one commit with pre-existing uncommitted lifecycle documents; preserve them. Read-only TrueNAS checks: pool ONLINE/41%, `Media/data` 13.9 TiB available, legacy cron 4/6 disabled, named media services running. Existing `Media/data`, Jellyfin and Docker dataset snapshots include named Sonarr ownership checkpoints as recent as 12:27 local on November 6; their presence is **not** a restore proof for this project. Initial sandbox blocked SSH; approved read-only SSH transport succeeded. No production mutation made. Next: verify ARR/Jellyfin ownership and watch-state continuity, first-acquisition provenance and restore status; produce sanitized candidate inventory. M0 gate remains open.
+
+## Close-out
+
+Open. Record final deployed architecture, versions, release manifest, owner, restore proof, pool behavior, household walkthrough and deliberately deferred Jellyfin-marker limitations only after graduation.
