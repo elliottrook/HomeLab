@@ -656,6 +656,18 @@
 > prior approvals are non-reusable. The complete SA4 suite passes 277/277.
 > The next and only SA4 gate is one exact live repair approval with fresh
 > lease, lock, absence, hash and production checks; no run is scheduled.
+>
+> Jason approved that one attempt. The [v4 live result](evidence/SA4-v4-live-interface-no-go-and-v5-correction-review-2026-11-06.md)
+> is a pre-effect NO-GO: the fixed v3 predecessor read
+> `root_owner.BOUND_TARGET_ID`, which the v4 owner had not preserved. The
+> runner exited 1 before ledger creation, claim, checkpoint, observer request
+> or repair; the target is unchanged and production remained healthy. No retry
+> occurred and the exact failed input/evidence boundary is retained. An
+> additive source-only v5 owner/runner now preserves that interface and adds a
+> test against the real predecessor contract; the complete SA4 suite passes
+> 286/286. Its two-file create-exclusive inactive-install plan is
+> `134ef9c6…6543`. Installing it is the next operational gate; any later live
+> attempt requires wholly fresh authority and remains separately gated.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
