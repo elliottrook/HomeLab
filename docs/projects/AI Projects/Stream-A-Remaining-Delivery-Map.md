@@ -400,6 +400,10 @@
 > ledger or runtime state, unchanged canary and healthy production. No runner
 > or signer was invoked. Next is final installed-path zero-effect preflight and
 > a fresh release packet; any repair requires new exact approval.
+> The [installed runner zero-effect preflight](evidence/SA4-installed-fixed-runner-zero-effect-preflight-2026-11-06.md)
+> then proved the final-path no-argument boundary fails closed before creating
+> any input/evidence, ledger, exchange or control state. The canary is unchanged.
+> Next is the final post-runner release packet and a new exact repair approval.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
