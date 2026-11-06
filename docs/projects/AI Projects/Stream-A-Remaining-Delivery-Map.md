@@ -404,6 +404,16 @@
 > then proved the final-path no-argument boundary fails closed before creating
 > any input/evidence, ledger, exchange or control state. The canary is unchanged.
 > Next is the final post-runner release packet and a new exact repair approval.
+> The [final runner-bound v6 release](evidence/SA4-final-runner-bound-repair-release-2026-11-06.md)
+> now binds all three installation results, nine installed sources and the
+> final-path preflight at canonical digest `77466737…869a`. It retains one
+> repair, at most one rollback, zero retry and no restart; the packet grants no
+> authority. The suite passes 207/207. Next is its fresh unique unsigned
+> authority builder, then a new exact repair approval.
+> That builder now uses grant ID `sa4-canary-first-grant-v6-20261106`, rejects
+> release drift and creates only short-lived unsigned statements. No signer ran;
+> the suite passes 210/210. Offline preparation is exhausted before the new
+> exact one-canary repair approval.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
