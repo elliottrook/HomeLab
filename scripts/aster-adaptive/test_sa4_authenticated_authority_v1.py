@@ -53,12 +53,13 @@ class SA4AuthenticatedAuthorityTests(unittest.TestCase):
         self.assertEqual(0, result["maximum_effects"])
         self.assertFalse(result["preflight_eligible"])
 
-    def test_empty_real_registry_and_caller_key_nomination_fail_closed(self):
+    def test_unrelated_signers_fail_against_exact_compiled_registry(self):
         values = inputs()
         with self.assertRaisesRegex(ValueError, "not compiled"):
             authority.verify(*values[:-1], now_epoch=100)
-        self.assertEqual({"owner-approval": {}, "ai-pam-grant": {}},
-                         authority.TRUSTED_KEYS)
+        self.assertEqual({"owner-approval": 1, "ai-pam-grant": 1},
+                         {role: len(keys) for role, keys in
+                          authority.TRUSTED_KEYS.items()})
 
     def test_payload_signature_scope_expiry_and_role_drift_fail_closed(self):
         plan_raw, approval_raw, approval_proof, grant_raw, grant_proof, trusted = inputs()

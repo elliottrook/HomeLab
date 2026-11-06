@@ -1,0 +1,18 @@
+{
+  "schema": "aster-sa4-public-trust-owner-acceptance.v1",
+  "decision": "accept-exact-public-identities-for-source-only-promotion",
+  "source_candidate_commit": "0d5a49fd8d35e836ce04e59a04f2aedd94f7b9ed",
+  "custody_candidate_sha256": "23c6544e1a4910456a00fccf5b2ae9402bff330d22db72ff6bbe5d69a9958edc",
+  "public_key_sha256_by_role": {
+    "owner-approval": "17738e78d92b3ba4fff496f4d51904b6c6dd18d4acf80b3ef2a34a27ea6de946",
+    "ai-pam-grant": "f9ff0e192840dc0794e4adb65dad91a608e32e5d1d389bccbeac3612f54e9cb0",
+    "independent-observer": "a8b5e876898ddcd7882a51c74d8b8388bb26160c96f87ab23dbeeecab9c0892b"
+  },
+  "permitted_next_action": "compile-public-identities-into-source-verifier-registries",
+  "live_install_authorized": false,
+  "signing_ceremony_authorized": false,
+  "grant_authorized": false,
+  "checkpoint_authorized": false,
+  "repair_authorized": false,
+  "automatic_routing": "off"
+}

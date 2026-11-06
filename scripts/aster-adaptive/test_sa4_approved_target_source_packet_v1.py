@@ -93,18 +93,21 @@ class SA4ApprovedTargetSourcePacketTests(unittest.TestCase):
         self.assertEqual(target.target_id,
                          contract.validate_plan(contract.canonical(value))["target_id"])
 
-    def test_key_slots_are_empty_separate_and_not_runtime_nominable(self):
+    def test_key_slots_are_owner_accepted_separate_and_not_runtime_nominable(self):
         custody.validate()
         self.assertEqual(3, len(custody.SLOTS))
         self.assertEqual(3, len({slot.custody_domain for slot in custody.SLOTS}))
-        self.assertTrue(all(slot.public_key_sha256 is None for slot in custody.SLOTS))
+        self.assertTrue(all(slot.status == "accepted-public-source"
+                            for slot in custody.SLOTS))
+        self.assertEqual(3, len({slot.public_key_sha256 for slot in custody.SLOTS}))
         self.assertTrue(all(not slot.runtime_key_nomination for slot in custody.SLOTS))
         self.assertEqual(("owner-approval", "ai-pam-grant"), tuple(
             slot.role for slot in authority.AUTHORITY_KEY_SLOTS))
         self.assertEqual("independent-observer", observer.OBSERVER_KEY_SLOT.role)
-        self.assertEqual({"owner-approval": {}, "ai-pam-grant": {}},
-                         authority.TRUSTED_KEYS)
-        self.assertEqual({}, observer.TRUSTED_OBSERVERS)
+        self.assertEqual({"owner-approval": 1, "ai-pam-grant": 1},
+                         {role: len(keys) for role, keys in
+                          authority.TRUSTED_KEYS.items()})
+        self.assertEqual(1, len(observer.TRUSTED_OBSERVERS))
 
 
 if __name__ == "__main__":

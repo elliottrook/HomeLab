@@ -17,15 +17,17 @@ IDENTITY = re.compile(r"[a-z0-9][a-z0-9._-]{2,127}")
 DER_SHA256 = bytes.fromhex("3031300d060960864801650304020105000420")
 SCOPES = ("owner-approval", "ai-pam-grant")
 
-# Deliberately empty. Real keys may enter only through owner-reviewed source.
-# Callers cannot pass or nominate trust anchors at runtime.
-TRUSTED_KEYS: dict[str, dict[str, dict[str, object]]] = {
-    "owner-approval": {},
-    "ai-pam-grant": {},
-}
 AUTHORITY_KEY_SLOTS = tuple(
     slot for slot in custody.SLOTS if slot.role in SCOPES)
 custody.validate()
+
+# Exact owner-accepted public keys only. Callers still cannot pass or nominate
+# trust anchors at runtime, and signature validation grants zero effects.
+TRUSTED_KEYS: dict[str, dict[str, dict[str, object]]] = {
+    slot.role: {slot.public_key_sha256: {
+        "signer_id": slot.signer_id, "key": slot.public_key,
+    }} for slot in AUTHORITY_KEY_SLOTS
+}
 
 
 def canonical(value: object) -> bytes:

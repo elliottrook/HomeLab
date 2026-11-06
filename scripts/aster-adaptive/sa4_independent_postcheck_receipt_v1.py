@@ -14,12 +14,15 @@ HEX64 = re.compile(r"[0-9a-f]{64}")
 IDENTITY = re.compile(r"[a-z0-9][a-z0-9._-]{2,127}")
 STATES = frozenset({"pass", "fail", "uncertain"})
 
-# Deliberately empty. A real observer key requires a separately reviewed source
-# change and must be distinct from the owner and AI-PAM keys.
-TRUSTED_OBSERVERS: dict[str, dict[str, object]] = {}
 OBSERVER_KEY_SLOT = next(
     slot for slot in custody.SLOTS if slot.role == "independent-observer")
 custody.validate()
+TRUSTED_OBSERVERS: dict[str, dict[str, object]] = {
+    OBSERVER_KEY_SLOT.public_key_sha256: {
+        "observer_id": OBSERVER_KEY_SLOT.signer_id,
+        "key": OBSERVER_KEY_SLOT.public_key,
+    }
+}
 
 
 def canonical(value: object) -> bytes:

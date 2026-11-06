@@ -1,7 +1,25 @@
 """Compiled public-only SA4 trust candidate; never used by runtime verifiers."""
 from __future__ import annotations
 
-import sa4_authenticated_authority_v1 as authority
+import hashlib
+import json
+import re
+
+
+HEX = re.compile(r"[0-9a-f]+")
+
+
+def key_sha256(key: object) -> str:
+    if (not isinstance(key, dict) or set(key) != {"kty", "n", "e"}
+            or key["kty"] != "RSA" or key["e"] != 65537
+            or not isinstance(key["n"], str) or not HEX.fullmatch(key["n"])
+            or len(key["n"]) != 512 or key["n"].startswith("0")
+            or int(key["n"], 16).bit_length() != 2048
+            or int(key["n"], 16) % 2 != 1):
+        raise ValueError("SA4 candidate key is not canonical RSA-2048")
+    raw = (json.dumps(key, sort_keys=True, separators=(",", ":"),
+                      allow_nan=False) + "\n").encode()
+    return hashlib.sha256(raw).hexdigest()
 
 
 PUBLIC_KEYS = {
@@ -28,7 +46,7 @@ def validate() -> None:
     if (tuple(PUBLIC_KEYS) != roles or tuple(SIGNER_IDS) != roles
             or tuple(EXPECTED_DIGESTS) != roles
             or len(set(SIGNER_IDS.values())) != 3
-            or any(authority.key_sha256(PUBLIC_KEYS[role]) != EXPECTED_DIGESTS[role]
+            or any(key_sha256(PUBLIC_KEYS[role]) != EXPECTED_DIGESTS[role]
                    for role in roles)):
         raise ValueError("SA4 public trust candidate changed")
 
@@ -46,6 +64,6 @@ OBSERVER_TRUST_CANDIDATE = {
         "key": PUBLIC_KEYS["independent-observer"],
     }
 }
-SOURCE_REVIEW_STATUS = "candidate-only-not-runtime-trusted"
+SOURCE_REVIEW_STATUS = "owner-accepted-source-trust"
 EFFECT_AUTHORIZED = False
 AUTOMATIC_ROUTING = "off"
