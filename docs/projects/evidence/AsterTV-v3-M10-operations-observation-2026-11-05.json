@@ -27,6 +27,10 @@
     "astertv-jen": "absent"
   },
   "netbox": {
+    "astertv-bedroom": {
+      "mac": "registered",
+      "primary_ip": "registered"
+    },
     "astertv-jen": {
       "mac": "registered",
       "primary_ip": "registered"

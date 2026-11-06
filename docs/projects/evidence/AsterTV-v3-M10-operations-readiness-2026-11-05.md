@@ -2,7 +2,7 @@
 
 Date: 2026-11-05
 
-Status: fail-closed audit installed; 12 named gaps remain
+Status: fail-closed audit installed; 11 named gaps remain
 
 ## Method
 
@@ -30,14 +30,14 @@ authority is absent.
 
 ## Result
 
-The audit correctly reports `attention` with 12 gaps:
+The audit correctly reports `attention` with 11 gaps:
 
 - Doctor: Bedroom and Family are unobserved. Jen's 124 declared payloads were
   re-read without remote writes, all matched the current composition, and its
   refreshed sanitized observation is clean;
 - Beszel: no AsterTV appliance is enrolled;
-- NetBox: Jen has a primary address and MAC; Bedroom and Family do not yet have
-  complete AsterTV identity records;
+- NetBox: Jen and Bedroom now have complete primary-address and MAC records;
+  Family remains absent pending independent SSH identity/chassis verification;
 - Wiki: all 25 AsterTV pages exist in the validated local candidate at
   `fc33f735c…5718351`, but the live LXC 113 corpus has zero AsterTV pages;
 - reviewed reference: no AsterTV operations page exists;
@@ -66,6 +66,10 @@ byte-identical at SHA-256
 `7da2a11199ba02b8403f3f1a5b8b6a6a1183d4d9d270d5e4dbef7fa3e62c80d5`.
 They retain 51 passing test files, 93 clean candidate inputs and the current 12
 explicit operational gaps.
+
+The subsequent transaction-scoped Bedroom NetBox registration closes one more
+gap, leaving 11. Its separate checkpoint and validation record is
+`docs/projects/evidence/AsterTV-v3-M10-Bedroom-NetBox-2026-11-05.md`.
 
 ## Next bounded work
 
