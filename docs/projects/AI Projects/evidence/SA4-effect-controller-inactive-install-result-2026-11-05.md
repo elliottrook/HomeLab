@@ -17,5 +17,7 @@ staging directory was removed after validation.
 
 The controller path is installed but inert. The next offline work is an
 installed-manifest/result verifier and live zero-effect protocol preflight.
-A real repair still requires a fresh exact approval because the prior approval
-was spent by the controller pre-effect NO-GO.
+The independent result verifier now accepts exactly three rows with canonical
+digest `27f5dfef…f057`, rejects effect/custody mutations, and raises the complete
+SA4 suite to 187/187. A real repair still requires a fresh exact approval
+because the prior approval was spent by the controller pre-effect NO-GO.

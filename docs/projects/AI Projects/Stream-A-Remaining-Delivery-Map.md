@@ -356,6 +356,9 @@
 > the signer/controller were not invoked, the canary is unchanged and
 > production is healthy. Next is the installed-result verifier and live
 > zero-effect protocol preflight; any repair still needs fresh exact approval.
+> The independent installed-result verifier now accepts exactly three canonical
+> rows at digest `27f5dfef…f057` and rejects effect/custody drift. The suite
+> passes 187/187. Next is live zero-effect protocol preflight only.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
