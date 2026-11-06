@@ -1,30 +1,28 @@
 # AsterTV design authority
 
-This directory is the machine-readable authority for the AsterTV television
-surface. It does not replace the Branding Agent's Brand Asset Library or the
-private Forgejo brand releases, and it does not deploy a skin. It records how
+This directory is the machine-readable consumer authority for the AsterTV
+television surface. It does not replace the Branding Agent's private Forgejo
+asset repository, and it does not deploy a skin. It records how
 approved assets, tokens, components, pages and remote-first focus behavior are
 consumed.
 
 ## Approved asset source
 
-The canonical pull source is the Branding Agent's standard library:
+The canonical pull source is:
 
 ```text
-Brand Asset Library/brands/<brand-id>/
-  brand.json
-  approved-master-hashes.json
-  assets/
-  releases/
+git@192.168.20.30:jason/brand-assets.git
+  branch: main
+  brands/<brand-id>/
 ```
 
-Resolve the physical workstation path from `brand.json`; do not hard-code a
-macOS username. Use only files in `assets/` or an immutable package in
-`releases/`, verify the chosen master against `approved-master-hashes.json`,
-then record the exact master path, SHA-256 and release identity in
-`catalogue.json`. `incoming/` and `working/` are never consumer sources.
-Forgejo remains the immutable publication and fleet-retrieval carrier after a
-Brand Asset Library release is promoted.
+Use an authorized checkout and materialize required Git LFS objects. Read the
+asset repository's `AGENTS.md`, `START-HERE.md`, registry, brand metadata,
+approved hashes and project approval/state record. Record the repository
+revision, exact path, SHA-256 and approval identity in `catalogue.json`.
+`incoming/` and unapproved `working/` files are never consumer sources. A
+developing brand may have a project-approved exact master while
+`current_release` is null; this must be explicit in its project record.
 
 ## Commands
 

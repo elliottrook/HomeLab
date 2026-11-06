@@ -89,9 +89,12 @@ and authority used for each decision.
   generation.
 - NetBox owns adopted hardware/network facts; `homelab-reference` owns reviewed
   current operations; the Aster mirror is derived and non-authoritative.
-- Approved private Aster brand releases include masters, exports, checksums,
-  manifests and contact sheets. Runtime design assets remain scattered among
-  v2/v3 payloads and release archives.
+- The private Forgejo repository `jason/brand-assets` on `main` is the
+  canonical brand-asset store. Migration baseline
+  `2bdb72732f67e117da6be34da914f16f043e2dce` is protected by the verified
+  HomeLab migration/recovery receipt. Runtime design assets remain scattered
+  among v2/v3 payloads and historical release archives and must be reconciled
+  by exact asset path and hash rather than by filename.
 - The general navy/cyan HomeLab UI guide is for internal web applications, not
   the television surface. AsterTV needs a dedicated standard for its accepted
   brown/cream, charcoal, jade and champagne-gold language.
@@ -156,7 +159,7 @@ design decisions are similarly distributed across pages and conversations.
 | HA entity/capability | HA live registry + reviewed mapping | Room page and bridge contract |
 | Firewall/DNS/DHCP | OPNsense live config + reviewed reference | Runbook, drift and onboarding |
 | Design behavior | Git AsterTV design system | Wiki pattern library and tests |
-| Source asset | Private Forgejo asset release | Asset catalogue/export pipeline |
+| Source asset | Private Forgejo `jason/brand-assets` `main` + approval/hash record | Asset catalogue/export pipeline |
 | Upstream docs | Version-pinned wiki source | Curricula and derived Aster mirror |
 | Decision/evidence | `homelab` project record | Wiki links and future agents |
 
@@ -689,6 +692,7 @@ Dolby/HDR and equipment control preserved.
 | 2026-11-05 | Prepared the M7 Jen migration and recovered two lifecycle interactions | `docs/projects/evidence/AsterTV-Platform-M7-Jen-preflight-2026-11-05.md`; deterministic normalized install artifact and bounded transaction runner; 44/44 tests | Runtime masking and superseded boot units were both caught before acceptance; exact rollback restored each predecessor, and guard isolation plus typed systemd reconciliation are ready for retry |
 | 2026-11-05 | Completed the M7 Jen migration and recovery rehearsal | Final composition `bccdac5a…eda1`; bundle `1df94e92…4b8b`; checkpoints r4-r6; 45/45 tests; clean Jen Doctor observation | Native GUI resolution preserved; media remains 1920px/18 Mb/s stereo with passthrough off; 534-file guard and 124/124 payloads clean; reboot, News playback, exact rollback and immutable reinstall passed; Family/Bedroom unchanged; owner physical acceptance pending |
 | 2026-11-05 | Completed M8 Bedroom/Family read-only preflight | `docs/projects/evidence/AsterTV-Platform-M8-Bedroom-Family-preflight-2026-11-05.md`; exact identities, guards, audio state, build hashes and installed deltas | Both predecessors are clean and deltas are declared; corrected stale Bedroom desired audio description without changing it; Bedroom must migrate before Family after Jen owner acceptance |
+| 2026-11-06 | Reconciled canonical brand-asset authority | `docs/projects/evidence/AsterTV-Platform-brand-asset-authority-2026-11-06.md`; private `jason/brand-assets` revision `2bdb727…e2dce`; Git LFS materialization; exact project approval records | Workstation-path guidance removed; TV logo recorded as approved project master; Remote reconstruction remains blocked for owner acceptance; 29/29 generated outputs, 12/12 design tests and 3/3 skill tests pass; no live device changed |
 
 ## Close-out
 

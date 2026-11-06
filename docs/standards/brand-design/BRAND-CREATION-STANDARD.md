@@ -12,7 +12,7 @@ It supplements the repository's general security, authorization and evidence rul
 |---|---|
 | Workflow and routing instructions | Installed `$brand-design` skill |
 | Reusable standard and templates | This repository under `docs/standards/brand-design/` and `docs/templates/brand-design/` |
-| Brand registry and approved release metadata | Brand Asset Library |
+| Brand registry and approved release metadata | Private Forgejo `jason/brand-assets` repository, `main` |
 | Original supplied material | Brand's immutable `incoming/` area |
 | Active engagement state and drafts | Brand's `working/<date>-<job>/` area |
 | Approved production assets | Brand's `assets/` area |
@@ -20,20 +20,21 @@ It supplements the repository's general security, authorization and evidence rul
 | Immutable delivery packages | Brand's `releases/` area |
 | Superseded approved assets | Brand's `archive/` area |
 
-The `Brand Asset Library` is maintained by the Branding Agent and is the pull
-authority for approved masters and brand release packages. Its physical
-workstation path is resolved through the active `brand.json` registry record;
-consumers must not depend on a username-specific absolute path. A file in
-`incoming/` or `working/` is not approved. Consumers may retrieve only from
-`assets/` or an immutable package in `releases/`, and must verify the selected
-master against `approved-master-hashes.json`. A private Forgejo release is the
-immutable publication carrier after promotion, not a substitute for the Brand
-Asset Library approval record.
+The private Forgejo repository `git@192.168.20.30:jason/brand-assets.git` on
+`main` is the pull authority for approved masters and brand release packages.
+Use an authorized checkout, follow its root `AGENTS.md` and `START-HERE.md`, and
+materialize required Git LFS objects before inspection or verification. A file
+in `incoming/` or `working/` is not approved unless the applicable project
+approval record explicitly identifies its exact path and SHA-256. Consumers
+normally retrieve from `assets/` or an immutable package in `releases/`, verify
+against `approved-master-hashes.json`, and record the repository revision. A
+project-specific approval record may be authoritative while a developing brand
+has no global current release; that exception must be recorded, never inferred.
 
 ## Standard brand directory
 
 ```text
-Brand Asset Library/brands/<brand-id>/
+brand-assets/brands/<brand-id>/
   brand.json
   BRAND-BRIEF.md
   approved-master-hashes.json

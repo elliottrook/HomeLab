@@ -7,13 +7,12 @@ This directory contains the durable operating standard used by the installed `$b
 - The installed skill orchestrates work and selects the applicable image-generation, PDF, SVG, validation and deployment capabilities.
 - `BRAND-CREATION-STANDARD.md` defines the mandatory gates and deliverables.
 - `docs/templates/brand-design/` contains the files copied into each new brand engagement.
-- The Branding Agent's `Brand Asset Library` is the canonical store for
-  brand-specific inputs, working files, approved assets, sources and releases.
-  Resolve its workstation path from the active brand registry rather than
-  hard-coding a macOS account name. For every brand, retrieve approved material
-  only from `Brand Asset Library/brands/<brand-id>/assets/` or the corresponding
-  immutable `releases/` package, and verify it against
-  `approved-master-hashes.json` before use.
+- The Branding Agent's private Forgejo repository
+  `git@192.168.20.30:jason/brand-assets.git` on `main` is the canonical store
+  for brand-specific inputs, working files, approved assets, sources and
+  releases. Start with `BRAND-ASSET-LIBRARY.md`; an authorized checkout plus
+  materialized Git LFS objects is required. Never infer authority from a
+  remembered workstation directory.
 - Git stores the reusable standard, schemas and templates—not customer-specific generated artwork or large release packages.
 
 Each invocation creates or resumes an isolated project inside the resolved brand directory and advances it through the standard milestones. A brand engagement may finish, pause or remain blocked; this reusable standard remains current until deliberately revised.
@@ -21,6 +20,7 @@ Each invocation creates or resumes an isolated project inside the resolved brand
 ## Files
 
 - `BRAND-CREATION-STANDARD.md` — normative workflow, gates, storage model and completion criteria.
+- `BRAND-ASSET-LIBRARY.md` — canonical private repository, retrieval, approval and recovery entry point.
 - `CLIENT-VISION-DISCOVERY.md` — indirect emotional discovery, evidence-to-design interpretation, client confirmation and later practical intake; instantiate `docs/templates/brand-design/DISCOVERY_BRIEF.template.md` per brand engagement.
 - `MIGRATION-AND-COMPATIBILITY.md` — crosswalk from Brand SVG Studio and the compatibility policy.
 - `EVIDENCE-REQUIREMENTS.md` — minimum evidence needed to make approval, validation and deployment claims.

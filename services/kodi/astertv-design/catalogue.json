@@ -1,5 +1,13 @@
 {
   "schema_version": 1,
+  "asset_repository": {
+    "authority": "private-forgejo-git-lfs",
+    "ssh_url": "git@192.168.20.30:jason/brand-assets.git",
+    "branch": "main",
+    "verified_migration_baseline": "2bdb72732f67e117da6be34da914f16f043e2dce",
+    "brand_id": "aster-home",
+    "consumer_rule": "Materialize Git LFS objects and verify the exact asset path, SHA-256 and approval record before use."
+  },
   "asset_releases": [
     {
       "id": "aster-brand-v2-2026-10-14",
@@ -17,6 +25,24 @@
     }
   ],
   "semantic_assets": [
+    {
+      "id": "astertv-primary-logo-r5",
+      "repository_path": "brands/aster-home/working/2026-11-04-approved-r5/SVG/32-aster-tv-logo.svg",
+      "master_sha256": "747aab438334afc9b1e2a0dafa8608bd8b8d4aa5ed29af5697f22972b714d2e8",
+      "approval_record": "brands/aster-home/working/2026-11-04-approved-r5/APPROVAL.md",
+      "status": "owner-approved-project-master",
+      "promotion_note": "Aster Home has no global current_release; consume only under this exact project approval."
+    },
+    {
+      "id": "astertv-remote-launcher-reconstruction",
+      "repository_path": "brands/aster-home/working/2026-11-05-aster-tv-remote-svg/SVG/AsterTV-Remote.svg",
+      "master_sha256": "7effb1ffe3ba828de63059235c976f26e0d7fb869e0856d0fb52cea86a775ada",
+      "approval_record": "brands/aster-home/working/2026-11-05-aster-tv-remote-svg/PROJECT_STATE.md",
+      "status": "blocked-missing-owner-acceptance",
+      "allowed_contexts": ["launcher", "app-icon-review"],
+      "forbidden_contexts": ["in-app-control", "top-rail", "pill"],
+      "promotion_note": "Faithful SVG reconstruction for owner review; not an installed or approved visual master."
+    },
     {
       "id": "plain-compass",
       "release": "aster-brand-v2-2026-10-14",

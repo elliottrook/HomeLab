@@ -13,8 +13,11 @@ live screen or conversation.
 Read `services/kodi/astertv-design/tokens.json`, the relevant component/page in
 `catalogue.json`, its generated fixture, asset-index entry, and focus contract.
 For a Kodi implementation, also read the mapped XML and the target hardware's
-performance budget. Private Forgejo masters are asset authority; screenshots
-are evidence, not source assets.
+performance budget. The private Forgejo repository
+`git@192.168.20.30:jason/brand-assets.git` on `main` is asset authority. Follow
+`docs/standards/brand-design/BRAND-ASSET-LIBRARY.md`, materialize Git LFS
+objects, and verify the exact path and SHA-256 against the brand/project record;
+screenshots are evidence, not source assets.
 
 For visual invariants and acceptance states, read
 [component acceptance](references/component-acceptance.md). For XML/control

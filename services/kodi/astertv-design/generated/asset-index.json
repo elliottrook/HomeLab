@@ -196,6 +196,31 @@
   "schema_version": 1,
   "semantic_assets": [
     {
+      "approval_record": "brands/aster-home/working/2026-11-04-approved-r5/APPROVAL.md",
+      "id": "astertv-primary-logo-r5",
+      "master_sha256": "747aab438334afc9b1e2a0dafa8608bd8b8d4aa5ed29af5697f22972b714d2e8",
+      "promotion_note": "Aster Home has no global current_release; consume only under this exact project approval.",
+      "repository_path": "brands/aster-home/working/2026-11-04-approved-r5/SVG/32-aster-tv-logo.svg",
+      "status": "owner-approved-project-master"
+    },
+    {
+      "allowed_contexts": [
+        "launcher",
+        "app-icon-review"
+      ],
+      "approval_record": "brands/aster-home/working/2026-11-05-aster-tv-remote-svg/PROJECT_STATE.md",
+      "forbidden_contexts": [
+        "in-app-control",
+        "top-rail",
+        "pill"
+      ],
+      "id": "astertv-remote-launcher-reconstruction",
+      "master_sha256": "7effb1ffe3ba828de63059235c976f26e0d7fb869e0856d0fb52cea86a775ada",
+      "promotion_note": "Faithful SVG reconstruction for owner review; not an installed or approved visual master.",
+      "repository_path": "brands/aster-home/working/2026-11-05-aster-tv-remote-svg/SVG/AsterTV-Remote.svg",
+      "status": "blocked-missing-owner-acceptance"
+    },
+    {
       "allowed_contexts": [
         "top-rail",
         "pill",
