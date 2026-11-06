@@ -290,6 +290,8 @@ def reconcile_systemd(guard: dict) -> None:
 def restore_systemd(rows: list[dict]) -> None:
     for row in rows:
         unit = row["unit"]
+        if row["enabled"] == "not-found":
+            continue
         if row["enabled"] == "enabled":
             run(["systemctl", "enable", unit])
         elif row["enabled"] == "disabled":

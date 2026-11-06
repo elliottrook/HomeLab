@@ -252,6 +252,19 @@ class ReleasePipelineTests(unittest.TestCase):
                 unittest.mock.call(["systemctl", "enable", "--now", "policy.path"]),
             ])
 
+    def test_bundle_runner_rollback_allows_predecessor_unit_absence(self):
+        from unittest.mock import patch
+        rows = [
+            {"unit": "new.service", "enabled": "not-found", "active": "inactive"},
+            {"unit": "old.service", "enabled": "enabled", "active": "inactive"},
+        ]
+        with patch.object(APPLY, "run") as command:
+            APPLY.restore_systemd(rows)
+            self.assertEqual(command.call_args_list, [
+                unittest.mock.call(["systemctl", "enable", "old.service"]),
+                unittest.mock.call(["systemctl", "stop", "old.service"]),
+            ])
+
     def test_guard_detects_payload_and_required_dependency_drift(self):
         contract = {
             "schema_version": 1, "kind": "composition-guard-contract",
