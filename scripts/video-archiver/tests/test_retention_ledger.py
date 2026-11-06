@@ -1,7 +1,8 @@
 """Durability and fail-closed behavior for source-local retention facts."""
 
 from dataclasses import replace
-from datetime import date, datetime, timezone
+import sqlite3
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
@@ -32,6 +33,12 @@ class LedgerTests(TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+    def test_legacy_notice_schema_fails_closed(self):
+        with sqlite3.connect(self.path) as db:
+            db.execute("CREATE TABLE notices(provider_id TEXT,scope_digest TEXT,delivered_at TEXT,delivery_reference TEXT)")
+        with self.assertRaisesRegex(RuntimeError, "reviewed migration"):
+            RetentionLedger(self.path)
 
     def test_reopen_retains_first_acquisition_and_original_file_clock(self):
         with RetentionLedger(self.path) as ledger:
@@ -114,12 +121,19 @@ class LedgerTests(TestCase):
             with self.assertRaisesRegex(ValueError, "already terminal"):
                 ledger.mark_action("run-1:tmdb:101", "verified", NOW)
 
-    def test_delivered_notice_is_bound_to_current_file_set(self):
+    def test_visible_notice_is_bound_to_current_file_set(self):
         with RetentionLedger(self.path) as ledger:
             ledger.record_complete_observation(observation())
-            with self.assertRaisesRegex(ValueError, "delivery reference"):
-                ledger.record_delivered_notice("tmdb:101", NOW, "")
-            ledger.record_delivered_notice("tmdb:101", NOW, "local-receipt-1")
+            ledger.propose_notice("tmdb:101", OLD)
+            self.assertEqual(ledger.pending_notice_proposals(), ("tmdb:101",))
+            self.assertIsNone(ledger.notice_for_current_files("tmdb:101"))
+            with self.assertRaisesRegex(ValueError, "predate"):
+                ledger.mark_notice_visible("tmdb:101", OLD - timedelta(seconds=1), "bad")
+            with self.assertRaisesRegex(ValueError, "visibility reference"):
+                ledger.mark_notice_visible("tmdb:101", NOW, "")
+            ledger.mark_notice_visible("tmdb:101", NOW, "astertv-visible-1")
+            ledger.mark_notice_visible("tmdb:101", NOW, "astertv-visible-1")
+            self.assertEqual(ledger.pending_notice_proposals(), ())
             self.assertEqual(ledger.notice_for_current_files("tmdb:101"), NOW)
         with RetentionLedger(self.path) as ledger:
             self.assertEqual(ledger.notice_for_current_files("tmdb:101"), NOW)
@@ -127,3 +141,23 @@ class LedgerTests(TestCase):
                 ObservedFile(8, "sha256:new", NEW), first=None,
             ))
             self.assertIsNone(ledger.notice_for_current_files("tmdb:101"))
+            ledger.propose_notice("tmdb:101", NOW)
+            self.assertEqual(ledger.pending_notice_proposals(), ("tmdb:101",))
+
+    def test_keep_persists_across_file_replacement_and_reopen(self):
+        with RetentionLedger(self.path) as ledger:
+            ledger.record_complete_observation(observation())
+            ledger.propose_notice("tmdb:101", OLD)
+            ledger.mark_notice_visible("tmdb:101", NOW, "astertv-visible-1")
+            with self.assertRaisesRegex(ValueError, "household identity"):
+                ledger.record_keep("tmdb:101", "", NOW)
+            ledger.record_keep("tmdb:101", "user-a", NOW)
+            ledger.record_keep("tmdb:101", "user-a", NOW)
+            self.assertIsNone(ledger.notice_for_current_files("tmdb:101"))
+            self.assertEqual(ledger.pending_notice_proposals(), ())
+            ledger.record_complete_observation(observation(
+                ObservedFile(8, "sha256:new", NEW), first=None,
+            ))
+        with RetentionLedger(self.path) as ledger:
+            self.assertTrue(ledger.has_keep("tmdb:101"))
+            self.assertEqual(ledger.connection.execute("SELECT count(*) FROM keeps").fetchone()[0], 1)

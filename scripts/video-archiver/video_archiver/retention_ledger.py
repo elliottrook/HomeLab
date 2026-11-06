@@ -76,10 +76,23 @@ class RetentionLedger:
             CREATE TABLE IF NOT EXISTS notices (
                 provider_id TEXT PRIMARY KEY REFERENCES units(provider_id),
                 scope_digest TEXT NOT NULL,
-                delivered_at TEXT NOT NULL,
-                delivery_reference TEXT NOT NULL
+                proposed_at TEXT NOT NULL,
+                visible_at TEXT,
+                visibility_reference TEXT
+            );
+            CREATE TABLE IF NOT EXISTS keeps (
+                provider_id TEXT NOT NULL REFERENCES units(provider_id),
+                household_user_id TEXT NOT NULL,
+                recorded_at TEXT NOT NULL,
+                PRIMARY KEY (provider_id, household_user_id)
             );
         """)
+        notice_columns = {row[1] for row in self.connection.execute("PRAGMA table_info(notices)")}
+        if notice_columns != {
+            "provider_id", "scope_digest", "proposed_at", "visible_at", "visibility_reference",
+        }:
+            self.connection.close()
+            raise RuntimeError("retention notice schema needs reviewed migration")
 
     def close(self) -> None:
         self.connection.close()
@@ -213,32 +226,98 @@ class RetentionLedger:
         payload = json.dumps(rows, separators=(",", ":"), ensure_ascii=True)
         return hashlib.sha256(payload.encode("ascii")).hexdigest()
 
-    def record_delivered_notice(
-        self, provider_id: str, delivered_at: datetime, delivery_reference: str,
-    ) -> None:
-        """Record external delivery evidence; this function sends nothing."""
-        stamp = _instant(delivered_at)
-        if not delivery_reference or not delivery_reference.strip():
-            raise ValueError("notice delivery reference required")
+    def propose_notice(self, provider_id: str, proposed_at: datetime) -> None:
+        """Create a feed item without starting its three-day grace clock."""
+        stamp = _instant(proposed_at)
+        if self.has_keep(provider_id):
+            raise ValueError("household Keep blocks notice")
         scope = self.current_file_scope_digest(provider_id)
         with self.connection:
+            old = self.connection.execute(
+                "SELECT scope_digest FROM notices WHERE provider_id=?", (provider_id,),
+            ).fetchone()
+            if old is None:
+                self.connection.execute(
+                    "INSERT INTO notices VALUES (?,?,?,NULL,NULL)", (provider_id, scope, stamp),
+                )
+            elif old[0] != scope:
+                self.connection.execute(
+                    """UPDATE notices SET scope_digest=?, proposed_at=?,
+                       visible_at=NULL, visibility_reference=NULL WHERE provider_id=?""",
+                    (scope, stamp, provider_id),
+                )
+
+    def pending_notice_proposals(self) -> tuple[str, ...]:
+        """Provider IDs for the authenticated AsterTV feed adapter to enrich."""
+        ids = [row[0] for row in self.connection.execute(
+            "SELECT provider_id FROM notices WHERE visible_at IS NULL ORDER BY proposed_at,provider_id"
+        )]
+        return tuple(provider_id for provider_id in ids
+                     if not self.has_keep(provider_id)
+                     and self.connection.execute(
+                         "SELECT scope_digest FROM notices WHERE provider_id=?",
+                         (provider_id,),
+                     ).fetchone()[0] == self.current_file_scope_digest(provider_id))
+
+    def mark_notice_visible(
+        self, provider_id: str, visible_at: datetime, visibility_reference: str,
+    ) -> None:
+        """Start grace only after the accepted AsterTV path confirms visibility."""
+        stamp = _instant(visible_at)
+        if not visibility_reference or not visibility_reference.strip():
+            raise ValueError("notice visibility reference required")
+        if self.has_keep(provider_id):
+            raise ValueError("household Keep blocks notice")
+        scope = self.current_file_scope_digest(provider_id)
+        with self.connection:
+            row = self.connection.execute(
+                "SELECT scope_digest,proposed_at,visible_at,visibility_reference FROM notices WHERE provider_id=?",
+                (provider_id,),
+            ).fetchone()
+            if row is None or row[0] != scope:
+                raise ValueError("current notice proposal required")
+            if visible_at < datetime.fromisoformat(row[1]):
+                raise ValueError("visibility cannot predate proposal")
+            if row[2] is not None:
+                if row[2:] != (stamp, visibility_reference):
+                    raise ValueError("notice already has different visibility evidence")
+                return
             self.connection.execute(
-                """INSERT INTO notices VALUES (?,?,?,?)
-                   ON CONFLICT(provider_id) DO UPDATE SET
-                   scope_digest=excluded.scope_digest,
-                   delivered_at=excluded.delivered_at,
-                   delivery_reference=excluded.delivery_reference""",
-                (provider_id, scope, stamp, delivery_reference),
+                "UPDATE notices SET visible_at=?,visibility_reference=? WHERE provider_id=?",
+                (stamp, visibility_reference, provider_id),
             )
 
     def notice_for_current_files(self, provider_id: str) -> datetime | None:
         row = self.connection.execute(
-            "SELECT scope_digest,delivered_at FROM notices WHERE provider_id=?",
+            "SELECT scope_digest,visible_at FROM notices WHERE provider_id=?",
             (provider_id,),
         ).fetchone()
-        if row is None or row[0] != self.current_file_scope_digest(provider_id):
+        if (row is None or row[1] is None or self.has_keep(provider_id)
+                or row[0] != self.current_file_scope_digest(provider_id)):
             return None
         return datetime.fromisoformat(row[1])
+
+    def record_keep(self, provider_id: str, household_user_id: str,
+                    recorded_at: datetime) -> None:
+        """Persist an explicit AsterTV Keep choice across file replacements."""
+        stamp = _instant(recorded_at)
+        if not provider_id or not household_user_id or not household_user_id.strip():
+            raise ValueError("verified title and household identity required")
+        with self.connection:
+            if self.connection.execute(
+                "SELECT 1 FROM units WHERE provider_id=?", (provider_id,),
+            ).fetchone() is None:
+                raise ValueError("unknown title for Keep")
+            self.connection.execute(
+                "INSERT OR IGNORE INTO keeps VALUES (?,?,?)",
+                (provider_id, household_user_id, stamp),
+            )
+
+    def has_keep(self, provider_id: str) -> bool:
+        """Any household member's Keep blocks the whole title/season scope."""
+        return self.connection.execute(
+            "SELECT 1 FROM keeps WHERE provider_id=? LIMIT 1", (provider_id,),
+        ).fetchone() is not None
 
     def mark_action(self, action_id: str, stage: str, now: datetime) -> None:
         if stage not in ("verified", "cancelled"):

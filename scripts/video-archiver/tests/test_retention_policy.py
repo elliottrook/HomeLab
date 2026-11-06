@@ -4,7 +4,7 @@ from dataclasses import replace
 from datetime import date, datetime, timedelta, timezone
 from unittest import TestCase
 
-from video_archiver.retention_policy import MediaUnit, UserWatch, plan_retention
+from video_archiver.retention_policy import MediaUnit, UserWatch, plan_notice_proposals, plan_retention
 
 
 NOW = datetime(2026, 11, 6, 20, tzinfo=timezone.utc)
@@ -51,6 +51,20 @@ def plan(*units: MediaUnit, allocated=70, movie_year_counts=None):
 
 
 class RetentionSafetyTests(TestCase):
+    def test_notice_proposal_cannot_be_used_as_deletion_eligibility(self):
+        pending = movie("pending", 1950, household_notice_at=None,
+                        household_notice_identity_verified=False)
+        held = movie("kept", 1951, household_notice_at=None,
+                     household_notice_identity_verified=False, household_keep=True)
+        notices = plan_notice_proposals(
+            (pending, held), now=NOW, expected_user_ids=USERS,
+            pool_size_bytes=100, pool_allocated_bytes=70,
+            movie_year_counts={1950: 2, 1951: 2},
+        )
+        deletion = plan(pending, held)
+        self.assertEqual(notices.proposal_provider_ids, ("pending",))
+        self.assertEqual(deletion.selected_provider_ids, ())
+
     def test_missing_recent_or_unbound_household_notice_holds(self):
         units = (
             movie("missing", 1950, household_notice_at=None),
@@ -107,6 +121,11 @@ class RetentionSafetyTests(TestCase):
         result = plan(movie("reset", 1950, historical_playback=True))
         self.assertEqual(result.selected_provider_ids, ())
         self.assertEqual(result.held[0].reason, "retained playback log records a watch")
+
+    def test_astertv_household_keep_blocks_unwatched_title(self):
+        result = plan(movie("kept", 1950, household_keep=True))
+        self.assertEqual(result.selected_provider_ids, ())
+        self.assertEqual(result.held[0].reason, "household Keep decision")
 
     def test_identity_recovery_and_missing_media_date_hold(self):
         units = (

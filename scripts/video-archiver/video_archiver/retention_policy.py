@@ -59,6 +59,7 @@ class MediaUnit:
     estimated_pool_reclaim_bytes: int
     watch_evidence_complete: bool = False
     historical_playback: bool = False
+    household_keep: bool = False
     household_notice_at: datetime | None = None
     household_notice_identity_verified: bool = False
     movie_release_year: int | None = None
@@ -81,6 +82,13 @@ class RetentionPlan:
     held: tuple[HeldUnit, ...]
     predicted_allocated_bytes: int
     remaining_to_target_bytes: int
+
+
+@dataclass(frozen=True)
+class NoticePlan:
+    triggered: bool
+    proposal_provider_ids: tuple[str, ...]
+    held: tuple[HeldUnit, ...]
 
 
 def _aware(value: datetime | None) -> bool:
@@ -111,7 +119,7 @@ def _candidate_date(unit: MediaUnit, now: datetime) -> tuple[date | None, str | 
 
 def _hold_reason(
     unit: MediaUnit, now: datetime, expected_user_ids: frozenset[str],
-    minimum_grace_days: int,
+    minimum_grace_days: int, require_notice: bool,
 ) -> tuple[date | None, str | None]:
     if not unit.provider_id or unit.kind not in ("movie", "season"):
         return None, "invalid provider identity or media kind"
@@ -141,10 +149,13 @@ def _hold_reason(
         return None, "watched, in progress, favorite or keep"
     if unit.historical_playback:
         return None, "retained playback log records a watch"
-    if not unit.household_notice_identity_verified or not _aware(unit.household_notice_at):
-        return None, "household notice or file identity unverified"
-    if unit.household_notice_at > now or now - unit.household_notice_at < timedelta(days=minimum_grace_days):
-        return None, "household notice grace period active"
+    if unit.household_keep:
+        return None, "household Keep decision"
+    if require_notice:
+        if not unit.household_notice_identity_verified or not _aware(unit.household_notice_at):
+            return None, "household notice or file identity unverified"
+        if unit.household_notice_at > now or now - unit.household_notice_at < timedelta(days=minimum_grace_days):
+            return None, "household notice grace period active"
     if not unit.subtitle_manifest_verified:
         return None, "subtitle/sidecar manifest unverified"
     if unit.active_playback_or_download:
@@ -161,11 +172,12 @@ def _hold_reason(
     return _candidate_date(unit, now)
 
 
-def plan_retention(
+def _plan_retention(
     units: tuple[MediaUnit, ...], *, now: datetime,
     expected_user_ids: frozenset[str], pool_size_bytes: int,
     pool_allocated_bytes: int, movie_year_counts: Mapping[int, int] | None = None,
     minimum_grace_days: int = 3,
+    require_notice: bool = True,
 ) -> RetentionPlan:
     """Select oldest eligible units until predicted raw pool use returns to 60%.
 
@@ -211,7 +223,8 @@ def plan_retention(
         ):
             held.append(HeldUnit(unit.provider_id, "movie year inventory incomplete"))
             continue
-        rank_date, reason = _hold_reason(unit, now, expected_user_ids, minimum_grace_days)
+        rank_date, reason = _hold_reason(unit, now, expected_user_ids,
+                                         minimum_grace_days, require_notice)
         if reason:
             held.append(HeldUnit(unit.provider_id, reason))
         else:
@@ -235,3 +248,38 @@ def plan_retention(
         True, guardrail, tuple(selected), tuple(held), predicted,
         max(0, predicted - target),
     )
+
+
+def plan_retention(
+    units: tuple[MediaUnit, ...], *, now: datetime,
+    expected_user_ids: frozenset[str], pool_size_bytes: int,
+    pool_allocated_bytes: int, movie_year_counts: Mapping[int, int] | None = None,
+    minimum_grace_days: int = 3,
+) -> RetentionPlan:
+    """Deletion planning always requires a verified, elapsed household notice."""
+    return _plan_retention(
+        units, now=now, expected_user_ids=expected_user_ids,
+        pool_size_bytes=pool_size_bytes, pool_allocated_bytes=pool_allocated_bytes,
+        movie_year_counts=movie_year_counts, minimum_grace_days=minimum_grace_days,
+        require_notice=True,
+    )
+
+
+def plan_notice_proposals(
+    units: tuple[MediaUnit, ...], *, now: datetime,
+    expected_user_ids: frozenset[str], pool_size_bytes: int,
+    pool_allocated_bytes: int, movie_year_counts: Mapping[int, int] | None = None,
+    minimum_grace_days: int = 3,
+) -> NoticePlan:
+    """Suggest notices for otherwise safe units; this never authorizes deletion."""
+    plan = _plan_retention(
+        units, now=now, expected_user_ids=expected_user_ids,
+        pool_size_bytes=pool_size_bytes, pool_allocated_bytes=pool_allocated_bytes,
+        movie_year_counts=movie_year_counts, minimum_grace_days=minimum_grace_days,
+        require_notice=False,
+    )
+    by_id = {unit.provider_id: unit for unit in units}
+    proposals = tuple(provider_id for provider_id in plan.selected_provider_ids
+                      if not by_id[provider_id].household_notice_identity_verified
+                      or not _aware(by_id[provider_id].household_notice_at))
+    return NoticePlan(plan.triggered, proposals, plan.held)

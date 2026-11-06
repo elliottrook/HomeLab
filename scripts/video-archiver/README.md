@@ -24,6 +24,11 @@ immediately. A household notice must be bound to the current file set and
 remain open for three full days before removal eligibility. Existing
 archiver/compactor cron jobs 4 and 6 remain disabled.
 
+The AsterTV notice/Keep contract is in
+[`docs/projects/Media-Retention-AsterTV-Notice-Contract.md`](../../docs/projects/Media-Retention-AsterTV-Notice-Contract.md).
+The local ledger can propose a notice, record verified AsterTV visibility and
+persist a household Keep choice. No authenticated feed or client route is live.
+
 The read-only audit is installed at `/mnt/Media/data/tools/media-retention-audit`
 on TrueNAS. Cron 9 runs `run-retention-audit.sh` at 10:45 daily and writes only a
 root-readable `status.json` with aggregate pool, snapshot, movie-year,
