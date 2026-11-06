@@ -1,6 +1,11 @@
 # M3 K1 constrained 9B preregistration — 2026-11-06
 
-**Result: source-only candidate frozen; no model call or routing effect.**
+**Result: source-only proposal frozen, then rejected before effect.**
+
+The complete lineage review subsequently found that this proposal overlaps the
+prompt-based whole-label family closed on 2026-10-26. See the
+[pre-effect rejection](M3-K1-pre-effect-family-overlap-rejection-2026-11-06.md).
+The boundary below is retained for audit only and must not be invoked.
 
 K1 is materially different from J2 and the five closed successor probes. It
 uses the already accepted production 9B/SYCL service as a fixed, temperature-0,
