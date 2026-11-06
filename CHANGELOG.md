@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-11-06 — Media retention M0 discovery completed with holds
+
+- Verified the live 41% pool baseline, disabled legacy jobs, recent ZFS
+  snapshots, ARR record/monitoring counts and Jellyfin's seven-user database.
+- Exact-path comparison found 210 Archive movies and 485 episodes without a
+  matching ARR file record; the earlier Jellyfin API and database item counts
+  also differ. These are holds, not deletion candidates.
+- Jason approved provider-backed movie release and TV season/series air dates
+  as a labeled eviction-order fallback when original acquisition is unknown.
+  It does not replace the three-month current-file clock. M0 closes with zero
+  approved production deletion candidates; M1 dry-run policy is underway.
+
 ## 2026-11-06 — Media retention and recall Stream A started
 
 - Created a separate project under the HomeLab project standard for a 1080p,
