@@ -701,6 +701,15 @@
 > and graph bindings, owner v6 and runner v7 on fresh v4 paths. The full SA4
 > suite passes 309/309. Its eight-file create-exclusive inactive-install plan
 > is `219962e3…52f4`; installing it is the next zero-effect version gate.
+>
+> The standing Stream A version approval was applied to that inert install.
+> The [installed result](evidence/SA4-postcheck-lineage-inactive-install-result-2026-11-06.md)
+> proves all eight files exact, all v2 checks passing against the intended
+> healthy artifact, registry hashes exact, fresh v4 paths absent, target
+> unchanged and production healthy. The [v4 release candidate](evidence/SA4-distinct-canary-v4-release-candidate-review-2026-11-06.md)
+> is canonical at `bad1aaef…0155`, uses a third non-reused grant and fresh v4
+> paths, and keeps both failed predecessors terminal. The complete SA4 suite
+> passes 314/314. The next versioned gate is one fresh v7 transaction.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
