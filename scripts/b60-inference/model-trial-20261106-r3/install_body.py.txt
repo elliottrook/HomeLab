@@ -34,17 +34,16 @@ with host_exclusion(ROOT):
  verify(retained,inventory,date='2026_11_06',now_epoch=start+120,resolve=fixed_resolve,lstat=os.lstat)
  raw_history=base64.b64decode(HISTORY);assert hashlib.sha256(raw_history).hexdigest()==HISTORY_SHA
  hv=json.loads(raw_history);assert 0<=start+120-hv['observed_epoch']<=7200
+ for n,sha in NEWS['PINS'].items():assert hashlib.sha256(protected_bytes(BASE.parent/'full-inference-pilot'/n,executable=True,maximum=262144)).hexdigest()==sha
+ assert call(['pct','exec','110','--','sha256sum',NEWS['GUEST']]).split()[0]==NEWS['GUEST_SHA']
+ mrows=[l for l in call(['pct','config','110','--current']).splitlines() if l.startswith('mp0:')]
+ assert len(mrows)==1 and hashlib.sha256(mrows[0].encode()).hexdigest()==NEWS['MOUNT_SHA']
  assert not DEST.exists();DEST.mkdir(mode=0o700)
  for name,encoded in FILES.items():
   raw=base64.b64decode(encoded);assert hashlib.sha256(raw).hexdigest()==MANIFEST[name];create(DEST/name,raw)
  create(DEST/'manifest.json',canonical(MANIFEST));sys.path.insert(0,str(DEST))
  from model_trial import initialize,card_for
  assert initialize()==MANIFEST
- from news_xpu_boundary import PINS,HOST,GUEST,GUEST_SHA,MOUNT_SHA
- for n,sha in PINS.items():assert hashlib.sha256(protected_bytes(HOST/n,executable=True,maximum=262144)).hexdigest()==sha
- assert call(['pct','exec','110','--','sha256sum',GUEST]).split()[0]==GUEST_SHA
- mrows=[l for l in call(['pct','config','110','--current']).splitlines() if l.startswith('mp0:')]
- assert len(mrows)==1 and hashlib.sha256(mrows[0].encode()).hexdigest()==MOUNT_SHA
  # New immutable guest source only, with unchanged key-file custody. The
  # supervisor and pure command helper remain readable by mapped ollama.
  guest_files={n:FILES[n] for n in ('guest_requests.py','guest_supervisor.py','fixed_command.py','legacy_requests.py','request_failure_capture.py')}

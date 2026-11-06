@@ -91,3 +91,31 @@ next trigger epoch, empty previous trigger and inactive launcher. Actual owner
 and guardian, admission, request result, cleanup/release and independent strict
 entry/timer/guest/core-health reconciliation must follow before reporting an
 actual result. Do not stop at arming or invent background work.
+
+## Reviewed live News update before installation
+
+At1794000337 the exact installer refused its News-source gate **before**
+creating the B60 destination; no guest/helper/profile/card/timer/model effect
+occurred. News had narrowed its transaction from3600 to1200s and changed its
+registration, reserved runner and runtime binding. The registered session now
+permits at most three explicitly invoked, independently restored attempts; it
+keeps its90-minute reservation claimed between attempts. This grants B60 no
+retry authority. Inspection of finish_attempt/start_retry/expire_sessions and
+the dispatcher caller distinguishes an intermediate restored attempt from a
+finished session. R3 still requires the final ledger state and its exact current
+attempt terminal, not attempt1 or a launcher's exit. No peer reservation is
+modified or expired by B60. The reviewed new pins are in the R3 manifest/source.
+
+The fresh authenticated TrueNAS metadata was captured14:24:26/1794000266,
+SHA256bd6cda74623e941710f81c4ccd68b92f1ad423cf0da609c4f81f5f0f59de4a6e,
+using collector edbf5f4a126d27770dd11d4107c4845329d6a2729ee1a591d3dd34e1559a60d8.
+All three latest tasks wereSUCCESS; job IDs62427,61395,61255 remain distinct
+from the selected overnight chain. Its age is projected at the booked claim;
+actual admission rechecks current jobs and refuses any change. No jobs were
+run, retried or rescheduled. Fresh integrity actually completed14:09:24,
+receipt33495b61e2c2dd1d98d461c4e3ff5382e43541041dac0105056c3a0ed47434a3.
+Host, host America/Vancouver and Mac America/Vancouver all independently
+resolve the booked epochs toUTC−07; the final timer epoch still must be read
+back. Existing Stream A authority is sufficient. Continue the active task
+through the peer's genuine release, final exact installation/arming and actual
+R3 model/restoration result.

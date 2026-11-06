@@ -1,0 +1,11 @@
+{
+  "schema": "b60-preinstall-source-refusal.v1",
+  "observed_epoch": 1794000337,
+  "failure": "News source SHA mismatch before B60 destination creation",
+  "destination_exists": false,
+  "production_effects": false,
+  "model_calls": 0,
+  "initial_installer_sha256": "0c427a53073c41b82ebf7531ef06898b4eea037b0d39229c3b20cda5264d906e",
+  "reviewed_replacement_installer_sha256": "28a52499ebe3c1c4a6862faf0e7ea1e288566a007f1e6b42322d4cd15c7b9ba9",
+  "replacement_executed": false
+}

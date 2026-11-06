@@ -1,0 +1,15 @@
+{
+  "schema": "b60-authenticated-history-receipt-summary.v1",
+  "path": "/mnt/Media/.local-ai-lease/b60-chain-history/b60-exclusive-20261106-day-r3.json",
+  "sha256": "bd6cda74623e941710f81c4ccd68b92f1ad423cf0da609c4f81f5f0f59de4a6e",
+  "producer_sha256": "edbf5f4a126d27770dd11d4107c4845329d6a2729ee1a591d3dd34e1559a60d8",
+  "observed_epoch": 1794000266,
+  "latest_job_ids": [
+    62427,
+    61395,
+    61255
+  ],
+  "authenticated_admin_transport_observed": true,
+  "cryptographic_signature_claimed": false,
+  "backup_jobs_or_access_modified": false
+}

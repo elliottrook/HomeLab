@@ -25,7 +25,7 @@
     "legacy_requests.py": "dbc596c5b77a8ea9359868798d621ff951c331754b2b4968c177b80d079e3dca",
     "model_trial.py": "e8679a156632d83450bd159af310d7972ae64c832a8ef532d9d62f7f632f022a",
     "namespace_mount.py": "031df2fb964c264c168cfd313de816391cb49d735701b17821edae2077a72566",
-    "news_xpu_boundary.py": "09d245c6ac12a8406a7f0667fc945816a1bce0ed8f072c8e4ed3fdd74bc042d7",
+    "news_xpu_boundary.py": "ad316c1a152b7b5c58950263553e753ea509364a4b4640e271697d1422ccd7a1",
     "request_failure_capture.py": "148ba041b0604236527063ec84e6d5187f71a1c093d4690c4810cf45c98e1068"
   },
   "offline_tests_passed": 171,
