@@ -29,8 +29,10 @@ UNIT_SHA = "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"
 PROCESS_MARKERS = ("vzdump", "zstd -t", "f2_preflight", "f3_from_f2",
                    "stream_a_evaluation_evidence", "full_aster_first_screen",
                    "m3_joint_semantic_35b", "sa3_candidate_i",
-                   "sa3_candidate_j", "m3_k2", "aster_tts_dual_cpu")
+                   "sa3_candidate_j", "aster_tts_dual_cpu", "aster_tts_single_cpu",
+                   "b60_musetalk_xpu_guest", "m3_k2")
 REGISTERED_RUNNER_KINDS = frozenset({
+    "b60-post-xe-card",
     "full-inference-pilot",
     "owner-loss-exercise",
     "sa3-expanded-quality",
@@ -38,10 +40,12 @@ REGISTERED_RUNNER_KINDS = frozenset({
     "sa3-evidence-envelope-candidate-i-quality",
     "sa3-evidence-matrix-candidate-j-public",
     "sa3-evidence-matrix-candidate-j-quality",
-    "m3-k2-shortlist-arbitration-development",
     "m3-joint-semantic-35b",
     "ebook-word-alignment",
     "aster-tts-dual-cpu-screen",
+    "aster-tts-single-cpu-screen",
+    "aster-news-video-musetalk-xpu",
+    "m3-k2-shortlist-arbitration-development",
 })
 
 
@@ -97,7 +101,7 @@ def require_quiet() -> None:
         if marker: raise RunError(f"COMPETING_PROCESS:{marker}")
 
 
-def commands(booking: dict[str, object], claimant: str, start: int):
+def commands(booking: dict[str, object], claimant: str, start: int, evidence: Path):
     spec = workload(str(booking["workload"]))
     cycle = datetime.fromtimestamp(start, LOCAL_ZONE).strftime("%Y_%m_%d")
     owner_unit = f"aster-local-ai-pilot-owner-{claimant}.scope"
@@ -127,7 +131,7 @@ def commands(booking: dict[str, object], claimant: str, start: int):
         "--session-start-epoch", str(start), "--model-sha256", MODEL_SHA,
         "--binary-sha256", BINARY_SHA, "--unit-sha256", UNIT_SHA,
         "--workload-profile", str(booking["workload"]),
-        "--retain-root", str(ATTEMPTS / f"reservation-{booking['booking_id']}"),
+        "--retain-root", str(evidence),
         "--effect-authorized", "--news-overlap-authorized")
     return guardian_unit, owner_unit, guardian, owner
 
@@ -207,20 +211,53 @@ def bounded_owner_failure(raw: str) -> str | None:
             f"_ATTEMPTED_{value['attempted']}_VALID_{value['valid']}")
 
 
-def run(booking_id: str) -> int:
+def run(booking_id: str, *, retry: bool = False) -> int:
+
+    # A registered exclusive-card booking is dispatched by its exact future
+    # clock. The qualified inner controller remains its ONLY ledger claimant.
+    # Never import that controller here: shared module names must stay isolated.
+    if os.geteuid() == 0:
+        try:
+            exclusive = ReservationStore(RESERVATIONS).get(booking_id)
+        except Exception:
+            exclusive = None
+        if exclusive is not None and exclusive.get('workload') == 'b60-accepted-sycl-post-xe-qualification-v1':
+            try:
+                if retry:
+                    raise RunError('EXCLUSIVE_CARD_NOT_RETRYABLE')
+                load_manifest()
+                from lab_hours_workloads import validate_registry, validate_inactive_target
+                validate_registry()
+                validate_inactive_target(PILOT, workload_id='b60-accepted-sycl-post-xe-qualification-v1')
+                from b60_post_xe_card_bridge import dispatch
+                return dispatch(exclusive, workload('b60-accepted-sycl-post-xe-qualification-v1'))
+            except Exception:
+                print(json.dumps({'state':'dispatch-refused','booking_id':booking_id,
+                    'workload':'b60-accepted-sycl-post-xe-qualification-v1',
+                    'qualification_claimed':False},sort_keys=True))
+                return 1
     started = int(time.time())
     claimant = f"lh-{hashlib.sha256(booking_id.encode()).hexdigest()[:20]}"
     store = ReservationStore(RESERVATIONS); phase = "claim"; restored = True
-    evidence = ATTEMPTS / f"reservation-{booking_id}"
+    evidence = ATTEMPTS / f"reservation-{booking_id}-pending"
     guardian_unit = None
+    booking = None
+    spec = None
+    admitted = False
     try:
         if os.geteuid() != 0: raise RunError("ROOT_REQUIRED")
-        booking = store.claim(booking_id, claimant=claimant)
+        booking = (store.start_retry(booking_id, claimant=claimant) if retry
+                   else store.claim(booking_id, claimant=claimant))
+        admitted = True
         pins = load_manifest()
         spec = workload(str(booking.get("workload")))
+        attempt_number = int(booking.get("current_attempt", 1))
+        evidence = ATTEMPTS / f"reservation-{booking_id}-attempt-{attempt_number}"
         if spec.runner_kind not in REGISTERED_RUNNER_KINDS:
             raise RunError("WORKLOAD_RUNNER_NOT_REGISTERED")
         if spec.runner_kind in {"ebook-word-alignment", "aster-tts-dual-cpu-screen",
+                                "aster-tts-single-cpu-screen",
+                                "aster-news-video-musetalk-xpu",
                                 "m3-k2-shortlist-arbitration-development"}:
             if booking.get("owner") != spec.owner:
                 raise RunError("WORKLOAD_OWNER_MISMATCH")
@@ -230,7 +267,7 @@ def run(booking_id: str) -> int:
         evidence.mkdir(mode=0o700, parents=True)
         phase = "static-preflight"; require_quiet()
         start = int(time.time()) + 60
-        guardian_unit, owner_unit, guardian, owner = commands(booking, claimant, start)
+        guardian_unit, owner_unit, guardian, owner = commands(booking, claimant, start, evidence)
         atomic_json(evidence / "attempt.json", {"schema":"aster-lab-hours-booked-attempt.v1",
             "booking_id":booking_id,"claimant":claimant,"start_epoch":start,
             "end_epoch":booking["end_epoch"],"candidate_pins":pins})
@@ -282,11 +319,13 @@ def run(booking_id: str) -> int:
                 "sa3-evidence-matrix-candidate-j-public-complete",
             "sa3-evidence-matrix-candidate-j-quality":
                 "sa3-evidence-matrix-candidate-j-quality-complete",
-            "m3-k2-shortlist-arbitration-development":
-                "m3-k2-development-complete",
             "m3-joint-semantic-35b": "m3-joint-semantic-public-complete",
             "ebook-word-alignment": "ebook-word-alignment-benchmark-complete",
             "aster-tts-dual-cpu-screen": "aster-tts-dual-cpu-screen-complete",
+            "aster-tts-single-cpu-screen": "aster-tts-single-cpu-screen-complete",
+            "aster-news-video-musetalk-xpu": "aster-news-video-musetalk-xpu-complete",
+            "m3-k2-shortlist-arbitration-development":
+                "m3-k2-development-complete",
         }.get(spec.runner_kind, "pilot-complete"))
         receipt_body=receipt.get("receipt")
         receipt_valid=(isinstance(receipt_body,dict)
@@ -321,6 +360,20 @@ def run(booking_id: str) -> int:
                 and len(receipt_body["prediction_sha256"])==64
                 and all(c in "0123456789abcdef"
                         for c in receipt_body["prediction_sha256"]))
+        elif spec.runner_kind=="sa3-evidence-matrix-candidate-j-public":
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "model_request_count","case_count",
+                                        "prediction_sha256","error_count"}
+                and receipt.get("production_restored") is True
+                and receipt_body.get("model_request_count")==2
+                and receipt_body.get("case_count")==6
+                and receipt_body.get("error_count")==0
+                and isinstance(receipt_body.get("prediction_sha256"),str)
+                and len(receipt_body["prediction_sha256"])==64
+                and all(c in "0123456789abcdef"
+                        for c in receipt_body["prediction_sha256"]))
         elif spec.runner_kind=="m3-k2-shortlist-arbitration-development":
             receipt_valid=(receipt_valid
                 and set(receipt)=={"effects","production_restored","receipt"}
@@ -336,20 +389,6 @@ def run(booking_id: str) -> int:
                 and receipt_body.get("status") in {"pass","reject"}
                 and (receipt_body["status"] == "pass")
                     is receipt_body["development_gate_passed"]
-                and isinstance(receipt_body.get("prediction_sha256"),str)
-                and len(receipt_body["prediction_sha256"])==64
-                and all(c in "0123456789abcdef"
-                        for c in receipt_body["prediction_sha256"]))
-        elif spec.runner_kind=="sa3-evidence-matrix-candidate-j-public":
-            receipt_valid=(receipt_valid
-                and set(receipt)=={"effects","production_restored","receipt"}
-                and set(receipt_body)=={"exit_status","profile","request_count",
-                                        "model_request_count","case_count",
-                                        "prediction_sha256","error_count"}
-                and receipt.get("production_restored") is True
-                and receipt_body.get("model_request_count")==2
-                and receipt_body.get("case_count")==6
-                and receipt_body.get("error_count")==0
                 and isinstance(receipt_body.get("prediction_sha256"),str)
                 and len(receipt_body["prediction_sha256"])==64
                 and all(c in "0123456789abcdef"
@@ -379,6 +418,40 @@ def run(booking_id: str) -> int:
                 and all(c in "0123456789abcdef" for c in receipt_body["result_sha256"])
                 and receipt_body.get("candidate_count")==2
                 and receipt_body.get("passed_count")==2)
+        elif spec.runner_kind=="aster-tts-single-cpu-screen":
+            expected_candidate={
+                "aster-tts-qwen-0p6b-cpu-screen-v1": "qwen3-tts-0.6b-base-q8-cpu",
+                "aster-tts-qwen-1p7b-cpu-screen-v1": "qwen3-tts-1.7b-base-q8-cpu",
+            }.get(booking["workload"])
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "result_sha256","candidate_count","passed_count",
+                                        "candidate_id"}
+                and receipt.get("production_restored") is True
+                and isinstance(receipt_body.get("result_sha256"),str)
+                and len(receipt_body["result_sha256"])==64
+                and all(c in "0123456789abcdef" for c in receipt_body["result_sha256"])
+                and receipt_body.get("candidate_count")==1
+                and receipt_body.get("passed_count")==1
+                and receipt_body.get("candidate_id")==expected_candidate)
+        elif spec.runner_kind=="aster-news-video-musetalk-xpu":
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "result_sha256","frame_count","output_sha256",
+                                        "render_seconds"}
+                and receipt.get("production_restored") is True
+                and isinstance(receipt_body.get("result_sha256"),str)
+                and len(receipt_body["result_sha256"])==64
+                and all(c in "0123456789abcdef" for c in receipt_body["result_sha256"])
+                and isinstance(receipt_body.get("output_sha256"),str)
+                and len(receipt_body["output_sha256"])==64
+                and all(c in "0123456789abcdef" for c in receipt_body["output_sha256"])
+                and type(receipt_body.get("frame_count")) is int
+                and 1 <= receipt_body["frame_count"] <= 100
+                and type(receipt_body.get("render_seconds")) in {int,float}
+                and receipt_body["render_seconds"] > 0)
         elif spec.runner_kind=="m3-joint-semantic-35b":
             receipt_valid=(receipt_valid
                 and set(receipt)=={"effects","production_restored","receipt"}
@@ -400,7 +473,11 @@ def run(booking_id: str) -> int:
             "state":"complete","booking_id":booking_id,"started_epoch":started,
             "finished_epoch":int(time.time()),"request_count":expected_requests,
             "workload":booking["workload"],"production_restored":True})
-        store.finish(booking_id,claimant=claimant,success=True,result_code="COMPLETE")
+        if spec.retryable_session:
+            store.finish_attempt(booking_id, claimant=claimant, success=True,
+                                 result_code="COMPLETE", production_restored=True)
+        else:
+            store.finish(booking_id,claimant=claimant,success=True,result_code="COMPLETE")
         return 0
     except BaseException as exc:
         if (restored and guardian_unit
@@ -414,14 +491,22 @@ def run(booking_id: str) -> int:
             "state":"no_go","booking_id":booking_id,"started_epoch":started,
             "finished_epoch":int(time.time()),"first_failure_phase":phase,
             "failure_code":code,"production_restored":restored})
-        try: store.finish(booking_id,claimant=claimant,success=False,result_code="NO_GO")
-        except ReservationError: pass
+        if admitted:
+            try:
+                if spec is not None and spec.retryable_session:
+                    store.finish_attempt(booking_id, claimant=claimant, success=False,
+                                         result_code="NO_GO", production_restored=restored)
+                else:
+                    store.finish(booking_id,claimant=claimant,success=False,result_code="NO_GO")
+            except ReservationError: pass
         return 1
 
 
 def main() -> int:
     p=argparse.ArgumentParser(); p.add_argument("--booking-id",required=True)
-    return run(p.parse_args().booking_id)
+    p.add_argument("--retry", action="store_true")
+    args = p.parse_args()
+    return run(args.booking_id, retry=args.retry)
 
 
 if __name__=="__main__": raise SystemExit(main())

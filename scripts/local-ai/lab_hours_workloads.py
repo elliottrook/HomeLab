@@ -28,6 +28,8 @@ class WorkloadSpec:
     runtime_pins: tuple[tuple[str, str], ...]
     packet_sha256: str | None = None
     result_max_bytes: int | None = None
+    retryable_session: bool = False
+    maximum_attempts: int | None = 1
 
     @property
     def rescue_after_seconds(self) -> int:
@@ -159,18 +161,29 @@ WORKLOADS = {
         minimum_booking_seconds=1800, recovery_reserve_seconds=900,
         runner_kind="ebook-word-alignment", runtime_pins=(
             ("epub_word_alignment_transaction.py", "fb4cbcb5dd22963ae9557971e2b74eaba634a39ae233c3c75d00262125730a50"),
-            ("epub_word_alignment_adapter.py", "59d47d79cd924f992d999a2c2f0928c51ab22747227c11bde6c9bd890586af8c"),
+            ("epub_word_alignment_adapter.py", "8df7f426c941d043e5e69b1c1ba8f214d479750793c5e0d6cd7551c3af15e29e"),
         ),
         packet_sha256="1fde84377288795f522d5946380734e43dc643fd58b06720fdf79b56d59dd257",
         result_max_bytes=65536,
     ),
-    "aster-tts-dual-cpu-screen-v1": WorkloadSpec(
-        workload_id="aster-tts-dual-cpu-screen-v1", owner="aster-tts-experiment",
-        request_count=2, per_request_timeout_seconds=2000, deadline_seconds=4500,
-        minimum_booking_seconds=5400, recovery_reserve_seconds=900,
-        runner_kind="aster-tts-dual-cpu-screen", runtime_pins=(
-            ("tts_dual_cpu_screen_transaction.py", "e3614a0b8f569d0997c0ead2beb433526725dd2b199d29a429fb3b5db25a3955"),
-            ("tts_dual_cpu_screen_adapter.py", "94b27a7e48777d9ebf1f8cf47ed21dab4e3220e1d1fee77d54dddb329db46b39"),
+    "aster-tts-qwen-0p6b-cpu-screen-v1": WorkloadSpec(
+        workload_id="aster-tts-qwen-0p6b-cpu-screen-v1", owner="aster-tts-experiment",
+        request_count=1, per_request_timeout_seconds=2100, deadline_seconds=2400,
+        minimum_booking_seconds=3600, recovery_reserve_seconds=900,
+        runner_kind="aster-tts-single-cpu-screen", runtime_pins=(
+            ("tts_single_cpu_screen_transaction.py", "cab558a729a07ce3a3b67edffbc54d3e54f3514dc1d54cf71888cf5526116f52"),
+            ("tts_single_cpu_screen_adapter.py", "7846e324019d8dfbcdca7d53fcb565dbd2d332ddcf5dc2779b24112d9e034e8d"),
+        ),
+        packet_sha256="83616d4e4e5329d626e23597542487f0e43903622f0daea4c5648d53d74a6f90",
+        result_max_bytes=65536,
+    ),
+    "aster-tts-qwen-1p7b-cpu-screen-v1": WorkloadSpec(
+        workload_id="aster-tts-qwen-1p7b-cpu-screen-v1", owner="aster-tts-experiment",
+        request_count=1, per_request_timeout_seconds=2100, deadline_seconds=2400,
+        minimum_booking_seconds=3600, recovery_reserve_seconds=900,
+        runner_kind="aster-tts-single-cpu-screen", runtime_pins=(
+            ("tts_single_cpu_screen_transaction.py", "cab558a729a07ce3a3b67edffbc54d3e54f3514dc1d54cf71888cf5526116f52"),
+            ("tts_single_cpu_screen_adapter.py", "7846e324019d8dfbcdca7d53fcb565dbd2d332ddcf5dc2779b24112d9e034e8d"),
         ),
         packet_sha256="83616d4e4e5329d626e23597542487f0e43903622f0daea4c5648d53d74a6f90",
         result_max_bytes=65536,
@@ -193,12 +206,45 @@ WORKLOADS = {
         packet_sha256="53cfd6a5a8b09ada122c64c60af3264b0ebda595bf1f2d5d53da2710e0141132",
         result_max_bytes=524288,
     ),
+    "aster-news-video-musetalk-xpu-smoke-v1": WorkloadSpec(
+        workload_id="aster-news-video-musetalk-xpu-smoke-v1",
+        owner="aster-news-video",
+        request_count=1, per_request_timeout_seconds=1200, deadline_seconds=1200,
+        minimum_booking_seconds=5400, recovery_reserve_seconds=900,
+        runner_kind="aster-news-video-musetalk-xpu", runtime_pins=(
+            ("b60_musetalk_xpu_transaction.py",
+             "a2c67006c3559ff86ab35dadfa6c7e511293d28b21d4a08589248608c053b58b"),
+            ("b60_musetalk_xpu_adapter.py",
+             "694c9b412cd769b62b5302679ff5453cb2a6b376a61b5583d7e78771d603308b"),
+        ),
+        packet_sha256="224c7b45aab24076c15b5009efd77f679f0b271767d8bddbff64ab6309390209",
+        result_max_bytes=65536,
+        retryable_session=True, maximum_attempts=None,
+    ),
+    "aster-news-video-musetalk-openvino-smoke-v1": WorkloadSpec(
+        workload_id="aster-news-video-musetalk-openvino-smoke-v1",
+        owner="aster-news-video",
+        request_count=1, per_request_timeout_seconds=900, deadline_seconds=900,
+        minimum_booking_seconds=1500, recovery_reserve_seconds=900,
+        runner_kind="aster-news-video-musetalk-xpu", runtime_pins=(
+            ("b60_musetalk_openvino_transaction.py",
+             "6614f32e7223936be2a7a9c1c46f4108dbdcd57d9f762f5b478d23f194467881"),
+            ("b60_musetalk_openvino_adapter.py",
+             "84f9446bd545297b4b8f6764843a93e4ce48fa0d2113fc1564b9d25c83a5a054"),
+            ("b60_musetalk_xpu_adapter.py",
+             "694c9b412cd769b62b5302679ff5453cb2a6b376a61b5583d7e78771d603308b"),
+            ("b60_musetalk_xpu_transaction.py",
+             "a2c67006c3559ff86ab35dadfa6c7e511293d28b21d4a08589248608c053b58b"),
+        ),
+        packet_sha256="9ebfacfcb006b8f2729fac19c161b587ed55d77eff73b9152d5c515c240a39aa",
+        result_max_bytes=65536,
+        retryable_session=True, maximum_attempts=None,
+    ),
     "m3-k2-shortlist-arbitration-development-v1": WorkloadSpec(
         workload_id="m3-k2-shortlist-arbitration-development-v1",
-        owner="aster-stream-a",
-        request_count=192, per_request_timeout_seconds=45,
-        deadline_seconds=1800, minimum_booking_seconds=3600,
-        recovery_reserve_seconds=900,
+        owner="aster-stream-a", request_count=192,
+        per_request_timeout_seconds=45, deadline_seconds=1800,
+        minimum_booking_seconds=3600, recovery_reserve_seconds=900,
         runner_kind="m3-k2-shortlist-arbitration-development",
         runtime_pins=(
             ("nlu_deterministic_guard_v1.py", "d7d62d19008519ae50aa9b46799ab1f277a51904f2e80e65c30517abca8a7135"),
@@ -218,6 +264,17 @@ WORKLOADS = {
         result_max_bytes=1048576,
     ),
 }
+
+
+
+WORKLOADS['b60-accepted-sycl-post-xe-qualification-v1'] = WorkloadSpec(
+    workload_id='b60-accepted-sycl-post-xe-qualification-v1', owner='b60-stream-a', request_count=3,
+    per_request_timeout_seconds=30, deadline_seconds=900,
+    minimum_booking_seconds=2700, recovery_reserve_seconds=900,
+    runner_kind='b60-post-xe-card',
+    runtime_pins=(('b60_post_xe_card_bridge.py', '2c2f57a9d42d248456deb1d354d12bfd08e5e56ee3fa4ff7c92bebcac9934600'),),
+    result_max_bytes=8192, retryable_session=False, maximum_attempts=1,
+)
 
 
 REGISTERED_WORKLOADS = frozenset(WORKLOADS)
@@ -312,19 +369,21 @@ def validate_registry() -> None:
             or ebook.result_max_bytes != 65536):
         raise ValueError("eBook word-alignment registration drift")
 
-    tts = workload("aster-tts-dual-cpu-screen-v1")
-    if (tts.owner != "aster-tts-experiment"
-            or tts.request_count != 2
-            or tts.per_request_timeout_seconds != 2000
-            or tts.deadline_seconds != 4500
-            or tts.minimum_booking_seconds != 5400
-            or tts.recovery_reserve_seconds != 900
-            or tts.runner_kind != "aster-tts-dual-cpu-screen"
-            or len(tts.runtime_pins) != 2
-            or tts.packet_sha256 !=
-                "83616d4e4e5329d626e23597542487f0e43903622f0daea4c5648d53d74a6f90"
-            or tts.result_max_bytes != 65536):
-        raise ValueError("Aster TTS dual CPU screen registration drift")
+    for tts_id in ("aster-tts-qwen-0p6b-cpu-screen-v1",
+                   "aster-tts-qwen-1p7b-cpu-screen-v1"):
+        tts = workload(tts_id)
+        if (tts.owner != "aster-tts-experiment"
+                or tts.request_count != 1
+                or tts.per_request_timeout_seconds != 2100
+                or tts.deadline_seconds != 2400
+                or tts.minimum_booking_seconds != 3600
+                or tts.recovery_reserve_seconds != 900
+                or tts.runner_kind != "aster-tts-single-cpu-screen"
+                or len(tts.runtime_pins) != 2
+                or tts.packet_sha256 !=
+                    "83616d4e4e5329d626e23597542487f0e43903622f0daea4c5648d53d74a6f90"
+                or tts.result_max_bytes != 65536):
+            raise ValueError("Aster TTS single CPU screen registration drift")
 
     candidate_j_quality = workload("sa3-evidence-matrix-candidate-j-quality-v1")
     if (candidate_j_quality.owner != "aster-stream-a"
@@ -357,6 +416,45 @@ def validate_registry() -> None:
             or k2.result_max_bytes != 1048576):
         raise ValueError("M3 K2 registration drift")
 
+    musetalk = workload("aster-news-video-musetalk-xpu-smoke-v1")
+    if (musetalk.owner != "aster-news-video"
+            or musetalk.request_count != 1
+            or musetalk.per_request_timeout_seconds != 1200
+            or musetalk.deadline_seconds != 1200
+            or musetalk.minimum_booking_seconds != 5400
+            or musetalk.recovery_reserve_seconds != 900
+            or musetalk.runner_kind != "aster-news-video-musetalk-xpu"
+            or len(musetalk.runtime_pins) != 2
+            or musetalk.packet_sha256 !=
+                "224c7b45aab24076c15b5009efd77f679f0b271767d8bddbff64ab6309390209"
+            or musetalk.result_max_bytes != 65536
+            or not musetalk.retryable_session
+            or musetalk.maximum_attempts is not None):
+        raise ValueError("MuseTalk XPU registration drift")
+    musetalk_ov = workload("aster-news-video-musetalk-openvino-smoke-v1")
+    if (musetalk_ov.owner != "aster-news-video"
+            or musetalk_ov.request_count != 1
+            or musetalk_ov.deadline_seconds != 900
+            or musetalk_ov.minimum_booking_seconds != 1500
+            or musetalk_ov.recovery_reserve_seconds != 900
+            or musetalk_ov.runner_kind != "aster-news-video-musetalk-xpu"
+            or len(musetalk_ov.runtime_pins) != 4
+            or musetalk_ov.packet_sha256 !=
+                "9ebfacfcb006b8f2729fac19c161b587ed55d77eff73b9152d5c515c240a39aa"
+            or musetalk_ov.result_max_bytes != 65536
+            or not musetalk_ov.retryable_session
+            or musetalk_ov.maximum_attempts is not None):
+        raise ValueError("MuseTalk OpenVINO registration drift")
+
+
+    b60 = workload('b60-accepted-sycl-post-xe-qualification-v1')
+    if (b60.owner != 'b60-stream-a' or b60.runner_kind != 'b60-post-xe-card'
+            or b60.request_count != 3 or b60.per_request_timeout_seconds != 30
+            or b60.deadline_seconds != 900 or b60.minimum_booking_seconds != 2700
+            or b60.recovery_reserve_seconds != 900 or b60.retryable_session
+            or b60.maximum_attempts != 1 or b60.result_max_bytes != 8192
+            or b60.runtime_pins != (('b60_post_xe_card_bridge.py', '2c2f57a9d42d248456deb1d354d12bfd08e5e56ee3fa4ff7c92bebcac9934600'),)):
+        raise ValueError('B60 fixed-card registration drift')
 
 def _local_imports(path: Path) -> set[str]:
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))

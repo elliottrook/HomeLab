@@ -254,7 +254,8 @@ class FullInferenceDrainController:
             _journal(self.paths.journal, {"event": "restore-overdue", "lease_id": value.lease_id})
         observed = {tuple(event.get("command", ())) for event in
                     (_read_journal(self.paths.journal))
-                    if event.get("event") == "restore-observed"}
+                    if (event.get("event") == "restore-observed"
+                        and event.get("lease_id") == value.lease_id)}
         for command in value.restore_commands:
             phase = ("warmup" if tuple(command) == FULL_WARMUP_COMMAND else
                      ("unmask" if "unmask" in command else "start"))

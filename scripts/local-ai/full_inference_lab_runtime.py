@@ -171,6 +171,8 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
              wall_clock: Callable[[], float] = time.time,
              sleep: Callable[[float], None] = time.sleep) -> int:
     """Run one registered fixed SA3 transaction under the drain controller."""
+    tts_workload_id = None
+    musetalk_workload = False
     if args.workload_profile == "sa3-expanded-source-quality-v1":
         from sa3_expanded_quality_transaction import execute
         from sa3_listener_adapter import run as run_sa3_listener
@@ -189,9 +191,23 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
     elif args.workload_profile == "aster-tts-dual-cpu-screen-v1":
         from tts_dual_cpu_screen_transaction import execute
         from tts_dual_cpu_screen_adapter import run as run_sa3_listener
+    elif args.workload_profile in {
+            "aster-tts-qwen-0p6b-cpu-screen-v1",
+            "aster-tts-qwen-1p7b-cpu-screen-v1"}:
+        from tts_single_cpu_screen_transaction import execute
+        from tts_single_cpu_screen_adapter import run as run_sa3_listener
+        tts_workload_id = args.workload_profile
     elif args.workload_profile == "sa3-evidence-matrix-candidate-j-quality-v1":
         from sa3_candidate_j_quality_transaction import execute
         from sa3_candidate_j_quality_listener_adapter import run as run_sa3_listener
+    elif args.workload_profile == "aster-news-video-musetalk-xpu-smoke-v1":
+        from b60_musetalk_xpu_transaction import execute
+        from b60_musetalk_xpu_adapter import run as run_sa3_listener
+        musetalk_workload = True
+    elif args.workload_profile == "aster-news-video-musetalk-openvino-smoke-v1":
+        from b60_musetalk_openvino_transaction import execute
+        from b60_musetalk_openvino_adapter import run as run_sa3_listener
+        musetalk_workload = True
     elif args.workload_profile == "m3-k2-shortlist-arbitration-development-v1":
         from m3_k2_development_transaction import execute
         from m3_k2_development_listener_adapter import run as run_sa3_listener
@@ -202,8 +218,13 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
     producer = LocalProxmoxFullDrainSourceProducer(
         runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence),
         wall_clock=wall_clock)
-    lab_seconds = (1800 if args.workload_profile ==
-                   "m3-k2-shortlist-arbitration-development-v1" else
+    if (musetalk_workload or args.workload_profile ==
+            "m3-k2-shortlist-arbitration-development-v1"):
+        from lab_hours_workloads import workload as registered_workload
+        lab_seconds = registered_workload(args.workload_profile).deadline_seconds
+    else:
+        lab_seconds = (
+                   (2400 if tts_workload_id is not None else
                    (2700 if args.workload_profile ==
                    "sa3-evidence-matrix-candidate-j-quality-v1" else
                    (4500 if args.workload_profile ==
@@ -211,7 +232,7 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
                    (900 if args.workload_profile ==
                    "astertv-v3-ebook-word-alignment-v1" else
                    (1800 if args.workload_profile ==
-                    "sa3-evidence-matrix-candidate-j-public-v1" else 2700)))))
+                    "sa3-evidence-matrix-candidate-j-public-v1" else 2700))))))
     preflight = producer.collect(cycle=args.cycle, session_start_epoch=args.session_start_epoch,
                                  lab_seconds=lab_seconds)
     now = int(wall_clock()); lead = args.session_start_epoch - now
@@ -240,8 +261,11 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
     def workload_runner(*, heartbeat, deadline_epoch):
         plan = captured.get("plan")
         if plan is None: raise SupervisorError("SA3 drain plan was not captured")
-        return run_sa3_listener(lease_id=plan.lease_id, generation=plan.generation,
-                                deadline_epoch=deadline_epoch, heartbeat=heartbeat)
+        arguments = {"lease_id": plan.lease_id, "generation": plan.generation,
+                     "deadline_epoch": deadline_epoch, "heartbeat": heartbeat}
+        if tts_workload_id is not None:
+            arguments["workload_id"] = tts_workload_id
+        return run_sa3_listener(**arguments)
 
     def cleanup_postcheck() -> None:
         plan = captured.get("plan")
@@ -255,15 +279,30 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
             from tts_dual_cpu_screen_adapter import absent
             if not absent(runner, lease_id=plan.lease_id, generation=plan.generation):
                 raise SupervisorError("Aster TTS CPU screen cleanup is not proven")
+        elif tts_workload_id is not None:
+            from tts_single_cpu_screen_adapter import absent
+            if not absent(runner, workload_id=tts_workload_id,
+                          lease_id=plan.lease_id, generation=plan.generation):
+                raise SupervisorError("Aster TTS single CPU screen cleanup is not proven")
+        elif musetalk_workload:
+            if args.workload_profile == "aster-news-video-musetalk-openvino-smoke-v1":
+                from b60_musetalk_openvino_adapter import absent
+            else:
+                from b60_musetalk_xpu_adapter import absent
+            if not absent(runner, lease_id=plan.lease_id, generation=plan.generation):
+                raise SupervisorError("MuseTalk XPU cleanup is not proven")
         elif not lab_is_absent(runner, lease_id=plan.lease_id,
                                generation=plan.generation):
             raise SupervisorError("SA3 listener cleanup is not proven")
         _accepted_gpu_baseline(gpu_users())
 
-    receipt = execute(preflight=preflight, controller=CapturingController(),
-                      workload_runner=workload_runner,
-                      retain_root=Path(args.retain_root), now=owner.now_epoch,
-                      heartbeat=heartbeat, cleanup=cleanup_postcheck)
+    execute_arguments = {"preflight": preflight, "controller": CapturingController(),
+                         "workload_runner": workload_runner,
+                         "retain_root": Path(args.retain_root), "now": owner.now_epoch,
+                         "heartbeat": heartbeat, "cleanup": cleanup_postcheck}
+    if tts_workload_id is not None:
+        execute_arguments["workload_id"] = tts_workload_id
+    receipt = execute(**execute_arguments)
     print(json.dumps(receipt, sort_keys=True))
     return 0
 
@@ -369,6 +408,10 @@ def _parser() -> argparse.ArgumentParser:
         "m3-joint-semantic-35b-public-v1",
         "astertv-v3-ebook-word-alignment-v1",
         "aster-tts-dual-cpu-screen-v1",
+        "aster-tts-qwen-0p6b-cpu-screen-v1",
+        "aster-tts-qwen-1p7b-cpu-screen-v1",
+        "aster-news-video-musetalk-xpu-smoke-v1",
+        "aster-news-video-musetalk-openvino-smoke-v1",
         "sa3-evidence-matrix-candidate-j-quality-v1",
         "m3-k2-shortlist-arbitration-development-v1"),
         default="accepted-9b-direct-control-smoke-v1")
@@ -408,6 +451,10 @@ def main(argv: list[str] | None = None) -> int:
                 "sa3-evidence-matrix-candidate-j-public-v1",
                 "astertv-v3-ebook-word-alignment-v1",
                 "aster-tts-dual-cpu-screen-v1",
+                "aster-tts-qwen-0p6b-cpu-screen-v1",
+                "aster-tts-qwen-1p7b-cpu-screen-v1",
+                "aster-news-video-musetalk-xpu-smoke-v1",
+                "aster-news-video-musetalk-openvino-smoke-v1",
                 "sa3-evidence-matrix-candidate-j-quality-v1",
                 "m3-k2-shortlist-arbitration-development-v1"}:
             return _run_sa3(args, paths, runner=runner)

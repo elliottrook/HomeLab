@@ -18,17 +18,17 @@ GUEST_CHECKPOINT = str(CHECKPOINT)
 UNIT_PREFIX = "aster-lab-hours-booking-m3-k2-shortlist-arbitration-development-v1"
 HOST_REPLACE = {
     "lab_hours_workloads.py": (
-        "a6a6acb58de8ca8fee2246522aa8e2aa3ebb7d57db2348d694238e4cffbcdfec",
-        "ca793b300bd4cb48d5003cbeb3f30a94e981d1c3557472408110e411332167be", 0o755),
+        "24ebdcacb4f1a950985360cf400c97742346568b280e30f83c36c12dbb7adf1e",
+        "15cee88fc1f423b78b692e7ffdc30cfa6ff4835ebd3fd63ddeaaf03d0235cc3b", 0o755),
     "lab_hours_reserved_runner.py": (
-        "4d28ccc44db8a343aa0a1e4baea87d4964bced7db53154f627b5904f7270b11b",
-        "9619982232a85c77307f56223b4a5e775882e65dc1886d2aa8a52a23b7eb0849", 0o755),
+        "e7da5a1bdefb02e8611398ea4a6b4f0a3ab30d666a5ca2c867bb01185aded51e",
+        "418e521ed77de6e86ffc9361f7f121f57d3adb9866bfdf6fe30749fcc15c3b3b", 0o755),
     "full_inference_lab_runtime.py": (
-        "cddae0e3da7ad3c6c6b11b5fb2503f54dec916815e3eb336e13bed74c16b2f61",
-        "c52870b880270511495189f4adcb7dd89e34fc199449fe4beb237a754f34be22", 0o755),
+        "59d3547b2efd291545c143da1b8a48781f31f704845366b60398c49c0c474537",
+        "dab19afb5e01f8c9659d8209ed824f77f606c7d2f3ca0a4f67c9a6c37a2ecba3", 0o755),
     "lab_hours_release_manifest.json": (
-        "908b4fe5cd39fca781305913b426e8f6de5991e9246ba4ac16cab15ad9f2f64e",
-        "5ecc95ab0a457571f3453feaa0ef2dbece39689c21e4fe30b3031268333840a3", 0o600),
+        "f697e2e085052e5b3b179d74882ebcc3e3bd1f5ce928ed469c23a17a509ac0ee",
+        "090e49ac4fb18937f3b9287535bcd9df102d1fc0780d940eecb5bd61a4b3942d", 0o600),
 }
 HOST_ADD = {
     "m3_k2_development_transaction.py":
@@ -208,7 +208,7 @@ def install(stage: Path) -> dict[str, object]:
             "import full_inference_lab_runtime;"
             "import m3_k2_development_transaction;"
             "import m3_k2_development_listener_adapter;"
-            "assert len(r.load_manifest())==49;"
+            "assert len(r.load_manifest())==56;"
             "s=w.workload('m3-k2-shortlist-arbitration-development-v1');"
             "assert s.runner_kind in r.REGISTERED_RUNNER_KINDS and len(s.runtime_pins)==12"),
             env=host_env, capture_output=True, text=True, timeout=30,
@@ -229,7 +229,7 @@ def install(stage: Path) -> dict[str, object]:
         return {"state": "installed-inactive",
                 "host_replaced": len(HOST_REPLACE),
                 "host_added": len(HOST_ADD), "guest": guest_value,
-                "manifest_pins": 49, "checkpoint": "retained",
+                "manifest_pins": 56, "checkpoint": "retained",
                 "service_restart": False, "workload_effect": "not-attempted",
                 "booking": "absent"}
     except BaseException:

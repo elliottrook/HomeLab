@@ -15,6 +15,8 @@ RUNNER = Path("/usr/local/libexec/local-ai-lease/full-inference-pilot/lab_hours_
 
 
 def dispatch(store: ReservationStore, *, runner= subprocess.run) -> dict[str, object]:
+    expired = store.expire_sessions()
+    promoted = store.promote_waiting()
     due = store.due()
     started: list[str] = []
     failed: list[str] = []
@@ -31,7 +33,8 @@ def dispatch(store: ReservationStore, *, runner= subprocess.run) -> dict[str, ob
         result = runner(command, capture_output=True, text=True, timeout=30, check=False)
         (started if result.returncode == 0 else failed).append(booking_id)
     return {"state": "complete" if not failed else "partial",
-            "due": len(due), "started": started, "failed": failed}
+            "due": len(due), "started": started, "failed": failed,
+            "expired_sessions": expired, "promoted": promoted}
 
 
 def main() -> int:
