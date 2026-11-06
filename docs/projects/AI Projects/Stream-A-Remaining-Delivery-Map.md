@@ -339,7 +339,11 @@
 > pull failure cannot sign and push failure retains evidence. The full suite
 > passes 180/180. A joined concurrent disposable rehearsal then completes the
 > fixed request/pull/sign/push/accept loop end to end; the suite passes 181/181.
-> Next is the exact reversible inactive-install packet and result verifier.
+> The exact [inactive-install review](evidence/SA4-effect-controller-inactive-install-review-2026-11-05.md)
+> now pins three absent destinations, source hashes, the unchanged observer
+> signer and remove-only-exact rollback. Postchecks cannot invoke any effect.
+> The full suite passes 184/184. The inactive three-file installation is the
+> next explicit deployment gate.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
