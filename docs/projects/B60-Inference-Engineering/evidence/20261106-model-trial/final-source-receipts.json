@@ -1,0 +1,27 @@
+{
+  "read_receipts": [
+    {
+      "commit": "2c483d2c5db87519d7ed25a21e8bd37b01082a44",
+      "path": "docs/projects/AI Projects/evidence/M3-J2-single-owner-isolated-agent-custody-decision-2026-11-06.md",
+      "sha256": "29b8327d8fc3d734adc106feaca824a0b5e75b1bfe5f55389c1fd63abdb5816b"
+    },
+    {
+      "commit": "44a990c614f375379393c33c758ae6412051abe9",
+      "path": "docs/projects/B60-Inference-Engineering/model-trial-armed-20261106.md",
+      "sha256": "822b8ee60e71e4503e512e6298b88f864377282c563d3f0555de5d605e368597"
+    },
+    {
+      "commit": "6fb0207fec5190e0c34ed3bc72ea38e128f06127",
+      "path": "docs/runbooks/Local-AI-Lease.md",
+      "sha256": "064b56ee8fca8aad37e9ae627cf119c581c3f8d8ad7d9782ccfeb0fa23b31d4c"
+    }
+  ],
+  "final_manifest": {
+    "fixed_command.py": "9fd4e5746363e7cbdcac0d121d15cdac4ce990c24a1e988bc8b98faad8bcf260",
+    "guest_requests.py": "dbc596c5b77a8ea9359868798d621ff951c331754b2b4968c177b80d079e3dca",
+    "guest_supervisor.py": "ca23df9ec859044cee61737be476a8eab53f4b30a30efbf3b1421863e8fe0449",
+    "model_trial.py": "fac108c4f4c0d90eba8211433623edd6ddc4bd4c019911cf1a7b10986022033b",
+    "namespace_mount.py": "031df2fb964c264c168cfd313de816391cb49d735701b17821edae2077a72566"
+  },
+  "offline_tests_passed": 144
+}

@@ -21,7 +21,12 @@ def postcheck():
   assert not any(p.exists() or p.is_symlink() for p in [ROOT/'lease.json',ROOT/'lease.lock',ROOT/'full-inference-drain.json',ROOT/'full-inference-drain.lock',Path('/run/local-ai-lab-operation.lock')])
   assert json.loads(command(['/usr/local/sbin/local-ai-lease','status']))=={'state':'ready'}
   manifest=initialize();card=card_for(B)
+  current_arm=json.loads(protected_bytes(ROOT/'arming-receipts'/(B+'-model-revision5.json')))
+  assert current_arm['source_sha256']==manifest and current_arm['model_card_sha256']==hashlib.sha256(protected_bytes(ROOT/'model-trial-cards'/(B+'.json'))).hexdigest()
   profile,store,bookings,scopes,adapter=context(B)
+  for kind in ('owner','guardian'):
+   fields=dict(l.split('=',1) for l in command(['systemctl','show','b60-exclusive-'+kind+'-'+B+'.service','--property=ActiveState,MainPID,TasksCurrent']).splitlines())
+   assert fields['ActiveState'] in {'inactive','failed'} and fields['MainPID']=='0' and fields['TasksCurrent'] in {'0','','[not set]'}
   state=store.read('session.json');entry=store.read('entry.json');adapter.private=store.read('adapter.json');row=bookings.get(B)
   assert state['phase']=='released' and state['production_restored'] is True and state['deadline_missed'] is False and not state.get('manual_assistance_required',False)
   assert state['entry_sha256']==row['entry_sha256']==hashlib.sha256(canonical(entry)).hexdigest()
@@ -48,8 +53,8 @@ def postcheck():
   holders=_gpu_users();assert len(holders)==1 and holders[0].cgroup.endswith('/lxc/110/ns/system.slice/aster-llama.service')
   # Production probe checks the restored endpoint's health/identity; no generation.
   command(['pct','exec','110','--','/usr/local/sbin/aster-llama-production-auth-probe'])
-  names=('admission.json','entry.json','adapter.json','session.json','model-preflight.json','model-intent.json','model-start-intent.json','model-guardian.json','model-residency.json','model-result.json','model-failure.json','model-cleanup.json','model-terminal.json','model-kernel-before.json','model-kernel-after.json','unit-state-recovery.json')
-  paths=[store.root/n for n in names]+[ROOT/'exclusive-releases'/(B+'.json'),ROOT/'reservations/records'/(B+'.json'),ROOT/'exclusive-integrity'/B/'terminal.json',ROOT/'arming-receipts'/(B+'-model.json'),ROOT/'model-trial-cards'/(B+'.json')]
+  names=('admission.json','entry.json','adapter.json','session.json','model-preflight.json','model-intent.json','model-start-intent.json','model-guardian.json','model-namespace-intent.json','model-owner-failure.json','model-residency.json','model-result.json','model-failure.json','model-cleanup.json','model-terminal.json','model-kernel-before.json','model-kernel-after.json','unit-state-recovery.json')
+  paths=[store.root/n for n in names]+[ROOT/'exclusive-releases'/(B+'.json'),ROOT/'reservations/records'/(B+'.json'),ROOT/'exclusive-integrity'/B/'terminal.json',ROOT/'arming-receipts'/(B+'-model.json'),ROOT/'arming-receipts'/(B+'-model-revision2.json'),ROOT/'arming-receipts'/(B+'-model-revision5.json'),ROOT/'model-trial-cards'/(B+'.json')]
   hashes={str(p.relative_to(ROOT)):hashlib.sha256(protected_bytes(p,maximum=262144)).hexdigest() for p in paths if p.exists()}
   result={'schema':'b60-model-trial-independent-postcheck.v1','booking_id':B,'observed_epoch':int(time.time()),'entry_sha256':state['entry_sha256'],'production_restored':True,'manual_assistance_required':False,'deadline_missed':False,'trial_failed':state['trial_failed'],'booking_state':row['state'],'booking_result_code':row['result_code'],'finished_epoch':row['finished_epoch'],'all_five_checkpoint_verifications':guests,'unit_states_match_entry':units,'persistent_mount_identity_matches':mount,'candidate_namespace_target_matches_entry':True,'candidate_scope_empty':True,'source_custody_restored':True,'temporary_deny_gates':0,'scheduled_work_restored':timers,'source_sha256':manifest,'record_sha256':hashes,'capability_latency_milestone_accepted':False}
   for n in ('model-result.json','model-failure.json','model-residency.json','model-terminal.json','model-kernel-after.json'):

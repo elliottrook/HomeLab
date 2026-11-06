@@ -2,7 +2,7 @@
 import base64,hashlib,json
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-names=('model_trial.py','namespace_mount.py','fixed_command.py','guest_requests.py')
+names=('model_trial.py','namespace_mount.py','fixed_command.py','guest_requests.py','guest_supervisor.py')
 manifest={n:hashlib.sha256((HERE/n).read_bytes()).hexdigest() for n in names}
 files={n:base64.b64encode((HERE/n).read_bytes()).decode() for n in names}
 prefix='FILES='+repr(files)+'\nMANIFEST='+repr(manifest)+'\n'
@@ -38,7 +38,9 @@ with host_exclusion(ROOT):
  sys.path.insert(0,str(DEST));from model_trial import initialize
  assert initialize()==MANIFEST
  # Guest workload installation does not call a model or read its key file.
- guestcode="from pathlib import Path;import os,base64;d=Path('/usr/local/libexec/local-ai-lease/model-trial-20261106');assert not d.exists();d.mkdir(mode=0o700);p=d/'guest_requests.py';fd=os.open(p,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600);f=os.fdopen(fd,'wb');f.write(base64.b64decode("+repr(FILES['guest_requests.py'])+"));f.flush();os.fsync(f.fileno());f.close()"
+ guest_files={n:FILES[n] for n in ('guest_requests.py','guest_supervisor.py','fixed_command.py')}
+ guestcode="from pathlib import Path;import os,base64;d=Path('/usr/local/libexec/local-ai-lease/model-trial-20261106');assert not d.exists();d.mkdir(mode=0o755);files="+repr(guest_files)+";\\nfor n,v in files.items():\\n p=d/n;fd=os.open(p,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600 if n=='guest_requests.py' else 0o644);f=os.fdopen(fd,'wb');f.write(base64.b64decode(v));f.flush();os.fsync(f.fileno());f.close()"
+ guestcode=guestcode.replace('\\n','\n')
  call(['pct','exec','110','--','python3','-B','-c',guestcode])
  assert call(['pct','exec','110','--','sha256sum','/usr/local/libexec/local-ai-lease/model-trial-20261106/guest_requests.py']).split()[0]==MANIFEST['guest_requests.py']
  # Exact fresh daytime booking; no existing reservation is modified.

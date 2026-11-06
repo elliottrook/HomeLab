@@ -39,7 +39,7 @@ def initialize():
  pins={p.name:hashlib.sha256(protected_bytes(p,executable=True,maximum=262144)).hexdigest() for p in BASE.glob('*.py')}
  require(len(pins)==30 and hashlib.sha256(canon(pins)).hexdigest()==BASE_SHA,'BASE_SOURCE_DRIFT')
  manifest=json.loads(protected_bytes(HERE/'manifest.json'))
- require(set(manifest)=={'model_trial.py','namespace_mount.py','fixed_command.py','guest_requests.py'},'SOURCE_CLOSURE')
+ require(set(manifest)=={'model_trial.py','namespace_mount.py','fixed_command.py','guest_requests.py','guest_supervisor.py'},'SOURCE_CLOSURE')
  require(set(p.name for p in HERE.glob('*.py'))==set(manifest),'SOURCE_CLOSURE')
  for name,sha in manifest.items():require(hashlib.sha256(protected_bytes(HERE/name,executable=True,maximum=262144)).hexdigest()==sha,'SOURCE_DRIFT')
  for booking,sha in [('b60-exclusive-20261105-day-r4','b3f3c5ef5f63ea13f032c0817d510dbafc9cac62cba697b9643a0c1b30b1cd3a'),('b60-exclusive-20261105-day-r5','d6f95bd27723084c49ee620f3c54157e05b7e05e72684eb00c179c7ea72c2396')]:
@@ -112,7 +112,8 @@ def preflight(adapter,store,row):
  require(digest(MODEL)==MODEL_SHA and source_metadata()==metadata,'STAGED_MODEL_HASH')
  # Pin every guest executable before the protected source is admitted.
  manifest=initialize()
- require(adapter._call(('pct','exec','110','--','sha256sum',GUEST_REQUEST),deadline,10).split()[0]==manifest['guest_requests.py'],'GUEST_REQUEST_SOURCE')
+ for name in ('guest_requests.py','guest_supervisor.py','fixed_command.py'):
+  require(adapter._call(('pct','exec','110','--','sha256sum',str(Path(GUEST_REQUEST).parent/name)),deadline,10).split()[0]==manifest[name],'GUEST_WORKLOAD_SOURCE')
  from fixed_command import BINARY
  require(adapter._call(('pct','exec','110','--','sha256sum',BINARY),deadline,30).split()[0]==BIN_SHA,'RUNTIME_HASH')
  require(adapter._call(('pct','exec','110','--','sha256sum','/etc/systemd/system/aster-llama.service'),deadline,10).split()[0]==UNIT_SHA,'ACCEPTED_UNIT_HASH')
@@ -127,14 +128,35 @@ def preflight(adapter,store,row):
  require(not any('mp='+TARGET in line for line in raw.splitlines()),'PERSISTENT_TARGET_MOUNT_PRESENT')
  store.write('model-preflight.json',{'model_sha256':MODEL_SHA,'model_bytes':MODEL_BYTES,'source':metadata,'target_entry':observed,'guest_memory_available':guest_memory,'guest_disk_available':disk,'host_memory_available':host_memory,'observed_epoch':int(time.time()),'license':'Apache-2.0','upstream_revision':'995ad96eacd98c81ed38be0c5b274b04031597b0','gguf_revision':'baec3ebee244827cda0f4557eafa8b28f7545fa6'},immutable=True)
 
-def namespace_action(action,adapter,store,deadline):
- pid=int(adapter._call(('lxc-info','-n','110','-pH'),deadline,10))
- require(pid>1,'GUEST_PID')
+def candidate_host_pid(adapter,unit,deadline):
+ guest_pid=adapter._call(('pct','exec','110','--','systemctl','show',unit,'--property=MainPID','--value'),deadline,10).strip()
+ require(guest_pid.isdigit() and int(guest_pid)>1,'CANDIDATE_GUEST_PID')
+ found=[]
+ for p in Path('/proc').glob('[0-9]*'):
+  try:
+   fields=dict(l.split(':',1) for l in (p/'status').read_text().splitlines() if ':' in l)
+   if fields.get('NSpid','').split()[-1:]!=[guest_pid]:continue
+   if (p/'cgroup').read_text().strip().endswith('/lxc/110/ns/system.slice/'+unit):found.append(int(p.name))
+  except (FileNotFoundError,ProcessLookupError):pass
+ require(len(found)==1,'CANDIDATE_HOST_PID_AMBIGUOUS')
+ return found[0]
+
+def namespace_action(adapter,store,deadline,unit):
+ pid=candidate_host_pid(adapter,unit,deadline)
+ init_pid=int(adapter._call(('lxc-info','-n','110','-pH'),deadline,10))
+ for _ in range(50):
+  if os.readlink('/proc/'+str(pid)+'/ns/mnt')!=os.readlink('/proc/'+str(init_pid)+'/ns/mnt'):break
+  time.sleep(.1)
+ else:raise RuntimeError('CANDIDATE_NAMESPACE_NOT_PRIVATE')
  source=store.read('model-preflight.json')['source']['root']
- code=('import sys;sys.path.insert(0,'+repr(str(HERE))+');from namespace_mount import transfer,remove;'+
-       ('transfer('+repr(str(MODEL_ROOT))+','+repr(TARGET)+','+str(pid)+')' if action=='mount' else
-        'remove('+repr(TARGET)+','+str(pid)+','+repr([source['dev'],source['ino']])+')'))
+ code=('import sys;sys.path.insert(0,'+repr(str(HERE))+');from namespace_mount import transfer;transfer('+repr(str(MODEL_ROOT))+','+repr(TARGET)+','+str(pid)+',production_pid='+str(init_pid)+')')
+ store.write('model-namespace-intent.json',{'booking_id':store.read('session.json')['booking_id'],'candidate_host_pid':pid,'private_namespace':os.readlink('/proc/'+str(pid)+'/ns/mnt'),'guest_init_namespace':os.readlink('/proc/'+str(init_pid)+'/ns/mnt'),'source_dev':source['dev'],'source_ino':source['ino']},immutable=True)
  adapter._call(('/usr/bin/python3','-B','-c',code),deadline,20)
+ # Read only from the candidate root, not the guest's production namespace.
+ target=Path('/proc')/str(pid)/'root'/TARGET.lstrip('/')
+ observed=target.stat()
+ require((observed.st_dev,observed.st_ino)==(source['dev'],source['ino']) and bool(os.statvfs(target).f_flag&os.ST_RDONLY),'PRIVATE_MAPPING_UNVERIFIED')
+ return pid
 
 def exact_target(observed,source):
  return (observed.get('mounts')==1 and observed.get('dev')==source['dev'] and observed.get('ino')==source['ino'] and observed.get('readonly') is True and not observed.get('symlink'))
@@ -148,13 +170,16 @@ def cleanup(adapter,store,deadline):
  require(all(source[n][k]==original['source'][n][k] for n in source for k in ('dev','ino','bytes')),'RECOVERY_SOURCE_IDENTITY')
  for name,v in source.items():
   require((v['uid'],v['gid'],v['mode']) in {(0,0,0o700 if name=='root' else 0o400),(100999,100991,0o700 if name=='root' else 0o400)},'RECOVERY_CUSTODY_UNKNOWN')
+ # The exact candidate cgroup was fenced by base recovery first. Its mount
+ # namespace must have no remaining process; production namespace never owned
+ # this mount. No persistent or lazy unmount is attempted.
+ if (store.root/'model-namespace-intent.json').exists():
+  intent_ns=store.read('model-namespace-intent.json')
+  for p in Path('/proc').glob('[0-9]*'):
+   try: require(os.readlink(p/'ns/mnt')!=intent_ns['private_namespace'],'CANDIDATE_NAMESPACE_STILL_LIVE')
+   except (FileNotFoundError,ProcessLookupError):pass
  observed=target_observation(adapter,deadline)
- if observed['mounts']:
-  require(exact_target(observed,original['source']['root']),'FOREIGN_TARGET_RETAINED')
-  store.write('model-cleanup.json',{'phase':'unmount-intent','binding':intent})
-  namespace_action('unmount',adapter,store,deadline)
- observed=target_observation(adapter,deadline)
- require(observed['mounts']==0,'TARGET_MOUNT_REMAINS')
+ require(observed['mounts']==0,'PRODUCTION_TARGET_MOUNT_PRESENT')
  if not original['target_entry']['exists'] and observed['exists']:
   require(observed['directory'] and observed['empty'] and not observed['symlink'],'TARGET_DIRECTORY_DRIFT')
   adapter._call(('pct','exec','110','--','rmdir',TARGET),deadline,10)
@@ -176,15 +201,17 @@ def trial(adapter,store,state):
  # Parent custody remains root-private on the host; only these two exact inodes
  # gain mapped ollama custody, then the namespace mount is strictly read-only.
  os.chown(MODEL_ROOT,100999,100991,follow_symlinks=False);os.chown(MODEL,100999,100991,follow_symlinks=False)
- namespace_action('mount',adapter,store,deadline)
- require(exact_target(target_observation(adapter,deadline),pre['source']['root']),'TARGET_MAPPING_UNVERIFIED')
- require(adapter._call(('pct','exec','110','--','sha256sum',TARGET+'/'+MODEL.name),deadline,120).split()[0]==MODEL_SHA,'GUEST_MODEL_HASH')
- adapter._call(('pct','exec','110','--','runuser','-u','ollama','--','test','-r',TARGET+'/'+MODEL.name),deadline,10)
  from fixed_command import start_command,UNIT,BINARY
- command=list(start_command());command[command.index('--unit='+UNIT)]='--unit='+unit
- at=command.index(BINARY);command[at:at]=['--property=KillMode=control-group','--property=RuntimeMaxSec='+str(max(1,int(deadline-time.time()))),'--property=MemoryMax=14G','--property=MemorySwapMax=0','--property=CPUQuota=400%','--property=TasksMax=256','--property=StandardOutput=null','--property=StandardError=journal']
+ command=list(start_command());command[command.index('--property=Type=simple')]='--property=Type=exec';command[command.index('--unit='+UNIT)]='--unit='+unit
+ at=command.index(BINARY);command[at:]=['/usr/bin/python3','-B',str(Path(GUEST_REQUEST).parent/'guest_supervisor.py'),'--deadline',str(int(deadline))];command[at:at]=['--property=PrivateMounts=yes','--property=KillMode=control-group','--property=RuntimeMaxSec='+str(max(1,int(deadline-time.time()))),'--property=MemoryMax=14G','--property=MemorySwapMax=0','--property=CPUQuota=400%','--property=TasksMax=256','--property=StandardOutput=null','--property=StandardError=journal']
  store.write('model-start-intent.json',{'booking_id':b,'unit':unit,'model_sha256':MODEL_SHA,'reasoning_enabled':True,'speculation':False,'requests':2,'request_timeout_seconds':60,'retries':0},immutable=True)
  adapter._call(command,deadline,20)
+ for _ in range(30):
+  main=adapter._call(('pct','exec','110','--','systemctl','show',unit,'--property=MainPID','--value'),deadline,10).strip()
+  if main.isdigit() and int(main)>1:break
+  time.sleep(.2)
+ else:raise RuntimeError('SUPERVISOR_NOT_STARTED')
+ namespace_action(adapter,store,deadline,unit)
  ready_until=min(deadline-150,time.time()+330)
  while time.time()<ready_until:
   code,raw=adapter.runner(('pct','exec','110','--','curl','-fsS','--max-time','3','http://192.168.70.12:11435/health'),5)
@@ -197,10 +224,16 @@ def trial(adapter,store,state):
  else:raise RuntimeError('MODEL_HEALTH_DEADLINE')
  require(time.time()+130<deadline,'REQUEST_MARGIN')
  # Sanitize residency in the source guest; never return argv or raw logs.
- code="import json;from pathlib import Path;import sys;p=sys.argv[1];v=[];\nfor f in (Path('/proc')/p/'fdinfo').glob('*'):\n t=f.read_text();d={k.strip():x.strip() for k,s,x in (l.partition(':') for l in t.splitlines()) if s};\n if d.get('drm-driver')=='xe':v.append(d)\nprint(json.dumps({'xe_fd_count':len(v),'vram_resident_kib':max([int(d.get('drm-resident-vram','0 KiB').split()[0]) for d in v] or [0]),'gtt_resident_kib':max([int(d.get('drm-resident-gtt','0 KiB').split()[0]) for d in v] or [0])}))"
+ code="import json;from pathlib import Path;import sys;p=sys.argv[1];v=[];\nfor f in (Path('/proc')/p/'fdinfo').glob('*'):\n t=f.read_text();d={k.strip():x.strip() for k,s,x in (l.partition(':') for l in t.splitlines()) if s};\n if d.get('drm-driver')=='xe':v.append(d)\nprint(json.dumps({'xe_fd_count':len(v),'vram_field_present':any('drm-resident-vram0' in d for d in v),'gtt_field_present':any('drm-resident-gtt' in d for d in v),'vram_resident_kib':max([int(d.get('drm-resident-vram0','0 KiB').split()[0]) for d in v] or [0]),'gtt_resident_kib':max([int(d.get('drm-resident-gtt','0 KiB').split()[0]) for d in v] or [0])}))"
  pid=adapter._call(('pct','exec','110','--','systemctl','show',unit,'--property=MainPID','--value'),deadline,10).strip();require(pid.isdigit() and int(pid)>0,'CANDIDATE_PID')
  resident=json.loads(adapter._call(('pct','exec','110','--','python3','-B','-c',code,pid),deadline,10))
- require(resident['xe_fd_count']>0 and 16*1024**2<=resident['vram_resident_kib']<=24*1024**2 and resident['gtt_resident_kib']<=2*1024**2,'GPU_RESIDENCY_UNPROVEN')
+ require(resident['xe_fd_count']>0 and resident['vram_field_present'] and resident['gtt_field_present'] and 16*1024**2<=resident['vram_resident_kib']<=24*1024**2 and resident['gtt_resident_kib']<=2*1024**2,'GPU_RESIDENCY_UNPROVEN')
+ rss=adapter._call(('pct','exec','110','--','ps','-o','rss=','-p',pid),deadline,10).strip()
+ require(rss.isdigit() and int(rss)<=16*1024**2,'MODEL_RSS_LIMIT')
+ resident['process_rss_kib']=int(rss)
+ limits=dict(l.split('=',1) for l in adapter._call(('pct','exec','110','--','systemctl','show',unit,'--property=MemoryCurrent,MemoryPeak,MemoryMax,TasksCurrent,TasksMax,CPUQuotaPerSecUSec'),deadline,10).splitlines())
+ require(limits.get('MemoryMax')==str(14*1024**3) and limits.get('TasksMax')=='256' and limits.get('CPUQuotaPerSecUSec')=='4s','MODEL_CGROUP_LIMIT_DRIFT')
+ resident['cgroup']=limits
  logs=adapter._call(('pct','exec','110','--','journalctl','-u',unit,'--no-pager','-o','cat','-n','800'),deadline,10)
  import re
  layers=re.findall(r'offloaded (\d+)/(\d+) layers',logs)
@@ -243,7 +276,7 @@ def operate(action,b):
   except BaseException as error:
    # Do not auto-retry a model/device failure. Attempt one bounded restoration;
    # independent guardian remains available if this owner also fails.
-   store.write('model-failure.json',{'failure_type':type(error).__name__,'failure_code':str(error) if type(error) is RuntimeError and str(error).replace('_','').isalnum() else 'UNCLASSIFIED','observed_epoch':int(time.time())})
+   store.write('model-owner-failure.json',{'failure_type':type(error).__name__,'failure_code':str(error) if type(error) is RuntimeError and str(error).replace('_','').isalnum() else 'UNCLASSIFIED','observed_epoch':int(time.time())})
    if (store.root/'session.json').exists():session.recover(owner=profile['owner'])
    raise
  finally:adapter.boundary.close()

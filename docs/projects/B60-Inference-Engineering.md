@@ -14,28 +14,18 @@
 
 ## Current coordination status
 
-[The fixed 35B trial extension is installed and armed](B60-Inference-Engineering/model-trial-armed-20261106.md)
-for November6 11:12–11:57 Vancouver, reserve through12:12, integrity10:17.
-Actual timer/source/card verification passed; no model result yet. Continue
-through actual execution and independent restoration postcheck.
+[Final production model-trial integration](B60-Inference-Engineering/model-trial-final-integration-20261106.md)
+is installed and independently verified at revision5. Actual fresh integrity
+passed10:28:44. The real November6 11:12–11:57 Vancouver booking remains armed,
+with recovery reserve12:12. The candidate uses its own private service mount
+namespace; production namespace/mount configuration remain unchanged. Continue
+through actual execution and restoration/postcheck; no model result yet.
 
-[November 6 nightly recovery composition](B60-Inference-Engineering/nightly-recovery-boundary-20261106.md)
-adds durable-intent and fence/mount/custody-before-base-restore composition;
-133 offline tests pass. It is local and undeployed; no model result or live
-candidate qualification is claimed. Exact production backend remains next.
-
-[The fixed candidate command adapter is prepared](B60-Inference-Engineering/fixed-candidate-command-preparation-20261106.md):
-124offline tests pass, exact candidate scope matches the qualified fence, and
-trial/restoration deadlines are explicit. No live candidate profile or effect
-is enabled; mount/resource/result/guardian integration remains next.
-
-[The actual normal/owner-loss/resource gates passed](B60-Inference-Engineering/owner-resource-gates-completed-20261105.md).
-[The owner-frozen benchmark contract is integrated offline](B60-Inference-Engineering/benchmark-contract-integration-20261106.md):
-exact peer validator/contract pins,119focused tests, no model run or live authority
-inferred. Candidate adapter/baseline work remains active; acceptance class and
-repeat/session allocation need the owner-format extension described in that
-owned response. Earlier R1/R2 arming and unqualified-recovery paragraphs below
-are historical and do not describe current state.
+[Normal, owner-loss and bounded resource gates passed](B60-Inference-Engineering/owner-resource-gates-completed-20261105.md).
+[The owner-frozen benchmark metadata is integrated](B60-Inference-Engineering/benchmark-contract-integration-20261106.md).
+Final capability/latency acceptance and fresh measured baseline remain open.
+The acceptance sampling/class/session question does not block the bounded
+compatibility trial or independent implementation work.
 
 ## Historical coordination snapshots — superseded by the current result above
 

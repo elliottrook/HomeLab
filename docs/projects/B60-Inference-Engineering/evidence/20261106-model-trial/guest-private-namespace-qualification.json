@@ -1,0 +1,11 @@
+{
+  "state": "guest-private-namespace-pass",
+  "private_target_parent": true,
+  "mapped_ollama_readable": true,
+  "private_namespace_empty_after_exact_unit_stop": true,
+  "production_namespace_never_mounted": true,
+  "model_or_gpu_called": false,
+  "production_consumers_changed": false,
+  "fixture_sha256": "ee2e645aa46800010cbf944a3d9fc9cfa782be9afc45e11b1dd4febd07417076",
+  "helper_sha256": "031df2fb964c264c168cfd313de816391cb49d735701b17821edae2077a72566"
+}
