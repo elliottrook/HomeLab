@@ -1837,6 +1837,12 @@ resource headroom; every deviation is fixed or explicitly accepted.
 
 ### M11 — Immutable release, Bedroom soak and Family promotion
 
+- [ ] Reconcile the active Media Lifecycle project before freeze: preserve the
+  current `tv-shows.xsp`, `movies.xsp`, `archive-tv.xsp` and
+  `archive-film.xsp` routes as the fail-safe fallback until its validated view
+  artifact is handed off; then prove season-level mixed Current/Archive
+  browsing plus search, resume and watch-state continuity in both Home and the
+  screensaver. Match by Jellyfin/TVDB/IMDb identity rather than cached Kodi IDs.
 - [ ] Freeze v3 as an identified commit plus reproducible manifest containing
   code, dependencies, schemas and material asset hashes.
 - [ ] Deploy independently to Bedroom, preserving its v2 recovery checkpoint,
