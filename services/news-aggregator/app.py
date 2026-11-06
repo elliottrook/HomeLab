@@ -48,6 +48,10 @@ def get_audio_meta():
     generated_utc = datetime.fromisoformat(meta["generated_at"])
     local = generated_utc + BC_OFFSET
     meta["generated_local"] = local.strftime("%Y-%m-%d %H:%M")
+    # iOS and embedded media players may retain the previous object behind a
+    # stable latest.mp3 URL even when the page itself is no-store.  A new
+    # generation timestamp gives each completed briefing a distinct media URL.
+    meta["media_version"] = meta["generated_at"]
     return meta
 
 SITE_TITLE = "Your News"
@@ -243,8 +247,8 @@ TEMPLATE_DIGEST = (
   <div class="audio-briefing-label">Listen to the briefing &middot; {{ audio.story_count }} {{ "story" if audio.story_count == 1 else "stories" }} &middot; generated {{ audio.generated_local }}</div>
   <div class="audio-player">
     <div class="audio-main">
-      <audio id="briefing-audio" controls preload="none" src="/static/digest-audio/latest.mp3">
-        <track kind="chapters" srclang="en" label="Stories" src="/static/digest-audio/latest.vtt" default>
+      <audio id="briefing-audio" controls preload="none" src="/static/digest-audio/latest.mp3?v={{ audio.media_version|urlencode }}">
+        <track kind="chapters" srclang="en" label="Stories" src="/static/digest-audio/latest.vtt?v={{ audio.media_version|urlencode }}" default>
       </audio>
       <div class="audio-controls" aria-label="Audio controls">
         <button type="button" class="audio-control" id="previous-chapter">Previous story</button>
