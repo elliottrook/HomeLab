@@ -2,7 +2,6 @@ import copy
 import unittest
 
 import sa4_single_file_repair_contract_v1 as contract
-import sa4_transaction_inactive_install_plan_v1 as install
 import sa4_transaction_inactive_install_result_v1 as result
 
 
@@ -11,16 +10,16 @@ def value():
         "schema": "aster-sa4-transaction-inactive-install-result.v1",
         "plan_sha256": result.plan_sha256(),
         "changes": [{
-            "host_id": item.host_id, "destination": item.destination,
-            "before_state": "present" if item.old_sha256 else "absent",
-            "before_sha256": item.old_sha256,
-            "after_sha256": item.new_sha256, "owner": item.owner,
-            "group": item.group, "mode": item.mode, "link_count": 1,
+            "host_id": item[0], "destination": item[1],
+            "before_state": "present" if item[2] else "absent",
+            "before_sha256": item[2],
+            "after_sha256": item[3], "owner": "root",
+            "group": "root", "mode": "0644", "link_count": 1,
             "regular_file": True,
-            "retained_predecessor": item.old_sha256 is not None}
-            for item in install.CHANGES],
+            "retained_predecessor": item[2] is not None}
+            for item in result.INSTALLED_CHANGES],
         "proxmox_parent_created": True,
-        "isolated_imports": [item.destination for item in install.CHANGES],
+        "isolated_imports": [item[1] for item in result.INSTALLED_CHANGES],
         "host_bindings": dict(result.HOST_BINDINGS),
         "signer_fake_self_test": "pass", "private_key_accessed": False,
         "signer_invoked": False, "grant_touched": False,

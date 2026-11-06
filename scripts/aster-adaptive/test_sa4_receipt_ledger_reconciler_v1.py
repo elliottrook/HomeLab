@@ -41,7 +41,7 @@ class SA4ReceiptLedgerReconcilerTests(unittest.TestCase):
             "authority_authenticated": True, "ledger_state": "ready",
             "grant_consumed": False, "filesystem_evidence_valid": True,
             "shared_lock_proven": True, "emergency_stop_proven": True,
-            "status": "source-complete-pending-real-trust-and-live-measurement",
+            "status": "live-measurement-checkpoint-complete",
             "maximum_effects": 0, "preflight_eligible": False,
             "owner_effect_approval_required": True, "automatic_retry": False,
             "automatic_routing": "off"}

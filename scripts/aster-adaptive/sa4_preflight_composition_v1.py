@@ -6,11 +6,15 @@ live measurements do not exist yet.
 """
 from __future__ import annotations
 
+import hashlib
+
 import sa4_authenticated_authority_v1 as authority
 import sa4_filesystem_evidence_v1 as filesystem
+import sa4_inactive_checkpoint_owner_v1 as checkpoint_owner
 import sa4_one_use_grant_ledger_v1 as ledger_module
 import sa4_single_file_repair_contract_v1 as contract
 import sa4_target_registry_v1 as target_registry
+from nlu_threshold_policy import decode_unique_json
 
 
 def _registration(target_id: str):
@@ -83,3 +87,108 @@ def compose(plan_raw: bytes, approval_raw: bytes, approval_proof_raw: bytes,
         "automatic_retry": False,
         "automatic_routing": "off",
     }
+
+
+def compose_live(plan_raw: bytes, approval_raw: bytes,
+                 approval_proof_raw: bytes, grant_raw: bytes,
+                 grant_proof_raw: bytes, measurement_raw: bytes,
+                 checkpoint_raw: bytes, runtime_controls_raw: bytes,
+                 ledger: object, now_epoch: int) -> dict[str, object]:
+    """Cross-bind fresh production evidence while still authorizing no effect."""
+    if not isinstance(ledger, ledger_module.OneUseLedger):
+        raise ValueError("SA4 one-use ledger is not the frozen implementation")
+    plan = contract.validate_plan(plan_raw)
+    target = target_registry.resolve_production(plan["target_id"])
+    registration = target_registry.registration_sha256(target)
+    authenticated = authority.verify(
+        plan_raw, approval_raw, approval_proof_raw,
+        grant_raw, grant_proof_raw, now_epoch)
+    checkpoint = decode_unique_json(checkpoint_raw)
+    controls = decode_unique_json(runtime_controls_raw)
+    measured = checkpoint_owner._measurement(
+        measurement_raw, plan_raw=plan_raw, target=target,
+        checkpoint_epoch=checkpoint.get("checkpoint_epoch", -1))
+    checkpoint_fields = {
+        "schema", "plan_sha256", "measurement_sha256", "target_id",
+        "target_registration_sha256", "checkpoint_epoch", "checkpoint_path",
+        "checkpoint_sha256", "checkpoint_mode", "checkpoint_link_count",
+        "checkpoint_same_filesystem", "target_unchanged",
+        "exclusive_owner_lock", "checkpoint_created", "grant_claimed",
+        "repair_effects", "preflight_eligible", "authority",
+        "automatic_retry"}
+    controls_fields = {"schema", "plan_sha256", "observed_epoch",
+                       "shared_operation_lock", "lock_path", "lock_owner",
+                       "lock_regular_file", "lock_link_count",
+                       "emergency_stop", "emergency_stop_owner",
+                       "automatic_retry", "automatic_routing"}
+    record = ledger.get(authenticated["grant_id"])
+    plan_sha = hashlib.sha256(plan_raw).hexdigest()
+    if (not isinstance(checkpoint, dict) or set(checkpoint) != checkpoint_fields
+            or checkpoint["schema"]
+            != "aster-sa4-inactive-checkpoint-owner.v1"
+            or checkpoint["plan_sha256"] != plan_sha
+            or checkpoint["measurement_sha256"]
+            != hashlib.sha256(measurement_raw).hexdigest()
+            or checkpoint["target_id"] != target.target_id
+            or checkpoint["target_registration_sha256"] != registration
+            or checkpoint["checkpoint_sha256"]
+            != plan["precondition"]["expected_sha256"]
+            or checkpoint["checkpoint_mode"] != "0600"
+            or checkpoint["checkpoint_link_count"] != 1
+            or checkpoint["checkpoint_same_filesystem"] is not True
+            or checkpoint["target_unchanged"] is not True
+            or checkpoint["checkpoint_created"] is not True
+            or checkpoint["grant_claimed"] is not False
+            or checkpoint["repair_effects"] != 0
+            or checkpoint["preflight_eligible"] is not False
+            or checkpoint["automatic_retry"] is not False
+            or not isinstance(controls, dict) or set(controls) != controls_fields
+            or controls["schema"] != "aster-sa4-live-runtime-controls.v1"
+            or controls["plan_sha256"] != plan_sha
+            or controls["observed_epoch"] != now_epoch
+            or controls["shared_operation_lock"] != "held"
+            or controls["lock_path"] != "/run/aster-sa4-operation.lock"
+            or controls["lock_owner"] != plan["plan_id"]
+            or controls["lock_regular_file"] is not True
+            or controls["lock_link_count"] != 1
+            or controls["emergency_stop"] != "armed"
+            or controls["emergency_stop_owner"] != plan["plan_id"]
+            or controls["automatic_retry"] is not False
+            or controls["automatic_routing"] != "off"
+            or measured["target_snapshot"]["bytes_sha256"]
+            != plan["precondition"]["expected_sha256"]
+            or record["state"] != "ready" or record["use_count"] != 0
+            or record["plan_sha256"] != plan_sha
+            or record["grant_sha256"] != authenticated["grant_sha256"]
+            or record["target_registration_sha256"] != registration
+            or record["target_sha256"]
+            != plan["precondition"]["expected_sha256"]
+            or record["expires_epoch"] != authenticated["grant_expires_epoch"]
+            or not record["created_epoch"] <= now_epoch < record["expires_epoch"]
+            or record["automatic_retry"] is not False
+            or record["effect_authorized"] is not False):
+        raise ValueError("SA4 live preflight composition changed")
+    evidence_sha = hashlib.sha256(contract.canonical({
+        "measurement_sha256": hashlib.sha256(measurement_raw).hexdigest(),
+        "checkpoint_owner_sha256": hashlib.sha256(checkpoint_raw).hexdigest(),
+        "runtime_controls_sha256": hashlib.sha256(runtime_controls_raw).hexdigest(),
+    })).hexdigest()
+    return {
+        "schema": "aster-sa4-source-preflight-composition.v1",
+        "plan_sha256": plan_sha,
+        "approval_sha256": authenticated["approval_sha256"],
+        "approval_proof_sha256": authenticated["approval_proof_sha256"],
+        "grant_id": authenticated["grant_id"],
+        "grant_sha256": authenticated["grant_sha256"],
+        "grant_proof_sha256": authenticated["grant_proof_sha256"],
+        "filesystem_evidence_sha256": evidence_sha,
+        "target_registration_sha256": registration,
+        "target_before_sha256": plan["precondition"]["expected_sha256"],
+        "checkpoint_sha256": checkpoint["checkpoint_sha256"],
+        "authority_authenticated": True, "ledger_state": "ready",
+        "grant_consumed": False, "filesystem_evidence_valid": True,
+        "shared_lock_proven": True, "emergency_stop_proven": True,
+        "status": "live-measurement-checkpoint-complete",
+        "maximum_effects": 0, "preflight_eligible": False,
+        "owner_effect_approval_required": True,
+        "automatic_retry": False, "automatic_routing": "off"}

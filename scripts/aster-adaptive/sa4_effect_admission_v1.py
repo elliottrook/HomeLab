@@ -77,6 +77,7 @@ def admit(plan_raw: bytes, approval_raw: bytes, approval_proof_raw: bytes,
             or source["filesystem_evidence_valid"] is not True
             or source["shared_lock_proven"] is not True
             or source["emergency_stop_proven"] is not True
+            or source["status"] != "live-measurement-checkpoint-complete"
             or source["maximum_effects"] != 0
             or source["preflight_eligible"] is not False
             or source["owner_effect_approval_required"] is not True

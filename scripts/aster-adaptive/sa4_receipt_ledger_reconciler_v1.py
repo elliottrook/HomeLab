@@ -63,8 +63,7 @@ def _admission(raw: bytes, plan_raw: bytes,
             or value["filesystem_evidence_valid"] is not True
             or value["shared_lock_proven"] is not True
             or value["emergency_stop_proven"] is not True
-            or value["status"]
-            != "source-complete-pending-real-trust-and-live-measurement"
+            or value["status"] != "live-measurement-checkpoint-complete"
             or value["maximum_effects"] != 0
             or value["preflight_eligible"] is not False
             or value["owner_effect_approval_required"] is not True

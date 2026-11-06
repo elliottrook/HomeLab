@@ -48,7 +48,7 @@ CHANGES = (
     Change("lxc104", "scripts/aster-adaptive/sa4_receipt_ledger_reconciler_v1.py",
            f"{LXC_LIBEXEC}/sa4_receipt_ledger_reconciler_v1.py",
            "873fa76409bdf819bf9bfc32fa13aec4996929eed658c07d595baf1e464bd820",
-           "d69ef159146aca6ce3830a400c41b17ce794b3c0b7c259b86869c3c3bc29aefc",
+           "9688ae6e6d50062a5b31e70bdec87d763d5b378ea681a35c07329f772cd669a1",
            "checkpoint-and-atomic-replace"),
     Change("proxmox", "scripts/aster-adaptive/sa4_observer_signer_v1.py",
            f"{PROXMOX_LIBEXEC}/sa4_observer_signer_v1.py", None,

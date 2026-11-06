@@ -39,7 +39,7 @@ CHANGES = (
         "scripts/aster-adaptive/sa4_preflight_composition_v1.py",
         f"{LXC_LIBEXEC}/sa4_preflight_composition_v1.py",
         "a45335dcb6ab209433e71bd486345904d4e0748f5ae03bc85f24a7863926b569",
-        "d96fcba0bda17ae48f2061a9c7977bbc70c67271a16d02ed11530b05d0a2ea06",
+        "a38ccb0b33bbc828f7ae96fd68304776cd840ea49bb07986044383e42fb1ad11",
         "root", "root", "0644", "checkpoint-and-atomic-replace",
     ),
     Change(
@@ -56,7 +56,7 @@ SOURCE_HASHES = {
     "scripts/aster-adaptive/sa4_owner_keychain_signer_v1.swift":
         "03bf11c798f31f57c7ac5cb8ce0ebd5b1b1f180892032423fefed52854b67b44",
     "scripts/aster-adaptive/sa4_preflight_composition_v1.py":
-        "d96fcba0bda17ae48f2061a9c7977bbc70c67271a16d02ed11530b05d0a2ea06",
+        "a38ccb0b33bbc828f7ae96fd68304776cd840ea49bb07986044383e42fb1ad11",
     "scripts/aster-adaptive/sa4_ai_pam_signer_v1.py":
         "10a7e39faacd6b42bd7529720d896683e6722fd954e15af17db57246d1792e55",
 }

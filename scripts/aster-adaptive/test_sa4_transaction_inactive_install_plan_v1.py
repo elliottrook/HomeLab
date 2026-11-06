@@ -5,14 +5,12 @@ import unittest
 import sa4_transaction_inactive_install_plan_v1 as install
 
 
-ROOT = Path(__file__).parents[2]
-
-
 class SA4TransactionInactiveInstallPlanTests(unittest.TestCase):
     def test_all_source_hashes_are_exact(self):
+        root = Path(__file__).parents[2]
         for item in install.CHANGES:
             self.assertEqual(item.new_sha256, hashlib.sha256(
-                (ROOT / item.source).read_bytes()).hexdigest())
+                (root / item.source).read_bytes()).hexdigest())
 
     def test_live_predecessors_are_exact_and_new_files_are_exclusive(self):
         replacements = [item for item in install.CHANGES
