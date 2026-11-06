@@ -150,6 +150,11 @@
 > is now source-complete with a fixed Proxmox key path, exact accepted identity
 > and canonical receipt-proof-only input. Tests do not invoke the key; the full
 > suite passes 109/109. It remains uninstalled and grants no effect.
+> The [inactive independent receipt producer](evidence/SA4-inactive-independent-receipt-producer-source-2026-11-05.md)
+> now rereads only the compiled target and runs the three fixed checks itself.
+> Disposable healthy bytes yield three content-free passes; changed bytes yield
+> fail rows for rollback rather than suppressed evidence. The host remains
+> unconfigured, no signer ran, and the suite passes 112/112.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
