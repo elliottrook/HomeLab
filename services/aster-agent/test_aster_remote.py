@@ -10,7 +10,8 @@ from fastapi import HTTPException
 from aster_remote import (AsterRemoteGateway, BrowserCommand, ClientAck,
                           ClientIdentity, ClientPoll, ContentRead,
                           EquipmentIdentity,
-                          EquipmentPoll, REMOTE_HEADERS)
+                          EquipmentPoll, PhysicalEquipmentCommand,
+                          REMOTE_HEADERS)
 
 
 class Clock:
@@ -258,6 +259,59 @@ class RemoteTests(unittest.TestCase):
         with self.assertRaises(HTTPException) as caught:
             self.call(gateway.command(forbidden, request, gateway.origin))
         self.assertEqual(caught.exception.status_code, 403)
+
+    def test_physical_equipment_is_same_room_state_aware_and_explicit(self):
+        gateway = AsterRemoteGateway(
+            None, self.gateway.static_root,
+            clients={"AsterTV-Bedroom": ClientIdentity(
+                "bedroom", "AsterTV Bedroom", "k" * 40)},
+            equipment_clients={"HA-Bedroom": EquipmentIdentity(
+                "bedroom", "Bedroom equipment", "e" * 40,
+                frozenset({
+                    "equipment.power_on", "equipment.power_off",
+                    "equipment.volume_up", "equipment.volume_down",
+                    "equipment.mute_on", "equipment.mute_off",
+                }))},
+            subject_rooms={}, network_rooms={}, trusted_proxies=set(),
+            clock=self.clock,
+        )
+        room = gateway.rooms["bedroom"]
+        room.equipment_last_seen = self.clock.value
+        room.equipment_power = "on"
+        room.equipment_volume_level = .25
+        room.equipment_muted = False
+
+        async def submit(control, request_id):
+            return await gateway.client_equipment(
+                PhysicalEquipmentCommand(
+                    client_id="AsterTV-Bedroom", room_id="bedroom",
+                    request_id=request_id, control=control,
+                ),
+                "Bearer " + "k" * 40, "AsterTV-Bedroom",
+            )
+
+        self.assertEqual(self.call(submit("mute_toggle", "physical-mute0001"))["status"],
+                         "accepted")
+        self.assertEqual(room.equipment_queue[-1].action, "equipment.mute_on")
+        self.assertEqual(self.call(submit("power_toggle", "physical-power001"))["status"],
+                         "accepted")
+        self.assertEqual(room.equipment_queue[-1].action, "equipment.power_off")
+        self.assertEqual(self.call(submit("volume_up", "physical-volume01"))["status"],
+                         "accepted")
+        self.assertEqual(room.equipment_queue[-1].action, "equipment.volume_up")
+
+        with self.assertRaises(HTTPException) as caught:
+            self.call(gateway.client_equipment(
+                PhysicalEquipmentCommand(
+                    client_id="AsterTV-Bedroom", room_id="bedroom",
+                    request_id="physical-wrong001", control="volume_down",
+                ), "Bearer wrong", "AsterTV-Bedroom"))
+        self.assertEqual(caught.exception.status_code, 401)
+
+        room.equipment_muted = None
+        with self.assertRaises(HTTPException) as caught:
+            self.call(submit("mute_toggle", "physical-mute0002"))
+        self.assertEqual(caught.exception.status_code, 503)
 
 
 if __name__ == "__main__": unittest.main()

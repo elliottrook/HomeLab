@@ -2,11 +2,11 @@
   "files": [
     {
       "authority": "home-assistant",
-      "bytes": 6720,
+      "bytes": 7443,
       "destination": "/config/custom_components/aster_room_bridge/__init__.py",
       "mode": "0644",
       "scope": "external",
-      "sha256": "cfcd02e48a15234b283be3815f5c692eccb32224116a64ebd3f5c82ccc328554"
+      "sha256": "80df6f8e1cf9edf5d71c9d4540e32b4347ab8b13e9f249a0065c903e99cb40f3"
     },
     {
       "authority": "home-assistant",
@@ -34,11 +34,11 @@
     },
     {
       "authority": "aster-agent",
-      "bytes": 29932,
+      "bytes": 32585,
       "destination": "/opt/aster-agent/aster_remote.py",
       "mode": "0644",
       "scope": "external",
-      "sha256": "6199ea34360cc6d75f2c61cd41813da17b3b23c32cafe5dafe299b7dc1b8ca9f"
+      "sha256": "d2997764398a1ebe400e0c809b44dd8ef2b674d1e580219489d037d37b23e7d9"
     },
     {
       "authority": "aster-agent",

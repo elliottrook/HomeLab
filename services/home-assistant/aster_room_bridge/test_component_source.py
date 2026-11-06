@@ -30,7 +30,8 @@ class ComponentSourceTests(unittest.TestCase):
     def test_content_state_is_outbound_polled_and_volatile_only(self):
         self.assertIn('self.url + "/content"', SOURCE)
         self.assertIn("PlaybackObservation.parse", SOURCE)
-        self.assertIn('hass.data.setdefault(DOMAIN, {})["content_state"]', SOURCE)
+        self.assertIn('"content_states", {}', SOURCE)
+        self.assertIn(')[self.room_id] = state', SOURCE)
         self.assertNotIn("async_fire", SOURCE)
         self.assertNotIn("recorder", SOURCE.casefold())
 
@@ -41,6 +42,14 @@ class ComponentSourceTests(unittest.TestCase):
         equipment = SOURCE.index('self.url + "/poll"', content)
         isolation = SOURCE[content:equipment]
         self.assertIn("except Exception", isolation)
+
+    def test_multi_room_config_is_backward_compatible_and_unique(self):
+        self.assertIn('vol.Required("rooms")', SOURCE)
+        self.assertIn('domain_config.get("rooms", [domain_config])', SOURCE)
+        self.assertIn('len(room_ids) != len(set(room_ids))', SOURCE)
+        self.assertIn('"aster-room-bridge-" + bridge.room_id', SOURCE)
+        self.assertIn('"bridges": {bridge.room_id: bridge for bridge in bridges}', SOURCE)
+        self.assertIn('if len(bridges) == 1', SOURCE)
 
 
 if __name__ == "__main__":

@@ -20,16 +20,20 @@ from .content_policy import CurrentState, PlaybackObservation
 
 
 DOMAIN = "aster_room_bridge"
+ROOM_SCHEMA = vol.Schema({
+    vol.Required("gateway_url"): cv.url,
+    vol.Required("client_id"): cv.string,
+    vol.Required("room_id"): cv.string,
+    vol.Required("key_file"): cv.string,
+    vol.Required("power_entity"): cv.entity_id,
+    vol.Required("volume_entity"): cv.entity_id,
+    vol.Required("actions"): vol.All(cv.ensure_list, [vol.In(EQUIPMENT_ACTIONS)]),
+})
 CONFIG_SCHEMA = vol.Schema({
-    DOMAIN: vol.Schema({
-        vol.Required("gateway_url"): cv.url,
-        vol.Required("client_id"): cv.string,
-        vol.Required("room_id"): cv.string,
-        vol.Required("key_file"): cv.string,
-        vol.Required("power_entity"): cv.entity_id,
-        vol.Required("volume_entity"): cv.entity_id,
-        vol.Required("actions"): vol.All(cv.ensure_list, [vol.In(EQUIPMENT_ACTIONS)]),
-    })
+    DOMAIN: vol.Any(
+        ROOM_SCHEMA,
+        vol.Schema({vol.Required("rooms"): vol.All(cv.ensure_list, [ROOM_SCHEMA])}),
+    )
 }, extra=vol.ALLOW_EXTRA)
 
 
@@ -102,7 +106,9 @@ class RoomBridge:
                 and previous.sequence == state.sequence):
             return
         self.content_state.accept(state)
-        self.hass.data.setdefault(DOMAIN, {})["content_state"] = state
+        self.hass.data.setdefault(DOMAIN, {}).setdefault(
+            "content_states", {}
+        )[self.room_id] = state
 
     async def run(self):
         while True:
@@ -147,16 +153,30 @@ class RoomBridge:
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     if DOMAIN not in config:
         return True
-    key = await hass.async_add_executor_job(_private_key,
-                                            config[DOMAIN]["key_file"])
-    bridge = RoomBridge(hass, config[DOMAIN], key)
-    task = hass.async_create_background_task(bridge.run(), "aster-room-bridge")
+    domain_config = config[DOMAIN]
+    rows = domain_config.get("rooms", [domain_config])
+    room_ids = [row["room_id"] for row in rows]
+    if len(rows) == 0 or len(room_ids) != len(set(room_ids)):
+        raise ValueError("equipment-room-cardinality")
+    bridges = []
+    tasks = []
+    for row in rows:
+        key = await hass.async_add_executor_job(_private_key, row["key_file"])
+        bridge = RoomBridge(hass, row, key)
+        bridges.append(bridge)
+        tasks.append(hass.async_create_background_task(
+            bridge.run(), "aster-room-bridge-" + bridge.room_id
+        ))
 
     async def stop(_event):
-        task.cancel()
-        with suppress(asyncio.CancelledError):
-            await task
+        for task in tasks:
+            task.cancel()
+        for task in tasks:
+            with suppress(asyncio.CancelledError):
+                await task
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, stop)
-    hass.data[DOMAIN] = {"bridge": bridge}
+    hass.data[DOMAIN] = {"bridges": {bridge.room_id: bridge for bridge in bridges}}
+    if len(bridges) == 1:  # compatibility for accepted Family-only diagnostics
+        hass.data[DOMAIN]["bridge"] = bridges[0]
     return True

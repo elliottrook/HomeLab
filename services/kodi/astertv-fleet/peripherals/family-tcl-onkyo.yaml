@@ -9,6 +9,7 @@
     "port": "HDMI 0",
     "output_contract": "Dolby passthrough and HDR",
     "controls": ["power", "volume-up", "volume-down", "mute"],
-    "control_authority": "Home Assistant capability bridge"
+    "control_authority": "Home Assistant capability bridge",
+    "physical_remote_mapping": "pending exact key capture and owner equipment acceptance"
   }
 }

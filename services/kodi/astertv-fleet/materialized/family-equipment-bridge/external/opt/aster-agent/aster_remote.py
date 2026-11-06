@@ -156,6 +156,17 @@ class ClientAck(BaseModel):
     ]
 
 
+class PhysicalEquipmentCommand(BaseModel):
+    """One bounded physical-control intent from the room's enrolled client."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    client_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9-]{0,31}$")
+    room_id: str = Field(pattern=r"^[a-z][a-z0-9-]{0,31}$")
+    request_id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{7,63}$")
+    control: Literal["volume_up", "volume_down", "mute_toggle", "power_toggle"]
+
+
 class EquipmentPoll(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
@@ -267,6 +278,10 @@ class AsterRemoteGateway:
         )
         self.router.add_api_route(
             "/v1/remote/client/ack", self.client_ack, methods=["POST"]
+        )
+        self.router.add_api_route(
+            "/v1/remote/client/equipment", self.client_equipment,
+            methods=["POST"],
         )
         self.router.add_api_route(
             "/v1/remote/equipment/poll", self.equipment_poll, methods=["POST"]
@@ -412,20 +427,9 @@ class AsterRemoteGateway:
             return {"status": "accepted", "request_id": payload.request_id}
         room = self.rooms[payload.room_id]
         if payload.action in EQUIPMENT_ACTIONS:
-            equipment = next((row for row in self.equipment_clients.values()
-                              if row.room_id == payload.room_id), None)
-            if equipment is None or payload.action not in equipment.actions:
-                raise HTTPException(403, "AsterTV equipment action denied")
-            if room.equipment_last_seen <= now - CONNECTED_SECONDS:
-                raise HTTPException(503, "AsterTV equipment bridge unavailable")
-            if payload.action.startswith("equipment.power_") and room.equipment_power not in {"on", "off"}:
-                raise HTTPException(503, "AsterTV equipment power state unavailable")
-            if payload.action.startswith("equipment.volume_") and room.equipment_volume_level is None:
-                raise HTTPException(503, "AsterTV equipment volume state unavailable")
-            if payload.action.startswith("equipment.mute_") and room.equipment_muted is None:
-                raise HTTPException(503, "AsterTV equipment mute state unavailable")
-            queue = room.equipment_queue
-            condition = room.equipment_condition
+            return await self._queue_equipment(
+                payload.room_id, payload.request_id, payload.action, now
+            )
         else:
             queue = room.queue
             condition = room.condition
@@ -439,6 +443,35 @@ class AsterRemoteGateway:
         async with condition:
             condition.notify_all()
         return {"status": "accepted", "request_id": payload.request_id}
+
+    async def _queue_equipment(
+        self, room_id: str, request_id: str, action: str, now: float,
+    ) -> dict[str, str]:
+        room = self.rooms[room_id]
+        equipment = next((row for row in self.equipment_clients.values()
+                          if row.room_id == room_id), None)
+        if equipment is None or action not in equipment.actions:
+            raise HTTPException(403, "AsterTV equipment action denied")
+        if room.equipment_last_seen <= now - CONNECTED_SECONDS:
+            raise HTTPException(503, "AsterTV equipment bridge unavailable")
+        if action.startswith("equipment.power_") and room.equipment_power not in {"on", "off"}:
+            raise HTTPException(503, "AsterTV equipment power state unavailable")
+        if action.startswith("equipment.volume_") and room.equipment_volume_level is None:
+            raise HTTPException(503, "AsterTV equipment volume state unavailable")
+        if action.startswith("equipment.mute_") and room.equipment_muted is None:
+            raise HTTPException(503, "AsterTV equipment mute state unavailable")
+        self.seen = {key: expiry for key, expiry in self.seen.items() if expiry > now}
+        if request_id in self.seen:
+            return {"status": "accepted", "request_id": request_id}
+        if len(room.equipment_queue) >= MAX_QUEUE:
+            raise HTTPException(503, "AsterTV remote queue is busy")
+        self.seen[request_id] = now + COMMAND_LIFETIME_SECONDS
+        room.equipment_queue.append(QueuedCommand(
+            request_id, action, None, now + COMMAND_LIFETIME_SECONDS,
+        ))
+        async with room.equipment_condition:
+            room.equipment_condition.notify_all()
+        return {"status": "accepted", "request_id": request_id}
 
     async def voice(self, request: Request, origin: str | None = Header(default=None)):
         self._same_origin(origin)
@@ -535,6 +568,32 @@ class AsterRemoteGateway:
         room.last_outcome = payload.outcome
         room.last_request_id = payload.request_id
         return {"status": "recorded"}
+
+    async def client_equipment(
+        self,
+        payload: PhysicalEquipmentCommand,
+        authorization: str | None = Header(default=None),
+        x_astertv_client: str | None = Header(default=None),
+    ):
+        self._client(payload.client_id, payload.room_id,
+                     authorization, x_astertv_client)
+        self._rate("physical:" + payload.client_id)
+        room = self.rooms[payload.room_id]
+        if payload.control == "volume_up":
+            action = "equipment.volume_up"
+        elif payload.control == "volume_down":
+            action = "equipment.volume_down"
+        elif payload.control == "mute_toggle":
+            if room.equipment_muted is None:
+                raise HTTPException(503, "AsterTV equipment mute state unavailable")
+            action = "equipment.mute_off" if room.equipment_muted else "equipment.mute_on"
+        else:
+            if room.equipment_power not in {"on", "off"}:
+                raise HTTPException(503, "AsterTV equipment power state unavailable")
+            action = "equipment.power_off" if room.equipment_power == "on" else "equipment.power_on"
+        return await self._queue_equipment(
+            payload.room_id, payload.request_id, action, self.clock()
+        )
 
     def _equipment_client(self, client_id: str, room_id: str,
                           authorization: str | None, header_client: str | None):

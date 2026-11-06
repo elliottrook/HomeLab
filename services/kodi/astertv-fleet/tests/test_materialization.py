@@ -96,6 +96,7 @@ class MaterializationTests(unittest.TestCase):
                          "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0")
         self.assertEqual(set(manifest["targets"]), {"astertv-family", "astertv-bedroom", "astertv-jen"})
         destinations = {(row["scope"], row["destination"]) for row in manifest["files"]}
+        self.assertIn(("common", "/storage/.kodi/addons/service.asterremote/equipment.py"), destinations)
         self.assertIn(("astertv-jen", "/storage/.config/system.d/astertv-v3-m8-jen.service"), destinations)
         self.assertIn(("astertv-family", "/storage/.config/system.d/astertv-v3-m8-remote.service"), destinations)
         self.assertTrue(all(not row["path"].startswith("common/") for row in manifest["mutable_state"]))

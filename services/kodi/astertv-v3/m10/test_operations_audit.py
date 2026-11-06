@@ -50,13 +50,16 @@ class OperationsAuditTests(unittest.TestCase):
         gates = VALIDATE.EXTERNAL_ENVIRONMENT
         self.assertEqual(
             {name for name, row in gates.items() if row["status"] == "pass"},
-            {"aster-gateway", "live-recovery", "operations"},
+            {"aster-gateway", "live-recovery", "operations", "performance"},
         )
         for row in gates.values():
             if row["status"] == "pass":
                 self.assertTrue((ROOT / row["evidence"]).is_file())
-        self.assertEqual(gates["performance"]["status"], "partial")
         self.assertEqual(gates["walkthrough"]["status"], "open")
+
+        _tests, connected = VALIDATE.discover_tests()
+        self.assertEqual(connected[0]["status"], "pass")
+        self.assertTrue((ROOT / connected[0]["evidence"]).is_file())
 
     def test_integrated_gate_includes_room_bridge_contracts(self):
         tests, _ = VALIDATE.discover_tests()

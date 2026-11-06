@@ -1529,6 +1529,11 @@ Evidence:
   equipment remotes as recovery controls; prove duplicate-key, CEC fan-out,
   standby, reconnect and Home Assistant-outage behaviour on both production
   boxes.
+  The authenticated same-room endpoint, explicit toggle resolver, private Kodi
+  helper, fail-closed keymap renderer, multi-room HA component and deterministic
+  fleet payloads are source-complete. Exact key capture and the owner-assisted
+  room tests remain; no mapping is installed yet. Evidence:
+  `docs/projects/evidence/AsterTV-v3-M7-physical-equipment-candidate-2026-11-06.md`.
 - [x] Define a content-free current-state contract for playing/paused/idle,
   media class,
   current Aster page, screensaver state, availability and explicit remote
@@ -1791,7 +1796,7 @@ candidate and a separate promotion decision is required.
 
 ### M10 — Integrated validation, recovery and efficiency review
 
-The repository-local half is now a single fail-closed gate. It runs 69 test
+The repository-local half is now a single fail-closed gate. It runs 72 test
 files, scans 93 candidate inputs, verifies immutable v2, audits 15 pages/127
 focus controls, double-builds M9 and reports zero operational-readiness gaps
 across Family, Bedroom and Jen. It reports unfinished performance and physical
@@ -1811,9 +1816,12 @@ media request, equipment command, service restart/reconfiguration, credential,
 network-policy or AsterTV-client change occurred. Evidence:
 `docs/projects/evidence/AsterTV-v3-M10-gateway-environment-2026-11-05.md`.
 
-The connected Jen HEVC gate is explicitly excluded because its retained
-privacy-safe fixture is absent. Recreating a fixture and exercising Jen media
-playback requires a later named authorization and idle-display confirmation.
+The connected Jen HEVC gate is excluded from local execution but now has fresh
+target evidence. A transient privacy-safe 1920×1080/24 synthetic fixture passed
+eight samples through Jen's `ff-hevc` software decoder at 104.2% of one CPU
+core and 76% progress. Playback stopped, Home was restored, no player remained
+and every fixture/helper copy was removed. Evidence:
+`docs/projects/evidence/AsterTV-v3-M10-Jen-HEVC-2026-11-06.md`.
 
 A read-only 2026-11-06 Jen snapshot now records the first bounded low-spec idle
 evidence: no active player, 97.6% whole-host idle CPU at the sampled interval,
@@ -1884,10 +1892,12 @@ on the M4 Mac mini behind LXC 128, not legacy LXC 116. Six fixed synthetic STT
 runs through LXC 128 were exact in 202.1–239.1 ms with no retained or emitted
 audio/transcript. Live Aster Remote nevertheless still targets LXC 116. A
 direct LXC 104 → LXC 128 candidate failed its connectivity preflight before any
-mutation, correctly exposing the absent VLAN path. The staged correction adds
-an independent `/voice/v3/` HTTPS location for Remote STT, preserving legacy
-`/voice/` and streaming `/voice/v2/`; NPM apply and the checkpointed Remote URL
-change remain gated. Evidence:
+mutation, correctly exposing the absent VLAN path. The approved correction
+added an independent `/voice/v3/` HTTPS location for Remote STT, preserving
+legacy `/voice/` and streaming `/voice/v2/`, then checkpointed and changed only
+the Remote URL and restricted STT key. The fixed Qwen synthetic phrase passed
+the complete public Remote path exactly in 256.6 ms; transient key, audio and
+response files were removed. Evidence:
 `docs/projects/evidence/AsterTV-v3-M10-Mac-speech-authority-2026-11-06.md`.
 
 The M7 content rollout read-only preflight also confirms the accepted
@@ -1903,16 +1913,45 @@ now gates the coordinated rollout. Evidence:
   playback, audio/video and secret-pattern suites on the low-spec client.
 - [ ] Prove interrupted install, corrupt package, dependency outage, reboot and
   full v2 rollback.
-- [ ] Measure CPU, GPU, RAM, storage, page latency, artwork latency, network
+- [x] Measure CPU, GPU, RAM, storage, page latency, artwork latency, network
   traffic, camera stream cost, speech latency and idle overhead. Idle,
   page/network, camera-stream and artwork-binding measurements now pass;
-  canonical core speech passes, while the end-to-end Remote route remains open.
+  canonical core and end-to-end Remote speech, connected low-spec HEVC and the
+  previously recorded sustained playback/transcode envelopes also pass.
 - [x] Complete Doctor, Beszel, backup/restore, NetBox, wiki, reference, mirror
   and AI-administration integration work.
 - [ ] Complete a non-author walkthrough and correct avoidable friction.
 
 Gate: two clean full-path passes, isolated restore, v2 rollback and documented
 resource headroom; every deviation is fixed or explicitly accepted.
+
+#### Owner-assisted acceptance queue
+
+The following work is deliberately separated from autonomous Stream A. Code,
+fixtures, manifests and rollback may be prepared without Jason, but none of
+these items may be marked accepted from automation alone:
+
+1. Capture the exact Kodi/Linux names or numeric codes emitted by Volume Up,
+   Volume Down, Mute and Power on the physical AsterTV remote for each hardware
+   profile. Confirm ordinary navigation, Select, Back and playback keys remain
+   unchanged after the candidate keymap is installed.
+2. Family: observe one physical volume step down/up and mute/unmute on the
+   Onkyo, then one explicit TCL power transition with the expected single CEC
+   receiver transition. Confirm the equipment's original remotes still recover
+   the room during a Home Assistant outage.
+3. Bedroom: observe one LG volume step down/up and mute/unmute reaching the
+   attached receiver/soundbar through ARC/eARC SIMPLINK/CEC, with no duplicate
+   step, then confirm explicit LG power and physical recovery. Record the
+   attached audio model when convenient; it is a recovery/inventory fact, not
+   a prerequisite for this TV-mediated test.
+4. Select comfortable per-room volume targets for Movie, Television, YouTube,
+   Music, Podcast/News and Book/Audiobook after the safe ramp/nighttime policy
+   is staged. Automation must not invent household levels.
+5. Complete the non-author physical walkthrough, Bedroom soak acceptance and
+   final Family promotion while each display is idle.
+
+Everything else in M7/M10/M11 remains autonomous Stream A until it reaches one
+of those observation or promotion boundaries.
 
 ### M11 — Immutable release, Bedroom soak and Family promotion
 
@@ -1922,6 +1961,11 @@ resource headroom; every deviation is fixed or explicitly accepted.
   artifact is handed off; then prove season-level mixed Current/Archive
   browsing plus search, resume and watch-state continuity in both Home and the
   screensaver. Match by Jellyfin/TVDB/IMDb identity rather than cached Kodi IDs.
+  The autonomous fallback half now passes with exact immutable hashes, all four
+  screensaver bindings and a negative guard against an unapproved V3 `.xsp`.
+  The replacement-view half remains blocked on that external artifact/identity
+  handoff. Evidence:
+  `docs/projects/evidence/AsterTV-v3-M11-media-lifecycle-fallback-2026-11-06.md`.
 - [ ] Freeze v3 as an identified commit plus reproducible manifest containing
   code, dependencies, schemas and material asset hashes.
 - [ ] Deploy independently to Bedroom, preserving its v2 recovery checkpoint,

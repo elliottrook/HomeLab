@@ -4,11 +4,14 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import itertools
 import json
 from pathlib import Path
 import queue
+import secrets
 import socket
 import threading
+import time
 import urllib.error
 import urllib.request
 
@@ -23,8 +26,23 @@ MAX_TEXT = 512
 WINDOWS = {
     10000: "media", 10103: "keyboard", 11110: "books", 11111: "news",
     11112: "home", 11113: "music", 11127: "search", 11132: "requests",
-    11134: "cameras",
+    11134: "cameras", 11118: "books", 11119: "books", 11120: "books",
+    11191: "youtube", 11194: "movies", 11196: "tv", 11198: "news",
+    11200: "home", 11201: "cameras", 11204: "news",
 }
+CONTENT_BY_WINDOW = {
+    11113: "Music", 11114: "Music", 11115: "Music", 11116: "Music",
+    11117: "Music", 11118: "Book/Audiobook", 11119: "Book/Audiobook",
+    11120: "Podcast", 11191: "YouTube", 11194: "Movie",
+    11196: "Television", 11198: "News", 11204: "News",
+}
+CONTENT_BY_ITEM = {
+    "movie": "Movie", "episode": "Television", "musicvideo": "Music",
+    "song": "Music",
+}
+SESSION_ID = "boot-" + secrets.token_hex(16)
+SEQUENCES = itertools.count(1)
+CONTENT_STATE_SUPPORTED = True
 NAVIGATION = {
     "nav.up": "Input.Up", "nav.down": "Input.Down",
     "nav.left": "Input.Left", "nav.right": "Input.Right",
@@ -141,13 +159,43 @@ def rpc(method, params=None):
 def state():
     players = rpc("Player.GetActivePlayers")
     playback = "idle"
+    player_type = ""
     if players:
+        player_id = players[0]["playerid"]
         properties = rpc("Player.GetProperties", {
-            "playerid": players[0]["playerid"], "properties": ["speed"],
+            "playerid": player_id, "properties": ["speed"],
         })
         playback = "playing" if properties.get("speed", 0) else "paused"
+        try:
+            player_type = str(rpc("Player.GetItem", {
+                "playerid": player_id, "properties": [],
+            }).get("item", {}).get("type", "")).casefold()
+        except RemoteError:
+            player_type = ""
     window = xbmcgui.getCurrentWindowId()
-    result = {"current_page": WINDOWS.get(window, "other"), "playback": playback}
+    page = WINDOWS.get(window, "other")
+    content_class = CONTENT_BY_WINDOW.get(window, CONTENT_BY_ITEM.get(
+        player_type, "Unknown"
+    ))
+    now = int(time.time())
+    result = {
+        "current_page": page,
+        "playback": playback,
+        "content_state": {
+            "schema": "astertv-room-playback.v1",
+            "session_id": SESSION_ID,
+            "sequence": next(SEQUENCES),
+            "observed_epoch": now,
+            "expires_epoch": now + 30,
+            "available": True,
+            "playback_state": playback,
+            "content_class": content_class,
+            "page_id": page,
+            "screensaver_active": bool(xbmc.getCondVisibility(
+                "System.ScreenSaverActive"
+            )),
+        },
+    }
     result.update(INPUT.snapshot())
     return result
 
@@ -177,10 +225,23 @@ def request(path, payload, timeout, client_id):
 
 
 def poll():
+    global CONTENT_STATE_SUPPORTED
     client_id, room_id = identity()
     current = state()
+    if not CONTENT_STATE_SUPPORTED:
+        current.pop("content_state", None)
     current.update({"client_id": client_id, "room_id": room_id})
-    return request("/client/poll", current, 25, client_id)
+    try:
+        return request("/client/poll", current, 25, client_id)
+    except RemoteError as error:
+        # The previous gateway rejects unknown fields. Preserve Remote during a
+        # gateway-first rolling upgrade, then publish content state after the
+        # service is restarted against the accepted gateway contract.
+        if CONTENT_STATE_SUPPORTED and str(error) == "gateway-http-422":
+            CONTENT_STATE_SUPPORTED = False
+            current.pop("content_state", None)
+            return request("/client/poll", current, 25, client_id)
+        raise
 
 
 def ack(command, outcome):

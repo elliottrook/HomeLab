@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "ae78ce806f64fa955c5a4df922c431bf98d61570eea91f00845fcd07d44ded7a",
+  "composition_sha256": "9b566286f2d4fbd264278efd7a66a814ca66bb9caa27a912ac8957a433caba27",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-bedroom",
   "expected_assertions": [
@@ -178,7 +178,7 @@
       "mode": "0600",
       "overlay": "remote-client-v3",
       "path": "/storage/.aster-v3/m8-remote/manifest.json",
-      "sha256": "59c1b6ab3a380397cfe559feb3524678f800f3259913e7ec74bdd972a5bf78ab"
+      "sha256": "0fb27db7b43b9c589dc05f67b685539e08c9fa6ac8cb748a1d82afc3993d8e7f"
     },
     {
       "bytes": 661,
@@ -188,11 +188,18 @@
       "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
     },
     {
-      "bytes": 10098,
+      "bytes": 2262,
+      "mode": "0644",
+      "overlay": "remote-client-v3",
+      "path": "/storage/.aster-v3/m8-remote/service.asterremote/equipment.py",
+      "sha256": "ea7779390051cd039a0f635eda6e306c9f22c1ecf5d4e113eafca1450a823097"
+    },
+    {
+      "bytes": 12408,
       "mode": "0644",
       "overlay": "remote-client-v3",
       "path": "/storage/.aster-v3/m8-remote/service.asterremote/service.py",
-      "sha256": "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49"
+      "sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0"
     },
     {
       "bytes": 202,
@@ -209,11 +216,18 @@
       "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
     },
     {
-      "bytes": 10098,
+      "bytes": 2262,
+      "mode": "0644",
+      "overlay": "remote-client-v3",
+      "path": "/storage/.kodi/addons/service.asterremote/equipment.py",
+      "sha256": "ea7779390051cd039a0f635eda6e306c9f22c1ecf5d4e113eafca1450a823097"
+    },
+    {
+      "bytes": 12408,
       "mode": "0644",
       "overlay": "remote-client-v3",
       "path": "/storage/.kodi/addons/service.asterremote/service.py",
-      "sha256": "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49"
+      "sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0"
     },
     {
       "bytes": 343,

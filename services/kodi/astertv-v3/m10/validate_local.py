@@ -20,8 +20,11 @@ HOME_ASSISTANT_TESTS = ROOT / "services/home-assistant/aster_room_bridge"
 OPERATIONS_OBSERVATION = (
     ROOT / "docs/projects/evidence/AsterTV-v3-M10-operations-observation-2026-11-05.json")
 CONNECTED_ONLY = {
-    "services/kodi/astertv-v3/low-spec/test_hevc_decode.py":
-        "requires AsterTV-Jen, retained HEVC fixture, idle player and local JSON-RPC",
+    "services/kodi/astertv-v3/low-spec/test_hevc_decode.py": {
+        "status": "pass",
+        "reason": "requires AsterTV-Jen, a transient HEVC fixture, idle player and local JSON-RPC",
+        "evidence": "docs/projects/evidence/AsterTV-v3-M10-Jen-HEVC-2026-11-06.md",
+    },
 }
 EXTERNAL_ENVIRONMENT = {
     "aster-gateway": {
@@ -37,8 +40,8 @@ EXTERNAL_ENVIRONMENT = {
         "evidence": "docs/projects/evidence/AsterTV-v3-M10-operations-readiness-2026-11-05.md",
     },
     "performance": {
-        "status": "partial",
-        "reason": "idle, page/network, camera-stream, artwork-binding and canonical core speech envelopes pass; low-spec HEVC and end-to-end Remote speech remain",
+        "status": "pass",
+        "evidence": "docs/projects/evidence/AsterTV-v3-M10-Jen-HEVC-2026-11-06.md",
     },
     "walkthrough": {
         "status": "open",
@@ -69,7 +72,7 @@ def discover_tests() -> tuple[list[Path], list[dict]]:
     for path in discovered:
         name = relative(path)
         if name in CONNECTED_ONLY:
-            connected.append({"path": name, "reason": CONNECTED_ONLY[name]})
+            connected.append({"path": name, **CONNECTED_ONLY[name]})
         else:
             runnable.append(path)
     unknown_exclusions = set(CONNECTED_ONLY) - {relative(path) for path in discovered}
@@ -126,7 +129,7 @@ def validate() -> dict:
 
     return {
         "schema_version": 1,
-        "outcome": "pass-with-connected-gates-open",
+        "outcome": "pass-with-owner-acceptance-open",
         "commit": subprocess.run(
             ["git", "rev-parse", "HEAD"], cwd=ROOT, check=True,
             text=True, capture_output=True).stdout.strip(),

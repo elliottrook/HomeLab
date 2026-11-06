@@ -8,6 +8,8 @@
     "soundbar": "model not yet recorded",
     "port": "HDMI 0",
     "output_contract": "stereo PCM with AC3/EAC3 passthrough; DTS/TrueHD/DTS-HD disabled",
-    "controls": ["LG webOS television control"]
+    "controls": ["LG webOS power", "LG webOS volume/mute via ARC/eARC SIMPLINK/CEC"],
+    "physical_remote_mapping": "pending exact key capture and owner CEC acceptance",
+    "control_authority": "Home Assistant capability bridge; state-aware explicit actions only"
   }
 }
