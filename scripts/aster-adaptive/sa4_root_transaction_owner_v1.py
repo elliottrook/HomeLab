@@ -6,6 +6,7 @@ independent observer proof after each observation.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
 import hashlib
 import re
 
@@ -21,10 +22,33 @@ import sa4_independent_rollback_receipt_producer_v1 as rollback_producer
 import sa4_one_use_grant_ledger_v1 as ledger_module
 import sa4_preflight_composition_v1 as preflight
 import sa4_receipt_ledger_reconciler_v1 as reconciler
+import sa4_runtime_control_owner_v1 as runtime_owner
 import sa4_single_file_repair_contract_v1 as contract
+import sa4_target_registry_v1 as registry
 
 
 IDENTITY = re.compile(r"[a-z0-9][a-z0-9._-]{2,127}")
+BOUND_HOST_ID = "lxc104"
+
+
+@contextmanager
+def _fixed_bindings(plan_raw: bytes):
+    plan = contract.validate_plan(plan_raw)
+    target = registry.resolve_production(plan["target_id"])
+    modules = (runtime_owner, measurement_owner, checkpoint_owner,
+               repair_owner, receipt_producer, rollback_owner,
+               rollback_producer)
+    originals = tuple(module.LOCAL_HOST_ID for module in modules)
+    if (target.host_id != BOUND_HOST_ID
+            or any(value not in {"unconfigured", BOUND_HOST_ID}
+                   for value in originals)):
+        raise ValueError("SA4 root-owner fixed host binding changed")
+    for module in modules: module.LOCAL_HOST_ID = BOUND_HOST_ID
+    try:
+        yield
+    finally:
+        for module, original in zip(modules, originals):
+            module.LOCAL_HOST_ID = original
 
 
 def _raw(value: object) -> bytes:
@@ -42,6 +66,7 @@ class RootTransactionOwner:
         self.operation_id = operation_id
         self.phase = "new"
         self._values: dict[str, bytes] = {}
+        self.controls: runtime_owner.RuntimeControlOwner | None = None
 
     def _require(self, phase: str) -> None:
         if self.phase != phase:
@@ -63,11 +88,16 @@ class RootTransactionOwner:
             authority.verify(
                 plan_raw, approval_raw, approval_proof_raw, grant_raw,
                 grant_proof_raw, checkpoint_epoch)
-            measurement_raw = _raw(measurement_owner.measure(
-                plan_raw, measurement_epoch=measurement_epoch))
-            checkpoint_raw = _raw(checkpoint_owner.create(
-                plan_raw, measurement_raw, checkpoint_epoch=checkpoint_epoch))
+            with _fixed_bindings(plan_raw):
+                self.controls = runtime_owner.RuntimeControlOwner(plan_raw)
+                self.controls.acquire()
+                measurement_raw = _raw(measurement_owner.measure(
+                    plan_raw, measurement_epoch=measurement_epoch))
+                checkpoint_raw = _raw(checkpoint_owner.create(
+                    plan_raw, measurement_raw, checkpoint_epoch=checkpoint_epoch))
         except BaseException:
+            if self.controls is not None:
+                self.controls.retain_uncertain()
             self.phase = "uncertain-manual-reconciliation-required"
             raise
         self._values = {
@@ -79,13 +109,15 @@ class RootTransactionOwner:
         return {name: self._values[name] for name in
                 ("measurement", "checkpoint")}
 
-    def execute_once(self, runtime_controls_raw: bytes, *, claim_epoch: int,
-                     claim_deadline_epoch: int,
+    def execute_once(self, *, claim_epoch: int, claim_deadline_epoch: int,
                      effect_epoch: int) -> dict[str, bytes]:
         """Claim once, emit final admission and attempt exactly one repair."""
         self._require("prepared")
         self.phase = "effect-in-progress"
         try:
+            if self.controls is None:
+                raise ValueError("SA4 runtime controls are absent")
+            runtime_controls_raw = self.controls.observe(effect_epoch)
             source_raw = _raw(preflight.compose_live(
                 self._values["plan"], self._values["approval"],
                 self._values["approval_proof"], self._values["grant"],
@@ -103,12 +135,15 @@ class RootTransactionOwner:
                 self._values["grant_proof"], source_raw,
                 self._values["checkpoint"], claim_raw,
                 self._values["candidate"], effect_epoch=effect_epoch)
-            terminal_raw = _raw(repair_owner.execute(
-                self._values["plan"], admission_raw,
-                self._values["checkpoint"], claim_raw,
-                self._values["candidate"], operation_id=self.operation_id,
-                effect_epoch=effect_epoch))
+            with _fixed_bindings(self._values["plan"]):
+                terminal_raw = _raw(repair_owner.execute(
+                    self._values["plan"], admission_raw,
+                    self._values["checkpoint"], claim_raw,
+                    self._values["candidate"], operation_id=self.operation_id,
+                    effect_epoch=effect_epoch))
         except BaseException:
+            if self.controls is not None:
+                self.controls.retain_uncertain()
             self.phase = "uncertain-manual-reconciliation-required"
             raise
         self._values.update(source=source_raw, claim=claim_raw,
@@ -122,11 +157,17 @@ class RootTransactionOwner:
         self._require("effect-attempted")
         self.phase = "observation-in-progress"
         try:
-            receipt = receipt_producer.observe(
-                self._values["plan"], self._values["admission"],
-                self._values["claim"], self._values["terminal"],
-                observed_epoch=observed_epoch)
+            if self.controls is None:
+                raise ValueError("SA4 runtime controls are absent")
+            self.controls.ensure_armed()
+            with _fixed_bindings(self._values["plan"]):
+                receipt = receipt_producer.observe(
+                    self._values["plan"], self._values["admission"],
+                    self._values["claim"], self._values["terminal"],
+                    observed_epoch=observed_epoch)
         except BaseException:
+            if self.controls is not None:
+                self.controls.retain_uncertain()
             self.phase = "uncertain-manual-reconciliation-required"
             raise
         self._values["postcheck"] = receipt
@@ -156,21 +197,27 @@ class RootTransactionOwner:
         self._require("rollback-required")
         claim = contract.decode_unique_json(self._values["claim"])
         try:
-            terminal = rollback_owner.restore(
-                self._values["plan"], self._values["checkpoint"],
-                self._values["terminal"], self._values["postcheck"],
-                self._values["postcheck_proof"],
-                rollback_attempt_id=rollback_attempt_id,
-                not_before_epoch=claim["claimed_epoch"],
-                deadline_epoch=claim["claim_deadline_epoch"],
-                rollback_epoch=rollback_epoch)
-            rollback_terminal_raw = _raw(terminal)
-            receipt = rollback_producer.observe(
-                self._values["plan"], self._values["admission"],
-                self._values["claim"], self._values["checkpoint"],
-                self._values["postcheck"], self._values["postcheck_proof"],
-                rollback_terminal_raw, observed_epoch=observed_epoch)
+            if self.controls is None:
+                raise ValueError("SA4 runtime controls are absent")
+            self.controls.ensure_armed()
+            with _fixed_bindings(self._values["plan"]):
+                terminal = rollback_owner.restore(
+                    self._values["plan"], self._values["checkpoint"],
+                    self._values["terminal"], self._values["postcheck"],
+                    self._values["postcheck_proof"],
+                    rollback_attempt_id=rollback_attempt_id,
+                    not_before_epoch=claim["claimed_epoch"],
+                    deadline_epoch=claim["claim_deadline_epoch"],
+                    rollback_epoch=rollback_epoch)
+                rollback_terminal_raw = _raw(terminal)
+                receipt = rollback_producer.observe(
+                    self._values["plan"], self._values["admission"],
+                    self._values["claim"], self._values["checkpoint"],
+                    self._values["postcheck"], self._values["postcheck_proof"],
+                    rollback_terminal_raw, observed_epoch=observed_epoch)
         except BaseException:
+            if self.controls is not None:
+                self.controls.retain_uncertain()
             self.phase = "uncertain-manual-reconciliation-required"
             raise
         self._values.update(rollback_terminal=rollback_terminal_raw,
@@ -198,6 +245,9 @@ class RootTransactionOwner:
         self._require("ready-to-reconcile")
         self.phase = "reconciliation-in-progress"
         try:
+            if self.controls is None:
+                raise ValueError("SA4 runtime controls are absent")
+            self.controls.ensure_armed()
             result = reconciler.reconcile(
                 self._values["plan"], self._values["source"],
                 self._values["admission"], self._values["checkpoint"],
@@ -207,7 +257,10 @@ class RootTransactionOwner:
                 rollback_terminal_raw=self._values.get("rollback_terminal"),
                 rollback_receipt_raw=self._values.get("rollback_receipt"),
                 rollback_proof_raw=self._values.get("rollback_proof"))
+            self.controls.release_terminal()
         except BaseException:
+            if self.controls is not None:
+                self.controls.retain_uncertain()
             self.phase = "uncertain-manual-reconciliation-required"
             raise
         self.phase = "terminal"

@@ -4,8 +4,8 @@ import sa4_first_repair_transaction_release_v2 as release
 
 
 class SA4FirstRepairTransactionReleaseV2Tests(unittest.TestCase):
-    def test_exact_installed_sources_are_pinned(self):
-        release.validate_sources()
+    def test_superseded_source_drift_is_detected(self):
+        with self.assertRaises(ValueError): release.validate_sources()
         self.assertEqual(4, len(release.SOURCES))
 
     def test_release_requires_new_authority_and_runtime_controls(self):
@@ -19,6 +19,8 @@ class SA4FirstRepairTransactionReleaseV2Tests(unittest.TestCase):
 
     def test_release_has_no_effect_or_retry(self):
         value = release.packet()
+        self.assertEqual("superseded-no-go-runtime-controls-not-owned",
+                         value["status"])
         self.assertFalse(value["effect_authorized"])
         self.assertFalse(value["transaction_limits"]["automatic_retry"])
         self.assertEqual(1, value["transaction_limits"]["maximum_repairs"])

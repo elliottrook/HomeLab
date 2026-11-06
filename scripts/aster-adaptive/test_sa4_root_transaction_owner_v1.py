@@ -4,6 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+from contextlib import nullcontext
 
 import sa4_one_use_grant_ledger_v1 as ledger_module
 import sa4_root_transaction_owner_v1 as owner_module
@@ -12,6 +13,14 @@ from test_sa4_single_file_repair_contract_v1 import plan
 
 
 class SA4RootTransactionOwnerTests(unittest.TestCase):
+    class Controls:
+        def __init__(self, _plan): self.retained = False
+        def acquire(self): pass
+        def observe(self, _epoch): return b"fresh-controls\n"
+        def ensure_armed(self): pass
+        def retain_uncertain(self): self.retained = True
+        def release_terminal(self): pass
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.ledger = ledger_module.OneUseLedger(
@@ -40,7 +49,11 @@ class SA4RootTransactionOwnerTests(unittest.TestCase):
              patch.object(owner_module.measurement_owner, "measure",
                           return_value={"measurement": "fixed"}), \
              patch.object(owner_module.checkpoint_owner, "create",
-                          return_value={"checkpoint": "fixed"}):
+                          return_value={"checkpoint": "fixed"}), \
+             patch.object(owner_module.runtime_owner, "RuntimeControlOwner",
+                          self.Controls), \
+             patch.object(owner_module, "_fixed_bindings",
+                          side_effect=lambda _plan: nullcontext()):
             return self.owner.prepare(
                 self.plan_raw, b"approval\n", b"approval-proof\n",
                 b"grant\n", b"grant-proof\n", self.candidate,
@@ -53,15 +66,19 @@ class SA4RootTransactionOwnerTests(unittest.TestCase):
              patch.object(owner_module.effect_admission, "admit",
                           return_value=b"admission\n"), \
              patch.object(owner_module.repair_owner, "execute",
-                          return_value={"terminal": "fixed"}):
-            return self.owner.execute_once(b"fresh-controls\n",
+                          return_value={"terminal": "fixed"}), \
+             patch.object(owner_module, "_fixed_bindings",
+                          side_effect=lambda _plan: nullcontext()):
+            return self.owner.execute_once(
                 claim_epoch=110, claim_deadline_epoch=170,
                 effect_epoch=120)
 
     def test_success_path_is_ordered_and_has_no_retry(self):
         self.prepare(); self.execute()
         with patch.object(owner_module.receipt_producer, "observe",
-                          return_value=b"postcheck\n"):
+                          return_value=b"postcheck\n"), \
+             patch.object(owner_module, "_fixed_bindings",
+                          side_effect=lambda _plan: nullcontext()):
             self.assertEqual(b"postcheck\n",
                              self.owner.observe(observed_epoch=130))
         with patch.object(owner_module.receipt_validator, "validate",
@@ -78,7 +95,7 @@ class SA4RootTransactionOwnerTests(unittest.TestCase):
 
     def test_phase_skips_and_second_effect_fail_closed(self):
         with self.assertRaises(ValueError):
-            self.owner.execute_once(b"fresh-controls\n",
+            self.owner.execute_once(
                 claim_epoch=110, claim_deadline_epoch=170,
                 effect_epoch=120)
         self.prepare(); self.execute()
@@ -92,7 +109,7 @@ class SA4RootTransactionOwnerTests(unittest.TestCase):
              patch.object(owner_module.effect_admission, "admit",
                           side_effect=RuntimeError("injected")), \
              self.assertRaises(RuntimeError):
-            self.owner.execute_once(b"fresh-controls\n",
+            self.owner.execute_once(
                 claim_epoch=110, claim_deadline_epoch=170,
                 effect_epoch=120)
         self.assertEqual("uncertain-manual-reconciliation-required",

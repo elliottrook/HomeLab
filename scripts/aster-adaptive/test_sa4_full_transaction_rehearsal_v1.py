@@ -37,7 +37,7 @@ def proof_for(raw: bytes) -> bytes:
 class SA4FullTransactionRehearsalTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
-        root = Path(self.temporary.name)
+        root = Path(self.temporary.name); self.root = root
         self.before = b'{"adapter":"sa4-canary","schema":"old","state":"drifted"}\n'
         self.healthy = (Path(__file__).with_name("fixtures") /
                         "sa4-canary-adapter-healthy-v1.json").read_bytes()
@@ -95,32 +95,32 @@ class SA4FullTransactionRehearsalTests(unittest.TestCase):
         original_metadata = postcheck_producer.metadata_check.check
         def metadata(value):
             return original_metadata(dict(value, uid=0, gid=0))
-        controls_raw = contract.canonical({
-            "schema": "aster-sa4-live-runtime-controls.v1",
-            "plan_sha256": plan_sha, "observed_epoch": 120,
-            "shared_operation_lock": "held",
-            "lock_path": "/run/aster-sa4-operation.lock",
-            "lock_owner": value["plan_id"],
-            "lock_regular_file": True, "lock_link_count": 1,
-            "emergency_stop": "armed",
-            "emergency_stop_owner": value["plan_id"],
-            "automatic_retry": False, "automatic_routing": "off"})
         with patch.object(registry, "PRODUCTION_TARGETS", (self.target,)), \
              patch.object(rsa, "verify", return_value=authenticated), \
-             patch.multiple(measurement_owner, LOCAL_HOST_ID=self.target.host_id,
+             patch.object(root_owner, "BOUND_HOST_ID", self.target.host_id), \
+             patch.multiple(root_owner.runtime_owner,
+                            LOCAL_HOST_ID="unconfigured",
+                            EXPECTED_UID=os.geteuid(),
+                            EXPECTED_GID=os.getegid(),
+                            LOCK_PATH=str(self.root / "operation.lock"),
+                            STOP_PATH=str(self.root / "emergency-stop")), \
+             patch.multiple(measurement_owner,
+                            LOCAL_HOST_ID="unconfigured",
                             EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
-             patch.multiple(checkpoint_owner, LOCAL_HOST_ID=self.target.host_id,
+             patch.multiple(checkpoint_owner,
+                            LOCAL_HOST_ID="unconfigured",
                             EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
-             patch.multiple(repair_owner, LOCAL_HOST_ID=self.target.host_id,
+             patch.multiple(repair_owner,
+                            LOCAL_HOST_ID="unconfigured",
                             EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
              patch.multiple(postcheck_producer,
-                            LOCAL_HOST_ID=self.target.host_id,
+                            LOCAL_HOST_ID="unconfigured",
                             EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
              patch.multiple(rollback_owner,
-                            LOCAL_HOST_ID=self.target.host_id,
+                            LOCAL_HOST_ID="unconfigured",
                             EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
              patch.multiple(rollback_producer,
-                            LOCAL_HOST_ID=self.target.host_id,
+                            LOCAL_HOST_ID="unconfigured",
                             EXPECTED_UID=os.geteuid(), EXPECTED_GID=os.getegid()), \
              patch.object(postcheck_producer, "_snapshot",
                           side_effect=self._root_snapshot(
@@ -138,7 +138,7 @@ class SA4FullTransactionRehearsalTests(unittest.TestCase):
                 b"grant\n", b"grant-proof\n", candidate,
                 measurement_epoch=100, checkpoint_epoch=105)
             owner.execute_once(
-                controls_raw, claim_epoch=110, claim_deadline_epoch=170,
+                claim_epoch=110, claim_deadline_epoch=170,
                 effect_epoch=120)
             postcheck_raw = owner.observe(observed_epoch=130)
             branch = owner.accept_postcheck_proof(proof_for(postcheck_raw))

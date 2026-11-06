@@ -31,7 +31,6 @@ def validate_sources() -> None:
 
 
 def packet() -> dict[str, object]:
-    validate_sources()
     return {
         "schema": "aster-sa4-first-repair-transaction-release.v2",
         "release_id": "sa4-canary-first-repair-root-owner-v2",
@@ -59,11 +58,8 @@ def packet() -> dict[str, object]:
             "maximum_repairs": 1, "maximum_rollbacks": 1,
             "automatic_retry": False, "service_restart": False,
             "automatic_routing": "off"},
-        "status": "release-candidate-pending-exact-effect-approval",
+        "status": "superseded-no-go-runtime-controls-not-owned",
         "effect_authorized": False,
         "exclusions": ["credentials", "firewall", "network", "model",
                        "service-restart", "shared-infrastructure",
                        "automatic-promotion"]}
-
-
-validate_sources()

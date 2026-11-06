@@ -1,5 +1,10 @@
 # SA4 first root-owned repair release candidate — 2026-11-05
 
+> **Superseded / NO-GO:** fresh pre-effect review found that this candidate
+> trusted caller-supplied lock/emergency-stop evidence rather than owning the
+> real controls. No signature, grant, claim, checkpoint or repair occurred.
+> See the corrected runtime-control candidate recorded after this review.
+
 ## Release candidate
 
 The final no-authority packet now binds the first canary repair to:
