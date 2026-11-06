@@ -623,6 +623,14 @@
 > complete SA4 suite passes 255/255. The reversible inactive installation is
 > the next operational gate.
 > No repair is included.
+> Jason approved that gate and the [inactive installation plus zero-effect proof](evidence/SA4-distinct-canary-v3-inactive-install-result-2026-11-06.md)
+> passed. Both exact v3 files are root-owned one-link regular files; all seven
+> dependencies and the drifted canary remain exact. Isolated imports pass,
+> v1 rejects the distinct target and v2 resolves it. The final-path runner
+> rejected one unexpected argument before opening inputs or creating state;
+> the lease stayed ready and production stayed healthy. No repair, authority,
+> service action, route or promotion occurred. Next is a fresh distinct-target
+> release and unsigned-authority boundary; no live test is scheduled.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
