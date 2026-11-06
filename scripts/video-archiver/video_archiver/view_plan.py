@@ -49,20 +49,30 @@ class TvViewPlan:
     series: tuple[SeriesView, ...]
     held: tuple[HeldSeries, ...]
     skipped_empty: tuple[int, ...]
+    # Count from a separate file-level ARR/Jellyfin/filesystem reconciliation.
+    # None means that the inventory has not been checked.
+    unreconciled_file_count: int | None
 
     def require_complete(self) -> tuple[SeriesView, ...]:
         """Return publishable series only when every media-bearing ARR series is reconciled."""
         if self.held:
             raise ValueError(f"{len(self.held)} series need identity or metadata review")
+        if self.unreconciled_file_count is None:
+            raise ValueError("file-level inventory reconciliation is required")
+        if self.unreconciled_file_count:
+            raise ValueError(f"{self.unreconciled_file_count} files need ownership or metadata review")
         return self.series
 
 
 def plan_tv_views(
     arr_series: tuple[ArrSeries, ...], kodi_series: tuple[KodiSeries, ...], now: datetime,
+    *, unreconciled_file_count: int | None = None,
 ) -> TvViewPlan:
     """Classify seasons, holding ambiguous or missing show identities."""
     if now.tzinfo is None or now.utcoffset() is None:
         raise ValueError("now must have a timezone")
+    if unreconciled_file_count is not None and unreconciled_file_count < 0:
+        raise ValueError("unreconciled file count must be non-negative")
     arr_ids = Counter(show.arr_id for show in arr_series)
     kodi_ids = Counter(show.kodi_id for show in kodi_series)
     arr_provider_ids = Counter(show.tvdb_id for show in arr_series if show.tvdb_id)
@@ -122,4 +132,4 @@ def plan_tv_views(
             for season in show.seasons
         )
         views.append(SeriesView(kodi.kodi_id, kodi.display_title.strip(), seasons))
-    return TvViewPlan(tuple(views), tuple(held), tuple(skipped_empty))
+    return TvViewPlan(tuple(views), tuple(held), tuple(skipped_empty), unreconciled_file_count)

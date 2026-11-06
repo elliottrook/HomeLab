@@ -72,14 +72,15 @@ must not infer titles, causes or import state from these aggregate counts.
 
 ## Automation and mutation map
 
-### Enabled host workflows
+### Host workflows
 
 | Authority | Schedule | Capability and boundary |
 |---|---|---|
 | TrueNAS Cron Job 2 — `jellyfin-integrity` | Wednesday 03:00 | Forces Jellyfin scans; may folder orphaned tracks, consolidate only unambiguous scatter, extract artwork and gap-fill missing tracks within its action cap. It never automatically deletes duplicate albums. |
 | TrueNAS Cron Job 3 — `playlist-bridge` | Every six hours at minute 15 | May add/search album-scoped Lidarr requests for missing exported-playlist tracks and create or replace the bounded Jellyfin playlist only after reconciliation. It does not download media itself. |
-| TrueNAS Cron Job 4 — `video-archiver` | Monday–Saturday 01:30 | May transcode eligible aged video, place the archive copy, use Radarr/Sonarr's authoritative delete-file API for the replaced source and unmonitor the parent to prevent reacquisition. Candidate age and per-run caps bound it. |
+| TrueNAS Cron Job 4 — `video-archiver` | Disabled 2026-11-04; former Monday–Saturday 01:30 | Its legacy code can transcode and move aged video, delete the ARR file record and unmonitor the title. Do not re-enable under the old behavior. Stream A replacement is in progress. |
 | TrueNAS Cron Job 5 — Aster ARR report | Every five minutes | Read-only. Produces and transports only aggregate health/queue/import fields plus at most one separately issued opaque repair candidate. It cannot create an approval or execute a repair. |
+| TrueNAS Cron Job 6 — `video-archive-compactor` | Disabled 2026-11-04; former daily 08:00 | Its legacy code can replace Archive files under a superseded roughly 1.9 GB target. Do not re-enable under the old behavior. |
 
 ### Built-in and event-driven behavior
 

@@ -27,6 +27,11 @@ or failed recovery checkpoint triggers the standard's non-waivable stop
 condition. Forgejo pushes beyond this specifically requested planning push
 still follow the repository's immediate remote-write authorization rule.
 
+On 2026-11-06 Jason explicitly authorized Forgejo pushes at the end of each
+completed milestone without a separate conversational confirmation. This
+authorization covers milestone synchronization for this project, not unrelated
+remote writes or unfinished milestone work.
+
 ## Purpose and desired outcome
 
 Keep one Radarr/Sonarr-managed, monitored copy of each title while providing
@@ -221,6 +226,25 @@ new accepted risk decision. Roll back one layer at a time: disable new
 schedule, restore prior helper/profile, reconcile arr records, then restore
 media/Jellyfin state if needed.
 
+### Reassessed ownership rollout boundary — 2026-11-06
+
+The newly measured 929-file, 893.35 GB ARR ownership gap changes the blast
+radius of a full import. M1 may still prove an isolated movie/two-season view
+without touching the rest of the household views. Full view publication and
+physical-root migration must wait for file-level ownership reconciliation.
+M2 must establish profile and upgrade cutoffs before monitoring additional
+legacy files, with no mass search. After a fresh protected ARR/Jellyfin/media
+checkpoint and proportional restore proof, M4 may pilot one matching missing
+movie and one missing TV series with search disabled, then validate file
+records, monitoring, quality labels, RSS behavior, Jellyfin visibility and
+rollback. Any further onboarding must be capped by documented file/title and
+byte budgets per run, with a reconciliation report after each batch. Mixed
+series editions, 33 alternate movie copies and any unrecognized episodes are
+held for identity/duplicate review; no automated deletion or last-copy
+replacement. The project process requires a new explicit risk decision before
+the materially larger bulk ownership repair or any irreversible duplicate
+removal. Continue independent view, profile and optimizer pilots meanwhile.
+
 ## Documentation and systems-of-record impact
 
 | Integration | Planned change or not-applicable reason |
@@ -258,6 +282,87 @@ or physical archive roots.
 
 ## Evidence log
 
+- **2026-11-06 — M2 profile read-only assessment:** Radarr has 954 movies;
+  its `Any` quality profile is assigned to 864 and currently allows qualities
+  as low as WORKPRINT/CAM. Sonarr has 223 series; `Any` is assigned to 115
+  and allows SD. Every live quality profile in both apps has
+  `upgradeAllowed=false`, so merely leaving a legacy file monitored does not
+  meet the requested upgrade-seeking behavior. Both apps have only `Original
+  Audio` and `English Audio` custom formats, with no current HDR or surround
+  preference. The live custom-format schemas expose release-title, language,
+  source, resolution and size conditions, but no direct probed HDR or audio
+  channel condition; release-name preferences require post-import stream
+  verification. [Servarr's Radarr settings](https://wiki.servarr.com/radarr/settings)
+  and [Sonarr FAQ](https://wiki.servarr.com/sonarr/faq) explain that quality
+  ranks ahead of custom-format score and that monitored missing titles can be
+  reacquired through later RSS matches without a routine bulk search. The
+  [Sonarr Wanted guide](https://wiki.servarr.com/sonarr/wanted) describes
+  cutoff status per episode. M2 should pilot a movie in each
+  state: an older low-resolution file remains monitored while seeking a
+  genuine upgrade, and an accepted optimized file remains monitored with
+  further quality upgrades disabled, so a larger file is not grabbed solely
+  after compression. An actually missing file can still be reacquired. Sonarr
+  profiles apply to an entire series, so disabling upgrades for a series with
+  one accepted encode could also freeze its older episodes. The TV pilot must
+  test whether a quality-group cutoff protects an accepted episode while
+  older episodes remain eligible. A series whose episode qualities cannot be
+  separated safely must be held from automatic upgrades pending a different
+  per-episode guard. This is an inference from profile granularity, not yet a
+  live release-decision result. Validate with live decisions and no mass
+  search before changing existing assignments. No ARR setting changed in
+  this assessment.
+- **2026-11-06 — M1 publication guard and resumed live check:** the
+  preview-only `TvViewPlan.require_complete()` now requires an explicit zero
+  count from a separate file-level ARR/Jellyfin/filesystem reconciliation;
+  absent or positive counts fail closed even when show identities match.
+  This prevents the newly found 683 unowned TV files from being silently
+  omitted by a seemingly complete show plan. The caller must produce and
+  validate the reconciliation count; this code does not claim that the live
+  count is zero. TrueNAS cron jobs 4 and 6 are still disabled; Radarr,
+  Sonarr, Bazarr and Profilarr containers are healthy and Jellyfin is up.
+  AsterTV Bedroom still shows Kodi window 13003, `- Delay`, so no client
+  navigation or view mutation was attempted. No production media or app
+  configuration changed.
+- **2026-11-06 — M1 ownership scope reassessment:** the earlier nine-file
+  Kodi/Sonarr difference was a narrow sample, not the full Archive ownership
+  gap. A source-local, read-only comparison of Jellyfin metadata, ARR file
+  records and actual TrueNAS files found **683 existing TV files**
+  (545,334,313,054 bytes) with no Sonarr episode-file record and **246 movie
+  files** (348,018,881,590 bytes) with no Radarr movie-file record: **929
+  files, 893,353,194,644 bytes** in total. The TV count comprises 468 files
+  across 21 Jellyfin series whose folder has no Sonarr series path, 202 files
+  inside six media-bearing series with conflicting Sonarr/Jellyfin TVDB IDs,
+  and 13 further files in otherwise matched series. All 468 unmatched-series
+  files are in Archive; the 202 conflict files are real `.m4v` files and none
+  matches that Sonarr series' episode catalog. Of the 21 unmatched Jellyfin
+  series, 15 (226 files) share a TVDB ID with a Sonarr series that currently
+  has no files, four (64 files) share one with a Sonarr series that already
+  has files, and two (178 files) lack a unique matching Sonarr TVDB ID. The
+  six media-bearing TVDB conflicts all have different Sonarr/Jellyfin years;
+  one also has a different display title. The seventh conflict has no files.
+  On movies, 173 Jellyfin-only files have no unique Radarr provider-ID match,
+  40 match Radarr titles with no current file, and 33 are alternate copies of
+  titles Radarr already has. All 246 movie files exist, including 245 in the
+  physical Archive; one Radarr movie-file record is absent from Jellyfin but
+  still exists on disk. This audit covers Jellyfin-indexed files, so it does
+  not prove the raw filesystem has no further unindexed media. Legacy cron
+  jobs 4 and 6 remain disabled; Radarr/Sonarr healthy, Jellyfin running and
+  AsterTV Kodi active. The Bedroom client was in a settings window, so no
+  screen navigation or view mutation was attempted. No ARR, Jellyfin, Kodi or
+  media record changed. This larger ownership gap is a material new risk:
+  finish an isolated view pilot and acquisition safeguards before any bulk
+  onboarding, and make a separate explicit risk decision for a batched
+  ownership repair with checkpoint, rollback and no unverified deletion.
+- **2026-11-06 — Physical Archive ceiling correction:** a direct filesystem
+  walk, including files outside both application indexes, found 22 individual
+  movie files over the exact 5,000,000,000-byte ceiling in `archive-movies`
+  (792,492,271,448 aggregate bytes) and zero such files in `archive-tv`.
+  Nineteen are in both Radarr and Jellyfin, two are Jellyfin-only, and one is
+  Radarr-only; all 22 are real files. The earlier 19-file count covered only
+  the intersection of indexed Archive movies. All 22 now belong to the
+  mandatory optimization/exception backlog. The two Jellyfin-only and one
+  Radarr-only cases need ownership reconciliation before any automated encode
+  or replacement. No media file was changed.
 - **2026-11-06 — M1 host-path and numeric-season pilot:** Kodi's Jellyfin
   plugin item IDs matched all 217 Kodi shows to Jellyfin series metadata rows.
   After translating the different container mount prefixes to the same
@@ -532,16 +637,23 @@ or physical archive roots.
   must resolve ARR's disabled upgrades;
   the three unmonitored movies are missing files, not playable archive files.
   No media file or ARR profile has been changed yet.
-- Nineteen existing Archive movie files exceed 5 GB and are now an explicit
+- The full Jellyfin-indexed Archive ownership audit found 929 existing media
+  files (893.35 GB) without matching ARR file records. They include distinct
+  series editions, potentially unregistered episodes and alternate movie
+  copies. A bulk ARR import or deletion has a materially larger blast radius
+  than the original single-title pilots. Keep all files playable, perform
+  bounded pilots first, and obtain a new explicit risk decision before bulk
+  onboarding or irreversible duplicate removal.
+- Twenty-two physical Archive movie files exceed 5 GB and are now an explicit
   optimization backlog, including seven ISO disc images requiring main-feature
   extraction. The old compactor cannot meet the new quality and subtitle
-  safeguards. A single-file optimizer pilot and a fresh checkpoint precede
+  safeguards. Three of the 22 have an ARR/Jellyfin index mismatch. A
+  single-file optimizer pilot and a fresh checkpoint precede
   any bulk processing; failures remain playable as Current exceptions.
-- M0 evidence is synchronized to Forgejo and its GitHub mirror at `00fc34d`.
-  The M1/optimizer-contract candidate was subsequently synchronized at
-  `d594668` by a separate user-approved push. This latest sample evidence is
-  local only. Repository instructions require immediate authorization for each
-  further Forgejo push.
+- Earlier M0 and M1 candidate commits are synchronized to Forgejo and its
+  GitHub mirror. The present ownership reassessment and publication guard
+  remain local until a milestone gate passes. Jason's 2026-11-06 authorization
+  covers Forgejo pushes at the end of each completed Stream A milestone.
 - The user wants the best file below 5 GB, with no compression solely to minimize size. They authorize a good 1080p version when 4K cannot meet the ceiling. The user prefers moving whole seasons after their youngest episode reaches four months, or keeping only two physical folders with separate Current/Archive views; the latter is recommended pending a Jellyfin client pilot.
 
 ## Close-out
