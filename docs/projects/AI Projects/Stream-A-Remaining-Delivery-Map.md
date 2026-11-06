@@ -729,6 +729,14 @@
 > binds unique plan/checkpoint identity, fresh v5 paths, a fourth fresh grant
 > and the exact installed v8. The suite passes 324/324. One fresh v8
 > transaction is the next version test; any failure stops that version.
+>
+> v8 then stopped before owner creation because the fixed observer exchange
+> directory pre-existed empty. The [v8 NO-GO and v9 correction](evidence/SA4-v8-preexchange-no-go-and-v9-correction-2026-11-06.md)
+> proves ledger ready/use-zero, empty evidence, no checkpoint, lock, request or
+> repair, and the unchanged target. v8 is spent. A narrow reconciler removes
+> only that exact empty runtime directory; v9 uses fresh v6 paths, a third
+> unique checkpoint identity and fifth fresh authority identity. The suite
+> passes 327/327.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
