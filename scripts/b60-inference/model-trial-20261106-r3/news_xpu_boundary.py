@@ -1,0 +1,61 @@
+"""Read-only binding of the preserved News-XPU addition before B60 admission.
+
+Do not import its torch/runtime code, read inputs/outputs, stop units, or change
+the mounted volume. Drift or an unfinished peer transaction refuses this trial.
+"""
+import hashlib
+import json
+from pathlib import Path
+
+NEWS = 'aster-news-video-xpu-20261106-1430-r1'
+MOUNT_SHA = '640906303474d1a7f7ed527bb8ea5bcba74390af8c8dfcb105fdc12f7642825e'
+HOST = Path('/usr/local/libexec/local-ai-lease/full-inference-pilot')
+PINS = {
+    'b60_musetalk_xpu_transaction.py': 'c67951eaef726d1616d182ea9194a7b245ee423364bec98d8c2e680fbd9343f4',
+    'b60_musetalk_xpu_adapter.py': 'f20944db89d3dd1c13290cc55ca7636cb2c25f348cd73de1de2efc0701981c20',
+    'lab_hours_workloads.py': '21b9bba5b293211105b4879f44aa2501f58bebde49310c6fcc9f82f7325148e2',
+    'lab_hours_reserved_runner.py': '17cd586dd905c77a96e7de5c18be6a404cd38a62fde64cafe245427a98426ff5',
+    'full_inference_lab_runtime.py': '533af81001e3d96c4a92fe6b49eba943345cdd7bd3535c87c0a3bc77bb6e91af',
+}
+GUEST = '/opt/aster-news-video-xpu/b60_musetalk_xpu_guest.py'
+GUEST_SHA = '51664f5aca80af98e0916fb6468ad8a66c56b1757f1d3cf7fdb119b52bee5e2e'
+
+
+def peer_released(row, start):
+    return (row.get('booking_id') == NEWS and row.get('owner') == 'aster-news-video'
+        and row.get('workload') == 'aster-news-video-musetalk-xpu-smoke-v1'
+        and row.get('state') in {'complete', 'failed'}
+        and type(row.get('finished_epoch')) is int and row['finished_epoch'] + 900 <= start)
+
+
+def observe(adapter, store, booking):
+    from lab_hours_exclusive_profile import protected_bytes
+    from lab_hours_reservations import ReservationStore
+    peer = ReservationStore(Path('/var/lib/local-ai-lab/reservations'), expected_uid=0).get(NEWS)
+    assert peer_released(peer, booking['start_epoch']), 'NEWS_TRANSACTION_NOT_RELEASED'
+    for name, sha in PINS.items():
+        assert hashlib.sha256(protected_bytes(HOST/name, executable=True, maximum=262144)).hexdigest() == sha, 'NEWS_SOURCE_DRIFT'
+    terminal_path = Path('/var/lib/local-ai-lab/lab-hours-attempts') / ('reservation-' + NEWS + '-attempt-1') / 'terminal.json'
+    terminal_raw = protected_bytes(terminal_path, maximum=65536)
+    terminal = json.loads(terminal_raw)
+    assert terminal.get('booking_id') == NEWS and terminal.get('production_restored') is True, 'NEWS_RESTORATION_UNVERIFIED'
+    deadline = booking['end_epoch'] - 900
+    raw = adapter._call(('pct', 'config', '110', '--current'), deadline, 10)
+    rows = [line for line in raw.splitlines() if line.startswith('mp0:')]
+    assert len(rows) == 1 and hashlib.sha256(rows[0].encode()).hexdigest() == MOUNT_SHA, 'NEWS_MOUNT_DRIFT'
+    assert adapter._call(('pct', 'exec', '110', '--', 'sha256sum', GUEST), deadline, 10).split()[0] == GUEST_SHA, 'NEWS_GUEST_SOURCE_DRIFT'
+    # No command line leaves the guest. Match an exact argv element, avoiding
+    # this metadata observer's own embedded query text.
+    code = "import json;from pathlib import Path;n=0;\nfor p in Path('/proc').glob('[0-9]*/cmdline'):\n try:a=p.read_bytes().split(b'\\0')\n except (FileNotFoundError,PermissionError):continue\n if b'/opt/aster-news-video-xpu/b60_musetalk_xpu_guest.py' in a:n+=1\nprint(json.dumps({'news_process_count':n}))"
+    value = json.loads(adapter._call(('pct', 'exec', '110', '--', 'python3', '-B', '-c', code), deadline, 10))
+    assert value == {'news_process_count': 0}, 'NEWS_PROCESS_ACTIVE'
+    store.write('news-xpu-admission.json', {
+        'schema': 'b60-news-xpu-preservation.v1', 'booking_id': booking['booking_id'],
+        'peer_booking_id': NEWS, 'peer_state': peer['state'],
+        'peer_finished_epoch': peer['finished_epoch'], 'peer_terminal_sha256': hashlib.sha256(terminal_raw).hexdigest(),
+        'peer_production_restored': True, 'mount_line_sha256': MOUNT_SHA,
+        'host_source_sha256': PINS, 'guest_script_sha256': GUEST_SHA,
+        'news_process_count': 0, 'news_volume_modified': False,
+        'owner_publication_received': False,
+        'authority': 'current installed sources and actual shared booking ledger',
+    }, immutable=True)

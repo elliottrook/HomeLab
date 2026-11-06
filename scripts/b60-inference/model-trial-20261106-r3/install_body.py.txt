@@ -1,0 +1,76 @@
+import base64,hashlib,json,os,sys,time,subprocess
+from pathlib import Path
+from datetime import datetime
+from zoneinfo import ZoneInfo
+BASE=Path('/usr/local/libexec/local-ai-lease/exclusive-session');sys.path.insert(0,str(BASE))
+from host_exclusion import host_exclusion
+from lab_hours_exclusive_profile import protected_bytes,load_profile
+from lab_hours_exclusive_session import canonical,SessionStore
+from lab_hours_reservations import ReservationStore
+from retained_archive_integrity import load_root_owned,verify,fixed_proxmox_inventory,fixed_resolve
+ROOT=Path('/var/lib/local-ai-lab');DEST=BASE.parent/'model-trial-20261106-r3';B='b60-exclusive-20261106-day-r3'
+def call(c,timeout=30):
+ p=subprocess.run(c,capture_output=True,text=True,timeout=timeout);assert p.returncode==0;return p.stdout.strip()
+def create(p,data,mode=0o600):
+ fd=os.open(p,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,mode)
+ with os.fdopen(fd,'wb') as f:f.write(data);f.flush();os.fsync(f.fileno())
+ fd=os.open(p.parent,os.O_RDONLY);os.fsync(fd);os.close(fd)
+with host_exclusion(ROOT):
+ assert not any(p.exists() or p.is_symlink() for p in [ROOT/'lease.json',ROOT/'lease.lock',ROOT/'full-inference-drain.json',ROOT/'full-inference-drain.lock',Path('/run/local-ai-lab-operation.lock')])
+ assert json.loads(call(['/usr/local/sbin/local-ai-lease','status']))=={'state':'ready'}
+ bookings=ReservationStore(ROOT/'reservations',expected_uid=0);row=bookings.get(B)
+ assert row['state']=='reserved' and row['owner']=='b60-stream-a' and row['kind']=='exclusive-stack'
+ start=row['start_epoch'];end=row['end_epoch'];assert (start,end)==(1794007200,1794009900)
+ assert time.time()+600<start and not (ROOT/'exclusive-sessions'/B).exists()
+ # Every gate that can be checked without this new release is checked before
+ # any installation. A spent trial is never reset or rebound.
+ pins={p.name:hashlib.sha256(protected_bytes(p,executable=True,maximum=262144)).hexdigest() for p in BASE.glob('*.py')}
+ assert len(pins)==30 and hashlib.sha256(canonical(pins)).hexdigest()=='e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2'
+ iterm=json.loads(protected_bytes(ROOT/'exclusive-integrity'/B/'terminal.json'))
+ assert iterm['state']=='complete' and iterm['new_scan_performed'] is True
+ retained=load_root_owned();inventory=fixed_proxmox_inventory()
+ proof=verify(retained,inventory,date='2026_11_06',now_epoch=int(time.time()),resolve=fixed_resolve,lstat=os.lstat)
+ assert proof==iterm['archive_receipt']
+ verify(retained,inventory,date='2026_11_06',now_epoch=start+120,resolve=fixed_resolve,lstat=os.lstat)
+ raw_history=base64.b64decode(HISTORY);assert hashlib.sha256(raw_history).hexdigest()==HISTORY_SHA
+ hv=json.loads(raw_history);assert 0<=start+120-hv['observed_epoch']<=7200
+ assert not DEST.exists();DEST.mkdir(mode=0o700)
+ for name,encoded in FILES.items():
+  raw=base64.b64decode(encoded);assert hashlib.sha256(raw).hexdigest()==MANIFEST[name];create(DEST/name,raw)
+ create(DEST/'manifest.json',canonical(MANIFEST));sys.path.insert(0,str(DEST))
+ from model_trial import initialize,card_for
+ assert initialize()==MANIFEST
+ # New immutable guest source only, with unchanged key-file custody. The
+ # supervisor and pure command helper remain readable by mapped ollama.
+ guest_files={n:FILES[n] for n in ('guest_requests.py','guest_supervisor.py','fixed_command.py','legacy_requests.py','request_failure_capture.py')}
+ guestcode="from pathlib import Path;import os,base64,hashlib,json;d=Path('/usr/local/libexec/local-ai-lease/model-trial-20261106-r3');assert not d.exists();d.mkdir(mode=0o755);files="+repr(guest_files)+";out={};\nfor n,v in files.items():\n p=d/n;raw=base64.b64decode(v);fd=os.open(p,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o644 if n in ('guest_supervisor.py','fixed_command.py') else 0o600);f=os.fdopen(fd,'wb');f.write(raw);f.flush();os.fsync(f.fileno());f.close();out[n]=hashlib.sha256(p.read_bytes()).hexdigest()\nfd=os.open(d,os.O_RDONLY);os.fsync(fd);os.close(fd);print(json.dumps(out))"
+ observed=json.loads(call(['pct','exec','110','--','python3','-B','-c',guestcode]))
+ assert observed=={n:MANIFEST[n] for n in guest_files}
+ hroot=ROOT/'backup-chain-history';assert hroot.stat().st_uid==0 and hroot.stat().st_mode&0o077==0
+ create(hroot/(B+'.json'),raw_history)
+ plans={}
+ for g in ('104','110','114','115','116'):
+  v=json.loads(call(['pct','exec',g,'--','python3','-B','/usr/local/libexec/local-ai-lease/entry-checkpoint/lab_hours_prepare_entry_plan.py','--guest-id',g,'--booking-id',B],60));assert v['state']=='prepared';plans[g]=v['plan_sha256']
+ template=load_profile(ROOT/'exclusive-activations/b60-exclusive-20261106-day-r2.json',BASE)
+ profile=dict(template,booking_id=B,guest_plans=plans,trial_seconds=1200)
+ create(ROOT/'exclusive-activations'/(B+'.json'),canonical(profile));load_profile(ROOT/'exclusive-activations'/(B+'.json'),BASE)
+ card={'schema':'b60-fixed-model-trial.v1','booking_id':B,'start_epoch':start,'end_epoch':end,'source_sha256':MANIFEST,'candidate_sha256':'671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7','base_source_map_sha256':'e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2','mode':'qwen36-35b-reasoning-compatibility-v1','backup_history_sha256':HISTORY_SHA}
+ create(ROOT/'model-trial-cards'/(B+'.json'),canonical(card));assert card_for(B)==card
+ from backup_chain_history import backup
+ from lab_hours_exclusive_cli import runner
+ class A:pass
+ a=A();a.runner=runner;prestore=SessionStore(ROOT/'model-source-prechecks'/B,expected_uid=0);fd=prestore.lock()
+ try:
+  result=backup(a,prestore,card,date_prefix='2026_11_06',lease_issued_epoch=int(time.time()));assert result.source_observed and result.integrity_verified
+ finally:os.close(fd)
+ # No model, health generation, claim, isolation or current service stop has
+ # occurred. Only a future date-specific one-shot clock is installed here.
+ units=Path('/etc/systemd/system');name='b60-model-trial-'+B;day=datetime.fromtimestamp(start,ZoneInfo('America/Vancouver'))
+ files={name+'.service':'[Unit]\nDescription=B60 R3 fixed failure-preserving model trial\n\n[Service]\nType=oneshot\nUser=root\nRestart=no\nKillMode=control-group\nTimeoutStartSec=30\nExecStart=/usr/bin/python3 -B '+str(DEST/'model_trial.py')+' launch --booking-id '+B+'\n',name+'.timer':'[Unit]\nDescription=B60 R3 exact booked model clock\n\n[Timer]\nOnCalendar='+day.strftime('%Y-%m-%d %H:%M:%S')+' America/Vancouver\nPersistent=false\nAccuracySec=1s\nRandomizedDelaySec=0\nUnit='+name+'.service\n\n[Install]\nWantedBy=timers.target\n'}
+ assert time.time()+120<start and not any((units/n).exists() or (units/n).is_symlink() for n in files)
+ for n,v in files.items():create(units/n,v.encode(),0o644)
+ call(['systemd-analyze','verify',*[str(units/n) for n in files]])
+ call(['systemctl','daemon-reload']);call(['systemctl','enable','--now',name+'.timer'])
+ receipt={'schema':'b60-model-trial-arming.v3','booking_id':B,'start_epoch':start,'end_epoch':end,'recovery_reserve_until_epoch':end+900,'source_sha256':MANIFEST,'guest_plan_sha256':plans,'backup_history_sha256':HISTORY_SHA,'retained_scan_finished_epoch':retained['finished_epoch'],'archive_receipt':proof,'model_card_sha256':hashlib.sha256(canonical(card)).hexdigest(),'activation_sha256':hashlib.sha256(canonical(profile)).hexdigest(),'unit_sha256':{n:hashlib.sha256(v.encode()).hexdigest() for n,v in files.items()},'prepared_epoch':int(time.time()),'model_run_claimed':False,'peer_release_rechecked_at_admission':True}
+ create(ROOT/'arming-receipts'/(B+'-model.json'),canonical(receipt))
+ print(json.dumps({'receipt':receipt,'sha256':hashlib.sha256(canonical(receipt)).hexdigest()},sort_keys=True))

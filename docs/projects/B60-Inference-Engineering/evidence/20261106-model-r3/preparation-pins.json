@@ -1,0 +1,35 @@
+{
+  "schema": "b60-r3-source-preparation.v1",
+  "read_receipts": [
+    {
+      "commit": "f5714c4339636d65eeed1cf8bc5971fe227a39ea",
+      "path": "docs/projects/AI Projects/Stream-A-Remaining-Delivery-Map.md",
+      "sha256": "ee0a5ca8124df9288a283487982edccd568a8791254b55c26e367f7aa169cb36"
+    },
+    {
+      "commit": "de1c0d045e473453c223be1fd28080f5b6714d0e",
+      "path": "docs/projects/B60-Inference-Engineering/failure-capture-preparation-20261106.md",
+      "sha256": "7fd14e95c9f93b1e31f6c7a70249c45d2779d9797a990736a1998e2d7948d9fe"
+    },
+    {
+      "commit": "6fb0207fec5190e0c34ed3bc72ea38e128f06127",
+      "path": "docs/runbooks/Local-AI-Lease.md",
+      "sha256": "064b56ee8fca8aad37e9ae627cf119c581c3f8d8ad7d9782ccfeb0fa23b31d4c"
+    }
+  ],
+  "source_sha256": {
+    "model_trial.py": "e8679a156632d83450bd159af310d7972ae64c832a8ef532d9d62f7f632f022a",
+    "namespace_mount.py": "031df2fb964c264c168cfd313de816391cb49d735701b17821edae2077a72566",
+    "fixed_command.py": "9fd4e5746363e7cbdcac0d121d15cdac4ce990c24a1e988bc8b98faad8bcf260",
+    "guest_requests.py": "04c889d05a24540454c948e24e45fb8faefc5d8f5c97cb0f2339efd6b33a1107",
+    "guest_supervisor.py": "ca23df9ec859044cee61737be476a8eab53f4b30a30efbf3b1421863e8fe0449",
+    "backup_chain_history.py": "a157601e557b80e7ff1ba2d81e786f0742c0f8b289596c33cc8fa33af36c81e3",
+    "legacy_requests.py": "dbc596c5b77a8ea9359868798d621ff951c331754b2b4968c177b80d079e3dca",
+    "request_failure_capture.py": "df3bce80f519f6f2f274f6c7cc8c9fff51b157753d57ac6a51bbc18052648f99",
+    "news_xpu_boundary.py": "3dcd4ea3183349b50e4cc2d7ad8ba0419ab872452f43c3fee4f26944111a3113"
+  },
+  "offline_tests_passed": 167,
+  "model_calls_in_preparation": 0,
+  "actual_model_result_claimed": false,
+  "peer_owner_publication_received": false
+}
