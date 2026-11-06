@@ -155,6 +155,14 @@
 > Disposable healthy bytes yield three content-free passes; changed bytes yield
 > fail rows for rollback rather than suppressed evidence. The host remains
 > unconfigured, no signer ran, and the suite passes 112/112.
+> The [inactive atomic rollback owner](evidence/SA4-inactive-atomic-rollback-owner-source-2026-11-05.md)
+> now accepts only an authenticated failed or uncertain independent postcheck,
+> cross-binds it to the exact plan, target, observer-pending effect terminal
+> and retained checkpoint, and restores the original bytes atomically in
+> disposable tests. The committed host remains unconfigured, the checkpoint is
+> retained, retry count is zero and the suite passes 115/115. Nothing is
+> installed or live; next is the independent rollback receipt producer and a
+> joined disposable success-plus-failure transaction rehearsal.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
