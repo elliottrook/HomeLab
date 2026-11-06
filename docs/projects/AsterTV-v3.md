@@ -1,9 +1,9 @@
 # AsterTV v3
 
 > Status: Active — M0–M9 have accepted bounded slices and M10 operations
-> readiness is complete for Family, Bedroom and Jen. The two M5 eBook
-> word-alignment attempts failed closed before inference; a second
-> custody-correction candidate is local only and cannot promote reader timing.
+> readiness is complete for Family, Bedroom and Jen. The final booked M5 eBook
+> word-alignment benchmark completed as a valid negative result; exact
+> alignment rejected the measured words and no reader timing was promoted.
 > M10 performance budgets and a non-author
 > walkthrough remain open. M11 release freeze, Bedroom soak and Family
 > promotion have not begun.
@@ -1023,14 +1023,15 @@ The authoritative ledger reported 22:15–22:45 MST (`-07:00`) clear. Booking
 must still fail closed unless fresh admission, whole-host lease, shared lock,
 deadline guardian and restoration gates all pass.
 
-The eventual dispatched attempts both failed closed before inference and
+The first two dispatched attempts failed closed before inference and
 restored production. The first exposed Hugging Face snapshot-link custody; the
 bounded correction retained every model hash and limited resolution to the
 pinned cache. The replacement then exposed the virtual environment's normal
-interpreter symlink. The local follow-up candidate accepts that link only when
+interpreter symlink. The authorized follow-up accepts that link only when
 it resolves to the exact already pinned `/usr/bin/python3.13`. No alignment
-result exists and no reader timing can be promoted. Installing the follow-up
-or booking another run requires a new authorization. Evidence:
+timestamp was accepted: the final booked benchmark measured 159 words but
+rejected exact alignment with `alignment-count`. No reader timing can be
+promoted. Evidence:
 `docs/projects/evidence/AsterTV-v3-M5B-word-alignment-benchmark-2026-11-05.md`.
 
 - [x] SA-M5B1: checkpoint and retire the noncompliant scheduler; prove worker
@@ -1265,7 +1266,7 @@ primary-account leak or loss of existing YouTube functions.
   playback or shared chrome.
 - [x] Extend Requests to podcasts through the selected authority with stable
   IDs, preview, duplicates, status and explicit submission.
-- [ ] Book every exclusive local-AI/TTS run through Lab Hours and retain
+- [x] Book every exclusive local-AI/TTS run through Lab Hours and retain
   workload/lease/lock evidence without secrets.
 
 The 2026-11-04 read-only pronunciation audit confirms that the accepted Aster
@@ -1753,7 +1754,7 @@ candidate and a separate promotion decision is required.
 
 ### M10 — Integrated validation, recovery and efficiency review
 
-The repository-local half is now a single fail-closed gate. It runs 58 test
+The repository-local half is now a single fail-closed gate. It runs 59 test
 files, scans 93 candidate inputs, verifies immutable v2, audits 15 pages/127
 focus controls, double-builds M9 and reports zero operational-readiness gaps
 across Family, Bedroom and Jen. It reports unfinished performance and physical
@@ -2069,7 +2070,7 @@ explicit user acceptance.
 | 2026-11-05 | Closed the M10 operations and recovery gate | Independently pinned Family identity, registered it idempotently in NetBox and Beszel, reconciled its declared composition and collected a clean observation. The first transaction failed on an unsupported masked-unit assertion and automatically restored all predecessor state; the corrected runner now checkpoints, applies and restores masked units. Bedroom and Family bundles also passed isolated corruption/interruption restore rehearsals. | Doctor reports all three deployed appliances clean; Beszel reports all three up; NetBox identity is complete; the operations audit has zero gaps. Family's guard is enabled and clean with Kodi active. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Family-operations-and-restore-2026-11-05.md`. |
 | 2026-11-05 | Completed a sustained 1080p HEVC low-spec soak | Played the highest-bitrate 1080p HEVC movie available to Jen's test identity, 1920×1080 at 9.309 Mb/s, for 716 seconds. Jellyfin stayed `DirectStream` with no FFmpeg process; Kodi advanced continuously with no player/decode error, stabilized at 667–669 MiB RSS and about 104–106% of one logical CPU, and peaked at 57 °C without kernel OOM/throttle/hang/reset evidence. | Jen passes the accepted 1080p/stereo envelope with comfortable client and server headroom. The real catalogue candidate did not exercise the full 18 Mb/s client ceiling. Playback was stopped deliberately; Kodi returned idle at Home, the Jen-only policy watcher remained active and the accepted-release guard remained successful. Evidence: `services/kodi/astertv-v3/low-spec/EVIDENCE-2026-11-04.md`. |
 | 2026-11-05 | Extracted the retained narration pronunciation contract | Represented the five embedded pronunciation rules as a strict ordered `en-CA` data lexicon and added a synthetic positive/boundary/false-positive corpus. | Twelve outputs are byte-identical to canonical cleanup hash `0476a393…350b9` and idempotent. This is repository-only compatibility groundwork: no private text, new pronunciation, synthesis, reader or generation changed. Evidence: `docs/projects/evidence/AsterTV-v3-M5-pronunciation-candidate-2026-11-05.md`. |
-| 2026-11-05 | Closed the authorized M5B attempts without promoting timing | Two authoritative bookings failed closed before inference: first on immutable Hugging Face snapshot symlinks and then on the fixed virtual-environment interpreter symlink. Both restored production with the worker inactive and Aster Speech active. | The model-cache correction is live and hash-pinned; the interpreter-custody correction is repository-only. There is no measured alignment result. A further install or booking requires new authorization. Evidence: `docs/projects/evidence/AsterTV-v3-M5B-word-alignment-benchmark-2026-11-05.md`. |
+| 2026-11-06 | Closed the authorized M5B benchmark without promoting timing | Two attempts failed closed before inference on normal pinned-cache/interpreter symlinks and restored production. After exact custody corrections, the final authoritative booking completed with 159 measured words but exact alignment rejected `alignment-count`. | The result is a valid negative benchmark, not permission to infer timestamps. Lease/locks restored, worker inactive and Aster Speech active; no reader/catalogue timing changed. Evidence: `docs/projects/evidence/AsterTV-v3-M5B-word-alignment-benchmark-2026-11-05.md`. |
 
 ## Close-out
 

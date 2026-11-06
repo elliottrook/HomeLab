@@ -66,10 +66,47 @@ postchecks found the whole-host lease `ready`, no drain or operation lock, the
 EPUB worker inactive and canonical Aster Speech active. The content-free
 booking record is retained as failed with result code `NO_GO`.
 
-The repository candidate now accepts the virtual-environment interpreter link
+The repository candidate accepts the virtual-environment interpreter link
 only when strict resolution equals `/usr/bin/python3.13`, then applies the
 unchanged size and SHA-256 pin to that regular target. A different target,
 missing target, non-regular target or hash drift fails closed. Fourteen focused
-M5B tests pass. Installing that second custody correction and booking another
-attempt are not authorized by the completed replacement booking; they require
-a new bounded decision.
+M5B tests passed before the follow-up authorization.
+
+## Authorized final correction and benchmark
+
+Jason subsequently authorized the exact interpreter-custody correction and
+one final booking. The correction installed inertly under checkpoint
+`/var/lib/local-ai-lab/checkpoints/astertv-v3-m5b-interpreter-custody-20261106T080657Z`.
+It changed only the registered adapter/manifest pins and the fixed guest
+script; it created no booking and started no workload. Sixteen focused M5B
+tests pass.
+
+Installed hashes after correction:
+
+- workload registry: `16a16c766df8fab538f5d4e79dc1f378edd75dc0e43559ade27d1d1be4782652`
+- adapter: `8df7f426c941d043e5e69b1c1ba8f214d479750793c5e0d6cd7551c3af15e29e`
+- release manifest: `37b0f0ba33566d4e990089d89178efdf3a710a28e2dc394e340b58237f135a59`
+- guest benchmark: `04fb4971b13cf803957c1cce501035be2583607ab7727e095d2fbf8130d5b04e`
+
+The authoritative ledger reported the complete 01:20–01:50 window clear
+immediately before reservation.
+
+- booking: `astertv-v3-m5b-align-20261106-0120`
+- owner: `astertv-v3-m5`
+- workload: `astertv-v3-ebook-word-alignment-v1`
+- recovery reserve: 900 seconds
+
+The dispatcher claimed the booking at 01:20 and completed it at 01:23 with
+result code `COMPLETE`. The content-free receipt reports:
+
+- measured words: 159
+- accepted: false
+- rejection: `alignment-count`
+- result SHA-256:
+  `6f4d2cfb0ce6674848fcf7fc8ba9813445578e305a6918e7dbd06b2f242c5345`
+- production restored: true
+
+This is a valid negative benchmark result. No timestamp was inferred and no
+reader or catalogue timing may be promoted. Independent postchecks found the
+whole-host lease ready, no drain or operation lock, the EPUB worker inactive
+and canonical Aster Speech active.

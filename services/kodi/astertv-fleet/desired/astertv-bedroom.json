@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "bbb19088c2a5a119d7f3ab776bcae241aa188e8f6330ff603a992cd00b2710e1",
+  "composition_sha256": "a927073cb6009611519b3dc18f39607acd9e0f34f4843be322e5b816fe946d5c",
   "deployed": true,
   "device_id": "astertv-bedroom",
   "external_integrations": [
@@ -22,6 +22,7 @@
     "release-guard-v1",
     "bedroom-stereo",
     "bedroom-wifi-stability",
+    "beszel-client-v1",
     "remote-client-v3",
     "tv-details-v3"
   ],
@@ -56,6 +57,11 @@
       "owner": "remote-client-v3",
       "resource": "kodi/service.asterremote"
     },
+    "libreelec-system:monitoring/beszel-agent-0.18.7": {
+      "layer": "libreelec-system",
+      "owner": "beszel-client-v1",
+      "resource": "monitoring/beszel-agent-0.18.7"
+    },
     "libreelec-system:network/wifi-power-save-policy": {
       "layer": "libreelec-system",
       "owner": "bedroom-wifi-stability",
@@ -65,6 +71,11 @@
       "layer": "libreelec-system",
       "owner": "bedroom-wifi-stability",
       "resource": "systemd/astertv-wifi-stability.service"
+    },
+    "libreelec-system:systemd/beszel-agent.service": {
+      "layer": "libreelec-system",
+      "owner": "beszel-client-v1",
+      "resource": "systemd/beszel-agent.service"
     },
     "recovery:state/accepted-manifest-envelope": {
       "layer": "recovery",
@@ -100,6 +111,23 @@
         "bytes": 406,
         "path": "services/kodi/astertv-fleet/materialized/bedroom-wifi-stability/storage/.config/system.d/astertv-wifi-stability.service",
         "sha256": "6a829d42832076bb8ec2756c5cd577939af8ab0a900462376c5dbb98ab1f6b90"
+      }
+    ],
+    "beszel-client-v1": [
+      {
+        "bytes": 3866,
+        "path": "services/kodi/astertv-fleet/materialize_beszel_client.py",
+        "sha256": "102499614e3ceee76fc5723b6b304ff2e1fa00dc45cc75cf143ec66acf49216d"
+      },
+      {
+        "bytes": 1498,
+        "path": "services/kodi/astertv-fleet/materialized/beszel-client-v1/materialization-manifest.json",
+        "sha256": "0fe4031d7eb48ca3bd3ec9a7de9813590ada4ad41cef77d70f6b405dcce2570d"
+      },
+      {
+        "bytes": 732,
+        "path": "services/kodi/astertv-fleet/materialized/beszel-client-v1/targets/astertv-bedroom/storage/.config/system.d/beszel-agent.service",
+        "sha256": "4cbdf0808078a6ea90c59ca7f28a272db430401f851a0300eecdf3bb664a1144"
       }
     ],
     "release-guard-v1": [
@@ -260,6 +288,7 @@
   "schema_version": 1,
   "secret_refs": [
     "audiobookshelf-bedroom-client",
+    "beszel-agent-per-device",
     "jellyfin-bedroom-client",
     "remote-bedroom-client",
     "remote-client-per-device",
@@ -267,10 +296,11 @@
     "youtube-bedroom-session"
   ],
   "source_hashes": {
-    "devices/astertv-bedroom.yaml": "76c5d8600c6c0a9253971626e51ec2649a69944beca7e8b3cb15549aed441e35",
+    "devices/astertv-bedroom.yaml": "16ac59e732fc27caff1922f10e3f828a1cc7c4c6d3f0fcfca3c62e2027fc7abf",
     "hardware/intel-i5-9500t-bedroom.yaml": "8130fbcc20787e40edabea3ccd36416e0a9829be188e95d9a2c1aad1d3f7e37b",
     "overlays/bedroom-stereo.yaml": "63dbfd498b2469428d9429a5adab9a101cb3323f1fe72a9d9b1b67f52948e2a9",
     "overlays/bedroom-wifi-stability.yaml": "a3b0a07925e4f54cefc3bd7e09f4c0aec760fe38f26b2ef2ba99a43efbdbafd9",
+    "overlays/beszel-client-v1.yaml": "24ca5d1ca9a592b5150ab7846e6ded8690f654d8405d4a01524fb8ffe0241a90",
     "overlays/release-guard-v1.yaml": "a3afc7db25e4c295b3f4bd944f32e4cf47fa0ccefae2cbf182edbed38214c038",
     "overlays/remote-client-v3.yaml": "40267e62ec475ce2318ea20bf5f8771943a46b30b60ace77ac91ea96a8cc948a",
     "overlays/tv-details-v3.yaml": "717c1f44e8ee12804cd58f2513e275292c28bbd3eb50dfb2d22cd9ec17a6b03e",

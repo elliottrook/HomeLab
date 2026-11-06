@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "8826ef75184d38a79ef00758acf71ec34f43e01f28bee4d06c920fe95612cdcb",
+  "composition_sha256": "5959c121ad682d761653af3a6bca465b5a90bb37598bea5ee98c01ac75d2c6e1",
   "deployed": true,
   "device_id": "astertv-family",
   "external_integrations": [
@@ -20,6 +20,7 @@
   "lifecycle": "production",
   "overlays": [
     "release-guard-v1",
+    "beszel-client-v1",
     "family-dolby-hdr",
     "remote-client-v3",
     "family-equipment-bridge",
@@ -99,6 +100,16 @@
       "owner": "remote-client-v3",
       "resource": "kodi/service.asterremote"
     },
+    "libreelec-system:monitoring/beszel-agent-0.18.7": {
+      "layer": "libreelec-system",
+      "owner": "beszel-client-v1",
+      "resource": "monitoring/beszel-agent-0.18.7"
+    },
+    "libreelec-system:systemd/beszel-agent.service": {
+      "layer": "libreelec-system",
+      "owner": "beszel-client-v1",
+      "resource": "systemd/beszel-agent.service"
+    },
     "recovery:state/accepted-manifest-envelope": {
       "layer": "recovery",
       "owner": "release-guard-v1",
@@ -111,6 +122,23 @@
     }
   },
   "payloads": {
+    "beszel-client-v1": [
+      {
+        "bytes": 3866,
+        "path": "services/kodi/astertv-fleet/materialize_beszel_client.py",
+        "sha256": "102499614e3ceee76fc5723b6b304ff2e1fa00dc45cc75cf143ec66acf49216d"
+      },
+      {
+        "bytes": 1498,
+        "path": "services/kodi/astertv-fleet/materialized/beszel-client-v1/materialization-manifest.json",
+        "sha256": "0fe4031d7eb48ca3bd3ec9a7de9813590ada4ad41cef77d70f6b405dcce2570d"
+      },
+      {
+        "bytes": 731,
+        "path": "services/kodi/astertv-fleet/materialized/beszel-client-v1/targets/astertv-family/storage/.config/system.d/beszel-agent.service",
+        "sha256": "1cc85c58936b60a3588d97c74f5e4c04f71ebe914854d9e627503857ff1b4b06"
+      }
+    ],
     "family-dolby-hdr": [
       {
         "bytes": 401,
@@ -434,6 +462,7 @@
   "schema_version": 1,
   "secret_refs": [
     "audiobookshelf-family-client",
+    "beszel-agent-per-device",
     "family-equipment-client",
     "home-assistant-room-bridge",
     "jellyfin-family-client",
@@ -443,8 +472,9 @@
     "youtube-family-session"
   ],
   "source_hashes": {
-    "devices/astertv-family.yaml": "93d22da168511fec85e4a51b01ffe695dce8fa0f7d65b29cc5e6712c2a2ca5b7",
+    "devices/astertv-family.yaml": "b6777f6008f22e5881fd2c24bf974e5aa20a294fa47753f25970d0d36123db52",
     "hardware/intel-n95-family.yaml": "53ae62f6c3363356c390454e07219f18b50f12e4c87946eeaa0db04864f9f0ec",
+    "overlays/beszel-client-v1.yaml": "24ca5d1ca9a592b5150ab7846e6ded8690f654d8405d4a01524fb8ffe0241a90",
     "overlays/family-dolby-hdr.yaml": "9b57d3153ef87bc98449892035040fc50a34a607c80ca373cd8b716c61109b5b",
     "overlays/family-equipment-bridge.yaml": "79661acb86e76341e1029022f14f727279643faf66300345eb448dba813a83e7",
     "overlays/family-kodi-restart.yaml": "9901c11256920a09b1cd351f1b71c1ce65cfd164b09fe18f004455c4b696b521",

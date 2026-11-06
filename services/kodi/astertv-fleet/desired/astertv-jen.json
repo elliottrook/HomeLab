@@ -1,6 +1,6 @@
 {
   "channel": "v3-lab",
-  "composition_sha256": "070d903dc8f001e86b475315cb370b36f0f12f6d867eeaeb32ce677094609e71",
+  "composition_sha256": "6d54c85fbb6d2cef3eef2f4511c8591f5497d55066286a03b91952b7dd37ff5b",
   "deployed": true,
   "device_id": "astertv-jen",
   "external_integrations": [
@@ -23,6 +23,7 @@
   "lifecycle": "lab",
   "overlays": [
     "release-guard-v1",
+    "beszel-client-v1",
     "jen-account-registry",
     "jen-aster-client",
     "jen-guest-catalogue",
@@ -146,6 +147,16 @@
       "owner": "jen-aster-client",
       "resource": "kodi/service.astertv-broker-client"
     },
+    "libreelec-system:monitoring/beszel-agent-0.18.7": {
+      "layer": "libreelec-system",
+      "owner": "beszel-client-v1",
+      "resource": "monitoring/beszel-agent-0.18.7"
+    },
+    "libreelec-system:systemd/beszel-agent.service": {
+      "layer": "libreelec-system",
+      "owner": "beszel-client-v1",
+      "resource": "systemd/beszel-agent.service"
+    },
     "recovery:state/accepted-manifest-envelope": {
       "layer": "recovery",
       "owner": "release-guard-v1",
@@ -158,6 +169,23 @@
     }
   },
   "payloads": {
+    "beszel-client-v1": [
+      {
+        "bytes": 3866,
+        "path": "services/kodi/astertv-fleet/materialize_beszel_client.py",
+        "sha256": "102499614e3ceee76fc5723b6b304ff2e1fa00dc45cc75cf143ec66acf49216d"
+      },
+      {
+        "bytes": 1498,
+        "path": "services/kodi/astertv-fleet/materialized/beszel-client-v1/materialization-manifest.json",
+        "sha256": "0fe4031d7eb48ca3bd3ec9a7de9813590ada4ad41cef77d70f6b405dcce2570d"
+      },
+      {
+        "bytes": 728,
+        "path": "services/kodi/astertv-fleet/materialized/beszel-client-v1/targets/astertv-jen/storage/.config/system.d/beszel-agent.service",
+        "sha256": "259daa1256cff556d9ad67e2d40307adc7b2a51c8fad7fa3aea9651d652d3fa1"
+      }
+    ],
     "jen-account-registry": [
       {
         "bytes": 3703,
@@ -925,6 +953,7 @@
   "secret_refs": [
     "astertv-jen-broker-client",
     "audiobookshelf-jen-client",
+    "beszel-agent-per-device",
     "jellyfin-jen-client",
     "jellyfin-jen-guest-client",
     "jen-camera-viewer-client",
@@ -937,8 +966,9 @@
     "youtube-household-session"
   ],
   "source_hashes": {
-    "devices/astertv-jen.yaml": "4375b0914d03485db5ca5ce39e1fde5a0924dd23a458632dd3d42972fcae2087",
+    "devices/astertv-jen.yaml": "1463abdd2973a06cd38e376c78499863d9ff44cb9189fe3f8a1a4bfc43dcca2e",
     "hardware/lenovo-m93p-jen.yaml": "a008d1b6b193215295e6190f508722549432e86d67275d53e9300aee66eed788",
+    "overlays/beszel-client-v1.yaml": "24ca5d1ca9a592b5150ab7846e6ded8690f654d8405d4a01524fb8ffe0241a90",
     "overlays/jen-account-registry.yaml": "b3020ba22421c98e14516e2e442e78fb74164182cb176f546b30d5ddf4d37750",
     "overlays/jen-aster-client.yaml": "08621ef27e351cf46381ba3af1efd897b41b42c5c0aa43e84c03f73a5d480a57",
     "overlays/jen-guest-catalogue.yaml": "0a3e886a741d09930c7302838296ed4e4dc8e39cfbe0fcce50f3d63188e4466c",
