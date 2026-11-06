@@ -15,7 +15,7 @@ import nlu_whole_label_choice_v1 as ontology
 from nlu_threshold_policy import decode_unique_json
 
 
-CASE_ID = re.compile(r"j2-validation-l(0[0-9]|1[0-5])-case-(0[0-9]|1[01])")
+CASE_ID = re.compile(r"j2-validation-l(0[0-9]|1[0-5])-case-(4[89]|5[0-9])")
 
 
 def records_sha256(records: object) -> str:
@@ -46,7 +46,7 @@ def _truth(raw: bytes) -> list[dict[str, object]]:
             raise ValueError("J2 validation truth row changed")
         seen.add(row["id"])
     expected = {f"j2-validation-l{label:02d}-case-{case:02d}"
-                for label in range(16) for case in range(12)}
+                for label in range(16) for case in range(48, 60)}
     if seen != expected:
         raise ValueError("J2 validation truth case set changed")
     return value["rows"]
@@ -165,7 +165,7 @@ def _replay(raw: bytes, artifact_sha256: str, run_id: str) -> dict[str, object]:
         semantics._validate_semantics(row["guarded_interpretation"])
         seen.add(row["id"])
     expected = {f"j2-validation-l{label:02d}-case-{case:02d}"
-                for label in range(16) for case in range(12)}
+                for label in range(16) for case in range(48, 60)}
     if seen != expected:
         raise ValueError("J2 replay case set changed")
     return value

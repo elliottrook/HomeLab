@@ -1,4 +1,6 @@
 import copy
+import hashlib
+from pathlib import Path
 import unittest
 
 import nlu_j2_artifact_contract_v1 as artifact
@@ -34,6 +36,12 @@ def value():
 
 
 class J2ArtifactContractTests(unittest.TestCase):
+    def test_recipe_pin_matches_frozen_fixture(self):
+        fixture = (Path(__file__).parent / "fixtures" /
+                   "nlu-j2-training-recipe-manifest-v1.json")
+        self.assertEqual(artifact.RECIPE_SHA256,
+                         hashlib.sha256(fixture.read_bytes()).hexdigest())
+
     def test_exact_synthetic_shape_is_valid_but_not_deployed(self):
         result = artifact.validate(artifact.canonical(value()),
                                    CORPUS_RELEASE, ADMISSION)

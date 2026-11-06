@@ -16,16 +16,16 @@ def truth_value():
             "rows": [{"id": f"j2-validation-l{label:02d}-case-{case:02d}",
                       "text": f"synthetic label {label} case {case}",
                       "label_id": LABELS[label]}
-                     for label in range(16) for case in range(12)],
+                     for label in range(16) for case in range(48, 60)],
             "authority": "none", "automatic_routing": "off"}
 
 
 def forward(text, _tensors):
     words = text.split(); label = int(words[2]); case = int(words[4])
-    selected = label if case < 10 else (label + 1) % 16
+    selected = label if case - 48 < 10 else (label + 1) % 16
     return {"label_id": LABELS[selected],
-            "confidence": 0.75 if case < 10 else 0.55,
-            "margin": 0.5 if case < 10 else 0.1,
+            "confidence": 0.75 if case - 48 < 10 else 0.55,
+            "margin": 0.5 if case - 48 < 10 else 0.1,
             "probabilities": []}
 
 
@@ -121,7 +121,7 @@ class J2ReplayContractTests(unittest.TestCase):
         artifact_raw, first_raw, second_raw, truth_raw, selection_raw = values
         def changed_forward(text, tensors):
             result = forward(text, tensors)
-            if text.endswith("case 0"):
+            if text.endswith("case 48"):
                 result = dict(result, margin=0.4)
             return result
         with self.assertRaises(ValueError):

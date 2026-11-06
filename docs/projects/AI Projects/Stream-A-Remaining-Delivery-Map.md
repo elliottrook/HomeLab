@@ -62,6 +62,16 @@
 > custody is complete. Next is the source-only training-effect review packet,
 > not a booking or training run.
 
+> **M3 J2 post-admission source reconciliation, 2026-11-06:** the first effect
+> review found two deterministic post-training rejection defects before any
+> run: the artifact contract pinned the previous recipe, and replay expected
+> validation IDs `00–11` although the accepted corpus uses `48–59`. The
+> [source correction](evidence/M3-J2-training-effect-source-reconciliation-2026-11-06.md)
+> pins the admitted recipe, accepts only the real 192-case identity set and
+> passes that real content-free truth envelope. The J2 suite passes 110/110.
+> Training remains closed because an end-to-end transaction owner, output
+> custody and effect review packet are not yet complete.
+
 > **B60 daytime exclusive recovery, 2026-11-05:** booking
 > `b60-exclusive-20261105-day-r1` failed qualification after its owner stopped
 > during restoration and the guardian could not classify the unit failure.
