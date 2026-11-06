@@ -350,6 +350,12 @@
 > Proxmox bridge alone imports the signer; corrected hashes are repinned and
 > the suite passes 184/184. The corrected inactive install remains authorized
 > as the deterministic retry of this same packet.
+> That corrected [inactive installation](evidence/SA4-effect-controller-inactive-install-result-2026-11-05.md)
+> completed and independently validates all three exact root-owned files and
+> clean imports. Runtime exchange/control state and the ledger remain absent,
+> the signer/controller were not invoked, the canary is unchanged and
+> production is healthy. Next is the installed-result verifier and live
+> zero-effect protocol preflight; any repair still needs fresh exact approval.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
