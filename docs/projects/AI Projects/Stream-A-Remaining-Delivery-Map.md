@@ -90,11 +90,14 @@
 > pins transaction source `e9f8821b…35c8`, all four retained inputs, two
 > no-follow exclusion locks, competing-process admission, a 2 GiB available
 > memory floor, zero starting-swap drift after lock, at most 256 MiB swap
-> growth, five-second supervision and a two-hour hard deadline. A fresh
+> growth, five-second supervision and a two-hour hard deadline. Exact
+> content-free release/admission inputs are now create-only staged under
+> mode-0700/0600 custody and pass the compiled owner pins; the proposed `r1`
+> output path is absent. A fresh
 > read-only Mac mini preflight found 3,016,982,528 available bytes, zero swap
 > used and no competing process. One exact gradient benchmark took 0.049 s;
 > the bounded estimate is roughly 35–55 minutes. The full J2 suite passes
-> 117/117. This CPU-only job neither uses nor competes with B60, so the Aster
+> 121/121. This CPU-only job neither uses nor competes with B60, so the Aster
 > Lab Hours ledger does not govern it. The next gate is the exact owner
 > training-effect decision; no worker has started.
 

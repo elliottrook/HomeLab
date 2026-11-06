@@ -70,9 +70,19 @@ bytes before Python object overhead, leaving substantial margin above the
 ## Validation and remaining gate
 
 - Mac host-owner focused tests: 4/4;
-- full `test_nlu_j2_*.py` suite: 117/117;
+- content-free input-stage focused test: 1/1;
+- full J2 suite: 121/121;
 - live read-only Mac resource/process preflight: pass;
 - `git diff --check`: pass.
+
+The exact content-free inputs are now staged create-only at
+`/Users/jelliott/lab/private-benchmarks/aster-stream-a/j2-training-inputs-20261106`
+under a mode-0700 directory with three mode-0600 files. Their stage receipt is
+`00b4dc70c9a0e869c3cce4d05c6bd54930428427e3d4eccd6ff7c0aa73d9fc26`.
+The compiled Mac owner accepts all real input/workload pins, and the proposed
+first result path
+`/Users/jelliott/lab/private-benchmarks/aster-stream-a/j2-training-result-20261106-r1`
+is absent. Input staging did not start training.
 
 The remaining gate is an exact owner training-effect decision for one run of
 this hash-pinned Mac owner against the retained admitted inputs and a new
