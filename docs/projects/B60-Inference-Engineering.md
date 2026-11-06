@@ -1,6 +1,6 @@
 # B60 inference engineering
 
-> Current operational continuation (2026-11-05): R2 failed with assisted restoration/release before deadline; corrected R3 is installed and independently armed17:15–18:00, recovery reserve18:15. See [exact evidence and next action](B60-Inference-Engineering/daytime-r2-assisted-r3-continuation-20261105.md). Historical windows/approval statements below are superseded by Jason’s recorded exclusive-booking Stream A amendments. No qualification or capability pass is claimed.
+> Current operational result (2026-11-05): R3 completed one normal restore-only pass and restored/released17:22:51 before deadline, with independent checkpoint/unit/schedule postchecks. See [exact evidence and next action](B60-Inference-Engineering/daytime-r3-normal-restore-pass-20261105.md). R1/R2 remain failed-assisted attempts. Independent owner-loss/resource and27B+ reasoning-on capability/latency gates remain open. Historical windows/approval statements below are superseded by Jason’s exclusive-booking Stream A amendments.
 
 > Status: Active — Stream A (bounded)
 >

@@ -1,0 +1,98 @@
+{
+  "observed_epoch": 1793924870,
+  "markers_absent": true,
+  "units": [
+    {
+      "guest": "104",
+      "unit": "aster-agent.service",
+      "MainPID": "93594",
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    {
+      "guest": "110",
+      "unit": "aster-llama.service",
+      "MainPID": "32765",
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    {
+      "guest": "116",
+      "unit": "aster-speech.service",
+      "MainPID": "55795",
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    {
+      "guest": "114",
+      "unit": "news-aggregator-ui.service",
+      "MainPID": "92361",
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    {
+      "guest": "115",
+      "unit": "paperless-summary-broker.service",
+      "MainPID": "1861066",
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    {
+      "guest": "114",
+      "unit": "news-aggregator-ingest.timer",
+      "NextElapseUSecRealtime": "Fri 2026-11-06 01:02:11 UTC",
+      "NextElapseUSecMonotonic": "0",
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    {
+      "guest": "114",
+      "unit": "news-aggregator-digest.timer",
+      "NextElapseUSecRealtime": "Fri 2026-11-06 13:15:43 UTC",
+      "NextElapseUSecMonotonic": "0",
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    {
+      "guest": "115",
+      "unit": "paperless-summary.timer",
+      "NextElapseUSecRealtime": "",
+      "NextElapseUSecMonotonic": "3w 4d 20h 3min 28.794635s",
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    {
+      "guest": "116",
+      "unit": "epub-narration-monitor.timer",
+      "NextElapseUSecRealtime": "Fri 2026-11-06 03:47:31 MST",
+      "NextElapseUSecMonotonic": "0",
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    {
+      "guest": "116",
+      "unit": "epub-narration-worker.timer",
+      "NextElapseUSecRealtime": "",
+      "NextElapseUSecMonotonic": "infinity",
+      "Result": "success",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    }
+  ],
+  "temporary_gate_count": 0,
+  "qualification_clock": [
+    "NextElapseUSecRealtime=",
+    "LastTriggerUSec=Thu 2026-11-05 17:15:00 MST",
+    "ActiveState=active",
+    "SubState=elapsed"
+  ]
+}

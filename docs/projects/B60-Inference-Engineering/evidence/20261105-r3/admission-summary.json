@@ -1,0 +1,12 @@
+{
+  "archive_receipt": "retained-archive-integrity-sha256:2606b6aa503268bf4d01acc240290455d921b72e5fbd83a825831480dc51888a",
+  "booking_id": "b60-exclusive-20261105-day-r3",
+  "captured_runtime_or_persistent_mask_count": 0,
+  "captured_unit_count": 15,
+  "entry_gpu_holder_count": 1,
+  "observed_epoch": 1793924101,
+  "observed_postcheck_epoch": 1793925003,
+  "qualification_only": true,
+  "schema": "aster-exclusive-admission.v1",
+  "whole_backup_job_verified": true
+}
