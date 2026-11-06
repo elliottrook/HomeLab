@@ -204,6 +204,15 @@
 > occurred, and production plus the accepted EPUB baseline remained unchanged.
 > The suite passes 126/126. Next is live zero-effect dry-preflight design and
 > review; the first repair effect remains an exact immediate approval gate.
+> The [live zero-effect dry preflight](evidence/SA4-live-zero-effect-dry-preflight-2026-11-05.md)
+> then passed against a fresh stable-descriptor measurement of the unchanged
+> `19b4e02d…df1a` canary. No repair checkpoint, ledger, temporary file or
+> operation process exists; all effect-capable bindings remain unconfigured,
+> the signer was not invoked and production plus the accepted EPUB baseline
+> stayed healthy. The result remains deliberately ineligible with zero effects,
+> no retry and routing off. The suite passes 129/129. Next is the exact
+> first-repair release review; any real repair still requires fresh authority,
+> promoted bindings and Jason's immediate approval for that one effect.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
