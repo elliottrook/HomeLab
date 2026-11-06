@@ -414,6 +414,24 @@
 > release drift and creates only short-lived unsigned statements. No signer ran;
 > the suite passes 210/210. Offline preparation is exhausted before the new
 > exact one-canary repair approval.
+> Jason approved v6 and the [first live repair](evidence/SA4-v6-first-live-repair-no-go-and-v2-correction-source-2026-11-06.md)
+> executed once. The atomic replacement and independently signed postcheck
+> completed, leaving the canary at the exact healthy digest and production
+> healthy, but milestone closure is NO-GO: the installed synthetic-era
+> reconciler intentionally burned the grant `uncertain`, and the runner retained
+> only a summary rather than the complete canonical lineage. No retry is
+> allowed. Source-only v2 now consumes a passing one-use grant, retains and
+> fsyncs every exact phase artifact, preserves terminal failed/uncertain
+> branches and passes the complete 229/229 SA4 suite. Historical v1 pins remain
+> unchanged. Next is independent review and an inactive four-file v2 install
+> packet; a later proof must use a distinct inert canary, not redrift this one.
+> The exact [v2 inactive-install review](evidence/SA4-terminal-reconciliation-v2-inactive-install-review-2026-11-06.md)
+> now pins four absent create-only destinations, all corrected source hashes,
+> the required installed v1 dependencies, exact reverse removal and a strict
+> result validator. It cannot invoke a runner, signer or repair, rewrite the
+> uncertain v6 ledger, touch the healthy canary or restart a service. The full
+> historical/corrected suite passes 234/234. The inactive four-file installation
+> is the next explicit deployment gate.
 
 > **Candidate-J R3 policy reconciliation, 2026-11-05 07:12:** newly checked
 > [installed-policy evidence](evidence/D4-candidate-j-r3-postcheck-policy-reconciliation-2026-11-05.md)
