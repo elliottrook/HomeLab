@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-11-06 — Media retention M2 lab integration completed
+
+- Verified actual unmonitor/delete/re-monitor/search behavior against isolated
+  Radarr and Sonarr containers using three-second synthetic files. Both
+  containers and fixtures were removed; production ARR/media were untouched.
+- Confirmed all seven Jellyfin user views expose the same 988 Archive movies
+  and 5,009 episodes; seven physical generic/API-hidden items remain held.
+- Restored and integrity-checked isolated ARR/Jellyfin snapshot databases and
+  a subtitle sidecar. A small synthetic ZFS test showed a deleted file's bytes
+  remained allocated until its snapshot was released.
+- Selected one HomeLab policy controller as the eventual deletion authority.
+  Production candidate/recovery approval remains M3; Seerr recall testing is M5.
+
 ## 2026-11-06 — Media retention M1 dry-run policy completed
 
 - Added a local-only 60–62% retention selector with whole movie/season scope,
