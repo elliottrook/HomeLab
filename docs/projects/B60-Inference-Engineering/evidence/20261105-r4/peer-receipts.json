@@ -1,0 +1,22 @@
+[
+  {
+    "commit": "70832267c59b1e9a6b809ec08ff1af1157c0c8e1",
+    "path": "docs/projects/AI Projects/evidence/SA4-measurement-checkpoint-inactive-install-result-2026-11-05.md",
+    "sha256": "38fa6b9748984712dfceeb7f09fadf98a3bd63fe8efeea6fa0d5b2978ad04bac"
+  },
+  {
+    "commit": "70832267c59b1e9a6b809ec08ff1af1157c0c8e1",
+    "path": "docs/projects/AI Projects/evidence/SA4-signed-zero-effect-ceremony-result-2026-11-05.md",
+    "sha256": "dd69130b443f72a75ebdf135d2cb4823f2024dd4bc422924a0eab4fe6fdc4c48"
+  },
+  {
+    "commit": "6fb0207fec5190e0c34ed3bc72ea38e128f06127",
+    "path": "docs/runbooks/Local-AI-Lease.md",
+    "sha256": "064b56ee8fca8aad37e9ae627cf119c581c3f8d8ad7d9782ccfeb0fa23b31d4c"
+  },
+  {
+    "commit": "803ebd83b2d4bf201d9cd02104b1281048ec4c0d",
+    "path": "docs/projects/B60-Inference-Engineering/owner-resource-qualification-20261105.md",
+    "sha256": "b04c3235f453cc5d04e5c38f4045c4cb74a6d34e13a358d443ee1291ca8c5995"
+  }
+]

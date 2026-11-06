@@ -1,0 +1,93 @@
+{
+  "booking": {
+    "claimed_epoch": 1793927816,
+    "end_epoch": 1793930400,
+    "finished_epoch": 1793928159,
+    "result_code": "FAILED_RESTORED",
+    "start_epoch": 1793927700,
+    "state": "failed"
+  },
+  "booking_id": "b60-exclusive-20261105-day-r4",
+  "entry_sha256": "ec6e9a096df1c0f14694bbf37e298c893c054ad354d07ba2e87add34cc4bf9e7",
+  "fault_evidence": {
+    "qualification-fence.json": {
+      "observed_epoch": 1793927877,
+      "owner_fenced": true
+    },
+    "qualification-guardian-arm.json": {
+      "guardian_pid": 960159,
+      "independent_guardian_armed": true,
+      "mode": "owner-loss",
+      "observed_epoch": 1793927816
+    },
+    "qualification-intent.json": {
+      "mode": "owner-loss",
+      "no_model_experiment": true,
+      "observed_epoch": 1793927873,
+      "owner_loss_requested": true,
+      "phase": "isolated",
+      "trial_deadline": 1793928000
+    },
+    "qualification-loss-observed.json": {
+      "observed_epoch": 1793927877,
+      "owner_empty": true,
+      "phase": "isolated"
+    }
+  },
+  "guest_checkpoints_verify": {
+    "104": true,
+    "110": true,
+    "114": true,
+    "115": true,
+    "116": true
+  },
+  "manual_assistance_required": false,
+  "mode": "owner-loss",
+  "mount_identity_matches": true,
+  "new_model_or_health_probe_executed": false,
+  "observed_epoch": 1793928955,
+  "qualification_source_sha256": "4a60b0e50b1f8bc58033fd33a005ec5ee173baaae2cffe3423f179ecfdd7a003",
+  "qualification_terminal": {
+    "booking_id": "b60-exclusive-20261105-day-r4",
+    "finished_epoch": 1793928159,
+    "guardian_result": {
+      "production_restored": true,
+      "recovery_attempted": true,
+      "state": "rescued"
+    },
+    "mode": "owner-loss",
+    "no_model_experiment": true,
+    "qualification_source_sha256": "4a60b0e50b1f8bc58033fd33a005ec5ee173baaae2cffe3423f179ecfdd7a003",
+    "qualified": true,
+    "schema": "b60-recovery-qualification-result.v1",
+    "source_map_sha256": "e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2"
+  },
+  "qualified": true,
+  "record_sha256": {
+    "arming-receipts/b60-exclusive-20261105-day-r4-revision2.json": "56d46195bafc834951930311738b0235a15ce3b0e820a171d00f194605b4ff70",
+    "exclusive-integrity/b60-exclusive-20261105-day-r4/terminal.json": "cda673ee1cb21e7aa26bad1e3f60120ac372d8717169a25ce6fb6d4a456ba366",
+    "exclusive-releases/b60-exclusive-20261105-day-r4.json": "7f38edffcc0ec5b9cdfb454addd6c630e786efd417d64e1d86c365fdc36f1039",
+    "exclusive-sessions/b60-exclusive-20261105-day-r4/adapter.json": "01a4324aec087384162a1d13434ed09944dc387d812c9262fb950388b8e8db5b",
+    "exclusive-sessions/b60-exclusive-20261105-day-r4/admission.json": "f5fe0ba124a8b788611025cc2fa8fe2815e78d0ba975f7d761c9191701804631",
+    "exclusive-sessions/b60-exclusive-20261105-day-r4/entry.json": "ec6e9a096df1c0f14694bbf37e298c893c054ad354d07ba2e87add34cc4bf9e7",
+    "exclusive-sessions/b60-exclusive-20261105-day-r4/qualification-fence.json": "cc76b3380691018f10fdf2e6add1053b00c5207ebb04b0946268f234804b702d",
+    "exclusive-sessions/b60-exclusive-20261105-day-r4/qualification-guardian-arm.json": "a0a8b805adcb21441f027241445bcdbb61f0d31810a537177ed9a5bc8933305c",
+    "exclusive-sessions/b60-exclusive-20261105-day-r4/qualification-intent.json": "f5062c3d0c0bb272c3287cfacda9bbece4cd7167caeb27a21d8c2ddd8a29ae26",
+    "exclusive-sessions/b60-exclusive-20261105-day-r4/qualification-loss-observed.json": "7571ffa6a0b9b28f51600b317e182b47b26b640d755d5942adff7a65310f76c2",
+    "exclusive-sessions/b60-exclusive-20261105-day-r4/qualification-terminal.json": "b3f3c5ef5f63ea13f032c0817d510dbafc9cac62cba697b9643a0c1b30b1cd3a",
+    "exclusive-sessions/b60-exclusive-20261105-day-r4/session.json": "71e18133a6c66441cd50f92d6f2fdeb5ca6f553aaad15bf7eead636977fd4253",
+    "reservations/records/b60-exclusive-20261105-day-r4.json": "53840df413753b8f50dfe0151b707212002aabe1c4a2a5c3ac0dd0bbe70c2cc2"
+  },
+  "runtime_masks_present": false,
+  "schema": "b60-owner-resource-postcheck.v1",
+  "session": {
+    "deadline_missed": false,
+    "phase": "released",
+    "production_restored": true,
+    "trial_failed": true,
+    "updated_epoch": 1793928159
+  },
+  "source_map_sha256": "e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2",
+  "temporary_gate_count": 0,
+  "unit_states_match_entry": true
+}

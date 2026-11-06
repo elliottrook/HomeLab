@@ -1,0 +1,13 @@
+{
+  "observed_epoch": 1793928991,
+  "r4_live_prerequisite_verified": true,
+  "r4_terminal_sha256": "b3f3c5ef5f63ea13f032c0817d510dbafc9cac62cba697b9643a0c1b30b1cd3a",
+  "r5_timer": {
+    "NextElapseUSecRealtime": "Thu 2026-11-05 19:15:00 MST",
+    "LastTriggerUSec": "",
+    "ActiveState": "active",
+    "SubState": "waiting",
+    "UnitFileState": "enabled"
+  },
+  "shared_exclusion_markers_absent": true
+}

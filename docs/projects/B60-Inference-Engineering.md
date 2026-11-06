@@ -1,6 +1,6 @@
 # B60 inference engineering
 
-> Current operational continuation (2026-11-05): R3 normal restore-only pass is retained. Independent owner-loss18:15 and conditional resource19:15 attempts are booked and verified armed under Jason’s explicit Stream A instruction. See [fixed cards, exact pins and live next action](B60-Inference-Engineering/owner-resource-qualification-20261105.md). These gates and27B+ capability/latency are not yet claimed passed.
+> Current operational result (2026-11-05): R3 normal restore-only and R4 independent owner-loss gates have passed with verified restoration/release. R5 resource qualification remains independently armed19:15. See [live evidence and next action](B60-Inference-Engineering/owner-loss-pass-resource-pending-20261105.md). Resource and27B+ capability/latency results are not yet claimed passed.
 
 > Status: Active — Stream A (bounded)
 >
