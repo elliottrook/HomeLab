@@ -151,9 +151,22 @@ class DesignSystemTests(unittest.TestCase):
         self.assertEqual((rail.attrib["x"], rail.attrib["y"], rail.attrib["width"], rail.attrib["height"]),
                          ("22", "268", "250", "544"))
         self.assertEqual(rail.attrib["data-shell-state"], "expanded")
-        self.assertEqual(rendered.count('data-shell-focus='), 8)
+        self.assertEqual(rendered.count('data-shell-node='), 8)
         self.assertEqual(rendered.count('data-shell-focus="games"'), 1)
         self.assertNotIn('data-shell-current="games"', rendered)
+
+    def test_games_side_rail_first_and_last_states_clamp_edges(self):
+        page = next(page for page in BUILD.load("catalogue.json")["pages"] if page["id"] == "games")
+        tokens = BUILD.load("tokens.json")
+        first = BUILD.games_page_render(page, tokens, "side-rail-first")
+        last = BUILD.games_page_render(page, tokens, "side-rail-last")
+        self.assertEqual(first.count('data-shell-focus="media"'), 1)
+        self.assertEqual(last.count('data-shell-focus="settings"'), 1)
+        self.assertEqual(first.count('data-shell-current="games"'), 1)
+        self.assertEqual(last.count('data-shell-current="games"'), 1)
+        graph = next(graph for graph in BUILD.load("focus-graphs.json")["graphs"] if graph["page"] == "games")
+        self.assertEqual(graph["nodes"]["side-media"]["up"], "side-media")
+        self.assertEqual(graph["nodes"]["side-settings"]["down"], "side-settings")
 
     def test_button_focus_does_not_change_geometry(self):
         tokens = BUILD.load("tokens.json")
@@ -195,7 +208,8 @@ class DesignSystemTests(unittest.TestCase):
             if item["source"] == "games"
         }
         self.assertTrue({
-            "rest", "focus", "side-rail-focus", "empty-library", "service-offline", "missing-art",
+            "rest", "focus", "side-rail-focus", "side-rail-first", "side-rail-last",
+            "empty-library", "service-offline", "missing-art",
             "long-title", "detail", "install", "request", "save-conflict",
         } <= states)
 

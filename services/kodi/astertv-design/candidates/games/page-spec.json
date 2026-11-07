@@ -73,6 +73,8 @@
     "rest",
     "focus",
     "side-rail-focus",
+    "side-rail-first",
+    "side-rail-last",
     "empty-library",
     "service-offline",
     "missing-art",

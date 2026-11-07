@@ -140,6 +140,26 @@
     },
     {
       "height": 1080,
+      "id": "page-games-side-rail-first",
+      "kind": "page",
+      "path": "generated/renders/pages/games-side-rail-first.svg",
+      "source": "games",
+      "state": "side-rail-first",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "id": "page-games-side-rail-last",
+      "kind": "page",
+      "path": "generated/renders/pages/games-side-rail-last.svg",
+      "source": "games",
+      "state": "side-rail-last",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
       "id": "page-games-empty-library",
       "kind": "page",
       "path": "generated/renders/pages/games-empty-library.svg",

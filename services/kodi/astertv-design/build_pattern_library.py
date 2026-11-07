@@ -228,7 +228,7 @@ def games_frame(title: str, body: str, tokens: dict) -> str:
 <rect width="1920" height="1080" fill="url(#page)"/>{body}<text x="1840" y="1044" text-anchor="end" fill="{c['charcoal']}" font-family="sans-serif" font-size="16">AsterTV design candidate · synthetic</text></svg>'''
 
 
-def games_side_rail(tokens: dict, *, expanded: bool = False) -> str:
+def games_side_rail(tokens: dict, *, expanded: bool = False, focused_id: str = "games") -> str:
     c = tokens["colors"]
     manifest = load("official-side-rail-assets.json")
     source_items = {item["id"]: item for item in manifest["items"]}
@@ -239,15 +239,19 @@ def games_side_rail(tokens: dict, *, expanded: bool = False) -> str:
         current = (
             f'<rect data-shell-current="games" x="39" y="{y-3}" width="38" height="38" '
             f'rx="12" fill="none" stroke="{c["champagne_gold"]}" stroke-width="2"/>'
-        ) if item["id"] == "games" and not expanded else ""
+        ) if item["id"] == "games" and (not expanded or focused_id != "games") else ""
         label = ""
         if expanded:
             label_y = 284 + index * 64
-            focused = item["id"] == "games"
+            focused = item["id"] == focused_id
+            current_context = item["id"] == "games" and not focused
             label = (
-                f'<rect data-shell-focus="{item["id"]}" x="84" y="{label_y}" width="178" height="62" rx="28" '
+                f'<rect data-shell-node="{item["id"]}"'
+                + (f' data-shell-focus="{item["id"]}"' if focused else "")
+                + f' x="84" y="{label_y}" width="178" height="62" rx="28" '
                 f'fill="{c["jade"] if focused else "transparent"}" '
-                f'stroke="{c["champagne_gold"] if focused else "transparent"}" stroke-width="{4 if focused else 0}"/>'
+                f'stroke="{c["champagne_gold"] if focused or current_context else "transparent"}" '
+                f'stroke-width="{4 if focused else 2 if current_context else 0}"/>'
                 f'<text x="104" y="{label_y+39}" fill="{c["warm_white"]}" font-family="sans-serif" '
                 f'font-size="24">{svg_escape(item["label"])}</text>'
             )
@@ -283,8 +287,13 @@ def games_page_render(page: dict, tokens: dict, state: str) -> str:
             f'<text x="{x+122}" y="96" text-anchor="middle" fill="{c["warm_white"]}" '
             f'font-family="sans-serif" font-size="21">{label}</text>'
         )
-    expanded_rail = state == "side-rail-focus"
-    rail = games_side_rail(tokens, expanded=expanded_rail)
+    rail_focus = {
+        "side-rail-focus": "games",
+        "side-rail-first": "media",
+        "side-rail-last": "settings",
+    }.get(state, "games")
+    expanded_rail = state.startswith("side-rail-")
+    rail = games_side_rail(tokens, expanded=expanded_rail, focused_id=rail_focus)
     rail_prefix = "" if expanded_rail else rail
     rail_suffix = rail if expanded_rail else ""
     if state == "service-offline":
@@ -531,7 +540,7 @@ def outputs() -> dict[Path, str]:
         if page["id"] == "games":
             rendered[path] = games_page_render(page, tokens, "rest")
             fixture_index["fixtures"].append({"id": "page-games-rest", "kind": "page", "source": "games", "state": "rest", "path": path.relative_to(HERE).as_posix(), "width": 1920, "height": 1080, "synthetic": True})
-            for state in ("focus", "side-rail-focus", "empty-library", "service-offline", "missing-art", "long-title"):
+            for state in ("focus", "side-rail-focus", "side-rail-first", "side-rail-last", "empty-library", "service-offline", "missing-art", "long-title"):
                 variant = GENERATED / "renders/pages" / f"games-{state}.svg"
                 rendered[variant] = games_page_render(page, tokens, state)
                 fixture_index["fixtures"].append({"id": f"page-games-{state}", "kind": "page", "source": "games", "state": state, "path": variant.relative_to(HERE).as_posix(), "width": 1920, "height": 1080, "synthetic": True})

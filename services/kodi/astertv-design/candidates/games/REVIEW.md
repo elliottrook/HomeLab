@@ -88,6 +88,8 @@ route back to Home.
 - Main page: `generated/renders/pages/games.svg`
 - Focus: `generated/renders/pages/games-focus.svg`
 - Side rail focus: `generated/renders/pages/games-side-rail-focus.svg`
+- Side rail first item: `generated/renders/pages/games-side-rail-first.svg`
+- Side rail last item: `generated/renders/pages/games-side-rail-last.svg`
 - Empty: `generated/renders/pages/games-empty-library.svg`
 - Offline: `generated/renders/pages/games-service-offline.svg`
 - Missing art: `generated/renders/pages/games-missing-art.svg`
