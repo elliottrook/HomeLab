@@ -1,7 +1,8 @@
 # Backup and restore contract
 
-The live deployment milestone is blocked until this contract is translated to
-the selected storage platform and an isolated restore passes.
+This contract is deployed and its isolated restore gate passed on 2026-11-07.
+The scripts remain recovery mechanisms, not authorization to overwrite live
+state without a bounded recovery decision.
 
 ## Protected set
 
@@ -27,4 +28,19 @@ storage snapshots and integrity manifests, not by the app-state backup.
   quarantined synthetic fixture.
 - Run the content-silent Doctor probe and record duration and checksums.
 - Destroy the disposable restore only after evidence is retained.
+
+## Accepted implementation
+
+- `ops/backup_aster_games.sh` creates the root-only, checksum-manifested
+  application backup while preserving secret references rather than values.
+- `ops/restore_proof_aster_games.sh` restores into an internal Docker network
+  with no external egress and removes the disposable runtime after evidence is
+  written.
+- The accepted proof matched aggregate state counts and a sampled canonical
+  media checksum; refused an existing-file overwrite; detected capacity,
+  dependency, and authentication failures; recovered from restart; restored an
+  exact pre-upgrade configuration; kept Doctor content-silent; and left no
+  disposable container, network, or runtime tree.
+- TrueNAS snapshots protect canonical media separately. The enabled Proxmox
+  all-guests job protects LXC 129 at the guest layer.
 

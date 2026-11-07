@@ -1,7 +1,8 @@
 # Aster Games deployment packet
 
-Status: accepted for Stream A execution on 2026-11-06. Stop only on the
-project's non-waivable conditions, material drift, or scope expansion.
+Status: Stream A server deployment completed and recovery-graduated on
+2026-11-07. The post-infrastructure hold is active. Stop on the project's
+non-waivable conditions, material drift, or scope expansion.
 
 This packet turns the repository candidate into server infrastructure only. It
 does not open the AsterTV v3 gate, expose the broker to an appliance, enable
@@ -141,7 +142,8 @@ copies remain until retention expiry unless separately approved for deletion.
 
 ## Post-infrastructure hold
 
-After these changes pass, stop. Do not enable broker remote ingress, device
-installs, AsterTV tokens, or Kodi/fleet work. Resume AsterTV work only after the
-separate v3 deployment and owner-acceptance evidence opens the project gate.
+These changes passed on 2026-11-07. Stop. Do not enable broker remote ingress,
+device installs, AsterTV tokens, or Kodi/fleet work. Resume AsterTV work only
+after the separate v3 deployment and owner-acceptance evidence opens the
+project gate.
 

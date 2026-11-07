@@ -49,7 +49,7 @@ def main() -> int:
             "explicit outbound dependency network is missing", failures)
     require("DEVICE_INSTALL_ENABLED: \"false\"" in compose,
             "RomM remote installation must start disabled", failures)
-    require(":/romm/library:ro" in compose,
+    require(":/romm/library/roms:ro" in compose,
             "RomM canonical library mount must be read-only", failures)
     require("read_only: true" in compose and "cap_drop: [ALL]" in compose,
             "broker container hardening is incomplete", failures)

@@ -48,8 +48,10 @@ docker compose --env-file /secure/path/aster-games.env \
 Do not use the example environment as a deployment environment. The live
 deployment must first allocate storage, identity, DNS, firewall, monitoring,
 backup, and NetBox records under the Stream A authorization recorded in the
-project document. Those M3 controls are active as of 2026-11-06; acquisition
-and device installation remain disabled while M4 synthetic recovery work runs.
+project document. Those M3 controls are active as of 2026-11-06. M4 synthetic
+integration and isolated recovery graduated on 2026-11-07; acquisition,
+automatic import, device installation, proposal execution, and all AsterTV
+client work remain disabled at the v3 acceptance gate.
 
 ## Storage contract
 

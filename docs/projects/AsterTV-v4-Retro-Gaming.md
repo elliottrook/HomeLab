@@ -1,7 +1,7 @@
 # AsterTV v4 retro gaming
 
-> Status: Active — Stream A; M3 protected server infrastructure deployed,
-> synthetic integration/recovery next, and all AsterTV work gated
+> Status: Active — Stream A; M4 server infrastructure graduated and all
+> AsterTV work held at the v3 deployment/owner-acceptance gate
 >
 > Owner: Jason
 >
@@ -307,17 +307,18 @@ remain disabled.
 
 ### M4 — Synthetic integration and recovery
 
-- [ ] Configure ROMarr with scoped Prowlarr/SABnzbd access and a dedicated
+- [x] Configure ROMarr with scoped Prowlarr/SABnzbd access and a dedicated
   category.
-- [ ] Import only a synthetic or distributable public-domain fixture through
+- [x] Import only a synthetic or distributable public-domain fixture through
   staging, verification, quarantine/restore, and RomM scan.
-- [ ] Verify sanitized broker catalogue output and pending proposal behavior.
-- [ ] Complete an isolated app-state restore and sampled media-integrity proof.
-- [ ] Validate capacity alerts, dependency failure, auth failure, restart,
+- [x] Verify sanitized broker catalogue output and pending proposal behavior.
+- [x] Complete an isolated app-state restore and sampled media-integrity proof.
+- [x] Validate capacity alerts, dependency failure, auth failure, restart,
   upgrade rollback, and no-secret/no-title observability.
 
-Gate: the server-side platform is recoverable and operationally accepted. It
-still does not authorize AsterTV work.
+Gate: passed 2026-11-07. The server-side platform is recoverable and
+operationally accepted under the Stream A envelope. It still does not authorize
+AsterTV work.
 
 ### G3 — AsterTV v3 prerequisite gate
 
@@ -436,11 +437,11 @@ No backup task may be declared complete until an isolated restore is proven.
 | Authentik/proxy | Two owner-bound forward-auth applications and NPM hosts active; broker uses separate device auth later |
 | DHCP/IPAM/NetBox | Static LXC 129 identity reconciled in NetBox as `192.168.20.38/24`, VLAN 20 |
 | Storage/TrueNAS | `Media/Games` (2 TiB quota), dedicated staging, NFS squashing, and 30-day daily snapshots active |
-| ARR services | Scoped Prowlarr/SAB credentials are source-local; ROMarr acquisition and auto-import remain disabled |
-| Backups | All-guests job covers LXC 129; initial 2026-11-06 archive passed; isolated app restore remains M4 |
+| ARR services | Scoped Prowlarr/SAB credentials are source-local; the dedicated SAB `retro-games` category maps to its relative staging directory; ROMarr acquisition and auto-import remain disabled |
+| Backups | All-guests job covers LXC 129; initial 2026-11-06 archive passed; the 2026-11-07 root-only app backup and no-egress isolated restore proof passed |
 | Doctor/Beszel | Content-silent semantic Doctor check passes and Beszel reports `Aster Games` up |
 | Homepage | Optional admin-only tile after private ingress acceptance |
-| Wiki/mirror | Required before handover; mirror receives sanitized operations only |
+| Wiki/mirror | Human wiki commit `57c475e` is deployed; accepted sanitized source hash `5418190c…`; mirror pipeline 1.5.0 verifies 1,832 entries with content hash `1efa0cd2…` and nine Aster Games entries |
 | Aster/AI admin | No active capability; future read/propose only, source-local broker, execution disabled |
 | AsterTV | No work until G3 passes; later design then fleet workflow |
 | B60/Lab Hours | No dependency or competition; not applicable unless scope changes |
@@ -451,11 +452,11 @@ No backup task may be declared complete until an isolated restore is proven.
 - [x] Project record and portfolio entry.
 - [x] Infrastructure README, example environment, policy, API, Doctor, and
   backup/restore contract.
-- [ ] Deployment and upgrade runbook.
-- [ ] Credential creation/rotation/recovery runbook.
+- [x] Deployment and upgrade runbook.
+- [x] Credential creation/rotation/recovery runbook.
 - [ ] Supported platform/core/controller matrix.
 - [ ] Household user guide and administrator guide.
-- [ ] NetBox, Doctor, Beszel, backup, wiki, and knowledge-mirror evidence.
+- [x] NetBox, Doctor, Beszel, backup, wiki, and knowledge-mirror evidence.
 - [ ] AsterTV visual handover and accepted screenshots/video on target hardware.
 
 ## Graduation and completion gate
@@ -542,9 +543,49 @@ Infrastructure completion alone is a milestone, not AsterTV v4 completion.
   release gate still reports `v4_client_work_allowed=false`. No game content
   was acquired, imported, enumerated, or exposed.
 
+### 2026-11-07 — M4 synthetic integration and recovery graduated
+
+- Created the dedicated SABnzbd `retro-games` category after a native SAB
+  configuration backup. ROMarr's scoped RomM, Prowlarr, and SABnzbd connection
+  tests pass; RomM alone is enabled while Prowlarr, SABnzbd, automatic import,
+  scheduled acquisition, device installation, proposal execution, and the v4
+  client gate remain disabled.
+- Generated one original CC0 deterministic NES-format fixture and a matching
+  one-entry Logiqx DAT. Its SHA-256 is
+  `769238ade2162466bffdea87fe52fa0943d67a0299c49a0985191dabeb475637`.
+  The fixture passed staging, unique DAT classification, canonical import,
+  RomM scan, duplicate detection, quarantine, byte-identical restore, and a
+  post-restore zero-duplicate audit. No commercial content was used.
+- Verified the broker returned exactly the allowlisted catalogue fields,
+  created one pending proposal, replayed the idempotency key without a second
+  proposal, and exposed no execution capability. The closed release gate was
+  independently confirmed.
+- Created a root-only application backup with a transaction-consistent MariaDB
+  dump, RomM/ROMarr/broker/DAT state, exact runtime/deployment identities,
+  secret references only, aggregate counts, and a sampled-media checksum. Its
+  complete manifest verifies.
+- Restored that backup into a disposable internal Docker network with no
+  egress. The 99-second proof matched aggregate state counts and the sampled
+  checksum; refused an existing-file overwrite; detected capacity,
+  dependency, and authentication failures; recovered after restart; restored
+  exact pre-upgrade state; kept Doctor free of titles and credential terms;
+  and destroyed every disposable container, network, and runtime path. The
+  evidence manifest verifies and production Doctor is healthy afterward.
+- Published the operator/credential/recovery runbook and service-registry
+  record. The human wiki source commit `57c475e` is deployed and the reviewed
+  Aster Games operational reference was accepted with SHA-256
+  `5418190c8c1c2608e80687e89f3f6a1ad4fafd4485f6ec9060a164f2645a011d`.
+  Mirror pipeline 1.5.0 double-built and verified 1,832 entries, 28 directory
+  sources, and nine Aster Games entries at content hash
+  `1efa0cd257afb3ab880860b2e2205a4b857174c122b3dbbce8dff3d2f8504a2c`.
+- No AsterTV source, Kodi add-on, RetroPlayer/core/controller configuration,
+  fleet overlay, appliance token, remote broker ingress, or device mutation
+  was created. Work is now held at G3.
+
 ## Closeout summary
 
-Open. Continue the accepted deployment packet through infrastructure
-graduation, pushing each completed milestone to Forgejo and verifying the
-GitHub mirror. No AsterTV client work is authorized until G3 passes.
+Server infrastructure graduated at M4. The project remains open and held at
+G3: no AsterTV client work is authorized until v3 deployment, clean fleet
+evidence, Jason's v3 owner acceptance, and explicit permission to open the v4
+client gate are recorded.
 

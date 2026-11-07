@@ -86,16 +86,21 @@ def main() -> int:
                         default=Path("/srv/aster-games/library"))
     parser.add_argument("--state", type=Path,
                         default=Path("/srv/aster-games/state"))
+    parser.add_argument("--broker-container", default="aster-games-broker-1")
+    parser.add_argument("--database-container", default="aster-games-romm-db-1")
+    parser.add_argument("--cache-container", default="aster-games-romm-cache-1")
+    parser.add_argument("--library-min-free-gib", type=int, default=100)
+    parser.add_argument("--state-min-free-gib", type=int, default=10)
     parser.add_argument("--timeout", type=float, default=3.0)
     args = parser.parse_args()
     results = [
         probe("romm", args.romm, args.timeout),
         probe("romarr", args.romarr, args.timeout),
-        container_health("aster-games-broker-1"),
-        container_health("aster-games-romm-db-1"),
-        container_health("aster-games-romm-cache-1"),
-        storage_health(args.library, 100),
-        storage_health(args.state, 10),
+        container_health(args.broker_container),
+        container_health(args.database_container),
+        container_health(args.cache_container),
+        storage_health(args.library, args.library_min_free_gib),
+        storage_health(args.state, args.state_min_free_gib),
         policy_health(args.config, args.gate),
     ]
     output = {"ok": all(result["ok"] for result in results), "services": results}

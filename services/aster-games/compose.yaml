@@ -59,7 +59,7 @@ services:
       DEVICE_INSTALL_ENABLED: "false"
       TZ: America/Vancouver
     volumes:
-      - ${ASTER_GAMES_LIBRARY_ROOT:?absolute library root required}:/romm/library:ro
+      - ${ASTER_GAMES_LIBRARY_ROOT:?absolute library root required}:/romm/library/roms:ro
       - ${ASTER_GAMES_STATE_ROOT:?absolute state root required}/romm/assets:/romm/assets
       - ${ASTER_GAMES_STATE_ROOT:?absolute state root required}/romm/config:/romm/config
       - ${ASTER_GAMES_STATE_ROOT:?absolute state root required}/romm/resources:/romm/resources
