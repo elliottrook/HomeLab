@@ -230,15 +230,15 @@ WORKLOADS = {
         minimum_booking_seconds=1500, recovery_reserve_seconds=900,
         runner_kind="aster-news-video-musetalk-xpu", runtime_pins=(
             ("b60_musetalk_openvino_transaction.py",
-             "6614f32e7223936be2a7a9c1c46f4108dbdcd57d9f762f5b478d23f194467881"),
+             "a4f2832801347b562835112cfc042033b6e85f7e1c514a5d5da9c7df5cda40d3"),
             ("b60_musetalk_openvino_adapter.py",
-             "84f9446bd545297b4b8f6764843a93e4ce48fa0d2113fc1564b9d25c83a5a054"),
+             "b5bc944a61068545755cbe3c7a6491610cc983137d501edcf94f003e66843cf3"),
             ("b60_musetalk_xpu_adapter.py",
              "694c9b412cd769b62b5302679ff5453cb2a6b376a61b5583d7e78771d603308b"),
             ("b60_musetalk_xpu_transaction.py",
              "a2c67006c3559ff86ab35dadfa6c7e511293d28b21d4a08589248608c053b58b"),
         ),
-        packet_sha256="9ebfacfcb006b8f2729fac19c161b587ed55d77eff73b9152d5c515c240a39aa",
+        packet_sha256="44345901e9c7d5929c255c2d7d1f9064992e73881dce7b9b49fa5ead3946a66e",
         result_max_bytes=65536,
         retryable_session=True, maximum_attempts=None,
     ),
@@ -265,7 +265,55 @@ WORKLOADS = {
         packet_sha256="619450ce1eca89d3c21c5007d23c2f27c85e67f80e3b0709d0ebccb17ec86c88",
         result_max_bytes=1048576,
     ),
+    "m3-k3-hierarchical-safety-development-v1": WorkloadSpec(
+        workload_id="m3-k3-hierarchical-safety-development-v1",
+        owner="aster-stream-a", request_count=192,
+        per_request_timeout_seconds=45, deadline_seconds=1800,
+        minimum_booking_seconds=3600, recovery_reserve_seconds=900,
+        runner_kind="m3-k3-hierarchical-safety-development",
+        runtime_pins=(
+            ("aster_llama_m3_k2_development_wrapper.py", "12f86fdf694866a08cc0dbd31341d26cb0bec352901bda0241167afe746dd531"),
+            ("nlu_deterministic_guard_v1.py", "d7d62d19008519ae50aa9b46799ab1f277a51904f2e80e65c30517abca8a7135"),
+            ("nlu_k2_consensus_policy_v1.py", "9027abbcc446d9c63100178e3ce9add60275a1f134bde9d7beeb30aa4a4d504e"),
+            ("nlu_k2_development_runner_v1.py", "d5c9ef87bd49185466a12e7b53eab741d0f0dc40ce92c2977389dd2b0e5e3785"),
+            ("nlu_k2_development_scorer_v1.py", "c43f3894ba65251b6fadbda1012bd2aead44c3357323b09f491f590ffd6e8558"),
+            ("nlu_k2_shortlist_arbitrator_v1.py", "7c81894da9adbd1c3ee22b97d1487fcf2feadc1e4bc1e321a7c715479c517962"),
+            ("nlu_k3_development_runner_v1.py", "940d1de888bc00709f37db09604bd7062dbd9553dbdc970e7d9c8d705378bf96"),
+            ("nlu_k3_development_scorer_v1.py", "61dce93dc94ec76725e5d1048ab099a383a9e418245629e9631e98e834a8a353"),
+            ("nlu_k3_hierarchical_safety_preregistration_v1.py", "47b12ca52d7880121f2005ee53a788a981d5b9009721c9bfbb15f9c34485de14"),
+            ("nlu_k3_hierarchical_safety_veto_v1.py", "3cf4b0a531596760e6ad811c090fded4434fdd55143663c470104abdeba41bff"),
+            ("nlu_local_model_adapter.py", "3a3b09f12bcd2088f0d604363a5bc0e69190c177eced50dc5a14eb582749aed0"),
+            ("nlu_threshold_policy.py", "984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d"),
+            ("nlu_whole_label_choice_v1.py", "6e7ee332ce74a44a5bb19877f9f8f0c90f814687279b3c4993fbb93fbd58948a"),
+            ("nlu-k3-runtime-manifest-v1.json", "0a9866a10c4079879fc7d7e8298969074cc50e44b36afd3b1c56e570fe08fa45"),
+            ("nlu-k2-development-corpus-v1.json", "9e2dd321c6660ad4bd09e9824c24b9727a30eba60a8df37e09f17d436ccce90a"),
+            ("nlu-k2-shortlist-v1.json", "620f5b5badce1c3ee70b5718a0d05ff4ad6261308360cc5c5dad588e4b977f6e"),
+        ),
+        packet_sha256="0a9866a10c4079879fc7d7e8298969074cc50e44b36afd3b1c56e570fe08fa45",
+        result_max_bytes=1048576,
+    ),
 }
+
+
+
+WORKLOADS['b60-qwen36-35b-failure-capture-v1'] = WorkloadSpec(
+    workload_id='b60-qwen36-35b-failure-capture-v1', owner='b60-stream-a', request_count=2,
+    per_request_timeout_seconds=60, deadline_seconds=1200,
+    minimum_booking_seconds=2700, recovery_reserve_seconds=900,
+    runner_kind='b60-exclusive-card-capture',
+    runtime_pins=(('b60_exclusive_card_bridge.py', '079e16a415276562227f1645fe1e3ab64f5b0b41c1f453ae215935b1ca14f7d9'),),
+    result_max_bytes=8192, retryable_session=False, maximum_attempts=1,
+)
+
+
+WORKLOADS['b60-entry-backend-preservation-qualification-v1'] = WorkloadSpec(
+    workload_id='b60-entry-backend-preservation-qualification-v1', owner='b60-stream-a', request_count=1,
+    per_request_timeout_seconds=600, deadline_seconds=600,
+    minimum_booking_seconds=1800, recovery_reserve_seconds=900,
+    runner_kind='b60-entry-rescue-card',
+    runtime_pins=(('b60_entry_rescue_card_bridge.py', '64bd9602b571637326d7595d2a29f77970e31c09f6180071c3951a4647127214'),),
+    result_max_bytes=8192, retryable_session=False, maximum_attempts=1,
+)
 
 
 
@@ -429,6 +477,19 @@ def validate_registry() -> None:
             or k2.result_max_bytes != 1048576):
         raise ValueError("M3 K2 registration drift")
 
+    k3 = workload("m3-k3-hierarchical-safety-development-v1")
+    if (k3.owner != "aster-stream-a" or k3.request_count != 192
+            or k3.per_request_timeout_seconds != 45
+            or k3.deadline_seconds != 1800
+            or k3.minimum_booking_seconds != 3600
+            or k3.recovery_reserve_seconds != 900
+            or k3.runner_kind != "m3-k3-hierarchical-safety-development"
+            or len(k3.runtime_pins) != 16
+            or k3.packet_sha256 !=
+                "0a9866a10c4079879fc7d7e8298969074cc50e44b36afd3b1c56e570fe08fa45"
+            or k3.result_max_bytes != 1048576):
+        raise ValueError("M3 K3 registration drift")
+
     musetalk = workload("aster-news-video-musetalk-xpu-smoke-v1")
     if (musetalk.owner != "aster-news-video"
             or musetalk.request_count != 1
@@ -453,7 +514,7 @@ def validate_registry() -> None:
             or musetalk_ov.runner_kind != "aster-news-video-musetalk-xpu"
             or len(musetalk_ov.runtime_pins) != 4
             or musetalk_ov.packet_sha256 !=
-                "9ebfacfcb006b8f2729fac19c161b587ed55d77eff73b9152d5c515c240a39aa"
+                "44345901e9c7d5929c255c2d7d1f9064992e73881dce7b9b49fa5ead3946a66e"
             or musetalk_ov.result_max_bytes != 65536
             or not musetalk_ov.retryable_session
             or musetalk_ov.maximum_attempts is not None):
@@ -478,6 +539,24 @@ def validate_registry() -> None:
             or b60.runtime_pins != (('b60_post_xe_r5_card_bridge.py', '3bd94a1e99491a0c23b4e530161389d3ef80a13fa7f2f5a35a9bad5f918df209'),)):
         raise ValueError('B60 fixed-card registration drift')
 
+    b60 = workload('b60-qwen36-35b-failure-capture-v1')
+    if (b60.owner != 'b60-stream-a' or b60.runner_kind != 'b60-exclusive-card-capture'
+            or b60.request_count != 2 or b60.per_request_timeout_seconds != 60
+            or b60.deadline_seconds != 1200 or b60.minimum_booking_seconds != 2700
+            or b60.recovery_reserve_seconds != 900 or b60.retryable_session
+            or b60.maximum_attempts != 1 or b60.result_max_bytes != 8192
+            or b60.runtime_pins != (('b60_exclusive_card_bridge.py', '079e16a415276562227f1645fe1e3ab64f5b0b41c1f453ae215935b1ca14f7d9'),)):
+        raise ValueError('B60 fixed-card registration drift')
+
+    b60 = workload('b60-entry-backend-preservation-qualification-v1')
+    if (b60.owner != 'b60-stream-a' or b60.runner_kind != 'b60-entry-rescue-card'
+            or b60.request_count != 1 or b60.per_request_timeout_seconds != 600
+            or b60.deadline_seconds != 600 or b60.minimum_booking_seconds != 1800
+            or b60.recovery_reserve_seconds != 900 or b60.retryable_session
+            or b60.maximum_attempts != 1 or b60.result_max_bytes != 8192
+            or b60.runtime_pins != (('b60_entry_rescue_card_bridge.py', '64bd9602b571637326d7595d2a29f77970e31c09f6180071c3951a4647127214'),)):
+        raise ValueError('B60 fixed-card registration drift')
+
 def _local_imports(path: Path) -> set[str]:
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     names = set()
@@ -489,8 +568,8 @@ def _local_imports(path: Path) -> set[str]:
     return names
 
 
-def _validate_k2_guest_target(spec: WorkloadSpec, *, expected_uid: int,
-                              runner=subprocess.run) -> dict[str, object]:
+def _validate_k_guest_target(spec: WorkloadSpec, *, expected_uid: int,
+                             runner=subprocess.run) -> dict[str, object]:
     script = r'''import ast,hashlib,json,os,stat,sys
 from pathlib import Path
 value=json.loads(sys.stdin.read());root=Path(value["root"]);pins=value["pins"]
@@ -520,11 +599,11 @@ print(json.dumps({"runtime_files":len(pins),"runtime_location":"lxc110","depende
     try:
         value = json.loads(result.stdout)
     except (json.JSONDecodeError, TypeError) as exc:
-        raise ValueError("K2 guest runtime validation failed") from exc
+        raise ValueError("K guest runtime validation failed") from exc
     if (result.returncode != 0 or value != {
             "runtime_files": len(spec.runtime_pins),
             "runtime_location": "lxc110", "dependencies": "complete"}):
-        raise ValueError("K2 guest runtime validation failed")
+        raise ValueError("K guest runtime validation failed")
     return value
 
 
@@ -540,9 +619,10 @@ def validate_inactive_target(pilot_root: Path, *, unit_root: Path | None = None,
     """
     spec = workload(workload_id)
     root = Path(pilot_root)
-    if spec.runner_kind == "m3-k2-shortlist-arbitration-development":
-        target = _validate_k2_guest_target(spec, expected_uid=expected_uid,
-                                           runner=guest_runner)
+    if spec.runner_kind in {"m3-k2-shortlist-arbitration-development",
+                            "m3-k3-hierarchical-safety-development"}:
+        target = _validate_k_guest_target(spec, expected_uid=expected_uid,
+                                          runner=guest_runner)
     else:
         for name, expected in spec.runtime_pins:
             path = root / name

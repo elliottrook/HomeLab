@@ -16,7 +16,7 @@ DEADLINE_SECONDS = 900
 RESULT_MAX_BYTES = 65_536
 SOURCE_COMMIT = "3bd654938926af520ee30dfe945e4845ef476d94"
 SOURCE_TREE = "0d61fc23223f0c54348c04dddbcb05a67f63c565"
-OPENVINO_VERSION = "2026.3.1-22476-759c5a6ab8c-releases/2026/3"
+OPENVINO_VERSION = "2026.4.1-22982-e213a147257-releases/2026/4"
 SHA = re.compile(r"[0-9a-f]{64}")
 LEASE_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{1,127}")
 
@@ -41,12 +41,12 @@ def validate_result(value: object) -> dict[str, object]:
     if (value["schema"] != "aster-news-video-musetalk-openvino-result.v1"
             or value["workload_id"] != WORKLOAD_ID
             or value["source_commit"] != SOURCE_COMMIT or value["source_tree"] != SOURCE_TREE
-            or value["backend"] != "openvino:GPU"
+            or value["backend"] != "openvino:GPU:fp32-ir:no-winograd:no-unroll"
             or value["openvino_version"] != OPENVINO_VERSION
             or not isinstance(value["device_name"], str) or not value["device_name"]
             or not SHA.fullmatch(str(value["ir_xml_sha256"]))
             or not SHA.fullmatch(str(value["ir_bin_sha256"]))
-            or value["fps"] != 25 or value["batch_size"] != 4
+            or value["fps"] != 25 or value["batch_size"] != 1
             or type(value["frame_count"]) is not int or not 1 <= value["frame_count"] <= 100
             or type(value["generation"]) is not int or value["generation"] < 1
             or not isinstance(value["lease_id"], str) or not LEASE_RE.fullmatch(value["lease_id"])

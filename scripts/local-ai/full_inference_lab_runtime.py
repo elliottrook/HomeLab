@@ -211,6 +211,9 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
     elif args.workload_profile == "m3-k2-shortlist-arbitration-development-v1":
         from m3_k2_development_transaction import execute
         from m3_k2_development_listener_adapter import run as run_sa3_listener
+    elif args.workload_profile == "m3-k3-hierarchical-safety-development-v1":
+        from m3_k3_development_transaction import execute
+        from m3_k3_development_listener_adapter import run as run_sa3_listener
     else:
         raise SupervisorError("SA3 workload profile is not registered")
 
@@ -218,8 +221,9 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
     producer = LocalProxmoxFullDrainSourceProducer(
         runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence),
         wall_clock=wall_clock)
-    if (musetalk_workload or args.workload_profile ==
-            "m3-k2-shortlist-arbitration-development-v1"):
+    if (musetalk_workload or args.workload_profile in {
+            "m3-k2-shortlist-arbitration-development-v1",
+            "m3-k3-hierarchical-safety-development-v1"}):
         from lab_hours_workloads import workload as registered_workload
         lab_seconds = registered_workload(args.workload_profile).deadline_seconds
     else:
@@ -413,7 +417,8 @@ def _parser() -> argparse.ArgumentParser:
         "aster-news-video-musetalk-xpu-smoke-v1",
         "aster-news-video-musetalk-openvino-smoke-v1",
         "sa3-evidence-matrix-candidate-j-quality-v1",
-        "m3-k2-shortlist-arbitration-development-v1"),
+        "m3-k2-shortlist-arbitration-development-v1",
+        "m3-k3-hierarchical-safety-development-v1"),
         default="accepted-9b-direct-control-smoke-v1")
     parser.add_argument("--retain-root", default="/var/lib/local-ai-lab/lab-hours-attempts")
     return parser
@@ -456,7 +461,8 @@ def main(argv: list[str] | None = None) -> int:
                 "aster-news-video-musetalk-xpu-smoke-v1",
                 "aster-news-video-musetalk-openvino-smoke-v1",
                 "sa3-evidence-matrix-candidate-j-quality-v1",
-                "m3-k2-shortlist-arbitration-development-v1"}:
+                "m3-k2-shortlist-arbitration-development-v1",
+                "m3-k3-hierarchical-safety-development-v1"}:
             return _run_sa3(args, paths, runner=runner)
         if args.workload_profile == "m3-joint-semantic-35b-public-v1":
             return _run_m3(args, paths, runner=runner)

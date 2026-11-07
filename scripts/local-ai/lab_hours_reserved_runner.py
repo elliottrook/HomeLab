@@ -30,8 +30,10 @@ PROCESS_MARKERS = ("vzdump", "zstd -t", "f2_preflight", "f3_from_f2",
                    "stream_a_evaluation_evidence", "full_aster_first_screen",
                    "m3_joint_semantic_35b", "sa3_candidate_i",
                    "sa3_candidate_j", "aster_tts_dual_cpu", "aster_tts_single_cpu",
-                   "b60_musetalk_xpu_guest", "m3_k2")
+                   "b60_musetalk_xpu_guest", "m3_k2", "m3_k3")
 REGISTERED_RUNNER_KINDS = frozenset({
+    "b60-entry-rescue-card",
+    "b60-exclusive-card-capture",
     "b60-post-xe-card-r5",
     "b60-post-xe-card",
     "full-inference-pilot",
@@ -47,6 +49,7 @@ REGISTERED_RUNNER_KINDS = frozenset({
     "aster-tts-single-cpu-screen",
     "aster-news-video-musetalk-xpu",
     "m3-k2-shortlist-arbitration-development",
+    "m3-k3-hierarchical-safety-development",
 })
 
 
@@ -222,6 +225,54 @@ def run(booking_id: str, *, retry: bool = False) -> int:
             exclusive = ReservationStore(RESERVATIONS).get(booking_id)
         except Exception:
             exclusive = None
+        if exclusive is not None and exclusive.get('workload') == 'b60-entry-backend-preservation-qualification-v1':
+            try:
+                if retry:
+                    raise RunError('EXCLUSIVE_CARD_NOT_RETRYABLE')
+                load_manifest()
+                from lab_hours_workloads import validate_registry, validate_inactive_target
+                validate_registry()
+                validate_inactive_target(PILOT, workload_id='b60-entry-backend-preservation-qualification-v1')
+                from b60_entry_rescue_card_bridge import dispatch
+                return dispatch(exclusive, workload('b60-entry-backend-preservation-qualification-v1'))
+            except Exception:
+                print(json.dumps({'state':'dispatch-refused','booking_id':booking_id,
+                    'workload':'b60-entry-backend-preservation-qualification-v1',
+                    'qualification_claimed':False},sort_keys=True))
+                return 1
+
+    # A registered exclusive-card booking is dispatched by its exact future
+    # clock. The qualified inner controller remains its ONLY ledger claimant.
+    # Never import that controller here: shared module names must stay isolated.
+    if os.geteuid() == 0:
+        try:
+            exclusive = ReservationStore(RESERVATIONS).get(booking_id)
+        except Exception:
+            exclusive = None
+        if exclusive is not None and exclusive.get('workload') == 'b60-qwen36-35b-failure-capture-v1':
+            try:
+                if retry:
+                    raise RunError('EXCLUSIVE_CARD_NOT_RETRYABLE')
+                load_manifest()
+                from lab_hours_workloads import validate_registry, validate_inactive_target
+                validate_registry()
+                validate_inactive_target(PILOT, workload_id='b60-qwen36-35b-failure-capture-v1')
+                from b60_exclusive_card_bridge import dispatch
+                return dispatch(exclusive, workload('b60-qwen36-35b-failure-capture-v1'))
+            except Exception:
+                print(json.dumps({'state':'dispatch-refused','booking_id':booking_id,
+                    'workload':'b60-qwen36-35b-failure-capture-v1',
+                    'qualification_claimed':False},sort_keys=True))
+                return 1
+
+    # A registered exclusive-card booking is dispatched by its exact future
+    # clock. The qualified inner controller remains its ONLY ledger claimant.
+    # Never import that controller here: shared module names must stay isolated.
+    if os.geteuid() == 0:
+        try:
+            exclusive = ReservationStore(RESERVATIONS).get(booking_id)
+        except Exception:
+            exclusive = None
         if exclusive is not None and exclusive.get('workload') == 'b60-accepted-sycl-post-xe-qualification-v2':
             try:
                 if retry:
@@ -283,7 +334,8 @@ def run(booking_id: str, *, retry: bool = False) -> int:
         if spec.runner_kind in {"ebook-word-alignment", "aster-tts-dual-cpu-screen",
                                 "aster-tts-single-cpu-screen",
                                 "aster-news-video-musetalk-xpu",
-                                "m3-k2-shortlist-arbitration-development"}:
+                                "m3-k2-shortlist-arbitration-development",
+                                "m3-k3-hierarchical-safety-development"}:
             if booking.get("owner") != spec.owner:
                 raise RunError("WORKLOAD_OWNER_MISMATCH")
             if int(booking["end_epoch"]) - int(booking["start_epoch"]) < spec.minimum_booking_seconds:
@@ -351,6 +403,8 @@ def run(booking_id: str, *, retry: bool = False) -> int:
             "aster-news-video-musetalk-xpu": "aster-news-video-musetalk-xpu-complete",
             "m3-k2-shortlist-arbitration-development":
                 "m3-k2-development-complete",
+            "m3-k3-hierarchical-safety-development":
+                "m3-k3-development-complete",
         }.get(spec.runner_kind, "pilot-complete"))
         receipt_body=receipt.get("receipt")
         receipt_valid=(isinstance(receipt_body,dict)
@@ -408,6 +462,25 @@ def run(booking_id: str, *, retry: bool = False) -> int:
                                         "status","error_count"}
                 and receipt.get("production_restored") is True
                 and receipt_body.get("model_request_count")==192
+                and receipt_body.get("case_count")==192
+                and receipt_body.get("error_count")==0
+                and type(receipt_body.get("development_gate_passed")) is bool
+                and receipt_body.get("status") in {"pass","reject"}
+                and (receipt_body["status"] == "pass")
+                    is receipt_body["development_gate_passed"]
+                and isinstance(receipt_body.get("prediction_sha256"),str)
+                and len(receipt_body["prediction_sha256"])==64
+                and all(c in "0123456789abcdef"
+                        for c in receipt_body["prediction_sha256"]))
+        elif spec.runner_kind=="m3-k3-hierarchical-safety-development":
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "model_request_count","case_count",
+                                        "prediction_sha256","development_gate_passed",
+                                        "status","error_count"}
+                and receipt.get("production_restored") is True
+                and receipt_body.get("model_request_count")==384
                 and receipt_body.get("case_count")==192
                 and receipt_body.get("error_count")==0
                 and type(receipt_body.get("development_gate_passed")) is bool
