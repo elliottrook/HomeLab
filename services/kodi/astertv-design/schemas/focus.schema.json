@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://astertv.local/schemas/design/focus.schema.json",
+  "type": "object",
+  "required": ["page", "entry", "back", "scroll", "nodes"],
+  "properties": {
+    "page": {"type": "string", "minLength": 1},
+    "entry": {"type": "string", "minLength": 1},
+    "back": {"type": "string", "minLength": 1},
+    "scroll": {"type": "string", "minLength": 1},
+    "nodes": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "object", "propertyNames": {"enum": ["left", "right", "up", "down"]}, "additionalProperties": {"type": "string"}}}
+  },
+  "additionalProperties": false
+}

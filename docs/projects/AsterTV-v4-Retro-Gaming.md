@@ -1,7 +1,7 @@
 # AsterTV v4 retro gaming
 
-> Status: Active — Stream A; M4 server infrastructure graduated and all
-> AsterTV work held at the v3 deployment/owner-acceptance gate
+> Status: Active — Stream A; M4 server infrastructure graduated, M5 design-only
+> candidate in review, and all implementation/integration held at the v3 gate
 >
 > Owner: Jason
 >
@@ -74,11 +74,15 @@ appliance deployment is created.
 
 - Any `services/kodi/astertv-v4` source.
 - Kodi add-on, RetroPlayer core selection, controller mapping, skin XML,
-  artwork, Games page, dialog, or focus-behaviour implementation.
+  runtime Games page/dialog/focus implementation, or deployable artwork.
 - A retro-gaming fleet overlay, device manifest, bundle, or release plan.
 - Any mutation, installation, or test on Jen, Bedroom, Family, or Guest.
 - Enabling RomM remote installation or broker proposal execution.
 - Changing the AsterTV design authority or declaring a v4 release.
+
+Design-only Games specifications, synthetic fixtures, and focus contracts under
+`services/kodi/astertv-design` are authorized before the gate. They remain
+candidates and create no runtime or integration authority.
 
 ### General exclusions
 
@@ -328,17 +332,20 @@ AsterTV work.
 - [ ] Evidence references are added and `v4_client_work_allowed` is explicitly
   approved before the release-gate candidate changes.
 
-Gate: all four facts exist in durable evidence. Server-side infrastructure can
-finish before this point, but M5 cannot start.
+Gate: all four facts exist in durable evidence. Server-side infrastructure and
+design-only M5 candidate work can finish before this point, but no Kodi,
+client, fleet, device, broker-ingress, or integration work can start.
 
 ### M5 — AsterTV v4 experience design
 
-- [ ] Use the then-current accepted AsterTV design authority; do not assume the
-  recovered v3 visuals remain current.
-- [ ] Design Games page, platform rails, detail/install dialogs, focus graph,
+- [x] Use the current accepted AsterTV design authority without changing its
+  accepted tokens, asset provenance, or existing page contracts.
+- [x] Design Games page, platform rails, detail/install dialogs, focus graph,
   controller status, empty/error/loading states, save conflict behavior, and
   accessibility.
 - [ ] Define supported platform/core/controller matrix and performance budget.
+  The measured Jen performance budget is recorded; the real support matrix is
+  intentionally deferred to post-v3 integration testing.
 - [ ] Obtain visual and interaction acceptance before fleet implementation.
 
 Gate: the design candidate passes design-engineering acceptance and remains
@@ -443,7 +450,7 @@ No backup task may be declared complete until an isolated restore is proven.
 | Homepage | Optional admin-only tile after private ingress acceptance |
 | Wiki/mirror | Human wiki commit `57c475e` is deployed; accepted sanitized source hash `5418190c…`; mirror pipeline 1.5.0 verifies 1,832 entries with content hash `1efa0cd2…` and nine Aster Games entries |
 | Aster/AI admin | No active capability; future read/propose only, source-local broker, execution disabled |
-| AsterTV | No work until G3 passes; later design then fleet workflow |
+| AsterTV | Design-only candidate authorized and generated; no Kodi/client/fleet/device/integration work until G3 passes |
 | B60/Lab Hours | No dependency or competition; not applicable unless scope changes |
 | Speech | None |
 
@@ -582,10 +589,36 @@ Infrastructure completion alone is a milestone, not AsterTV v4 completion.
   fleet overlay, appliance token, remote broker ingress, or device mutation
   was created. Work is now held at G3.
 
+### 2026-11-07 — M5 design-only authorization and candidate
+
+- Jason authorized AsterTV design work before v3 while directing that
+  integration remain after v3. The durable release gate now records
+  `v4_design_work_allowed=true` and keeps `v4_client_work_allowed=false`.
+- Restored design-authority bytes matched the accepted `634c58eb` baseline
+  before editing. The candidate changes no accepted colors, geometry, motion,
+  asset provenance, or existing page contract and adds no Aster-owned raster.
+- Added a design-only Games page specification, Games page catalogue mapping,
+  eight closed remote focus graphs, and ten deterministic synthetic 1920×1080
+  review fixtures covering rest, focus, empty, offline, missing-art,
+  long-title, detail, install, request, and save-conflict states.
+- The candidate prioritizes Continue playing, Ready on this TV, Platforms,
+  Library, and conditional Requests; distinguishes Resume, Play, Install, and
+  Request; skips disabled actions; and returns focus to the exact prior item
+  when it still exists.
+- Jen's measured ceiling constrains the design to 1536 MiB total UI memory,
+  256 MiB art cache, two prefetched rows, seven visible box-art tiles, no
+  animated background, one simultaneous fade, and 1920-pixel maximum art.
+- Design tests pass 17/17, generated outputs reproduce byte-for-byte, all focus
+  graphs are closed, and the Aster Games infrastructure validator plus broker
+  tests remain green. The visual and interaction candidate still requires
+  owner acceptance. Platform/core/controller claims remain deferred until
+  real post-v3 integration testing.
+
 ## Closeout summary
 
-Server infrastructure graduated at M4. The project remains open and held at
-G3: no AsterTV client work is authorized until v3 deployment, clean fleet
-evidence, Jason's v3 owner acceptance, and explicit permission to open the v4
-client gate are recorded.
+Server infrastructure graduated at M4 and the M5 design-only candidate is ready
+for owner review. The project remains open and implementation-held at G3: no
+Kodi, client, fleet, device, broker-ingress, or integration work is authorized
+until v3 deployment, clean fleet evidence, Jason's v3 owner acceptance, and
+explicit permission to open the v4 client gate are recorded.
 

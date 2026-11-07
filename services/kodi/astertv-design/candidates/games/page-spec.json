@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "id": "games-v4-design-candidate",
+  "status": "candidate-owner-review",
+  "authority": "AsterTV Experience Design",
+  "approval_boundary": {
+    "allowed": [
+      "design authority catalogue",
+      "synthetic 1920x1080 fixtures",
+      "focus graphs",
+      "interaction and accessibility specification"
+    ],
+    "held_until_v3_acceptance": [
+      "Kodi XML or add-on source",
+      "RetroPlayer cores or controller mappings",
+      "fleet overlays or device bundles",
+      "device identities or broker ingress",
+      "live appliance installation or testing"
+    ]
+  },
+  "experience": {
+    "name": "Games",
+    "tone": "Aster-native library with restrained retro details, not neon arcade pastiche",
+    "principles": [
+      "controller-first and readable from a sofa",
+      "play state before administrative state",
+      "one primary action per game state",
+      "requests and installs explain their next step",
+      "normal media navigation remains available when the game service is offline"
+    ]
+  },
+  "layout": {
+    "canvas": [1920, 1080],
+    "safe_area": [72, 54, 1776, 972],
+    "side_rail": {"left": 62, "top": 188, "width": 82, "height": 650},
+    "top_filters": {"left": 446, "top": 58, "height": 56, "items": ["Library", "Continue", "Platforms", "Requests"]},
+    "hero": {"left": 184, "top": 164, "width": 1648, "height": 420, "text_safe_width": 760},
+    "content_rails": {"left": 184, "top": 622, "width": 1648, "tile_width": 210, "tile_height": 296, "visible_tiles": 7},
+    "artwork": {"primary_ratio": "2:3", "platform_ratio": "1:1", "missing_art": "platform monogram on charcoal-to-jade field"}
+  },
+  "rails": [
+    {"id": "continue", "label": "Continue playing", "visibility": "only when resumable items exist", "sort": "most recently played"},
+    {"id": "installed", "label": "Ready on this TV", "visibility": "only when installed items exist", "sort": "recent then alphabetical"},
+    {"id": "platforms", "label": "Browse platforms", "visibility": "always when catalogue is available", "sort": "operator-curated"},
+    {"id": "library", "label": "Your library", "visibility": "always when catalogue is available", "sort": "recently added by default"},
+    {"id": "requests", "label": "Requests", "visibility": "only when pending or completed proposals exist", "sort": "newest first"}
+  ],
+  "game_states": {
+    "installed": {"primary": "Play", "secondary": ["Manage saves", "Remove from this TV"]},
+    "resumable": {"primary": "Resume", "secondary": ["Start new", "Manage saves"]},
+    "available": {"primary": "Install", "secondary": ["Game details"]},
+    "absent": {"primary": "Request", "secondary": ["Game details"]},
+    "pending": {"primary": "Request pending", "focusable": false, "secondary": ["Game details"]},
+    "installing": {"primary": "Installing", "focusable": false, "secondary": ["Cancel install"]},
+    "unsupported": {"primary": "Not supported on this TV", "focusable": false, "secondary": ["Why?"]},
+    "offline": {"primary": "Try again", "secondary": ["Back to Home"]}
+  },
+  "dialogs": [
+    {"id": "install", "title": "Install on this TV?", "facts": ["verified source", "required space", "free space", "controller support"], "actions": ["Install", "Cancel"]},
+    {"id": "request", "title": "Request this game?", "facts": ["request becomes pending", "no automatic approval", "availability may vary"], "actions": ["Send request", "Cancel"]},
+    {"id": "save-conflict", "title": "Choose which save to keep", "facts": ["local timestamp", "server timestamp", "neither copy is deleted before confirmation"], "actions": ["Keep local", "Keep server", "Cancel"]},
+    {"id": "remove", "title": "Remove from this TV?", "facts": ["server library remains", "saves remain protected unless separately selected"], "actions": ["Remove", "Cancel"]}
+  ],
+  "states": [
+    "rest",
+    "focus",
+    "empty-library",
+    "service-offline",
+    "missing-art",
+    "long-title",
+    "installing",
+    "request-pending",
+    "save-conflict"
+  ],
+  "focus_rules": {
+    "entry": "first resumable item, otherwise first installed item, otherwise first library item, otherwise Browse platforms",
+    "return": "restore the exact game and rail when it still exists; otherwise clamp to the nearest item in that rail",
+    "horizontal": "clamped rails; no wrap",
+    "vertical": "nearest horizontal centre; remember per-rail position",
+    "first_last": "edge input stays on the edge item and never leaks to a hidden control",
+    "disabled": "disabled actions are skipped and expose a concise recoverable reason",
+    "back": "dialog to detail, detail to prior rail item, Games to Home",
+    "menu": "open the game action sheet only from a game tile; otherwise no action"
+  },
+  "accessibility": {
+    "minimum_body_px": 24,
+    "minimum_metadata_px": 20,
+    "focus_not_color_only": true,
+    "reduced_motion_ms": 0,
+    "long_title": "two lines in detail; one line with ellipsis on tiles; full title available in details",
+    "status_language": "plain language, no emulator or acquisition jargon",
+    "error_recovery": "one focused recovery action plus Back to Home"
+  },
+  "jen_performance_ceiling": {
+    "resolution": [1920, 1080],
+    "memory_budget_mib": 1536,
+    "art_cache_mib": 256,
+    "prefetch_rows": 2,
+    "max_art_dimension": 1920,
+    "visible_box_art": 7,
+    "animated_backgrounds": 0,
+    "simultaneous_fades": 1,
+    "focus_ms": 120,
+    "scroll_ms": 180
+  },
+  "synthetic_fixture_policy": {
+    "private_content": false,
+    "real_game_titles": false,
+    "account_names": false,
+    "watch_or_play_history": false,
+    "credentials": false
+  }
+}

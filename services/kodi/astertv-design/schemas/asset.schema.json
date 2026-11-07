@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://astertv.local/schemas/design/asset.schema.json",
+  "type": "object",
+  "required": ["path", "sha256", "bytes", "consumer"],
+  "properties": {
+    "path": {"type": "string", "minLength": 1},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "bytes": {"type": "integer", "minimum": 1},
+    "consumer": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

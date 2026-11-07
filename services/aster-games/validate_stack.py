@@ -58,6 +58,7 @@ def main() -> int:
 
     require(gate.get("astertv_v3_deployed") is False, "repository v3 gate must remain closed", failures)
     require(gate.get("astertv_v3_owner_accepted") is False, "owner-acceptance gate must remain closed", failures)
+    require(gate.get("v4_design_work_allowed") is True, "v4 design-only work must remain explicitly recorded", failures)
     require(gate.get("v4_client_work_allowed") is False, "v4 client work gate must remain closed", failures)
     require(not gate.get("evidence_refs"), "closed gate must not cite acceptance evidence", failures)
     require(policy.get("execution_enabled") is False, "proposal execution must remain disabled", failures)

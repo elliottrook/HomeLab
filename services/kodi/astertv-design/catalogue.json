@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "asset_repository": {
+    "authority": "private-forgejo-git-lfs",
+    "ssh_url": "git@192.168.20.30:jason/brand-assets.git",
+    "branch": "main",
+    "verified_migration_baseline": "2bdb72732f67e117da6be34da914f16f043e2dce",
+    "brand_id": "aster-home",
+    "consumer_rule": "Materialize Git LFS objects and verify the exact asset path, SHA-256 and approval record before use."
+  },
+  "asset_releases": [
+    {
+      "id": "aster-brand-v2-2026-10-14",
+      "authority": "private-forgejo-release",
+      "url": "https://git.elliottrook.com/jason/homelab/releases/tag/aster-brand-v2-2026-10-14",
+      "archive_sha256": "2c770b52cfc04cb90d49f01bec1067566e9b1e3c89fd9235a82c0e86be6bcffc",
+      "status": "accepted"
+    },
+    {
+      "id": "aster-brand-v2-expansion-2026-10-14",
+      "authority": "private-forgejo-release",
+      "url": "https://git.elliottrook.com/jason/homelab/releases/tag/aster-brand-v2-expansion-2026-10-14",
+      "archive_sha256": "e030b6104fbdffb44faf035471f8c55320c3869065046a1ff5f9f0433069c48e",
+      "status": "accepted"
+    }
+  ],
+  "semantic_assets": [
+    {
+      "id": "astertv-primary-logo-r5",
+      "repository_path": "brands/aster-home/working/2026-11-04-approved-r5/SVG/32-aster-tv-logo.svg",
+      "master_sha256": "747aab438334afc9b1e2a0dafa8608bd8b8d4aa5ed29af5697f22972b714d2e8",
+      "approval_record": "brands/aster-home/working/2026-11-04-approved-r5/APPROVAL.md",
+      "status": "owner-approved-project-master",
+      "runtime_exports": [
+        {"path": "services/kodi/astertv-v3/brand_assets/astertv-splash-1920x1080.png", "sha256": "3658771b8ab771591839713cd497cc79a5a781d67463145fe2f23c3d541d4626", "derived_from_svg_sha256": "747aab438334afc9b1e2a0dafa8608bd8b8d4aa5ed29af5697f22972b714d2e8", "placement": "Kodi startup splash 1920x1080", "dimensions": [1920, 1080], "export_recipe": "render_tv_splash.swift draws the exact approved SVG on the fixed #1d241f placement canvas", "runtime_resize_allowed": false}
+      ],
+      "promotion_note": "Aster Home has no global current_release; consume only under this exact project approval."
+    },
+    {
+      "id": "astertv-remote-launcher-reconstruction",
+      "repository_path": "brands/aster-home/working/2026-11-05-aster-tv-remote-svg/SVG/AsterTV-Remote.svg",
+      "master_sha256": "7effb1ffe3ba828de63059235c976f26e0d7fb869e0856d0fb52cea86a775ada",
+      "approval_record": "brands/aster-home/working/2026-11-05-aster-tv-remote-svg/PROJECT_STATE.md",
+      "consumer_approval_record": "docs/projects/evidence/AsterTV-v3-brand-asset-deployment-2026-11-06.md",
+      "status": "owner-accepted-launcher-placement",
+      "runtime_exports": [
+        {"path": "services/aster-agent/static/remote/astertv-remote-180.png", "sha256": "36eb73e019be374fbf4cb2fdf2e16de14b30e0dc470cbc5b19fae63bc4ba8379", "derived_from_svg_sha256": "7effb1ffe3ba828de63059235c976f26e0d7fb869e0856d0fb52cea86a775ada", "placement": "Aster Remote Apple touch icon 180x180", "dimensions": [180, 180], "export_recipe": "sips direct approved-SVG export at 180x180", "runtime_resize_allowed": false},
+        {"path": "services/aster-agent/static/remote/astertv-remote-512.png", "sha256": "07880f3fb4e791b6383cabfe3c77a5218c184e84073c8cb89037e9b9c5a16074", "derived_from_svg_sha256": "7effb1ffe3ba828de63059235c976f26e0d7fb869e0856d0fb52cea86a775ada", "placement": "Aster Remote PWA manifest icon 512x512", "dimensions": [512, 512], "export_recipe": "sips direct approved-SVG export at 512x512", "runtime_resize_allowed": false}
+      ],
+      "allowed_contexts": ["launcher", "app-icon-review"],
+      "forbidden_contexts": ["in-app-control", "top-rail", "pill"],
+      "promotion_note": "Owner directed deployment on 2026-11-06; accepted only for the Aster Remote launcher/app-icon placements."
+    },
+    {
+      "id": "plain-compass",
+      "release": "aster-brand-v2-2026-10-14",
+      "master": "SVG/15-aster-compass.svg",
+      "master_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9",
+      "runtime_exports": [
+        {"path": "PNG/32/15-aster-compass.png", "sha256": "ebd08d8a6224120a0a8b873e1f469572578fe8167089d2baaa1d70f338642030", "derived_from_svg_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9", "placement": "32px-icon", "dimensions": [32, 32], "export_recipe": "render-approved-svg-at-32x32", "runtime_resize_allowed": false},
+        {"path": "PNG/64/15-aster-compass.png", "sha256": "ed358ae6370ed90a90e02e58ba4bcc3b787eec9b9798485c9909895868a51ad8", "derived_from_svg_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9", "placement": "64px-icon", "dimensions": [64, 64], "export_recipe": "render-approved-svg-at-64x64", "runtime_resize_allowed": false},
+        {"path": "PNG/128/15-aster-compass.png", "sha256": "6b8788ade5bcc3447d93f497a296e55354e15a4dd9a403b22268c907c0f67ddf", "derived_from_svg_sha256": "01a9cc26c8b9ff19f9db3a2441ad0cf2ed87c08c929824e5882eda190c899fe9", "placement": "128px-icon", "dimensions": [128, 128], "export_recipe": "render-approved-svg-at-128x128", "runtime_resize_allowed": false}
+      ],
+      "legacy_exports": [
+        {"path": "WebP/15-aster-compass.webp", "sha256": "04d997da316c423da4a442ef75841e37531e6502d951bf3852327c5d8873b913", "status": "frozen-pre-policy", "runtime_resize_allowed": false}
+      ],
+      "allowed_contexts": ["top-rail", "pill", "player-control", "dialog", "remote"],
+      "forbidden_contexts": ["floating-side-rail", "launcher"],
+      "verified_read_only": "Forgejo LXC 108 release attachment, 2026-11-05"
+    }
+  ],
+  "components": [
+    {"id":"identity","states":["light","dark","small","forbidden-context"],"variants":["logo","plain-compass","stone-compass"]},
+    {"id":"background","states":["image","no-image","text-safe","low-resolution"],"variants":["media","music","books","news","ai"]},
+    {"id":"top-rail","states":["rest","focus","current","disabled","first","last"],"variants":["search","category","clock"]},
+    {"id":"side-rail","states":["collapsed","focus","current","expanded","first","last"],"variants":["stone-only"]},
+    {"id":"artwork-tile","states":["rest","focus","current","watched","unwatched","missing-art","error","long-title"],"variants":["poster","square","cast","landscape"]},
+    {"id":"button","states":["rest","focus","pressed","disabled","busy","confirm","destructive","recovery"],"variants":["text","icon","icon-label"]},
+    {"id":"player-control","states":["rest","focus","pressed","unavailable"],"variants":["play","resume","trailer","pause","stop","queue","skip"]},
+    {"id":"dialog","states":["rest","focus","busy","offline","error"],"variants":["resume","skip","working","confirmation","ai-command","ai-search"]},
+    {"id":"content-rail","states":["rest","focus","long-scroll","empty","dependency-unavailable"],"variants":["cast","related","seasons","episodes","tracks","articles","search"]}
+  ],
+  "pages": [
+    {"id":"media","family":"Media","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/Home.xml"},
+    {"id":"music","family":"Music","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/IncludesMusic.xml"},
+    {"id":"books","family":"Books","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/custom_1110_books.xml"},
+    {"id":"games","family":"Games","status":"candidate","design_spec":"services/kodi/astertv-design/candidates/games/page-spec.json"},
+    {"id":"settings","family":"Settings","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/Home.xml"},
+    {"id":"youtube","family":"YouTube","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1191_youtube_rework.xml"},
+    {"id":"movie","family":"Movie","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1194_movie_rework.xml"},
+    {"id":"person-library","family":"Search","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1195_person_library.xml"},
+    {"id":"tv","family":"TV","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1196_tv_rework.xml"},
+    {"id":"aster-ai-search","family":"Search","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1197_aster_ai.xml"},
+    {"id":"news","family":"News","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1198_news_rework.xml"},
+    {"id":"news-player","family":"News","status":"candidate-v3-review","template":"services/kodi/astertv-v3/news_player/resources/skins/Default/1080i/DigestPlayer.xml"},
+    {"id":"podcast-requests","family":"Requests","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1199_podcast_requests.xml"},
+    {"id":"home","family":"Home","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1200_home_rework.xml"},
+    {"id":"cameras","family":"Cameras","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1201_cameras_rework.xml"},
+    {"id":"aster-ai-keyword","family":"Search","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1202_aster_ai_keyword.xml"},
+    {"id":"aster-ai-command","family":"Search","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1203_aster_ai_command.xml"}
+  ],
+  "required_page_families": ["Media","TV","Movie","Music","Books","Games","News","YouTube","Requests","Home","Cameras","Search","Settings"],
+  "privacy": {"synthetic_only": true, "forbidden": ["camera-frame","account-name","watch-history","credential","private-title-history"]}
+}

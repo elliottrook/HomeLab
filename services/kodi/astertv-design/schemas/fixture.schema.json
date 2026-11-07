@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://astertv.local/schemas/design/fixture.schema.json",
+  "type": "object",
+  "required": ["id", "component", "variant", "state", "synthetic"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]+$"},
+    "component": {"type": "string", "minLength": 1},
+    "variant": {"type": "string", "minLength": 1},
+    "state": {"type": "string", "minLength": 1},
+    "synthetic": {"const": true}
+  },
+  "additionalProperties": false
+}

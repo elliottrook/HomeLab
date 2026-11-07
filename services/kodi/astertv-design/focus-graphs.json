@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "graphs": [
+    {
+      "page": "movie",
+      "entry": "play",
+      "back": "media-return",
+      "scroll": "horizontal-clamped",
+      "nodes": {
+        "play":{"left":"media-return","right":"resume","down":"cast"},
+        "resume":{"left":"play","right":"trailer","down":"cast"},
+        "trailer":{"left":"resume","right":"media-return","down":"related"},
+        "media-return":{"left":"trailer","right":"play","down":"cast"},
+        "cast":{"up":"play","right":"related","down":"related"},
+        "related":{"up":"trailer","left":"cast","down":"cast"}
+      }
+    },
+    {
+      "page": "tv",
+      "entry": "episode-list",
+      "back": "series-return",
+      "scroll": "season-window-eight-rows",
+      "nodes": {
+        "play":{"left":"series-return","right":"trailer","down":"cast"},
+        "trailer":{"left":"play","right":"season-list","down":"related"},
+        "series-return":{"right":"play","down":"cast"},
+        "cast":{"up":"play","right":"season-list","down":"related"},
+        "related":{"up":"cast","right":"season-list","down":"cast"},
+        "season-list":{"left":"cast","right":"episode-list","up":"season-list","down":"season-list"},
+        "episode-list":{"left":"season-list","right":"episode-list","up":"episode-list","down":"episode-list"}
+      }
+    },
+    {
+      "page": "youtube",
+      "entry": "search",
+      "back": "previous-youtube-view",
+      "scroll": "rail-clamped",
+      "nodes": {
+        "search":{"right":"subscriptions","down":"hero"},
+        "subscriptions":{"left":"search","right":"watch-later","down":"hero"},
+        "watch-later":{"left":"subscriptions","right":"recommendations","down":"hero"},
+        "recommendations":{"left":"watch-later","down":"hero"},
+        "hero":{"up":"search","down":"content-rail"},
+        "content-rail":{"up":"hero","left":"content-rail","right":"content-rail"}
+      }
+    },
+    {
+      "page": "aster-ai-command",
+      "entry": "dismiss",
+      "back": "underlying-page",
+      "scroll": "none",
+      "nodes": {"dismiss":{"left":"dismiss","right":"dismiss","up":"dismiss","down":"dismiss"}}
+    },
+    {
+      "page": "news-player",
+      "entry": "play-pause",
+      "back": "news-return",
+      "scroll": "active-story-follow",
+      "nodes": {
+        "news-return":{"left":"story-list","right":"play-pause","down":"story-list"},
+        "previous":{"left":"story-list","right":"play-pause","up":"news-return","down":"story-list"},
+        "play-pause":{"left":"previous","right":"next","up":"news-return","down":"story-list"},
+        "next":{"left":"play-pause","right":"stop","up":"news-return","down":"story-list"},
+        "stop":{"left":"next","right":"story-list","up":"news-return","down":"story-list"},
+        "story-list":{"left":"play-pause","right":"news-return","up":"news-return","down":"story-list"}
+      }
+    },
+    {
+      "page": "games",
+      "entry": "continue-rail",
+      "back": "home-return",
+      "scroll": "horizontal-clamped; vertical-nearest-centre; remember-position-per-rail",
+      "nodes": {
+        "home-return":{"left":"requests-filter","right":"library-filter","up":"home-return","down":"continue-rail"},
+        "library-filter":{"left":"home-return","right":"continue-filter","up":"library-filter","down":"hero-primary"},
+        "continue-filter":{"left":"library-filter","right":"platforms-filter","up":"continue-filter","down":"hero-primary"},
+        "platforms-filter":{"left":"continue-filter","right":"requests-filter","up":"platforms-filter","down":"hero-details"},
+        "requests-filter":{"left":"platforms-filter","right":"home-return","up":"requests-filter","down":"hero-details"},
+        "hero-primary":{"left":"home-return","right":"hero-details","up":"library-filter","down":"continue-rail"},
+        "hero-details":{"left":"hero-primary","right":"home-return","up":"platforms-filter","down":"continue-rail"},
+        "continue-rail":{"left":"continue-rail","right":"continue-rail","up":"hero-primary","down":"installed-rail"},
+        "installed-rail":{"left":"installed-rail","right":"installed-rail","up":"continue-rail","down":"platforms-rail"},
+        "platforms-rail":{"left":"platforms-rail","right":"platforms-rail","up":"installed-rail","down":"library-rail"},
+        "library-rail":{"left":"library-rail","right":"library-rail","up":"platforms-rail","down":"requests-rail"},
+        "requests-rail":{"left":"requests-rail","right":"requests-rail","up":"library-rail","down":"requests-rail"}
+      }
+    },
+    {
+      "page": "game-detail-installed",
+      "entry": "play",
+      "back": "games-return",
+      "scroll": "metadata-vertical-clamped",
+      "nodes": {
+        "games-return":{"left":"remove","right":"play","up":"games-return","down":"metadata"},
+        "play":{"left":"games-return","right":"new-game","up":"play","down":"metadata"},
+        "new-game":{"left":"play","right":"manage-saves","up":"new-game","down":"metadata"},
+        "manage-saves":{"left":"new-game","right":"remove","up":"manage-saves","down":"metadata"},
+        "remove":{"left":"manage-saves","right":"games-return","up":"remove","down":"metadata"},
+        "metadata":{"left":"metadata","right":"metadata","up":"play","down":"metadata"}
+      }
+    },
+    {
+      "page": "game-detail-available",
+      "entry": "install",
+      "back": "games-return",
+      "scroll": "metadata-vertical-clamped",
+      "nodes": {
+        "games-return":{"left":"details","right":"install","up":"games-return","down":"metadata"},
+        "install":{"left":"games-return","right":"details","up":"install","down":"metadata"},
+        "details":{"left":"install","right":"games-return","up":"details","down":"metadata"},
+        "metadata":{"left":"metadata","right":"metadata","up":"install","down":"metadata"}
+      }
+    },
+    {
+      "page": "game-detail-absent",
+      "entry": "request",
+      "back": "games-return",
+      "scroll": "metadata-vertical-clamped",
+      "nodes": {
+        "games-return":{"left":"details","right":"request","up":"games-return","down":"metadata"},
+        "request":{"left":"games-return","right":"details","up":"request","down":"metadata"},
+        "details":{"left":"request","right":"games-return","up":"details","down":"metadata"},
+        "metadata":{"left":"metadata","right":"metadata","up":"request","down":"metadata"}
+      }
+    },
+    {
+      "page": "game-install-dialog",
+      "entry": "confirm-install",
+      "back": "cancel",
+      "scroll": "none",
+      "nodes": {
+        "confirm-install":{"left":"cancel","right":"cancel","up":"confirm-install","down":"confirm-install"},
+        "cancel":{"left":"confirm-install","right":"confirm-install","up":"cancel","down":"cancel"}
+      }
+    },
+    {
+      "page": "game-request-dialog",
+      "entry": "submit-request",
+      "back": "cancel",
+      "scroll": "none",
+      "nodes": {
+        "submit-request":{"left":"cancel","right":"cancel","up":"submit-request","down":"submit-request"},
+        "cancel":{"left":"submit-request","right":"submit-request","up":"cancel","down":"cancel"}
+      }
+    },
+    {
+      "page": "game-save-conflict-dialog",
+      "entry": "cancel",
+      "back": "cancel",
+      "scroll": "none",
+      "nodes": {
+        "keep-local":{"left":"cancel","right":"keep-server","up":"keep-local","down":"keep-local"},
+        "keep-server":{"left":"keep-local","right":"cancel","up":"keep-server","down":"keep-server"},
+        "cancel":{"left":"keep-server","right":"keep-local","up":"cancel","down":"cancel"}
+      }
+    },
+    {
+      "page": "games-offline",
+      "entry": "try-again",
+      "back": "home-return",
+      "scroll": "none",
+      "nodes": {
+        "try-again":{"left":"home-return","right":"home-return","up":"try-again","down":"try-again"},
+        "home-return":{"left":"try-again","right":"try-again","up":"home-return","down":"home-return"}
+      }
+    }
+  ]
+}
