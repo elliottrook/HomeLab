@@ -58,6 +58,29 @@ The integrated local validator at `ca9eb961…609ef` reports
 The only integrated external gate still open is the non-author physical
 walkthrough.
 
+Two fresh release-plan builds from the same checkout also produced byte-for-
+byte identical 17-file output trees with tree digest
+`eafb0ee6…ac9ce`. The four bundle hashes remain exactly those in the immutable
+candidate:
+
+- Bedroom `212ab281…8f7437`;
+- Family `5eb17b3f…1efeed`;
+- Jen `45ba989d…9da5f`; and
+- non-deployable Guest `4d79b20a…201e0`.
+
+## Silent client snapshot
+
+A final content-free query found exact hostnames on Bedroom, Family and Jen.
+Every client had:
+
+- zero active players;
+- active Kodi with zero restart count;
+- the accepted release guard at `Result=success` / `ExecMainStatus=0`; and
+- active Beszel with zero restart count.
+
+This snapshot did not open a page, content item, camera or player and did not
+send an AV/equipment action.
+
 ## Deliberately open
 
 The committed composition observations are now more than 24 hours old, so the
