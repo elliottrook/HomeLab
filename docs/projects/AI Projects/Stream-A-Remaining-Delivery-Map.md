@@ -2346,6 +2346,14 @@ the usable control direction; Proxmox cannot currently authenticate to the
 MacBook, so no new access was assumed. The coordinator, private listener and
 booked effect remain uninstalled and conditional on the development pass.
 
+The resulting [sealed-transaction preregistration](evidence/M3-K2-sealed-transaction-preregistration-2026-11-06.md)
+binds ten exact runtime pins, both already-present MacBook private inputs, the
+loopback tunnel graph, 32-request budget and complete teardown proof under
+canonical digest
+`9485b276e3fac0eb16854209c74b3d4723719f094595801a5128bcd1d437d772`.
+It refuses effect unless tonight's development transaction is a restored pass;
+no booking, workload registration, tunnel or deployment was created.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from
