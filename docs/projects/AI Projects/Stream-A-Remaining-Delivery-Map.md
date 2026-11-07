@@ -2347,13 +2347,13 @@ MacBook, so no new access was assumed. The coordinator, private listener and
 booked effect remain uninstalled and conditional on the development pass.
 
 The resulting [sealed-transaction preregistration](evidence/M3-K2-sealed-transaction-preregistration-2026-11-06.md)
-binds eleven exact runtime pins, both already-present MacBook private inputs, the
+binds twelve exact runtime pins, both already-present MacBook private inputs, the
 loopback tunnel graph, 32-request budget and complete teardown proof under
 canonical digest
-`66ea288e456d4cef6e0143c882a5b647a9fab7170f0ef0e3bd6b1952463ff7cc`.
+`4e7754585aeeef597c66eb2d3f2c6bf673f140f35c2f06d1856274429580adb1`.
 It refuses effect unless tonight's development transaction is a restored pass;
 no booking, workload registration, tunnel or deployment was created. Platform
-commits `ae4585e2` and `eeeb7b9a` independently freeze and refresh the
+commits `ae4585e2`, `eeeb7b9a` and `1a0f48da` independently freeze and refresh the
 content-free ready-session and
 terminal contracts: nonce hashes, booking/lease generation and exact deadline
 on entry; production restored, lease ready, locks absent and every temporary
@@ -2365,6 +2365,14 @@ standard input, validates nine local runtime pins and both exact private
 inputs, runs each child once, retains mode-0600 evidence and removes the nonce
 on every exit. It has no network address or SSH client and was tested only with
 temporary synthetic fixtures.
+
+The [Mac mini coordinator boundary](evidence/M3-K2-sealed-coordinator-boundary-2026-11-06.md)
+now binds those components into one content-free control path. Both exact
+loopback SSH tunnel directions passed harmless live probes and were confirmed
+closed afterward. The coordinator accepts only the current session and nonce
+digests, sends the relay nonce to the MacBook wrapper on standard input, and
+requires matching 32-request wrapper and relay terminals before cleanup. No
+private listener or B60 effect was started.
 
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
