@@ -39,10 +39,13 @@ promotion remain off.
 1. **M3 successor gate:** design a materially distinct candidate from public
    and development evidence. K3 will add an independent hierarchical
    route-eligibility, ambiguity and sensitivity veto before label acceptance;
-   its first source and preregistration boundary now passes 11/11 focused
-   tests. The remaining offline gate is its fixed development runner/scorer
-   composition and content-free result contract. It must meet the existing
-   coverage/privacy/safety boundaries before any new effect is proposed.
+   its source, preregistration and content-free scorer boundaries now pass
+   16/16 focused tests. The scorer independently recomputes decisions from raw
+   arbitration plus safety verdict records and cannot trust retained acceptance
+   fields. The remaining offline gate is its one-attempt development runner
+   composition and durable evidence/recovery contract. It must meet the
+   existing coverage/privacy/safety boundaries before any new effect is
+   proposed.
 2. **M3 sealed qualification:** only if a future frozen development gate passes,
    admit the existing independently sealed 32-case evaluation through its
    accepted custody/disjointness proofs. The content-free scorer and its
