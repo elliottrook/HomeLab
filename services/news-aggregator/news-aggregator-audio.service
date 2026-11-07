@@ -1,0 +1,12 @@
+[Unit]
+Description=News Aggregator - Mac-backed audio narration
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/news-aggregator
+EnvironmentFile=/etc/news-aggregator/aster-voice.env
+ExecStart=/opt/news-aggregator/venv-kokoro/bin/python /opt/news-aggregator/audio_digest.py
+TimeoutStartSec=infinity
