@@ -1,0 +1,39 @@
+{
+  "checked": [
+    "Candidate/clientfenced; onlyother14consumersisolated",
+    "Private110files/artifacts+ACTIVEprocessbinding+GET/soleacceptedholder/kernel provenbeforeandafterotherconsumerfence",
+    "PIDandExecMainStartMonotonic unchanged; originalONEstartlatchactiveidempotent; unknownfailedinactiveintent failclosed",
+    "Strictverifywait propagatesactual<=45secondstopdeadline",
+    "Admissionkernel spansoriginalincidentcutoff1794002064 throughnow; noagingoutnewfaults",
+    "Qualificationactualnativeownerexit86/PID0/tasks0 andpostreleasebackendstartidentity required",
+    "No generation/candidate/download/driver/globalpackageaction; sourcebase30 unchanged",
+    "Coverageexplicitafterfirsthealthyacceptedrestart; notallcrashwindows"
+  ],
+  "no_gpu_model_calls": true,
+  "no_live_effects": true,
+  "observed_epoch": 1794015935,
+  "schema": "b60-independent-r6-entry-preservation-source-review.v1",
+  "source_sha256": {
+    "backup_chain_history.py": "e4855ddad214505751d105c03d5cd57083e50bda889217754065ece3419ff34f",
+    "entry_recovery.py": "6af8b2aa87de4f46cbfcb4d228dfb8cd1e30548eb3e14b5175b4e53c93c22789",
+    "fixed_command.py": "16a74cf21a53a5c9ec7e5bec3fe9eeb1dc58e37da0f31fb25e038f7f4d9a388c",
+    "guest_entry_scope.py": "d7e0b97f813d32fe9983fcefa2611134f2308a2c43597068469ede4ea6e19f60",
+    "qualification.py": "aea25a5290da298b64695b6ff32635e790091eaff83c1913eb2b6db66e67e5c8"
+  },
+  "stage": "offline-source-only",
+  "tests": {
+    "additional_independent_actual_helper_paths_passed": 8,
+    "additional_paths": [
+      "healthybackendpreservedwithoutstop/start",
+      "inactivebackendrefused",
+      "artifactmismatchrefused",
+      "healthfailurerefused",
+      "kernelhazardrefused",
+      "extraGPUholderrefused",
+      "PIDchangerefused",
+      "startidentitychangerefused"
+    ],
+    "repository_meaningful_preservation_tests_passed": 7
+  },
+  "verdict": "PASS narrow helper/controlpath review; exact installer and final actual readiness stillrequired"
+}

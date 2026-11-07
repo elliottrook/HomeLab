@@ -1,0 +1,18 @@
+{
+  "schema": "b60-capture-result-interpretation.v1",
+  "booking_id": "b60-exclusive-20261106-day-r4",
+  "purpose": "Evaluate deployed failure capture and unchanged reasoning-on 35B compatibility diagnostic",
+  "frozen_before_execution": true,
+  "not_a_quality_or_latency_acceptance_contract": true,
+  "actual_result": null,
+  "required_evidence": ["actual candidate residency and full layer offload", "durable bounded model-result packet before failed trial state when requests fail", "request finish reasons and measured elapsed times", "independent guardian and released session", "all five restored checkpoints and scheduled work", "empty client and candidate scopes", "clean kernel evidence through restoration"],
+  "interpretation": {
+    "returned_unscored": "A complete response was returned; grounded correctness remains unscored except the fixed arithmetic predicate.",
+    "token_limit": "No complete usable answer; elapsed time is not accepted usable-answer latency.",
+    "timeout_or_transport_failure": "Incomplete response; retain the actual attempt and failure without inferring a latency win.",
+    "failed_restored": "Negative trial result with restoration; inspect the retained packet and exact failure rather than treating safe restoration as model success.",
+    "new_device_or_oom_hazard": "Stop experimentation and preserve incident evidence; no blind GPU retry."
+  },
+  "unchanged_parameters": ["model SHA671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7", "accepted SYCL binary", "two fixed public requests", "reasoning enabled", "1024 output-token limit", "60-second request deadline", "no request retry"],
+  "milestone_limit": "Two compatibility requests cannot establish improved grounded capability or fresh accepted 9B p50/p95 parity; no tuning or promotion is authorized by a complete packet alone."
+}

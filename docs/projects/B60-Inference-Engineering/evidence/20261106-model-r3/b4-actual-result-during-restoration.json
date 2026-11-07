@@ -1,0 +1,126 @@
+{
+  "booking": {
+    "claimant": "b60-d2dab79dc2fe767432bd",
+    "claimed_epoch": 1794013991,
+    "entry_sha256": "7fd1b3ce750f5da4cad530f941aad66fe65066172eaac3105e8fa47ead41a757",
+    "finished_epoch": null,
+    "result_code": null,
+    "state": "claimed",
+    "workload": "b60-qwen36-35b-failure-capture-v1"
+  },
+  "booking_id": "b60-exclusive-20261106-day-r4",
+  "claimed_bookings": [
+    {
+      "booking_id": "b60-exclusive-20261106-day-r4",
+      "claimant": "b60-d2dab79dc2fe767432bd",
+      "end_epoch": 1794016500,
+      "owner": "b60-stream-a",
+      "start_epoch": 1794013800
+    }
+  ],
+  "epoch": 1794014374,
+  "guardian": {
+    "exit_code": 0,
+    "properties": {
+      "ActiveState": "active",
+      "LoadState": "loaded",
+      "MainPID": "2465963",
+      "TasksCurrent": "2"
+    }
+  },
+  "markers": {
+    "full-inference-drain.json": false,
+    "full-inference-drain.lock": false,
+    "lease.json": false,
+    "lease.lock": true
+  },
+  "model-failure.json": {
+    "failure_code": "MODEL_REQUEST_FAILED",
+    "failure_type": "RuntimeError",
+    "observed_epoch": 1794014125,
+    "sha256": "164ff86bba33ef21212ca2532a636a83ba280c0ed430749084338e252921779c"
+  },
+  "model-owner-failure.json": {
+    "failure_code": "UNCLASSIFIED",
+    "failure_type": "SessionError",
+    "observed_epoch": 1794014314,
+    "sha256": "f32304ed9027133ffae34f7b496a17809f6b47f9463251acaa1bceddabc7084d"
+  },
+  "model-residency.json": {
+    "all_layers_offloaded": true,
+    "gtt_resident_kib": 65512,
+    "offloaded_layers": 41,
+    "process_rss_kib": 725624,
+    "reasoning_mode_flag": "on",
+    "sha256": "69783894e1b7fe0a4125bfc81c0cc5dcc13069709f154b48477eb362649d20c6",
+    "vram_resident_kib": 20065232
+  },
+  "model-result.json": {
+    "attempted_requests": 2,
+    "planned_requests": 2,
+    "records": [
+      {
+        "answer_sha256": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
+        "arithmetic_exact": true,
+        "completion_tokens": 514,
+        "elapsed_ms": 11333,
+        "final_chars": 2,
+        "finish_reason": "stop",
+        "http_status": 200,
+        "outcome": "returned_unscored",
+        "prompt_tokens": 32,
+        "reasoning_chars": 1761,
+        "reasoning_tokens": null,
+        "request": 1,
+        "response_bytes": 2534,
+        "transport_called": true
+      },
+      {
+        "answer_sha256": null,
+        "arithmetic_exact": null,
+        "completion_tokens": 1024,
+        "elapsed_ms": 18711,
+        "final_chars": 0,
+        "finish_reason": "length",
+        "http_status": 200,
+        "outcome": "token_limit",
+        "prompt_tokens": 47,
+        "reasoning_chars": 4591,
+        "reasoning_tokens": null,
+        "request": 2,
+        "response_bytes": 5396,
+        "transport_called": true
+      }
+    ],
+    "retries": 0,
+    "sha256": "fa4d32085cbd1cca2a2b5208ee7c1cf3e441e06d0030844a576fb8796a57a57e",
+    "state": "failed"
+  },
+  "model-start-intent.json": {
+    "reasoning_enabled": true,
+    "request_timeout_seconds": 60,
+    "requests": 2,
+    "retries": 0,
+    "sha256": "6438b3e060048544b691f6bc7854720bb4391ad323cf64a520c36c1d13dac675"
+  },
+  "operation_marker": true,
+  "owner": {
+    "exit_code": 0,
+    "properties": {
+      "ActiveState": "failed",
+      "LoadState": "loaded",
+      "MainPID": "0",
+      "TasksCurrent": "[not set]"
+    }
+  },
+  "session.json": {
+    "deadline_missed": null,
+    "manual_assistance_required": null,
+    "phase": "restoring",
+    "production_restored": false,
+    "restore_deadline": 1794016500,
+    "sha256": "7f9ee09049c99c9251b857d037d033c58bad2f42634272566bc44aa43175851f",
+    "trial_deadline": 1794015001,
+    "trial_failed": true
+  }
+}

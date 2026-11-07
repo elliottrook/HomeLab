@@ -1,0 +1,39 @@
+{
+  "schema": "b60-independent-b4-assisted-recovery-preflight.v1",
+  "preflight": {
+    "accepted_hashes": [
+      "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3  /etc/systemd/system/aster-llama.service",
+      "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5  /opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server",
+      "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13  /opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"
+    ],
+    "accepted_unit_state": {
+      "ActiveState": "inactive",
+      "ExecMainCode": "1",
+      "ExecMainExitTimestamp": "Sat 2026-11-07 01:19:31 UTC",
+      "ExecMainStartTimestamp": "Sat 2026-11-07 01:17:07 UTC",
+      "ExecMainStatus": "0",
+      "MainPID": "0",
+      "Result": "success",
+      "SubState": "dead",
+      "TasksCurrent": "[not set]"
+    },
+    "gpu_holder_count": 0,
+    "kernel_since_epoch": 1794014057,
+    "new_hazard_events": [],
+    "observed_epoch": 1794014741,
+    "read_only": true
+  },
+  "guardian_error_metadata": {
+    "observed_epoch": 1794014781,
+    "guardian_sanitized_error_records": [
+      {
+        "epoch_microseconds": 1794014423628852,
+        "state": "no_go",
+        "failure_type": "RuntimeError"
+      }
+    ]
+  },
+  "diagnostic_artifact_sha256": "f1a3fe45f66663d4d5fda369673a6c945ac069b40815899745e64cbcd58c0124",
+  "assessment": "Fresh nohazard/zeroGPUholders/exactacceptedhashes/cleancontrolledstop support only separately reviewed one-time assisted restoration under retained exactB4binding; no model trial retry or generic GPU restart permission.",
+  "no_live_effects": true
+}

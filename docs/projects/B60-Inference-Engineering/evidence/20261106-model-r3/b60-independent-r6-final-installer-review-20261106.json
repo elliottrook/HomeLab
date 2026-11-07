@@ -1,0 +1,41 @@
+{
+  "checks": [
+    "NewR6actualgeneratedearlybranchimportsNEWcorrectbridge;old35Brouteunchanged;ASTtestexecutesbothfakepaths",
+    "All5effect+4globalpayloadhashes/syntax match",
+    "All58existingglobalpins preserved;59thR6bridgeadded",
+    "Onlyfreshprep-v2terminalcomplete/newscan withcurrentreceiptverifier; actualcompletionnotprojected",
+    "Full19:00\u201319:45window excludesownB6only; claims/scopes/markers/source30/clocktime guards",
+    "Fresh5plans/116ownwrapper/profile600/protectedcard/authority/newpurposefixed1faultcycle",
+    "No modelgeneration/candidate/driver/scheduleeffects; fixed19:00clockinstalledDISABLED",
+    "Armerrechecksproofs/closure/freshwholekernelinterval/exactreview andnumericNext/Last"
+  ],
+  "global_candidate": {
+    "b60_entry_rescue_card_bridge.py": "b4b098034c9e91d38b9549390cef28dca23e1ff039ca01ef160b0ad493cccd55",
+    "lab_hours_release_manifest.json": "309866e465d06e94189b5726ba29dd4d700dfe5ea05ceffd4b4f4e09a7a192be",
+    "lab_hours_reserved_runner.py": "1ee5e9a81ec3c921980552f80fedcfeedc61460bb59c1c2bf4cb3d9699fc2cbe",
+    "lab_hours_workloads.py": "d09cafd428167bd71fa4861f791ca5f44742c988e447c69a33238e90af53f258"
+  },
+  "global_predecessors": {
+    "lab_hours_release_manifest.json": "b1f6b069d7d23e99953fca9a19a2e054b58cc465bb357321826efe3cf53bb231",
+    "lab_hours_reserved_runner.py": "7afeb3525cab42531de483678f2bc1090e7e7d922ab0a8a6f57c9067da6b2421",
+    "lab_hours_workloads.py": "5a284b4ce07e423b272980fa525c82d5cce44881d7aad3fb1489c95b7f023a68"
+  },
+  "installer_sha256": "21621e8a0cadb1319625ec2d6591763a6c13e413ae2fedaf4187e0904aeb0d7c",
+  "no_live_effects": true,
+  "observed_epoch": 1794016337,
+  "residual": "Ifactualscan/install/finalauditmiss18:58lead,neverarmexpiredclock; preserve/cancelunclaimedcapacityandselectnewauthoritativeclearwindow",
+  "schema": "b60-independent-r6-final-installer-review.v1",
+  "source_sha256": {
+    "backup_chain_history.py": "e4855ddad214505751d105c03d5cd57083e50bda889217754065ece3419ff34f",
+    "entry_recovery.py": "6af8b2aa87de4f46cbfcb4d228dfb8cd1e30548eb3e14b5175b4e53c93c22789",
+    "fixed_command.py": "16a74cf21a53a5c9ec7e5bec3fe9eeb1dc58e37da0f31fb25e038f7f4d9a388c",
+    "guest_entry_scope.py": "d7e0b97f813d32fe9983fcefa2611134f2308a2c43597068469ede4ea6e19f60",
+    "qualification.py": "aea25a5290da298b64695b6ff32635e790091eaff83c1913eb2b6db66e67e5c8"
+  },
+  "tests": {
+    "actual_generatedroute_test_new_and_old": 1,
+    "additional_independent_helper_paths": 8,
+    "repository_preservation_tests": 7
+  },
+  "verdict": "GO inactiveinstallationONLY afteractualfreshprep-v2complete andalllivegates; finalinstalledreadinessbeforearming"
+}

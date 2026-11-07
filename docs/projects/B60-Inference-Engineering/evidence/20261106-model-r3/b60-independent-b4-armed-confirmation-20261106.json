@@ -1,0 +1,59 @@
+{
+  "LastTriggerUSec": 0,
+  "NextElapseUSecRealtime": 1794013800000000,
+  "active_scopes": [],
+  "actual_model_trial_complete": false,
+  "arming_receipt_sha": "8d9960bb882b994cfe0f43d9c5528c6c40b66209105355246e063067bf46f8d6",
+  "booking": {
+    "booking_id": "b60-exclusive-20261106-day-r4",
+    "created_epoch": 1794004844,
+    "end_epoch": 1794016500,
+    "kind": "exclusive-stack",
+    "owner": "b60-stream-a",
+    "restore_buffer_seconds": 900,
+    "schema": "aster-lab-hours-reservation.v1",
+    "start_epoch": 1794013800,
+    "state": "reserved",
+    "workload": "b60-qwen36-35b-failure-capture-v1"
+  },
+  "card_sha": "7172b00f8e9117c583b2c049ad86f9314ffaa3ca0451eb5b1e214af3fbf15fbe",
+  "global_manifest_sha": "b1f6b069d7d23e99953fca9a19a2e054b58cc465bb357321826efe3cf53bb231",
+  "independent_review_sha": "d0cb5fec231a77ebaeb5dc0b639633801d009bb4f4462955cfd7ed857e203f5b",
+  "launcher": {
+    "ActiveState": "inactive",
+    "MainPID": "0"
+  },
+  "markers": {
+    "full-inference-drain.json": false,
+    "full-inference-drain.lock": false,
+    "lease.json": false,
+    "lease.lock": false
+  },
+  "no_live_mutation": true,
+  "no_model_gpu_calls": true,
+  "observed_epoch": 1794013120,
+  "operation_marker": false,
+  "pin_count": 58,
+  "profile_sha": "a88329dc26c465ee1cde32f5b11a716133063d95dbe64a3bf3e6f0301ca6fcf7",
+  "ready": {
+    "state": "ready"
+  },
+  "source_sha": {
+    "backup_chain_history.py": "0ebecf301c0b4fccdd4f128fdef9d09163eaf4e54cf871156ec80e5a8777d5e6",
+    "fixed_command.py": "9fd4e5746363e7cbdcac0d121d15cdac4ce990c24a1e988bc8b98faad8bcf260",
+    "guest_entry_scope.py": "3ddc43e038c705c01d5864bdf66b38395fe62de5b00dab406b6fa4bf07691886",
+    "guest_requests.py": "468e401675479a5581bdd5b99e86af02da72f9e7ec17e1202c65558ae32cdd53",
+    "guest_supervisor.py": "ca23df9ec859044cee61737be476a8eab53f4b30a30efbf3b1421863e8fe0449",
+    "legacy_requests.py": "dbc596c5b77a8ea9359868798d621ff951c331754b2b4968c177b80d079e3dca",
+    "model_trial.py": "2b348f76f9181cddcf2d5796d8fa806a806ebb39d1c53d9f35f745df09368154",
+    "namespace_mount.py": "031df2fb964c264c168cfd313de816391cb49d735701b17821edae2077a72566",
+    "news_xpu_boundary.py": "8ddab8d1e55d1bfddb110fc7500ba44e02f8a8e14de24e1992732a77fcc22d3d",
+    "request_failure_capture.py": "83e90abf36ed008ad921072e66005cfded3a2aa00b90b24cced42f1eef261bca"
+  },
+  "timer": {
+    "ActiveState": "active",
+    "SubState": "waiting",
+    "UnitFileState": "enabled"
+  },
+  "verdict": "LIKELY RUN"
+}

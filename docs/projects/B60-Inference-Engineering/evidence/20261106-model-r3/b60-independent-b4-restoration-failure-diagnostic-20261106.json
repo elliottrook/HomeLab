@@ -1,0 +1,472 @@
+{
+  "schema": "b60-independent-b4-restoration-failure-diagnostic.v1",
+  "diagnostic": {
+    "candidate_units": {
+      "b60-exclusive-client-b60-exclusive-20261106-day-r4.service": {
+        "properties": {
+          "ActiveState": "inactive",
+          "LoadState": "not-found",
+          "MainPID": "0",
+          "TasksCurrent": "[not set]"
+        },
+        "query_exit": 0
+      },
+      "b60-exclusive-trial-b60-exclusive-20261106-day-r4.service": {
+        "properties": {
+          "ActiveState": "inactive",
+          "LoadState": "not-found",
+          "MainPID": "0",
+          "TasksCurrent": "[not set]"
+        },
+        "query_exit": 0
+      }
+    },
+    "custody": {
+      "model": {
+        "gid": 0,
+        "mode": "0o400",
+        "uid": 0
+      },
+      "root": {
+        "gid": 0,
+        "mode": "0o700",
+        "uid": 0
+      }
+    },
+    "entry-backend-start-intent.json": {
+      "fields": {
+        "booking_id": "b60-exclusive-20261106-day-r4",
+        "maximum_start_attempts": 1,
+        "observed_epoch": 1794014226
+      },
+      "sha256": "dc105786fadedccbf147e24b4214920d8759a0086e5007b1f029129092fd9c32"
+    },
+    "model-cleanup.json": {
+      "fields": {
+        "custody_restored": true,
+        "mount_absent": true,
+        "phase": "verified",
+        "target_entry_restored": true
+      },
+      "sha256": "7f0a6b87014c1ad3de5d4c1f8b9b9894409cf3e70e1427ff6640b7603920624c"
+    },
+    "model-owner-failure.json": {
+      "fields": {
+        "failure_code": "UNCLASSIFIED",
+        "failure_type": "SessionError",
+        "observed_epoch": 1794014314
+      },
+      "sha256": "f32304ed9027133ffae34f7b496a17809f6b47f9463251acaa1bceddabc7084d"
+    },
+    "observed_epoch": 1794014539,
+    "row": {
+      "claimant": "b60-d2dab79dc2fe767432bd",
+      "end_epoch": 1794016500,
+      "entry_sha256": "7fd1b3ce750f5da4cad530f941aad66fe65066172eaac3105e8fa47ead41a757",
+      "start_epoch": 1794013800,
+      "state": "claimed"
+    },
+    "session": {
+      "entry_sha256": "7fd1b3ce750f5da4cad530f941aad66fe65066172eaac3105e8fa47ead41a757",
+      "phase": "restoring",
+      "production_restored": false,
+      "restore_deadline": 1794016500,
+      "trial_failed": true
+    },
+    "unit_differences": [
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "1",
+          "ExecMainExitTimestamp": "Sat 2026-11-07 01:19:31 UTC",
+          "ExecMainStartTimestamp": "Sat 2026-11-07 01:17:07 UTC",
+          "ExecMainStatus": "0",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "110",
+        "query_exit": 0,
+        "unit": "aster-llama.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "Result": "success",
+          "SubState": "dead",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "114",
+        "query_exit": 0,
+        "unit": "news-aggregator-digest.timer"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "Result": "success",
+          "SubState": "dead",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "114",
+        "query_exit": 0,
+        "unit": "news-aggregator-ingest.timer"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "1",
+          "ExecMainExitTimestamp": "Sat 2026-11-07 01:19:13 UTC",
+          "ExecMainStartTimestamp": "Sat 2026-11-07 01:17:29 UTC",
+          "ExecMainStatus": "0",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "114",
+        "query_exit": 0,
+        "unit": "news-aggregator-ui.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "2",
+          "ExecMainExitTimestamp": "Sat 2026-11-07 01:19:16 UTC",
+          "ExecMainStartTimestamp": "Sat 2026-11-07 01:17:32 UTC",
+          "ExecMainStatus": "15",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "115",
+        "query_exit": 0,
+        "unit": "paperless-summary-broker.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "Result": "success",
+          "SubState": "dead",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "115",
+        "query_exit": 0,
+        "unit": "paperless-summary.timer"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "2",
+          "ExecMainExitTimestamp": "Fri 2026-11-06 18:19:22 MST",
+          "ExecMainStartTimestamp": "Fri 2026-11-06 18:17:37 MST",
+          "ExecMainStatus": "15",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "116",
+        "query_exit": 0,
+        "unit": "aster-speech.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "Result": "success",
+          "SubState": "dead",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "116",
+        "query_exit": 0,
+        "unit": "epub-narration-monitor.timer"
+      }
+    ],
+    "units": [
+      {
+        "current": {
+          "ActiveState": "active",
+          "ExecMainCode": "0",
+          "ExecMainExitTimestamp": "",
+          "ExecMainStartTimestamp": "Fri 2026-11-06 18:20:12 MST",
+          "ExecMainStatus": "0",
+          "MainPID": "104784",
+          "Result": "success",
+          "SubState": "running",
+          "TasksCurrent": "2",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "104",
+        "query_exit": 0,
+        "unit": "aster-agent.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "1",
+          "ExecMainExitTimestamp": "Sat 2026-11-07 01:19:31 UTC",
+          "ExecMainStartTimestamp": "Sat 2026-11-07 01:17:07 UTC",
+          "ExecMainStatus": "0",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "110",
+        "query_exit": 0,
+        "unit": "aster-llama.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "1",
+          "ExecMainExitTimestamp": "Sat 2026-11-07 00:18:29 UTC",
+          "ExecMainStartTimestamp": "Sat 2026-11-07 00:16:00 UTC",
+          "ExecMainStatus": "0",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "static"
+        },
+        "entry_active": "inactive",
+        "entry_enablement": "static",
+        "guest": "114",
+        "query_exit": 0,
+        "unit": "news-aggregator-digest.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "Result": "success",
+          "SubState": "dead",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "114",
+        "query_exit": 0,
+        "unit": "news-aggregator-digest.timer"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "1",
+          "ExecMainExitTimestamp": "Sat 2026-11-07 01:04:51 UTC",
+          "ExecMainStartTimestamp": "Sat 2026-11-07 01:03:51 UTC",
+          "ExecMainStatus": "0",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "static"
+        },
+        "entry_active": "inactive",
+        "entry_enablement": "static",
+        "guest": "114",
+        "query_exit": 0,
+        "unit": "news-aggregator-ingest.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "Result": "success",
+          "SubState": "dead",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "114",
+        "query_exit": 0,
+        "unit": "news-aggregator-ingest.timer"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "1",
+          "ExecMainExitTimestamp": "Sat 2026-11-07 01:19:13 UTC",
+          "ExecMainStartTimestamp": "Sat 2026-11-07 01:17:29 UTC",
+          "ExecMainStatus": "0",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "114",
+        "query_exit": 0,
+        "unit": "news-aggregator-ui.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "2",
+          "ExecMainExitTimestamp": "Sat 2026-11-07 01:19:16 UTC",
+          "ExecMainStartTimestamp": "Sat 2026-11-07 01:17:32 UTC",
+          "ExecMainStatus": "15",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "115",
+        "query_exit": 0,
+        "unit": "paperless-summary-broker.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "1",
+          "ExecMainExitTimestamp": "Sat 2026-11-07 01:18:40 UTC",
+          "ExecMainStartTimestamp": "Sat 2026-11-07 01:18:33 UTC",
+          "ExecMainStatus": "0",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "static"
+        },
+        "entry_active": "inactive",
+        "entry_enablement": "static",
+        "guest": "115",
+        "query_exit": 0,
+        "unit": "paperless-summary.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "Result": "success",
+          "SubState": "dead",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "115",
+        "query_exit": 0,
+        "unit": "paperless-summary.timer"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "2",
+          "ExecMainExitTimestamp": "Fri 2026-11-06 18:19:22 MST",
+          "ExecMainStartTimestamp": "Fri 2026-11-06 18:17:37 MST",
+          "ExecMainStatus": "15",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "116",
+        "query_exit": 0,
+        "unit": "aster-speech.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "1",
+          "ExecMainExitTimestamp": "Fri 2026-11-06 03:59:13 MST",
+          "ExecMainStartTimestamp": "Fri 2026-11-06 03:59:08 MST",
+          "ExecMainStatus": "0",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "static"
+        },
+        "entry_active": "inactive",
+        "entry_enablement": "static",
+        "guest": "116",
+        "query_exit": 0,
+        "unit": "epub-narration-monitor.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "Result": "success",
+          "SubState": "dead",
+          "UnitFileState": "enabled"
+        },
+        "entry_active": "active",
+        "entry_enablement": "enabled",
+        "guest": "116",
+        "query_exit": 0,
+        "unit": "epub-narration-monitor.timer"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "ExecMainCode": "0",
+          "ExecMainExitTimestamp": "",
+          "ExecMainStartTimestamp": "",
+          "ExecMainStatus": "0",
+          "MainPID": "0",
+          "Result": "success",
+          "SubState": "dead",
+          "TasksCurrent": "[not set]",
+          "UnitFileState": "static"
+        },
+        "entry_active": "inactive",
+        "entry_enablement": "static",
+        "guest": "116",
+        "query_exit": 0,
+        "unit": "epub-narration-worker.service"
+      },
+      {
+        "current": {
+          "ActiveState": "inactive",
+          "Result": "success",
+          "SubState": "dead",
+          "UnitFileState": "disabled"
+        },
+        "entry_active": "inactive",
+        "entry_enablement": "disabled",
+        "guest": "116",
+        "query_exit": 0,
+        "unit": "epub-narration-worker.timer"
+      }
+    ]
+  },
+  "analysis": {
+    "known": "Candidate/client stopped; private model custody and namespace cleanup verified; accepted backend first restoration start occurred and later ended cleanly; both control processes now failed; several entry-active services/timers remain inactive.",
+    "owner_failure_inference": "Owner SessionError at18:18:34 overlaps Paperless scheduled service18:18:33–40, consistent with strict entry-state verification race.",
+    "guardian_failure_inference": "Existing one-start latch plus guardian full re-fence can refuse the accepted-backend restart after controlled stop; exact guardian error remains to be confirmed.",
+    "caution": "Agent104 started18:20:12 despite accepted backend remaining inactive; do not infer exact guardian final call sequence solely from state snapshot."
+  },
+  "no_live_mutations": true,
+  "no_gpu_model_calls": true
+}

@@ -1,0 +1,21 @@
+{
+  "body_sha256": "4184efa009342ac0c28dde5b3e96948c3f5dff1d164370bfdb3e2ecdf658ca49",
+  "checks": [
+    "BothfailedownersPID0/nootherclaimants; exact source10/base30/card/entry/packet/oldstartintent/lifecyclebound",
+    "Candidate/clientgone, private namespace/custodycleanupverified",
+    "Freshkernelzero/zeroGPUholders/exactacceptedunitbinarymodelhashes known",
+    "Newassistedintentabsentatentrybeforefence; oneOEXCL exactacceptedstart only withknownsuccessfulfirststart+cleanstop proof",
+    "110prestartfile+artifactverification usespinnedunchangedgcp.recoverapplyFalse; activeidentitynotclaimedbeforestart",
+    "Other4normalcheckpointverify; poststartunchangedbaseverify_entry/releaseactivebinding retained",
+    "Strictunitverify reread<=45sec/no repeatedstart/effect, no mismatchwaiver",
+    "manualassistanceTRUE/unattendedFAIL beforeeffects; negativepacket preserved; separateterminalnotfakeunattendedpass"
+  ],
+  "diagnostic_sha256": "f1a3fe45f66663d4d5fda369673a6c945ac069b40815899745e64cbcd58c0124",
+  "fresh_recovery_gates_sha256": "c369e1bd03064a77e6e1e79998ab4d1e72172ebffff026fb99087b31dc124db9",
+  "no_live_mutations_by_reviewer": true,
+  "no_model_gpu_calls_by_reviewer": true,
+  "observed_epoch": 1794014951,
+  "recovery_script_sha256": "cddc001ba8a17412619a0a24d6304d8b4964048faf643a517cdba75f6e574303",
+  "schema": "b60-independent-b4-assisted-recovery-source-review.v1",
+  "verdict": "GO for exactly one assisted restoration under existing retained B4 binding; no model trial retry"
+}
