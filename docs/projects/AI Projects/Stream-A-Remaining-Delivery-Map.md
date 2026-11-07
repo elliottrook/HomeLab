@@ -2421,6 +2421,14 @@ healthy monitoring. Even exact success yields only an owner-acceptance
 candidate; release, deployment, tools and automatic routing remain off. Its
 focused suite passes 5/5.
 
+The missing [M5 content-minimizing shadow builder](evidence/M5-K2-no-effect-shadow-builder-boundary-2026-11-06.md)
+is now source-ready. It requires exactly ten sanitized S0 rows per family,
+reduces request text to digests, recomputes every no-effect route proposal and
+then validates the frozen 60-case envelope. Its focused suite passes 4/4. It
+does not create the representative fixture, call a model or execute a route;
+independent fixture labels and qualified-candidate collection remain later
+gates.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from
