@@ -13,6 +13,7 @@ from datetime import date
 from pathlib import Path
 
 from .retention_reclaim import estimate_unprotected_file, snapshot_names
+from .retention_activity_live import collect_active_item_ids
 from .retention_seasons_live import collect_season_paths
 from .retention_playback import read_playback_log_evidence
 from .retention_years_live import LiveYearConfig, _host_path, collect_movie_years
@@ -57,6 +58,7 @@ def audit(radarr_db: Path, sonarr_db: Path, jellyfin_db: Path, data_root: Path,
         radarr_db, jellyfin_db, data_root, jellyfin_url, jellyfin_key,
     ), today=date.today())
     playback = read_playback_log_evidence(jellyfin_db)
+    active_items = collect_active_item_ids(jellyfin_url, jellyfin_key)
     seasons = collect_season_paths(sonarr_db, jellyfin_db, data_root)
     snapshots = tuple(reversed(snapshot_names()))
     coverage: Counter[str] = Counter()
@@ -97,6 +99,7 @@ def audit(radarr_db: Path, sonarr_db: Path, jellyfin_db: Path, data_root: Path,
             "first_event": playback.first_event,
             "last_event": playback.last_event,
         },
+        "active_playback_item_count": len(active_items),
         "season_path_inventory": {
             "sonarr_file_rows": seasons.sonarr_file_rows,
             "exact_file_rows": seasons.exact_file_rows,

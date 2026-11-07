@@ -35,6 +35,9 @@ root-readable `status.json` with aggregate pool, snapshot, movie-year,
 season-path, provider-certified season and retained-playback counts. The season
 counts are identity evidence, not deletion candidates. This schedule does not
 run the deletion controller.
+The audit also checks Jellyfin's active sessions and reports only the count of
+currently playing items. A failed session scan fails the audit, so no stale
+"no playback" result can be treated as permission to remove media.
 
 `retention_subtitles_live.inspect_subtitles` is a separate read-only candidate
 manifest. It records embedded subtitle stream metadata and hashes sidecars
