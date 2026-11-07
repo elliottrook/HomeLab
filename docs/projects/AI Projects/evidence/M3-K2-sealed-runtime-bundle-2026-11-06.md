@@ -49,10 +49,17 @@ changed or uncertain tree and removes only the exact validated fourteen-file
 target. Its focused tests pass 4/4; an exact install-and-rollback proof passed
 inside a disposable directory without touching either fixed runtime root.
 
+Platform commit `bd0f80db` freezes the conditional two-host gate. It emits a
+plan only for the exact 192-request development reconciliation with zero
+retries/errors, a passing gate and production restored, while independently
+pinning the archive and installer. The resulting plan is still non-authorizing:
+MacBook-first inactive install, Mac-mini-second, reverse-order rollback, no
+restart, no access grant and no workload effect. Its focused tests pass 4/4.
+
 ## Remaining gate
 
-The archive and reversible inactive-installer source are now independently
-bound. The two-host inactive-install packet and fixed-root execution remain
-open. No host may unpack or activate it in a fixed runtime root unless the K2
-development gate is a restored pass and the later workload has its own
-admissible Lab Hours booking.
+The archive, reversible inactive-installer source and conditional two-host
+plan are now independently bound. Fixed-root execution remains open. No host
+may unpack or activate it in a fixed runtime root unless the K2 development
+gate is a restored pass and the later workload has its own admissible Lab
+Hours booking.

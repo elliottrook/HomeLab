@@ -2394,8 +2394,11 @@ host-local inactive installer is now source-frozen at platform commit
 `020c3db3`: it validates before writing, installs only through a private staged
 atomic rename, retains an absent-state checkpoint and refuses rollback of any
 changed tree. Its focused suite and an exact disposable install/rollback pass.
-The two-host packet and fixed-root installation remain deliberately open until
-the booked development transaction is a restored pass.
+Platform commit `bd0f80db` now freezes the conditional two-host packet gate:
+only the exact passing,
+restored 192-request reconciliation can yield the MacBook-first/Mac-mini-second
+inactive plan, with reverse-order rollback and no restart, access grant or
+workload effect. The fixed-root installation itself remains unperformed.
 
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
