@@ -21,6 +21,7 @@ from .retention_audit import _container_db, _pool_usage
 from .retention_playback import read_playback_log_evidence
 from .retention_queue_live import collect_queue
 from .retention_reclaim import estimate_unprotected_file, snapshot_names
+from .retention_seasons_live import _mapped_path, collect_season_paths
 from .retention_scope_activity import scope_has_active_work
 from .retention_subtitles_live import inspect_subtitles, jellyfin_container_probe
 from .retention_watch_live import collect_user_views, scope_watch_evidence
@@ -113,13 +114,104 @@ def observe(config_path: Path, data_root: Path) -> dict:
     }
 
 
+def observe_season(config_path: Path, data_root: Path) -> dict:
+    """Observe one bounded provider-certified Archive season; never act."""
+    config = json.loads(config_path.read_text())
+    if not isinstance(config, dict):
+        raise RuntimeError("archiver configuration malformed")
+    jellyfin_key = os.environ.get("JELLYFIN_API_KEY", "")
+    sonarr_key = os.environ.get("SONARR_API_KEY", "")
+    if not jellyfin_key or not sonarr_key:
+        raise RuntimeError("existing service credential unavailable")
+    sonarr = _container_db("sonarr", "sonarr.db")
+    jellyfin = _container_db("jellyfin", "data/data/jellyfin.db")
+    scopes = collect_season_paths(sonarr, jellyfin, data_root)
+    with closing(sqlite3.connect(f"{sonarr.as_uri()}?mode=ro", uri=True)) as db:
+        series_paths = dict(db.execute("SELECT Id,Path FROM Series"))
+        selected = next((scope for scope in sorted(scopes.certified_scope_item_ids)
+                         if str(series_paths.get(scope[0], "")).startswith(
+                             "/media/tv/archive-tv/")), None)
+        if selected is None:
+            return {"status": "held_no_certified_archive_season", "deletion_enabled": False}
+        series_id, season_number = selected
+        file_rows = list(db.execute("""
+            SELECT RelativePath,DateAdded FROM EpisodeFiles
+            WHERE SeriesId=? AND SeasonNumber=?
+        """, selected))
+    if not file_rows or len(file_rows) > 30:
+        return {"status": "held_season_file_bound", "deletion_enabled": False}
+    host_files = []
+    for relative, _ in file_rows:
+        mapped = _mapped_path(series_paths[series_id], relative)
+        host = _host_path(mapped, data_root) if mapped else None
+        if host is None or not host.is_file():
+            raise RuntimeError("certified season file changed")
+        host_files.append(host)
+    snapshots = snapshot_names()
+    snapshot_free = all(estimate_unprotected_file(
+        host, data_root=data_root, snapshots=snapshots,
+    ).bytes > 0 for host in host_files)
+    with closing(sqlite3.connect(f"{jellyfin.as_uri()}?mode=ro", uri=True)) as db:
+        users = frozenset(str(row[0]) for row in db.execute("SELECT Id FROM Users"))
+    if len(users) != 7:
+        raise RuntimeError("household user roster changed")
+    item_ids = scopes.certified_scope_item_ids[selected]
+    jellyfin_url = str(config["jellyfin_url"])
+    views = collect_user_views(item_ids, user_ids=users,
+                               jellyfin_url=jellyfin_url, jellyfin_api_key=jellyfin_key)
+    watch = scope_watch_evidence(item_ids, views, users,
+                                 read_playback_log_evidence(jellyfin))
+    active = collect_active_item_ids(jellyfin_url, jellyfin_key)
+    queue = collect_queue("sonarr", str(config["sonarr_url"]), sonarr_key,
+                          fetch=_fetch_queue)
+    activity = scope_has_active_work(
+        kind="season", arr_id=series_id, jellyfin_item_ids=item_ids,
+        active_jellyfin_item_ids=active, queue=queue,
+    )
+    subtitle_structure = True
+    for host in host_files:
+        try:
+            inspect_subtitles(host, data_root=data_root,
+                              probe=lambda path: jellyfin_container_probe(
+                                  path, data_root=data_root))
+        except RuntimeError:
+            subtitle_structure = False
+            break
+    age_ok = True
+    for _, added in file_rows:
+        if not isinstance(added, str):
+            age_ok = False
+            break
+        imported = datetime.fromisoformat(added.replace("Z", "+00:00"))
+        if not imported.tzinfo or imported > calendar_months_before(
+            datetime.now(timezone.utc), 3,
+        ):
+            age_ok = False
+            break
+    _, _, cap = _pool_usage()
+    return {
+        "status": "observed_only", "scope_kind": "season",
+        "file_count": len(file_rows), "snapshot_free": snapshot_free,
+        "three_month_youngest_import_age_met": age_ok,
+        "seven_user_watch_complete": watch is not None,
+        "watch_or_playback_protected": (None if watch is None else
+                                        bool(watch[1] or any(row.protected for row in watch[0]))),
+        "active_playback_or_queue": activity,
+        "subtitle_structure_verified": subtitle_structure,
+        "pool_trigger_met": cap >= 60, "notice_verified": False,
+        "deletion_enabled": False,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--data-root", type=Path, required=True)
+    parser.add_argument("--kind", choices=("movie", "season"), default="movie")
     args = parser.parse_args()
     try:
-        result = observe(args.config, args.data_root)
+        result = (observe_season(args.config, args.data_root) if args.kind == "season"
+                  else observe(args.config, args.data_root))
     except (RuntimeError, ValueError, OSError, sqlite3.Error, KeyError):
         result = {"status": "held_source_uncertain", "deletion_enabled": False}
     print(json.dumps(result, sort_keys=True))
