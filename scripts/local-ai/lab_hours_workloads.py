@@ -11,8 +11,10 @@ from __future__ import annotations
 import ast
 from dataclasses import dataclass
 import hashlib
+import json
 import os
 from pathlib import Path
+import subprocess
 
 
 @dataclass(frozen=True)
@@ -277,6 +279,17 @@ WORKLOADS['b60-accepted-sycl-post-xe-qualification-v1'] = WorkloadSpec(
 )
 
 
+
+WORKLOADS['b60-accepted-sycl-post-xe-qualification-v2'] = WorkloadSpec(
+    workload_id='b60-accepted-sycl-post-xe-qualification-v2', owner='b60-stream-a', request_count=3,
+    per_request_timeout_seconds=30, deadline_seconds=600,
+    minimum_booking_seconds=1800, recovery_reserve_seconds=900,
+    runner_kind='b60-post-xe-card-r5',
+    runtime_pins=(('b60_post_xe_r5_card_bridge.py', '3bd94a1e99491a0c23b4e530161389d3ef80a13fa7f2f5a35a9bad5f918df209'),),
+    result_max_bytes=8192, retryable_session=False, maximum_attempts=1,
+)
+
+
 REGISTERED_WORKLOADS = frozenset(WORKLOADS)
 
 
@@ -456,6 +469,15 @@ def validate_registry() -> None:
             or b60.runtime_pins != (('b60_post_xe_card_bridge.py', '2c2f57a9d42d248456deb1d354d12bfd08e5e56ee3fa4ff7c92bebcac9934600'),)):
         raise ValueError('B60 fixed-card registration drift')
 
+    b60 = workload('b60-accepted-sycl-post-xe-qualification-v2')
+    if (b60.owner != 'b60-stream-a' or b60.runner_kind != 'b60-post-xe-card-r5'
+            or b60.request_count != 3 or b60.per_request_timeout_seconds != 30
+            or b60.deadline_seconds != 600 or b60.minimum_booking_seconds != 1800
+            or b60.recovery_reserve_seconds != 900 or b60.retryable_session
+            or b60.maximum_attempts != 1 or b60.result_max_bytes != 8192
+            or b60.runtime_pins != (('b60_post_xe_r5_card_bridge.py', '3bd94a1e99491a0c23b4e530161389d3ef80a13fa7f2f5a35a9bad5f918df209'),)):
+        raise ValueError('B60 fixed-card registration drift')
+
 def _local_imports(path: Path) -> set[str]:
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     names = set()
@@ -467,9 +489,49 @@ def _local_imports(path: Path) -> set[str]:
     return names
 
 
+def _validate_k2_guest_target(spec: WorkloadSpec, *, expected_uid: int,
+                              runner=subprocess.run) -> dict[str, object]:
+    script = r'''import ast,hashlib,json,os,stat,sys
+from pathlib import Path
+value=json.loads(sys.stdin.read());root=Path(value["root"]);pins=value["pins"]
+modules={Path(name).stem for name in pins if name.endswith(".py")};imports=set()
+for name,expected in pins.items():
+ path=root/name
+ try: info=path.lstat()
+ except FileNotFoundError: raise SystemExit("MISSING:"+name)
+ mode=0o600 if name in {"nlu-k2-development-corpus-v1.json","nlu-k2-shortlist-v1.json"} else 0o644
+ if (not stat.S_ISREG(info.st_mode) or info.st_uid!=value["uid"] or info.st_nlink!=1
+     or stat.S_IMODE(info.st_mode)!=mode): raise SystemExit("CUSTODY:"+name)
+ raw=path.read_bytes()
+ if hashlib.sha256(raw).hexdigest()!=expected: raise SystemExit("PIN:"+name)
+ if name.endswith(".py"):
+  tree=ast.parse(raw,filename=name)
+  for node in ast.walk(tree):
+   if isinstance(node,ast.Import): imports.update(a.name.split(".",1)[0] for a in node.names)
+   elif isinstance(node,ast.ImportFrom) and node.level==0 and node.module: imports.add(node.module.split(".",1)[0])
+missing=sorted(name for name in imports if name.startswith("nlu_") and name not in modules)
+if missing: raise SystemExit("DEPENDENCY:"+",".join(missing))
+print(json.dumps({"runtime_files":len(pins),"runtime_location":"lxc110","dependencies":"complete"},sort_keys=True))'''
+    payload = {"root": "/usr/local/libexec/local-ai-lease/full-inference-pilot",
+               "pins": dict(spec.runtime_pins), "uid": expected_uid}
+    result = runner(("pct", "exec", "110", "--", "/usr/bin/python3", "-B",
+                     "-c", script), input=json.dumps(payload), capture_output=True,
+                    text=True, timeout=30, check=False)
+    try:
+        value = json.loads(result.stdout)
+    except (json.JSONDecodeError, TypeError) as exc:
+        raise ValueError("K2 guest runtime validation failed") from exc
+    if (result.returncode != 0 or value != {
+            "runtime_files": len(spec.runtime_pins),
+            "runtime_location": "lxc110", "dependencies": "complete"}):
+        raise ValueError("K2 guest runtime validation failed")
+    return value
+
+
 def validate_inactive_target(pilot_root: Path, *, unit_root: Path | None = None,
                              expected_uid: int = 0,
-                             workload_id: str = "sa3-expanded-source-quality-v1") -> dict[str, object]:
+                             workload_id: str = "sa3-expanded-source-quality-v1",
+                             guest_runner=subprocess.run) -> dict[str, object]:
     """Validate a root-owned, inert SA3 installation without executing it.
 
     The dependency-closure check is intentional.  A workload cannot become
@@ -478,36 +540,42 @@ def validate_inactive_target(pilot_root: Path, *, unit_root: Path | None = None,
     """
     spec = workload(workload_id)
     root = Path(pilot_root)
-    for name, expected in spec.runtime_pins:
-        path = root / name
-        try:
-            stat = path.lstat()
-        except FileNotFoundError as exc:
-            raise ValueError(f"target file missing:{name}") from exc
-        if (not path.is_file() or path.is_symlink() or stat.st_uid != expected_uid
-                or stat.st_nlink != 1 or hashlib.sha256(path.read_bytes()).hexdigest() != expected):
-            raise ValueError(f"target pin or custody mismatch:{name}")
+    if spec.runner_kind == "m3-k2-shortlist-arbitration-development":
+        target = _validate_k2_guest_target(spec, expected_uid=expected_uid,
+                                           runner=guest_runner)
+    else:
+        for name, expected in spec.runtime_pins:
+            path = root / name
+            try:
+                stat = path.lstat()
+            except FileNotFoundError as exc:
+                raise ValueError(f"target file missing:{name}") from exc
+            if (not path.is_file() or path.is_symlink() or stat.st_uid != expected_uid
+                    or stat.st_nlink != 1 or hashlib.sha256(path.read_bytes()).hexdigest() != expected):
+                raise ValueError(f"target pin or custody mismatch:{name}")
 
-    local_modules = {Path(name).stem for name, _ in spec.runtime_pins if name.endswith(".py")}
-    imports = set()
-    for name, _ in spec.runtime_pins:
-        if name.endswith(".py"):
-            imports.update(_local_imports(root / name))
-    registered_local_modules = {
-        Path(name).stem for item in WORKLOADS.values()
-        for name, _ in item.runtime_pins if name.endswith(".py")
-    }
-    missing = sorted(name for name in imports
-                     if name in registered_local_modules and name not in local_modules)
-    if missing:
-        raise ValueError("unregistered local dependency:" + ",".join(missing))
+        local_modules = {Path(name).stem for name, _ in spec.runtime_pins if name.endswith(".py")}
+        imports = set()
+        for name, _ in spec.runtime_pins:
+            if name.endswith(".py"):
+                imports.update(_local_imports(root / name))
+        registered_local_modules = {
+            Path(name).stem for item in WORKLOADS.values()
+            for name, _ in item.runtime_pins if name.endswith(".py")
+        }
+        missing = sorted(name for name in imports
+                         if name in registered_local_modules and name not in local_modules)
+        if missing:
+            raise ValueError("unregistered local dependency:" + ",".join(missing))
+        target = {"runtime_files": len(spec.runtime_pins),
+                  "runtime_location": "host", "dependencies": "complete"}
 
     unit_root = Path("/etc/systemd/system") if unit_root is None else Path(unit_root)
     target_prefix = unit_root / f"aster-lab-hours-booking-{spec.workload_id}"
     for suffix in (".service", ".timer"):
         if (target_prefix.with_suffix(suffix)).exists():
             raise ValueError(f"target unit must remain inactive:{suffix}")
-    return {"workload_id": spec.workload_id, "runtime_files": len(spec.runtime_pins),
+    return {"workload_id": spec.workload_id, **target,
             "target_units": "absent", "effects": "not-attempted"}
 
 

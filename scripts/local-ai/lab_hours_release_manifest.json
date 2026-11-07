@@ -7,6 +7,7 @@
         "b60_musetalk_xpu_adapter.py": "694c9b412cd769b62b5302679ff5453cb2a6b376a61b5583d7e78771d603308b",
         "b60_musetalk_xpu_transaction.py": "a2c67006c3559ff86ab35dadfa6c7e511293d28b21d4a08589248608c053b58b",
         "b60_post_xe_card_bridge.py": "2c2f57a9d42d248456deb1d354d12bfd08e5e56ee3fa4ff7c92bebcac9934600",
+        "b60_post_xe_r5_card_bridge.py": "3bd94a1e99491a0c23b4e530161389d3ef80a13fa7f2f5a35a9bad5f918df209",
         "cooperative_lab_host_adapter.py": "65151e7d7cb511c79afffa0544adb86ee9820e963330c0c5ae4a214e30f92d88",
         "epub_word_alignment_adapter.py": "8df7f426c941d043e5e69b1c1ba8f214d479750793c5e0d6cd7551c3af15e29e",
         "epub_word_alignment_transaction.py": "fb4cbcb5dd22963ae9557971e2b74eaba634a39ae233c3c75d00262125730a50",
@@ -26,8 +27,8 @@
         "lab_hours_doctor.py": "32fbe1d9e63fdab78a00496c36ca4b3da7a81809e14cf930a209a32ec9649d76",
         "lab_hours_inactive_target.py": "a99c1f8669836513a8dcc51d9a80182be4ad08b6db3be1c09b48ea727a831e47",
         "lab_hours_reservations.py": "7004bb8df68f4a9d6e30982d7163f21dc09453bff0b18b783e5e6938d8fb5dee",
-        "lab_hours_reserved_runner.py": "418e521ed77de6e86ffc9361f7f121f57d3adb9866bfdf6fe30749fcc15c3b3b",
-        "lab_hours_workloads.py": "15cee88fc1f423b78b692e7ffdc30cfa6ff4835ebd3fd63ddeaaf03d0235cc3b",
+        "lab_hours_reserved_runner.py": "27e33550698d01ec7af78a74c910d67ea191503732201210599e635ec9f3dea9",
+        "lab_hours_workloads.py": "5977a5f7c66ba12a7400d6e19233b7dc3ec7e5c7541f90c1b57c5436acc62a1c",
         "aster_llama_m3_k2_development_wrapper.py": "12f86fdf694866a08cc0dbd31341d26cb0bec352901bda0241167afe746dd531",
         "m3_k2_development_listener_adapter.py": "772415ba38454d3b876f999be404ff6c8aff70cf8e69b3689f5ea45ce4b39fae",
         "m3_k2_development_transaction.py": "67409aa431d2cc6b2ea4dd01d67a0f049b7f2b84e4866f4901285c3739212ec3",
@@ -57,6 +58,6 @@
         "tts_single_cpu_screen_adapter.py": "7846e324019d8dfbcdca7d53fcb565dbd2d332ddcf5dc2779b24112d9e034e8d",
         "tts_single_cpu_screen_transaction.py": "cab558a729a07ce3a3b67edffbc54d3e54f3514dc1d54cf71888cf5526116f52"
     },
-    "release": "aster-news-video-musetalk-openvino-plus-m3-k2-development-v1",
+    "release": "aster-news-video-musetalk-openvino-plus-m3-k2-development-v1-b60-fixed-card-capture-v1",
     "schema": "aster-lab-hours-release-manifest.v1"
 }

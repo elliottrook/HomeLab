@@ -2,12 +2,21 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 from lab_hours_workloads import (REGISTERED_WORKLOADS, validate_inactive_target,
                                  workload)
 
 
 class WorkloadRegistryTests(unittest.TestCase):
+    @staticmethod
+    def _guest_result(returncode=0, stdout=None):
+        value = {"runtime_files": 12, "runtime_location": "lxc110",
+                 "dependencies": "complete"}
+        return SimpleNamespace(returncode=returncode,
+                               stdout=stdout if stdout is not None
+                               else __import__("json").dumps(value), stderr="")
+
     def test_k2_development_is_fixed_and_registered(self):
         spec = workload("m3-k2-shortlist-arbitration-development-v1")
         self.assertEqual("aster-stream-a", spec.owner)
@@ -20,6 +29,31 @@ class WorkloadRegistryTests(unittest.TestCase):
                          spec.runner_kind)
         self.assertEqual(12, len(spec.runtime_pins))
         self.assertEqual(1048576, spec.result_max_bytes)
+
+    def test_k2_inactive_validation_checks_actual_guest_custody(self):
+        calls = []
+        def runner(command, **kwargs):
+            calls.append((command, kwargs))
+            return self._guest_result()
+        with tempfile.TemporaryDirectory() as tmp:
+            value = validate_inactive_target(
+                Path(tmp), unit_root=Path(tmp), expected_uid=0,
+                workload_id="m3-k2-shortlist-arbitration-development-v1",
+                guest_runner=runner)
+        self.assertEqual("lxc110", value["runtime_location"])
+        self.assertEqual(12, value["runtime_files"])
+        self.assertEqual("pct", calls[0][0][0])
+        self.assertIn('"uid": 0', calls[0][1]["input"])
+
+    def test_k2_guest_validation_failure_is_no_go(self):
+        def runner(command, **kwargs):
+            return self._guest_result(returncode=1, stdout="")
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(ValueError, "guest runtime"):
+                validate_inactive_target(
+                    Path(tmp), unit_root=Path(tmp), expected_uid=0,
+                    workload_id="m3-k2-shortlist-arbitration-development-v1",
+                    guest_runner=runner)
 
     def test_third_registration_is_distinct_and_fixed(self):
         self.assertIn("sa3-expanded-source-quality-v1", REGISTERED_WORKLOADS)
