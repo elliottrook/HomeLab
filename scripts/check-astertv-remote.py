@@ -26,7 +26,10 @@ stable=pathlib.Path("/storage/.aster-v3/m8" if host=="AsterTV-Jen" else "/storag
 live=pathlib.Path("/storage/.kodi/addons/service.asterremote")
 def tree(path):
  h=hashlib.sha256()
- for p in sorted(x for x in path.rglob("*") if x.is_file()):
+ for p in sorted(
+  x for x in path.rglob("*")
+  if x.is_file() and "__pycache__" not in x.parts and x.suffix != ".pyc"
+ ):
   h.update(str(p.relative_to(path)).encode()+b"\0");h.update(p.read_bytes())
  return h.hexdigest()
 def rpc(method,params=None):
