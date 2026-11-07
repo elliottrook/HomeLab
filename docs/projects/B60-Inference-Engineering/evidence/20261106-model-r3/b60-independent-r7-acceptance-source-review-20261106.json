@@ -1,0 +1,24 @@
+{
+  "findings": [
+    "Fresh structured original-cutoff kernel sample under final acceptance hostlock",
+    "Retain and rehash reviewed acceptance producer/review and current-postcheck files in R8 verifier",
+    "Explicit equality of model helper hash to qualified R7 helper hash"
+  ],
+  "no_live_effects": true,
+  "observed_epoch": 1794020192,
+  "positive_checks": [
+    "read-only child before ownlock avoids nestedflock",
+    "all20required immutable proofs plus optional unit-state-recovery closed paths",
+    "independent/current proof hash equality",
+    "OEXCL independent/current/acceptance files",
+    "actual source4/base30 rehash",
+    "narrow qualified crash-window scope only"
+  ],
+  "schema": "b60-independent-r7-acceptance-source-review.v1",
+  "source_only": true,
+  "source_sha256": {
+    "entry-rescue-qualification-20261106-r7/acceptance_writer.py": "12d9d53297e4df375e457444b33a74c93dc100e85a44f2ad896f56a5126903df",
+    "entry-rescue-qualification-20261106-r7/read_only_postcheck.py": "949ac1130dfea6f6e37209b1579f30f07b0c525e9bc1c29feccf85c72aa95f14",
+    "model-trial-20261106-r8/b60_exclusive_card_bridge.py": "a11f5b75be5a8505b8cb51e1f0bd4f500e1e08b6c41739a2c56b082320fb381d"
+  }
+}

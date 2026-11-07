@@ -1,0 +1,21 @@
+{
+  "findings": [],
+  "model_gpu_calls": 0,
+  "no_live_effects": true,
+  "observed_epoch": 1794020031,
+  "planned_not_installed": true,
+  "schema": "b60-independent-structured-kernel-review.v2",
+  "source_sha256": {
+    "entry-rescue-qualification-20261106-r7/qualification.py": "15ce4b2f832bedecb3e2ba2d85ce52c211f32dbbddc0f8bc44d27cf92faadef1",
+    "model-trial-20261106-r8/model_trial.py": "958e27d42a793cdceeba9d9b62c6ccc4ab31f046ec65debfea261f47b5d6ae12",
+    "model-trial-20261106-r8/news_xpu_boundary.py": "af7f67ec8ab4d2bbe43ea7a9727c5c85b3733a6446f7c0a468785c20b1965fd2",
+    "test_structured_kernel_faults.py": "06937deda61aa47e6528ecd1995c52dcba442cc970ac687f82b20b54a322a769"
+  },
+  "supersedes_sha256": "8b527c2acf645a52929d69a2edb00a31efe04930e5709765f76ef41c5f756191",
+  "test_results": {
+    "actual_r7_ast_split_device_lost_oom_fault_refuses": true,
+    "repository_passed": 5,
+    "repository_tests": 5
+  },
+  "verdict": "GO source-only changes; final installed readiness still required"
+}

@@ -1,0 +1,35 @@
+import os,sys,time,json,subprocess,hashlib
+from pathlib import Path
+R=Path('/var/lib/local-ai-lab');P=Path('/usr/local/libexec/local-ai-lease/exclusive-session');sys.path.insert(0,str(P));B='b60-exclusive-20261106-day-r8'
+from host_exclusion import host_exclusion
+from lab_hours_exclusive_session import SessionStore,canonical
+from lab_hours_reservations import ReservationStore
+from retained_archive_integrity import fixed_proxmox_inventory,fixed_resolve,fixed_probe,capture,verify,save_root_owned,load_root_owned
+from full_inference_lab_sources import LocalProxmoxFullDrainSourceProducer,AcceptedBaseline,TrustedOwnerAttestation
+from fixed_source_adapters import _json,_truenas
+def runner(command,timeout):
+ p=subprocess.run(command,capture_output=True,text=True,timeout=timeout);return p.returncode,p.stdout
+with host_exclusion(R):
+ assert not any((R/n).exists() for n in ('lease.json','lease.lock','full-inference-drain.json','full-inference-drain.lock')) and not Path('/run/local-ai-lab-operation.lock').exists()
+ assert json.loads(subprocess.check_output(['/usr/local/sbin/local-ai-lease','status']))=={'state':'ready'}
+ now=int(time.time());deadline=1794006600
+ assert now+60<deadline and deadline<=1794007200-300
+ row=ReservationStore(R/'reservations',expected_uid=0).get(B);assert row['state']=='reserved' and row['start_epoch']==1794032400
+ pins={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in P.glob('*.py')};assert hashlib.sha256(canonical(pins)).hexdigest()=='e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2'
+ for proc in Path('/proc').glob('[0-9]*'):
+  try:comm=(proc/'comm').read_text().strip()
+  except FileNotFoundError:continue
+  assert comm not in {'vzdump','zstd','rsync','pbs-client','proxmox-backup'}
+ tasks=_json(runner,_truenas(('midclt','call','rsynctask.query')),10);assert all(v.get('job',{}).get('state')=='SUCCESS' for v in tasks if v.get('id') in (1,2,3))
+ producer=LocalProxmoxFullDrainSourceProducer(runner,AcceptedBaseline('','',''),TrustedOwnerAttestation('b60-stream-a','reserved-early-integrity'));assert producer._backup_current('2026_11_06') is True
+ store=SessionStore(R/'exclusive-integrity'/B,expected_uid=0);fd=store.lock()
+ try:
+  store.write('attempt-r2.json',{'schema':'aster-exclusive-integrity-attempt.v1','booking_id':B,'started_epoch':now,'deadline_epoch':deadline,'ai_stack_effects':False},immutable=True)
+  old=load_root_owned();store.write('previous-receipt-r2.json',old,immutable=True)
+  receipt=capture(fixed_proxmox_inventory(),date='2026_11_06',resolve=fixed_resolve,lstat=os.lstat,probe=fixed_probe,deadline_epoch=deadline)
+  proof=verify(receipt,fixed_proxmox_inventory(),date='2026_11_06',now_epoch=int(time.time()),resolve=fixed_resolve,lstat=os.lstat)
+  verify(receipt,fixed_proxmox_inventory(),date='2026_11_06',now_epoch=row['start_epoch']+120,resolve=fixed_resolve,lstat=os.lstat)
+  store.write('receipt.json',receipt,immutable=True);assert load_root_owned()==old;save_root_owned(receipt)
+  terminal={'schema':'aster-exclusive-integrity-result.v1','booking_id':B,'state':'complete','archive_receipt':proof,'finished_epoch':receipt['finished_epoch'],'observed_epoch':int(time.time()),'new_scan_performed':True,'ai_stack_effects':False}
+  store.write('terminal.json',terminal,immutable=True);print(json.dumps(terminal,sort_keys=True))
+ finally:os.close(fd)

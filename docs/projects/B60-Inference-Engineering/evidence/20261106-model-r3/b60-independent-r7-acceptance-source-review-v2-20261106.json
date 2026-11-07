@@ -1,0 +1,24 @@
+{
+  "actual_ast_fake_checks": {
+    "seven_safety_mutations_refused": true,
+    "valid_narrow_intended_fault": true
+  },
+  "actual_proofs_not_available_yet": true,
+  "findings": [],
+  "no_live_effects": true,
+  "observed_epoch": 1794020249,
+  "resolved": [
+    "final original-cutoff structured kernel under acceptance lock",
+    "producer/review/current-postcheck bytes retained and rehashed by R8 gate",
+    "R8 model recovery helper equality to qualified R7 helper"
+  ],
+  "schema": "b60-independent-r7-acceptance-source-review.v2",
+  "source_only": true,
+  "source_sha256": {
+    "entry-rescue-qualification-20261106-r7/acceptance_writer.py": "e5a2411398db5cb03cf0aa925b47352a2049f9425fffe0c27313ec88ed0a7845",
+    "entry-rescue-qualification-20261106-r7/read_only_postcheck.py": "949ac1130dfea6f6e37209b1579f30f07b0c525e9bc1c29feccf85c72aa95f14",
+    "model-trial-20261106-r8/b60_exclusive_card_bridge.py": "34f83ba6e618e62cd923fa1b37dee6e833ad63a5bf8dcd992b1c9e172e881f75"
+  },
+  "supersedes_sha256": "ce9ff34f3a1ca927d886707105dae1c078e09240f58337f8308a4c78661b3692",
+  "verdict": "GO exact reviewed acceptance producer after actual qualification and independent full postcheck"
+}

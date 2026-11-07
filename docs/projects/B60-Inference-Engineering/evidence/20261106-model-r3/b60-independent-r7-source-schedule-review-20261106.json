@@ -1,0 +1,74 @@
+{
+  "actual_readonly_schedules": {
+    "b7": [
+      1794029700,
+      1794031500
+    ],
+    "b7_state": "reserved",
+    "b7_workload": null,
+    "k2": [
+      1794020400,
+      1794024000
+    ],
+    "news": [
+      1794025200,
+      1794028800
+    ],
+    "proxmox_2330_and_2230_alternatives_enabled": false,
+    "proxmox_enabled_all_guest": "00:30",
+    "truenas_enabled_rsync_task_hours": {
+      "1": 1,
+      "2": 3,
+      "3": 2
+    }
+  },
+  "blockers": [
+    {
+      "code": "UNDEFINED_INCIDENT_VALIDATOR",
+      "detail": "require_incident_closed calls validate_incident_closure, which is neither defined nor imported.",
+      "file": "b60_entry_rescue_card_bridge.py",
+      "sha256": "64bd9602b571637326d7595d2a29f77970e31c09f6180071c3951a4647127214"
+    }
+  ],
+  "booking_id": "b60-exclusive-20261106-day-r7",
+  "effects": false,
+  "mode": "read-only",
+  "model_gpu_calls": 0,
+  "observed_epoch": 1794017677,
+  "planned_not_installed": true,
+  "r8_conditional_only": {
+    "booked": false,
+    "execution": "2026-11-06T23:20:00-07:00/2026-11-07T00:05:00-07:00",
+    "minutes_before_backup": 10,
+    "requires": [
+      "actual full-window clearance",
+      "R7 actual PASS and independent acceptance",
+      "archive finished>=20:22",
+      "fresh NAS metadata and source-bound recovery capsule",
+      "final installed independent readiness audit"
+    ],
+    "reserve_until": "2026-11-07T00:20:00-07:00"
+  },
+  "residual_risks": [
+    "fresh metadata and final installed audit not yet available",
+    "first actual after-healthy-start owner-loss preservation behavior unqualified",
+    "strict timer-state postcheck can race legitimate scheduled jobs and must fail closed/preserve observations"
+  ],
+  "schema": "b60-independent-r7-source-and-schedule-review.v1",
+  "source_checks_passed": [
+    "four-file closure and retimed fixed B7 identity",
+    "600s trial inside1800s booking and900s recovery reserve",
+    "unchanged strict healthy-backend-preservation helper6af",
+    "native owner exit86 and same PID/monotonic start postcheck",
+    "archive10800s and NAS7200s independently gated"
+  ],
+  "source_sha256": {
+    "arm_clock.py": "726f44233d6f77125c9368c9af4f1fd6e46f50a71d93b1725fa60f99df59a786",
+    "backup_chain_history.py": "d793bfb6e6ae58897274113040926d4a7c7bf1e541ce45a8c82a215c029c141c",
+    "entry_recovery.py": "6af8b2aa87de4f46cbfcb4d228dfb8cd1e30548eb3e14b5175b4e53c93c22789",
+    "guest_entry_scope.py": "135939ed7c9f92d36ac575d8ef783a74874edb414bd8c5ac8cf8547e23a7a8c3",
+    "qualification.py": "48f716f84b05864c55ead27daf3a03cc7abd954af4a5c26a0ff6ea27c2b1392d",
+    "read_only_postcheck.py": "a8d91c0196fc274bbfcb5012897c7176c7a548fc270e6bb35618abed8d7b2a8e"
+  },
+  "verdict": "WILL NOT RUN"
+}

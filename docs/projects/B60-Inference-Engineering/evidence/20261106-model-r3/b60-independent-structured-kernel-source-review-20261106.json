@@ -1,0 +1,33 @@
+{
+  "findings": [
+    {
+      "code": "UNKNOWN_MESSAGE_DEFAULT_CLEAN",
+      "detail": "verify_incident_journal uses get(MESSAGE,empty-string), silently treating missing field as clean.",
+      "path": "model-trial-20261106-r8/news_xpu_boundary.py"
+    },
+    {
+      "code": "SPLIT_DEVICE_LOST_PHRASE",
+      "detail": "xe device newline lost returns clean because device lost alternative uses literal space; use whitespace matcher.",
+      "paths": [
+        "entry-rescue-qualification-20261106-r7/qualification.py",
+        "model-trial-20261106-r8/news_xpu_boundary.py"
+      ]
+    }
+  ],
+  "model_gpu_calls": 0,
+  "no_live_effects": true,
+  "observed_epoch": 1794019994,
+  "planned_not_installed": true,
+  "schema": "b60-independent-structured-kernel-review.v1",
+  "source_sha256": {
+    "entry-rescue-qualification-20261106-r7/qualification.py": "81207d06f9f5d5a0fbf815f80366ae47915eecb7a227235aafce2fd00cb3599c",
+    "model-trial-20261106-r8/model_trial.py": "958e27d42a793cdceeba9d9b62c6ccc4ab31f046ec65debfea261f47b5d6ae12",
+    "model-trial-20261106-r8/news_xpu_boundary.py": "b8ccf4313a5ae26d56eb70508befc14bac9069ba93069f23f6ab74cbceb3000b",
+    "test_structured_kernel_faults.py": "aed81fff082ddf8f736beb3366bd270cd36d2c14dbce6bb29fce356417d1d421"
+  },
+  "test_results": {
+    "actual_r7_ast_multiline_fault_reset_oom_refusal": true,
+    "repository_passed": 4,
+    "repository_tests": 4
+  }
+}
