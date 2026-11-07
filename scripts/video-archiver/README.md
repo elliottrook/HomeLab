@@ -53,6 +53,9 @@ certified Archive movie (`--kind archive-movie`), or one certified Archive
 season (`--kind season`, capped at 30 files). It prints
 only booleans and counts, reports source drift as a hold, and has no deletion
 method. Its result is diagnostic, not a controller decision.
+Archive membership is checked through Jellyfin's `AncestorIds` and exact
+CollectionFolder for every item in the scope; the file path alone is not
+treated as proof of the household Archive view.
 
 `retention_subtitles_live.inspect_subtitles` is a separate read-only candidate
 manifest. It records embedded subtitle stream metadata and hashes sidecars

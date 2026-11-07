@@ -24,6 +24,7 @@ from .retention_reclaim import estimate_unprotected_file, snapshot_names
 from .retention_seasons_live import _mapped_path, collect_season_paths
 from .retention_scope_activity import scope_has_active_work
 from .retention_subtitles_live import inspect_subtitles, jellyfin_container_probe
+from .retention_views_live import archive_view_verified
 from .retention_watch_live import collect_user_views, scope_watch_evidence
 from .retention_years_live import LiveYearConfig, _host_path, collect_movie_years
 
@@ -114,7 +115,9 @@ def observe(config_path: Path, data_root: Path, *, archive: bool = False) -> dic
         "status": "observed_only", "snapshot_free": any(
             row.provider_id == film.provider_id for row, _ in snapshot_free),
         "snapshot_free_certified_movies": len(snapshot_free),
-        "in_archive": film.path.startswith("/media/archive-movies/"),
+        "archive_path": film.path.startswith("/media/archive-movies/"),
+        "archive_view_verified": archive_view_verified(
+            jellyfin, (film.jellyfin_item_id,), kind="movie"),
         "radarr_file_record_unique": len(file_rows) == 1,
         "radarr_monitored": bool(file_rows[0][1]) if len(file_rows) == 1 else None,
         "three_month_import_age_met": import_age,
@@ -171,6 +174,7 @@ def observe_season(config_path: Path, data_root: Path) -> dict:
     if len(users) != 7:
         raise RuntimeError("household user roster changed")
     item_ids = scopes.certified_scope_item_ids[selected]
+    archive_view = archive_view_verified(jellyfin, item_ids, kind="season")
     jellyfin_url = str(config["jellyfin_url"])
     views = collect_user_views(item_ids, user_ids=users,
                                jellyfin_url=jellyfin_url, jellyfin_api_key=jellyfin_key)
@@ -206,6 +210,7 @@ def observe_season(config_path: Path, data_root: Path) -> dict:
     _, _, cap = _pool_usage()
     return {
         "status": "observed_only", "scope_kind": "season",
+        "archive_view_verified": archive_view,
         "file_count": len(file_rows), "snapshot_free": snapshot_free,
         "three_month_youngest_import_age_met": age_ok,
         "seven_user_watch_complete": watch is not None,
