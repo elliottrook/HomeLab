@@ -2,7 +2,7 @@
   "schema_version": 1,
   "kind": "astertv-content-volume-profile",
   "room_id": "family",
-  "status": "owner-selected-not-enabled",
+  "status": "owner-accepted-enabled",
   "targets": {
     "Book/Audiobook": 0.44,
     "Movie": 0.6,
@@ -17,5 +17,5 @@
   "nighttime_entity": "sun.sun",
   "nighttime_on_state": "below_horizon",
   "nighttime_off_state": "above_horizon",
-  "enabled": false
+  "enabled": true
 }

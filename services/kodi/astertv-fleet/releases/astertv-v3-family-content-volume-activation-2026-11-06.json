@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-live-acceptance-receipt",
+  "id": "astertv-v3-family-content-volume-activation-2026-11-06",
+  "target": {
+    "room_id": "family",
+    "device_id": "astertv-family",
+    "hostname": "AsterTV-Family",
+    "receiver_entity": "media_player.tx_rz30"
+  },
+  "authorization": {
+    "owner_approved_push": true,
+    "owner_approved_activation_and_test": true,
+    "bedroom_authority": false
+  },
+  "recovery": {
+    "home_assistant_snapshot": "astertv-m7-family-volume-pre-20261106",
+    "configuration_checkpoint": "/mnt/data/supervisor/homeassistant/.aster-checkpoints/astertv-v3-m7-family-volume-enable-20261106/configuration.yaml",
+    "checkpoint_sha256": "251eac65feafbfbb6f73ff3fb0b827785a89e9e54c5a05bd970b04a76b7a7c85"
+  },
+  "configuration": {
+    "enabled": true,
+    "live_sha256": "f84f240070f0cb7c1d1e9a46732cd2d9fe833217cafe9d183102bb0d1d547cfd",
+    "maximum_step": 0.02,
+    "ramp_delay_seconds": 0.25,
+    "nighttime_entity": "sun.sun",
+    "nighttime_ceiling": 0.6
+  },
+  "proof": {
+    "startup_idle_prime_volume": 0.44,
+    "dependency_outage_failed_closed": true,
+    "movie_ramp_start": 0.44,
+    "movie_ramp_target": 0.6,
+    "manual_override_action": "equipment.volume_down",
+    "manual_override_level": 0.595,
+    "manual_override_held_full_cycle": true,
+    "restart_prime_level": 0.595,
+    "restart_adjustment": false,
+    "next_session_target": 0.6,
+    "dolby_input_signal": "Dolby Atmos",
+    "dolby_output_channels": "5.2.4 ch",
+    "content_history_attribute_rows": 0,
+    "content_history_event_rows": 0,
+    "final_active_players": 0,
+    "final_window": "Home",
+    "final_receiver_level": 0.6,
+    "family_kodi_restarts": 0,
+    "aster_agent_restarts": 0,
+    "home_assistant_core_check": "passed"
+  },
+  "observed_interruption": {
+    "service": "aster-agent",
+    "event": "clean-systemctl-stop-after-daemon-reload",
+    "effect": "gateway-unavailable-and-no-volume-action",
+    "recovery": "playback-stopped-before-service-start",
+    "outcome": "fail-closed-and-restored"
+  },
+  "outcome": "family-content-volume-enabled-and-accepted-bedroom-open"
+}

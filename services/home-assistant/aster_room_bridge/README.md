@@ -28,9 +28,9 @@ observation containing only playback state, coarse class, Aster page,
 screensaver state and ephemeral session/sequence metadata. It is retained only
 in `hass.data` as current volatile state: the component creates no sensor,
 event, recorder row or viewing-history log. Duplicate reads are idempotent;
-stale, malformed, replayed or wrong-room observations fail closed. This path is
-not live until the coordinated Kodi, gateway and Home Assistant deployment gate
-is separately accepted.
+stale, malformed, replayed or wrong-room observations fail closed. Family's
+coordinated path and exact profile were accepted live on 2026-11-06; Bedroom
+remains disabled pending its independent deployment gate.
 
 Rolling upgrades preserve the accepted controls. A new Kodi client retries
 once without the optional content envelope when the predecessor gateway rejects
@@ -39,6 +39,14 @@ finds the predecessor gateway's content endpoint absent disables content
 polling while continuing the already accepted equipment poll. Other malformed
 or unavailable content responses are isolated from power/volume/mute; they
 never widen authority or produce a volume action.
+
+Family's accepted profile is pinned in `profiles/family.json`. It may act only
+at playback start or a real content-class transition, uses a maximum `0.02`
+step, respects the exact `sun.sun` night/day states and latches a manual change
+for the current session. Live acceptance proved bounded Movie ramp, app manual
+override, gateway failure, Home Assistant restart priming, next-session reset,
+zero recorder history and Dolby Atmos passthrough. The recovery record is
+`services/kodi/astertv-fleet/releases/astertv-v3-family-content-volume-activation-2026-11-06.json`.
 
 Candidate multi-room configuration (the final key paths and URL are
 deployment-owned; the predecessor single-room mapping remains supported during

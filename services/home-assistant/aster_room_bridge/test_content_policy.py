@@ -48,11 +48,11 @@ class ContentPolicyTests(unittest.TestCase):
         with self.assertRaisesRegex(ContentPolicyError, "playback-identity"):
             PlaybackObservation.parse(payload(expires_epoch=109), now_epoch=110)
 
-    def test_owner_selected_family_profile_is_exact_and_disabled(self):
+    def test_owner_accepted_family_profile_is_exact_and_enabled(self):
         profile_path = HERE.parent.parent / "profiles" / "family.json"
         value = json.loads(profile_path.read_text())
-        self.assertEqual(value["status"], "owner-selected-not-enabled")
-        self.assertFalse(value["enabled"])
+        self.assertEqual(value["status"], "owner-accepted-enabled")
+        self.assertTrue(value["enabled"])
         self.assertEqual(value["nighttime_entity"], "sun.sun")
         self.assertEqual(value["nighttime_on_state"], "below_horizon")
         self.assertEqual(value["nighttime_off_state"], "above_horizon")
