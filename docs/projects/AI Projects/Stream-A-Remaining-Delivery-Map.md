@@ -2473,6 +2473,14 @@ separately booked 60-request, zero-retry effect review; route execution,
 provider egress, deployment, authority and automatic routing remain off. Its
 focused suite passes 5/5.
 
+The prospective shadow result now also has a fail-closed
+[M5 reconciliation boundary](evidence/M5-K2-no-effect-shadow-reconciliation-boundary-2026-11-06.md).
+It binds the exact 60-case envelope to one complete registered Lab Hours
+terminal, zero retries/errors/effects and `production_restored=true`; unknown
+fields or any identity, digest, count, effect or restoration drift are rejected.
+The current combined K2 source audit passes 147/147. This remains source-only:
+no fixture, shadow collection, booking, route or provider effect exists.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from
