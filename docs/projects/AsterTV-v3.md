@@ -1567,6 +1567,11 @@ Evidence:
   loudest baseline, then Television, YouTube, Music, Podcast/News and Books,
   while the exact levels remain owner-accepted room settings rather than
   release constants.
+  - [x] Family targets selected 2026-11-06: Movie `0.60`, Television `0.58`,
+    YouTube `0.455`, Music `0.43`, Podcast `0.44`, News `0.44`, and the shared
+    Book/Audiobook class `0.44`; nighttime ceiling `0.60`. These are recorded
+    inputs only and do not enable automation. Bedroom remains open. Evidence:
+    `docs/projects/evidence/AsterTV-v3-M7-Family-volume-profile-2026-11-06.md`.
 - [x] Define and test a profile policy that can act only at playback start or
   content-class transition, ramps safely, enforces a nighttime ceiling and
   latches manual override for the current session without touching Kodi volume
@@ -2265,6 +2270,7 @@ explicit user acceptance.
 | 2026-11-06 | Closed autonomous M10 and froze the repository-side M11 candidate | Reconciled the full Jen functional/account/failure/navigation/playback evidence, Bedroom/Family corruption and interruption recovery, two Jen reboots and dependency-denial evidence. A new disposable-root proof installed the complete Jen composition over the immutable v2 snapshot and restored all 577 v2 add-on files, 127 composition paths and both accepted-state directories. | The 72-file integrated gate passes; `astertv-v3-rc1-2026-11-06` pins source commit `762628af…2892` and deterministic per-device compositions/bundles. Only owner-assisted physical checks, volume choices, Bedroom soak/Family promotion and the external Media Lifecycle replacement handoff remain. Evidence: `docs/projects/evidence/AsterTV-v3-M10-automated-closure-and-M11-freeze-2026-11-06.md`. |
 | 2026-11-06 | Accepted Family physical equipment controls and AsterTV soft standby | Captured the exact G20 USB key codes and bound only Volume Down, Volume Up, Mute and Power to the authenticated same-room equipment route. App and physical Power now share one explicit state machine: Kodi records/restores the Aster window while the TCL/Onkyo chain receives explicit off/on. | Owner observed physical standby/wake, `0.560 → 0.555 → 0.560`, and mute `false → true → false`; Media Home, idle playback, all three Remote clients and the original navigation keymap were preserved. The exact live gateway is pinned separately from the broader unreleased content-state candidate. Bedroom remains open. Evidence: `docs/projects/evidence/AsterTV-v3-M7-Family-physical-controls-and-standby-2026-11-06.md`. |
 | 2026-11-06 | Froze the Family standby amendment without rewriting RC1 | The immutable RC1 record remains unchanged. A second hash-bound freeze records the new Family composition and marks Bedroom/Jen changes as repository candidates only. | `astertv-v3-rc1-family-standby-amendment-2026-11-06` points to local milestone commit `dc0ae046…b79830`; all 52 fleet tests now verify the amendment while retaining RC1 for recovery/history. |
+| 2026-11-06 | Recorded the owner-selected Family content-volume profile | Family listening produced exact receiver targets for every supported content class and a nighttime ceiling. | Movie `0.60`, Television `0.58`, YouTube `0.455`, Music `0.43`, Podcast/News/Book/Audiobook `0.44`, nighttime ceiling `0.60`. The selection is documented but not activated; Bedroom calibration and the live safety/outage gates remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M7-Family-volume-profile-2026-11-06.md`. |
 
 ## Close-out
 
