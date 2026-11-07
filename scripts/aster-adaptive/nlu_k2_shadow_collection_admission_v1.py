@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import re
 
+import nlu_k2_shadow_fixture_custody_v1 as custody
 import nlu_k2_shadow_label_review_v1 as label_review
 from nlu_threshold_policy import decode_unique_json
 
@@ -99,7 +100,7 @@ def admit(*, development_raw: bytes, sealed_score_raw: bytes,
         "sealed_result_sha256": sealed["result_sha256"],
         "fixture_sha256": custody_receipt["fixture_sha256"],
         "label_review_sha256": hashlib.sha256(
-            label_review_receipt["label_set_sha256"].encode()).hexdigest(),
+            custody.canonical(label_review_receipt)).hexdigest(),
         "model_requests": 60, "retries": 0,
         "own_lab_hours_booking_required_if_b60_used": True,
         "route_execution": False, "provider_egress": False,

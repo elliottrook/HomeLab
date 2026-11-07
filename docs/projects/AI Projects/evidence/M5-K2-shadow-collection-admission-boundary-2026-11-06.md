@@ -22,9 +22,9 @@ keeps effects, deployment, authority and automatic routing off.
 ## Verification
 
 - source SHA-256:
-  `d18e833c2285381b783d8c5e0073c6a0b50c768d1628a14ec4e1e0b21ed2fa26`
+  `acbba06e4ee4f1db84efafa83917e0189839f581cdeb051c25e3f6ddfdd8fce0`
 - test SHA-256:
-  `e71ea556aff2fc7cb5aa358131abb57eb4b83dc863da65bf92a652a248aeb19f`
+  `1e8f4afd382e24962e48928f46dd48d4311c94f86364a272c773dfb8b47ba063`
 - focused admission tests: 5/5 pass
 - complete `test_nlu_k2*.py` discovery: 108/108 pass
 

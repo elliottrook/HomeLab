@@ -49,6 +49,7 @@ class K2ShadowCollectionAdmissionTests(unittest.TestCase):
         self.assertEqual(60, value["model_requests"])
         self.assertFalse(value["collection_effect_authorized"])
         self.assertTrue(value["own_lab_hours_booking_required_if_b60_used"])
+        self.assertEqual(64, len(value["label_review_sha256"]))
 
     def test_failed_or_unrestored_development_fails_closed(self):
         development, sealed, receipt, review = evidence()
