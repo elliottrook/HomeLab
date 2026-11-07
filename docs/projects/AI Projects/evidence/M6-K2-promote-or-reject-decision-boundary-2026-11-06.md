@@ -20,11 +20,18 @@ The raw pre-reconciliation shadow score is rejected.
 
 Any complete gate may instead produce one explicit `reject`. Missing,
 malformed, internally inconsistent, duplicate-key, unsafe, costly, effectful
-or unrestored evidence fails closed rather than becoming a decision.
+or unrestored evidence fails closed rather than becoming a decision. Exact
+integer typing prevents Boolean values from masquerading as zero requests,
+retries, errors or cost in any of the three input records.
 
 Even a passing M6 result is deliberately non-authorizing: it records a
 candidate for the bounded read-only investigation role only. It cannot grant
 tools, deploy a service, enable automatic routing or authorize release. The
-focused decision suite passes 5/5. The complete K2 source audit passes 149/149
+focused decision suite passes 6/6. The complete K2 source audit passes 150/150
 across Stream A and platform sources. No model, sealed case, production service
 or route was accessed by this source-only work.
+
+- source SHA-256:
+  `65f09c66cd40ca4b7413cc3e9e9f00c3219434c39cf7070a467ae4fdc277405b`
+- test SHA-256:
+  `f5e41466d77584208b6460dcc2fc46fc3e94677c12822d733a5156b598f190e4`

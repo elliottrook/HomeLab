@@ -32,7 +32,7 @@ errors or cost.
 - complete `test_nlu_k2*.py` discovery: 114/114 pass
 - deterministic bundle-builder suite: 3/3 pass
 - platform `test_m3_k2*.py` suite: 31/31 pass
-- combined current K2 source audit: 148/148 pass
+- combined K2 source audit at this boundary: 148/148 pass
 
 The first attempted extra bundle test invocation named a nonexistent module and
 failed before executing a test. The correct existing module
