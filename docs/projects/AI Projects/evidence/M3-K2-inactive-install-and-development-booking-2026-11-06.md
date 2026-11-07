@@ -91,3 +91,25 @@ active for 19:05 and must pause itself after that single check. It may only run
 the authoritative readiness checks, record the bounded result and continue
 offline work; it cannot claim, invoke, retry, reschedule, release, promote,
 install, stop or restart either workload.
+
+### 19:00 final read-only readiness observation
+
+The one-time pre-window recheck passed. The standard authoritative checker
+returned `ready` with all ten gates true: booking readable/admissible, exact
+owner/duration/recovery, dispatcher active, lease ready, shared locks absent,
+registered release and LXC110 custody valid, and the session contract bounded.
+The target contains all 12 exact K2 runtime files with complete dependencies
+and no target units.
+
+The predecessor booking `b60-exclusive-20261106-day-r4` is terminal `failed`
+with result `FAILED_RESTORED`; its finished epoch is retained. The operation,
+full-drain and persistent drain locks/state are absent. The lease is exactly
+`ready`. The exact dispatcher unit `aster-lab-hours-dispatch.timer` is enabled
+and active with its last minute trigger successful. The authoritative
+20:00–21:00 query returns only booking
+`aster-stream-a-m3-k2-20261106-2000-r1`.
+
+No booking was claimed or changed and no workload, retry, release, promotion,
+installation, service stop or restart was attempted. K2 remains scheduled and
+fail-closed on its fresh runtime gates. The one-time readiness heartbeat is now
+paused as spent.
