@@ -28,6 +28,9 @@ The AsterTV notice/Keep contract is in
 [`docs/projects/Media-Retention-AsterTV-Notice-Contract.md`](../../docs/projects/Media-Retention-AsterTV-Notice-Contract.md).
 The local ledger can propose a notice, record verified AsterTV visibility and
 persist a household Keep choice. No authenticated feed or client route is live.
+The ledger's SQLite backup/restore has an isolated TrueNAS fixture proof: a
+restored copy retains the first-acquisition clock, exact file-scope digest and
+durable Keep state. No production ledger database or notice sender is installed.
 
 The read-only audit is installed at `/mnt/Media/data/tools/media-retention-audit`
 on TrueNAS. Cron 9 runs `run-retention-audit.sh` at 10:45 daily and writes only a

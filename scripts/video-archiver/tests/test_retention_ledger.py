@@ -1,6 +1,7 @@
 """Durability and fail-closed behavior for source-local retention facts."""
 
 from dataclasses import replace
+import shutil
 import sqlite3
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -27,6 +28,26 @@ def observation(*files: ObservedFile, first=None) -> CompleteObservation:
 
 
 class LedgerTests(TestCase):
+    def test_isolated_sqlite_backup_restores_keep_and_notice_binding(self):
+        backup = Path(self.temp.name) / "retention-backup.db"
+        recovered = Path(self.temp.name) / "retention-restored.db"
+        with RetentionLedger(self.path) as ledger:
+            ledger.record_complete_observation(observation(first=OLD))
+            ledger.propose_notice("tmdb:101", OLD)
+            ledger.mark_notice_visible("tmdb:101", NOW, "astertv-visible-1")
+            ledger.record_keep("tmdb:101", "user-a", NOW)
+            expected_scope = ledger.current_file_scope_digest("tmdb:101")
+            with sqlite3.connect(backup) as destination:
+                ledger.connection.backup(destination)
+        shutil.copyfile(backup, recovered)
+        with RetentionLedger(recovered) as ledger:
+            self.assertTrue(ledger.has_keep("tmdb:101"))
+            self.assertIsNone(ledger.notice_for_current_files("tmdb:101"))
+            self.assertEqual(ledger.current_file_scope_digest("tmdb:101"), expected_scope)
+            self.assertEqual(ledger.connection.execute(
+                "SELECT first_acquired_at FROM units"
+            ).fetchone()[0], OLD.isoformat())
+
     def setUp(self):
         self.temp = TemporaryDirectory()
         self.path = Path(self.temp.name) / "retention.db"
