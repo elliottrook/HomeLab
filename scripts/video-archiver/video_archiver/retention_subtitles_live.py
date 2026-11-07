@@ -70,10 +70,15 @@ def _run_probe(command: list[str]) -> dict:
 
 
 def _digest(path: Path) -> str:
+    before = path.stat()
     digest = hashlib.sha256()
     with path.open("rb") as source:
         for chunk in iter(lambda: source.read(1024 * 1024), b""):
             digest.update(chunk)
+    after = path.stat()
+    if (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns) != (
+            after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns):
+        raise RuntimeError("subtitle sidecar changed during manifest")
     return digest.hexdigest()
 
 
@@ -84,6 +89,7 @@ def inspect_subtitles(video: Path, *, data_root: Path,
     if (not video.is_file() or video.is_symlink() or not video.resolve().is_relative_to(root)
             or video.suffix.lower() not in VIDEO_SUFFIXES):
         raise RuntimeError("media path cannot be verified for subtitle manifest")
+    video_before = video.stat()
     siblings = tuple(video.parent.iterdir())
     if any(folder.is_symlink() and folder.is_dir() for folder in siblings):
         raise RuntimeError("symlinked media subdirectory needs explicit review")
@@ -115,6 +121,11 @@ def inspect_subtitles(video: Path, *, data_root: Path,
         if closest[0] == target_stem:
             sidecars.append(HashedSidecar(path.name, _digest(path)))
     payload = probe(video)
+    video_after = video.stat()
+    if (video_before.st_dev, video_before.st_ino, video_before.st_size,
+            video_before.st_mtime_ns) != (video_after.st_dev, video_after.st_ino,
+                                         video_after.st_size, video_after.st_mtime_ns):
+        raise RuntimeError("media changed during subtitle manifest")
     streams = payload.get("streams") if isinstance(payload, dict) else None
     if not isinstance(streams, list):
         raise RuntimeError("subtitle stream probe incomplete")

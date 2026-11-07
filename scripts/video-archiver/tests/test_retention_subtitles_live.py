@@ -9,6 +9,19 @@ from video_archiver.retention_subtitles_live import inspect_subtitles, jellyfin_
 
 
 class SubtitleEvidenceTests(TestCase):
+    def test_video_change_during_probe_holds_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            video = root / "film.mkv"
+            video.write_bytes(b"before")
+
+            def changing_probe(path):
+                path.write_bytes(b"after a replacement")
+                return {"streams": []}
+
+            with self.assertRaisesRegex(RuntimeError, "media changed"):
+                inspect_subtitles(video, data_root=root, probe=changing_probe)
+
     def test_container_probe_maps_only_verified_media(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
