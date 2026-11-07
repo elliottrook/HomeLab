@@ -49,8 +49,8 @@ route. Hash and normalization anchors fail closed on either input changing.
 - Derived gateway parses as Python and retains the accepted voice default.
 - 20 Home Assistant policy/component/contract tests pass.
 - 38 Kodi client/session/installer tests pass.
-- Fleet/materialization tests pass except the intentional immutable-freeze
-  mismatch until a superseding freeze is issued.
+- All 53 fleet/materialization/release tests pass against the superseding
+  immutable freeze.
 - Verified Family release outputs are composition `a09ef2b5…9411`, bundle
   `5eb17b3f…feed`, plan `f47481ab…2661`, guard `96040595…3f14` and SBOM
   `6d88bafd…d477`.
