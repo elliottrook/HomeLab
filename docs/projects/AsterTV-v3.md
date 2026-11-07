@@ -2029,6 +2029,8 @@ of those observation or promotion boundaries.
   credentials and stereo configuration; soak through reboot and normal use.
   The bounded content-only deployment and playback transport are accepted, but
   the complete composition was deliberately not inferred or silently installed.
+  The exact Bedroom-first/Family-second promotion, acceptance and rollback
+  sequence is prepared at `docs/runbooks/AsterTV-v3-Promotion.md`.
 - [ ] Obtain explicit Family promotion approval after Bedroom acceptance and
   confirm playback is idle.
 - [ ] Deploy independently to Family, preserving its v2 checkpoint, account
@@ -2332,6 +2334,7 @@ explicit user acceptance.
 | 2026-11-06 | Reconciled the post-acceptance M11 repository candidate | Two independent builds from `b2781022…94e43` reproduced the exact composition, bundle, plan, guard and SBOM hashes already pinned by the latest immutable candidate; the historical freezes remain unchanged. | The integrated gate passes 76 test files, 93 secret-scan files, 15 pages and 127 controls with zero conformance or operations gaps. Bedroom equipment/volume/full soak, explicit Family promotion, the physical walkthrough, external Media Lifecycle handoff and final handover remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M11-post-acceptance-reconciliation-2026-11-06.md`. |
 | 2026-11-06 | Prepared the pre-graduation household handover | Consolidated the accepted interaction language, page workflows, Aster AI and Remote behavior, account/privacy boundary, degraded operation and safe recovery without claiming unfinished room promotion. | The guide is ready for the non-author walkthrough. Bedroom equipment/volume/full soak, final Family promotion and explicit guide acceptance remain open. Guide: `docs/runbooks/AsterTV-v3-User-Guide.md`. |
 | 2026-11-06 | Completed the repository-side intent and efficiency review | Compared every v3 outcome with its compute, network, permission, storage, recovery and operational cost using the measured Jen and production-room evidence. | The current composition reuses existing authorities, adds no B60/scheduled AI/public ingress/always-on microphone/background camera/history store and retains practical low-spec headroom. No new service is recommended; physical Bedroom, soak, promotion and walkthrough gates remain. Evidence: `docs/projects/evidence/AsterTV-v3-M11-intent-and-efficiency-review-2026-11-06.md`. |
+| 2026-11-06 | Prepared the v3 Bedroom-first promotion and rollback runbook | Bound the immutable bundle builder and composition runner to strict identity, idle, checkpoint, room-audio, candidate-validation, accept, reboot/soak and rollback gates. | The operational path is resumable without treating plan-only generated files, a partial Bedroom rollout or one room's accepted state as another room's authority. No appliance changed. Runbook: `docs/runbooks/AsterTV-v3-Promotion.md`. |
 
 ## Close-out
 
