@@ -71,13 +71,14 @@ After acceptance, Family reported power on, volume `0.56`, mute false, idle
 playback and Media Home. Bedroom, Family and Jen Remote clients were all
 connected. Direct unauthenticated gateway access remained HTTP 403.
 
-During close-out, a separate `systemctl` client stopped `aster-agent.service`
-cleanly after requesting a daemon reload, which made the public Remote route
-return 502. The accepted gateway bytes were still intact. The enabled service
-was started again; it returned active/running, the public route returned 200,
-and all three clients reconnected with Family still on, idle, unmuted and at
-`0.56`. This was a service-lifecycle interruption, not a standby-state or
-equipment-control failure.
+During close-out, a separate concurrent `systemctl` client twice stopped
+`aster-agent.service` cleanly after requesting daemon reloads, which made the
+public Remote route return 502. The accepted gateway bytes stayed intact both
+times. After the concurrent sessions ended, the enabled service was started
+again; a delayed recheck found it still active/running, the public route at
+HTTP 200, and all three clients reconnected with Family still on, idle,
+unmuted and at `0.56`. This was an external service-lifecycle interruption,
+not a standby-state or equipment-control failure.
 
 ## Recovery
 
