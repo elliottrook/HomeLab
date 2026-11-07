@@ -22,8 +22,11 @@ The main page prioritizes household play state:
 5. Requests only when proposals exist.
 
 The top filters are Library, Continue, Platforms, and Requests. Current context
-uses gold; remote focus adds jade without resizing the tile or pill. Box art is
-2:3, platform art is square, and missing art uses a quiet platform monogram.
+uses gold. Artwork focus is one continuous jade selection surface flowing from
+the narrow top/side reveal into the deeper title area; it is not a separate
+title pill plus border. The artwork keeps exactly the same position and size.
+Box art is 2:3, platform art is square, and missing art uses a quiet platform
+monogram.
 
 ## State-dependent primary action
 

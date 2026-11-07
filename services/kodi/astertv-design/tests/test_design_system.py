@@ -138,6 +138,33 @@ class DesignSystemTests(unittest.TestCase):
         self.assertEqual(graphs["games"]["entry"], "continue-rail")
         self.assertEqual(graphs["game-save-conflict-dialog"]["entry"], "cancel")
 
+    def test_games_art_focus_is_one_flowing_surface_without_resizing_art(self):
+        outputs = BUILD.outputs()
+        rest = BUILD.ET.fromstring(
+            outputs[BUILD.GENERATED / "renders/pages/games.svg"]
+        )
+        focus = BUILD.ET.fromstring(
+            outputs[BUILD.GENERATED / "renders/pages/games-focus.svg"]
+        )
+        namespace = "{http://www.w3.org/2000/svg}"
+        surfaces = [
+            node for node in focus.iter()
+            if node.attrib.get("data-focus-surface") == "artwork-tile"
+        ]
+        self.assertEqual(len(surfaces), 1)
+        self.assertEqual(surfaces[0].tag, namespace + "rect")
+        self.assertEqual(surfaces[0].attrib["height"], "340")
+        self.assertEqual(surfaces[0].attrib["fill"], BUILD.load("tokens.json")["colors"]["jade"])
+        rest_art = [
+            (node.attrib["x"], node.attrib["y"], node.attrib["width"], node.attrib["height"])
+            for node in rest.iter() if node.attrib.get("data-artwork-tile") == "true"
+        ]
+        focus_art = [
+            (node.attrib["x"], node.attrib["y"], node.attrib["width"], node.attrib["height"])
+            for node in focus.iter() if node.attrib.get("data-artwork-tile") == "true"
+        ]
+        self.assertEqual(rest_art, focus_art)
+
     def test_schema_documents_are_valid_json_schema(self):
         for path in sorted((HERE / "schemas").glob("*.schema.json")):
             schema = json.loads(path.read_text())

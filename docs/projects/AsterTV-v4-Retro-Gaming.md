@@ -605,10 +605,14 @@ Infrastructure completion alone is a milestone, not AsterTV v4 completion.
   Library, and conditional Requests; distinguishes Resume, Play, Install, and
   Request; skips disabled actions; and returns focus to the exact prior item
   when it still exists.
+- Owner review rejected the first artwork-focus treatment because it appeared
+  as a title pill plus a separate three-sided border. The corrected fixture
+  uses one continuous jade surface behind the unchanged artwork geometry,
+  flowing directly into the deeper title treatment.
 - Jen's measured ceiling constrains the design to 1536 MiB total UI memory,
   256 MiB art cache, two prefetched rows, seven visible box-art tiles, no
   animated background, one simultaneous fade, and 1920-pixel maximum art.
-- Design tests pass 17/17, generated outputs reproduce byte-for-byte, all focus
+- Design tests pass 18/18, generated outputs reproduce byte-for-byte, all focus
   graphs are closed, and the Aster Games infrastructure validator plus broker
   tests remain green. The visual and interaction candidate still requires
   owner acceptance. Platform/core/controller claims remain deferred until

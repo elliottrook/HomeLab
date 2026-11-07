@@ -189,20 +189,19 @@ def games_tile(x: int, label: str, tokens: dict, *, focused: bool = False,
     c = tokens["colors"]
     title_y = 958
     focus = (
-        f'<path d="M{x-4} 650 V930 M{x-4} 650 H{x+214} M{x+214} 650 V930" '
-        f'stroke="{c["jade"]}" stroke-width="4" fill="none"/>'
-        f'<rect x="{x-4}" y="926" width="218" height="64" rx="18" fill="{c["jade"]}"/>'
+        f'<rect data-focus-surface="artwork-tile" x="{x-4}" y="650" width="218" height="340" '
+        f'rx="22" fill="{c["jade"]}" stroke="{c["champagne_gold"]}" stroke-width="2"/>'
     ) if focused else ""
     if missing:
         art = (
-            f'<rect x="{x}" y="654" width="210" height="276" rx="18" fill="{c["charcoal"]}"/>'
+            f'<rect data-artwork-tile="true" x="{x}" y="654" width="210" height="276" rx="18" fill="{c["charcoal"]}"/>'
             f'<circle cx="{x+105}" cy="770" r="54" fill="{c["jade"]}"/>'
             f'<text x="{x+105}" y="786" text-anchor="middle" fill="{c["warm_white"]}" '
             f'font-family="sans-serif" font-size="42">PX</text>'
         )
     else:
         art = (
-            f'<rect x="{x}" y="654" width="210" height="276" rx="18" fill="url(#art)"/>'
+            f'<rect data-artwork-tile="true" x="{x}" y="654" width="210" height="276" rx="18" fill="url(#art)"/>'
             f'<path d="M{x+20} 860 C{x+70} 790 {x+138} 900 {x+190} 800 V912 H{x+20} Z" '
             f'fill="{c["ink"]}" fill-opacity=".52"/>'
         )
@@ -212,7 +211,7 @@ def games_tile(x: int, label: str, tokens: dict, *, focused: bool = False,
         f'font-family="sans-serif" font-size="16">{svg_escape(status)}</text>'
     ) if status else ""
     return (
-        f'<g>{art}{badge}{focus}<text x="{x+8}" y="{title_y}" fill="{c["warm_white"] if focused else c["ink"]}" '
+        f'<g>{focus}{art}{badge}<text x="{x+8}" y="{title_y}" fill="{c["warm_white"] if focused else c["ink"]}" '
         f'font-family="sans-serif" font-size="22">{svg_escape(label)}</text></g>'
     )
 
