@@ -1,0 +1,209 @@
+{
+  "accepted_hashes": [
+    "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3  /etc/systemd/system/aster-llama.service",
+    "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5  /opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server",
+    "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13  /opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"
+  ],
+  "accepted_state": {
+    "ActiveState": "active",
+    "NRestarts": "0",
+    "SubState": "running"
+  },
+  "active_scopes": [],
+  "base30_sha": "e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2",
+  "booking": {
+    "booking_id": "b60-exclusive-20261106-day-r4",
+    "created_epoch": 1794004844,
+    "end_epoch": 1794016500,
+    "kind": "exclusive-stack",
+    "owner": "b60-stream-a",
+    "restore_buffer_seconds": 900,
+    "schema": "aster-lab-hours-reservation.v1",
+    "start_epoch": 1794013800,
+    "state": "reserved",
+    "workload": "b60-qwen36-35b-failure-capture-v1"
+  },
+  "candidate_sha": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+  "card_sha": "7172b00f8e9117c583b2c049ad86f9314ffaa3ca0451eb5b1e214af3fbf15fbe",
+  "claimed": [],
+  "dispatch_intent_exists": false,
+  "global_manifest_sha": "b1f6b069d7d23e99953fca9a19a2e054b58cc465bb357321826efe3cf53bb231",
+  "global_pin_count": 58,
+  "guest_available_kib": 16482260,
+  "guest_plans": {
+    "104": {
+      "current_plan_matches": true,
+      "helper_sha": {
+        "lab_hours_file_checkpoint.py": "5938e967448073ecce2afc733fb569a7bef113b9ddd2fb4385cf64ec7af783f7",
+        "lab_hours_guest_checkpoint.py": "76e8f228fcbcd302a67dbbfd8538a2f1e0dd2e39449b0e4745152c32aef9d76b",
+        "lab_hours_prepare_entry_plan.py": "2cf80b75ca067c2d9bb2aad861c81261ed304177e24040dff8f33487c883778a",
+        "lab_hours_unit_adapter.py": "f4781de620e9c0c10bf01eab162eb2564d8baf1d4d84670117649d368325bcbd"
+      },
+      "plan_sha": "7a8f1f81476b59b193d6fe6e601b4eb55ef71cecf2b06806149fc26c5368fc34"
+    },
+    "110": {
+      "current_plan_matches": true,
+      "helper_sha": {
+        "lab_hours_file_checkpoint.py": "5938e967448073ecce2afc733fb569a7bef113b9ddd2fb4385cf64ec7af783f7",
+        "lab_hours_guest_checkpoint.py": "76e8f228fcbcd302a67dbbfd8538a2f1e0dd2e39449b0e4745152c32aef9d76b",
+        "lab_hours_prepare_entry_plan.py": "2cf80b75ca067c2d9bb2aad861c81261ed304177e24040dff8f33487c883778a",
+        "lab_hours_unit_adapter.py": "f4781de620e9c0c10bf01eab162eb2564d8baf1d4d84670117649d368325bcbd"
+      },
+      "plan_sha": "71aa5f835b90f6ce2e506882e14837ad583b7c905e10ef3b2e78f5424ca0f122"
+    },
+    "114": {
+      "current_plan_matches": true,
+      "helper_sha": {
+        "lab_hours_file_checkpoint.py": "5938e967448073ecce2afc733fb569a7bef113b9ddd2fb4385cf64ec7af783f7",
+        "lab_hours_guest_checkpoint.py": "76e8f228fcbcd302a67dbbfd8538a2f1e0dd2e39449b0e4745152c32aef9d76b",
+        "lab_hours_prepare_entry_plan.py": "2cf80b75ca067c2d9bb2aad861c81261ed304177e24040dff8f33487c883778a",
+        "lab_hours_unit_adapter.py": "f4781de620e9c0c10bf01eab162eb2564d8baf1d4d84670117649d368325bcbd"
+      },
+      "plan_sha": "a96363f469cdf25ed50067cd90e4ab37722f83f19d04a56e6fa5d7178a157413"
+    },
+    "115": {
+      "current_plan_matches": true,
+      "helper_sha": {
+        "lab_hours_file_checkpoint.py": "5938e967448073ecce2afc733fb569a7bef113b9ddd2fb4385cf64ec7af783f7",
+        "lab_hours_guest_checkpoint.py": "76e8f228fcbcd302a67dbbfd8538a2f1e0dd2e39449b0e4745152c32aef9d76b",
+        "lab_hours_prepare_entry_plan.py": "2cf80b75ca067c2d9bb2aad861c81261ed304177e24040dff8f33487c883778a",
+        "lab_hours_unit_adapter.py": "f4781de620e9c0c10bf01eab162eb2564d8baf1d4d84670117649d368325bcbd"
+      },
+      "plan_sha": "8b1aed9f7feba2d537fb48253a508f2004950c03258b2b0db9e69cfeea303a86"
+    },
+    "116": {
+      "current_plan_matches": true,
+      "helper_sha": {
+        "lab_hours_file_checkpoint.py": "5938e967448073ecce2afc733fb569a7bef113b9ddd2fb4385cf64ec7af783f7",
+        "lab_hours_guest_checkpoint.py": "76e8f228fcbcd302a67dbbfd8538a2f1e0dd2e39449b0e4745152c32aef9d76b",
+        "lab_hours_prepare_entry_plan.py": "2cf80b75ca067c2d9bb2aad861c81261ed304177e24040dff8f33487c883778a",
+        "lab_hours_unit_adapter.py": "f4781de620e9c0c10bf01eab162eb2564d8baf1d4d84670117649d368325bcbd"
+      },
+      "plan_sha": "b60893d49abaa2e106babecaa765726ae8dbe8cab0cc595ffc59c097af83abb5"
+    }
+  },
+  "health": {
+    "status": "ok"
+  },
+  "history_age_at_start": 6094,
+  "host_available_kib": 55221532,
+  "incident_closure": {
+    "closure_sha256": "17fcd4550d33541f298c47170342ea6511f7e6d73152b595f303f6688d84ab10",
+    "postcheck_sha256": "6108d2f8f119d776acac69ec8e7697d3881f37e4b87059adf1f1a3f17518edab",
+    "qualified_booking_id": "b60-exclusive-20261106-day-r5"
+  },
+  "inert_registry": {
+    "dependencies": "complete",
+    "effects": "not-attempted",
+    "runtime_files": 1,
+    "runtime_location": "host",
+    "target_units": "absent",
+    "workload_id": "b60-qwen36-35b-failure-capture-v1"
+  },
+  "integration_sha": "322810771b1941d504908878e1306c85d8fb6ef0b07318da6476cb633f6b9214",
+  "launcher": {
+    "ActiveState": "inactive",
+    "MainPID": "0"
+  },
+  "markers": {
+    "full-inference-drain.json": false,
+    "full-inference-drain.lock": false,
+    "lease.json": false,
+    "lease.lock": false
+  },
+  "model_custody": {
+    "bytes": 20419565568,
+    "gid": 0,
+    "links": 1,
+    "mode": "0o400",
+    "uid": 0
+  },
+  "no_gpu_model_calls": true,
+  "no_live_mutation": true,
+  "observed_epoch": 1794012863,
+  "operation_marker": false,
+  "peer_admission": {
+    "news-xpu-admission.json": {
+      "authority": "current installed sources and actual shared booking ledger",
+      "booking_id": "b60-exclusive-20261106-day-r4",
+      "guest_script_sha256": "224c7b45aab24076c15b5009efd77f679f0b271767d8bddbff64ab6309390209",
+      "host_source_sha256": {
+        "b60_exclusive_card_bridge.py": "079e16a415276562227f1645fe1e3ab64f5b0b41c1f453ae215935b1ca14f7d9",
+        "b60_musetalk_xpu_adapter.py": "694c9b412cd769b62b5302679ff5453cb2a6b376a61b5583d7e78771d603308b",
+        "b60_musetalk_xpu_transaction.py": "a2c67006c3559ff86ab35dadfa6c7e511293d28b21d4a08589248608c053b58b",
+        "full_inference_lab_runtime.py": "dab19afb5e01f8c9659d8209ed824f77f606c7d2f3ca0a4f67c9a6c37a2ecba3",
+        "lab_hours_reserved_runner.py": "7afeb3525cab42531de483678f2bc1090e7e7d922ab0a8a6f57c9067da6b2421",
+        "lab_hours_workloads.py": "5a284b4ce07e423b272980fa525c82d5cce44881d7aad3fb1489c95b7f023a68"
+      },
+      "kernel_hazards_since_peer_start": 2,
+      "later_news_releases": [
+        {
+          "booking_id": "aster-news-video-ov-20261106-1525-r1",
+          "finished_epoch": 1794004512,
+          "state": "failed",
+          "terminal_sha256": "b7357abbc300c5da9a43c23744dd59ebc8b37451901c043f05e60221dc322c89"
+        },
+        {
+          "booking_id": "aster-news-video-ov-20261106-1725-r2",
+          "finished_epoch": 1794011685,
+          "state": "failed",
+          "terminal_sha256": "2b8bfe5b2df14f06883c966b942deed7d538395a97428f6729f56f4db4351c63"
+        }
+      ],
+      "live_news_scopes": 0,
+      "mount_line_sha256": "640906303474d1a7f7ed527bb8ea5bcba74390af8c8dfcb105fdc12f7642825e",
+      "news_process_count": 0,
+      "news_volume_modified": false,
+      "openvino_guest_sha256": "0082de9f397b4eb4061c545cea075c3cfd598a5bb8d5970db7f668179c5f2133",
+      "owner_publication_received": false,
+      "peer_booking_id": "aster-news-video-xpu-20261106-1430-r1",
+      "peer_finished_epoch": 1794002208,
+      "peer_production_restored": true,
+      "peer_state": "failed",
+      "peer_terminal_attempt": 2,
+      "peer_terminal_sha256": "66b66b5d0d53580a251de11cc11ebfcc995b75ce0e99aa0eb486f7cd57016fbb",
+      "schema": "b60-news-xpu-preservation.v1",
+      "source_bound_incident_closure": {
+        "closure_sha256": "17fcd4550d33541f298c47170342ea6511f7e6d73152b595f303f6688d84ab10",
+        "postcheck_sha256": "6108d2f8f119d776acac69ec8e7697d3881f37e4b87059adf1f1a3f17518edab",
+        "qualified_booking_id": "b60-exclusive-20261106-day-r5"
+      },
+      "unresolved_kernel_hazards": 0
+    }
+  },
+  "profile_sha": "a88329dc26c465ee1cde32f5b11a716133063d95dbe64a3bf3e6f0301ca6fcf7",
+  "ready": {
+    "state": "ready"
+  },
+  "review_finished_epoch": 1794012971,
+  "session_exists": false,
+  "source_revision": "incident-lineage-v2",
+  "source_sha": {
+    "backup_chain_history.py": "0ebecf301c0b4fccdd4f128fdef9d09163eaf4e54cf871156ec80e5a8777d5e6",
+    "fixed_command.py": "9fd4e5746363e7cbdcac0d121d15cdac4ce990c24a1e988bc8b98faad8bcf260",
+    "guest_entry_scope.py": "3ddc43e038c705c01d5864bdf66b38395fe62de5b00dab406b6fa4bf07691886",
+    "guest_requests.py": "468e401675479a5581bdd5b99e86af02da72f9e7ec17e1202c65558ae32cdd53",
+    "guest_supervisor.py": "ca23df9ec859044cee61737be476a8eab53f4b30a30efbf3b1421863e8fe0449",
+    "legacy_requests.py": "dbc596c5b77a8ea9359868798d621ff951c331754b2b4968c177b80d079e3dca",
+    "model_trial.py": "2b348f76f9181cddcf2d5796d8fa806a806ebb39d1c53d9f35f745df09368154",
+    "namespace_mount.py": "031df2fb964c264c168cfd313de816391cb49d735701b17821edae2077a72566",
+    "news_xpu_boundary.py": "8ddab8d1e55d1bfddb110fc7500ba44e02f8a8e14de24e1992732a77fcc22d3d",
+    "request_failure_capture.py": "83e90abf36ed008ad921072e66005cfded3a2aa00b90b24cced42f1eef261bca"
+  },
+  "timer": {
+    "ActiveState": "inactive",
+    "LastTriggerUSec": "",
+    "SubState": "dead",
+    "TimersCalendar": "{ OnCalendar=2026-11-06 18:10:00 America/Vancouver ; next_elapse=(null) }",
+    "UnitFileState": "disabled"
+  },
+  "trial_seconds": 1200,
+  "unit_count": 15,
+  "verdict": "LIKELY RUN after exact18:10futureclockarming",
+  "wrapper116_sha": "3ddc43e038c705c01d5864bdf66b38395fe62de5b00dab406b6fa4bf07691886",
+  "residual_risks": [
+    "Actual35B post-reset first execution/correctness and bounded request latency remain experimental.",
+    "This compatibility/failure-capture trial is not the matched fresh9B p50/p95 grounded-capability milestone.",
+    "Actualowner/guardian must enforce all freshadmission/resource/fault/recovery gates at18:10."
+  ]
+}
