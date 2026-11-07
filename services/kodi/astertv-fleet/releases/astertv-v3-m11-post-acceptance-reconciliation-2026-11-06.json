@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-release-candidate-reconciliation",
+  "id": "astertv-v3-m11-post-acceptance-reconciliation-2026-11-06",
+  "status": "repository-reproducible-owner-assisted-acceptance-open",
+  "source_commit": "b2781022fe8b3d54a67d45cdef8bbf0e36a94e43",
+  "matches_freeze": "astertv-v3-rc1-family-content-gateway-candidate-2026-11-06",
+  "live_effect": false,
+  "devices": {
+    "astertv-bedroom": {
+      "composition_sha256": "eab64fd2a4d67c54b9f89080ba410952ffabf237aeafd072f50709be2d9bb3b7",
+      "bundle_sha256": "212ab2817fbe66fc6a38312968d0097ab2f967f636071b5040123cd6a78f7437",
+      "plan_sha256": "e91bfd7a6d1d036ac4a4c428f7627ea7061fa6404c44489518f0670950ad3711",
+      "guard_sha256": "5ea7d9b94b862351d0da45587bfae51218ac8090e0fcc8948d056bad80f1ea48",
+      "sbom_sha256": "e46b55d479b981b6fa402f32706e6d9d4984bb41c0e5759c2056040752641c21",
+      "live_state": "content-transport-accepted-full-composition-and-soak-open"
+    },
+    "astertv-family": {
+      "composition_sha256": "a09ef2b5974a464738069caeb9fccab44c1feefc9d20763b83eb84bd92a79411",
+      "bundle_sha256": "5eb17b3f97161f6376c9ff7e36569c74a261aef272372b43e84a3ff80f1efeed",
+      "plan_sha256": "f47481aba7d77a739eb449a2ccdd74987f3407f4ac1acf3426acb57de1452661",
+      "guard_sha256": "9604059507f36e79559305ab0e1168dd6bcd05992b125fc5b87d383b321b3f14",
+      "sbom_sha256": "6d88bafd09b7929b85a8e44d32a75030b38325be8cb2fdb9c881fc1da8d6d477",
+      "live_state": "m7-controls-content-and-volume-accepted-final-promotion-open"
+    },
+    "astertv-guest": {
+      "composition_sha256": "5ca63262bb495013757c2422d26ef2356f3251221c36b272ca34b5caec82339e",
+      "bundle_sha256": "4d79b20a782b8767b8008403c8932eeaed8296489634ec563a100506735201e0",
+      "plan_sha256": "012d2e3df147ee8c44f29db24e04c5fe65a36a3fa9d8e8b8aa58bd4582787ce3",
+      "guard_sha256": "4810da8f3b45fe50763c20e8b8f937b3e9802796a44509cb1c37df2364bb1286",
+      "sbom_sha256": "0a9b86d3b597f58c1c74cb7fe8f6fcfe9b208e149171bd23dc3c3cf370f5513c",
+      "live_state": "candidate-not-deployable"
+    },
+    "astertv-jen": {
+      "composition_sha256": "34cccf847b91fa77d038ce59965d6ddb92e8e438ea5fe419ddb3948ca6a010ec",
+      "bundle_sha256": "45ba989dd6fb9076ae3237447751468b4c7b231b944b9fd21c7a2dadf539da5f",
+      "plan_sha256": "6705eb2ebeac4fda001857c0045d22da6baa4e48b1ad7602a724f4a9ba6b1c24",
+      "guard_sha256": "5d74ea9f196b65dd98d9471e3b63da6797866370be2239b20f73071ecd9e09ed",
+      "sbom_sha256": "3f709d58777b9915d75bd11a60428c6459bfcbe96a82e77634b6d8418e3f3c42",
+      "live_state": "standing-canary"
+    }
+  },
+  "validation": {
+    "independent_builds": 2,
+    "byte_identical": true,
+    "local_test_files": 76,
+    "secret_scan_files": 93,
+    "pages": 15,
+    "focus_controls": 127,
+    "page_conformance_failures": 0,
+    "operations_gap_count": 0,
+    "outcome": "pass-with-owner-acceptance-open"
+  },
+  "open": [
+    "astertv-bedroom:physical-equipment-controls",
+    "astertv-bedroom:volume-profile-and-safety",
+    "astertv-bedroom:full-composition-reboot-and-soak",
+    "astertv-family:explicit-final-promotion",
+    "non-author-physical-walkthrough",
+    "media-lifecycle:replacement-view-identity-handoff",
+    "user-handover-and-closeout"
+  ]
+}
