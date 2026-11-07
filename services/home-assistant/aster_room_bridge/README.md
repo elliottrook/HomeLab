@@ -22,6 +22,12 @@ It is not placed in YAML, source, logs or the browser. Home Assistant initiates
 all traffic to `/v1/remote/equipment/{poll,ack}`; the component opens no inbound
 port and registers no general Home Assistant service.
 
+An empty action allowlist is the explicit content-only mode. It permits the
+same authenticated room identity to read volatile content state but cannot
+queue a power, volume or mute command. This mode is intended for Bedroom's
+disabled-first rollout while its LG feedback and TV-mediated CEC path remain
+unaccepted.
+
 The repository candidate also polls `/v1/remote/equipment/content` with that
 same room-scoped identity. The response is a strict, 30-second content-free
 observation containing only playback state, coarse class, Aster page,
@@ -74,10 +80,12 @@ aster_room_bridge:
       key_file: /config/.aster-private/aster-room-bridge-bedroom.key
       power_entity: media_player.lg_webos_tv_oled55g4sub_dccqljr
       volume_entity: media_player.lg_webos_tv_oled55g4sub_dccqljr
-      actions: *equipment_actions
+      actions: []
 ```
 
 Do not enable the Bedroom row or create its key until the gateway checkpoint,
 exact Home-Assistant-to-gateway network path, configuration rollback and
-restart recovery plan are all verified. Its TV-mediated CEC path still requires
-independent physical acceptance before its controls are exposed.
+restart recovery plan are all verified. Keep `actions: []` during the
+disabled-first content-state rollout. Its TV-mediated CEC path still requires
+independent physical acceptance before a later, separately accepted change may
+expose equipment controls.

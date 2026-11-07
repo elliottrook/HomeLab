@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-external-service-candidate-receipt",
+  "id": "astertv-v3-bedroom-content-only-candidate-2026-11-06",
+  "target": "AsterTV-Bedroom",
+  "deployment_authorized": false,
+  "live_state_changed": false,
+  "equipment_actions": [],
+  "outputs": {
+    "aster_gateway_sha256": "66f85ee3e439276c25a5768ffe77cf2f252cdb394faaadab411f4100f632cd4c",
+    "home_assistant_contract_sha256": "2c927737a82312c4fa9707d980a9c2bb3b92ff974d8cbce929c52249d87be82a"
+  },
+  "preserved": {
+    "family_composition_sha256": "a09ef2b5974a464738069caeb9fccab44c1feefc9d20763b83eb84bd92a79411",
+    "family_gateway_sha256": "715b172a62e978ccaf79dfd3f9801da641cd067da72ad7187658efa9ccc0d73a",
+    "bedroom_composition_sha256": "eab64fd2a4d67c54b9f89080ba410952ffabf237aeafd072f50709be2d9bb3b7",
+    "jen_composition_sha256": "34cccf847b91fa77d038ce59965d6ddb92e8e438ea5fe419ddb3948ca6a010ec"
+  },
+  "tests": {
+    "candidate_materialization": "2/2 passed",
+    "home_assistant_bridge": "20/20 passed",
+    "remote_client": "38/38 passed",
+    "fleet": "54/54 passed",
+    "pinned_aster_runtime": "13/13 passed"
+  },
+  "pinned_runtime_bundle_sha256": "061e9178e63218f7f7b94ab2313db3f7f4afdf3669c19a932475b13eb1a87f90",
+  "evidence": "docs/projects/evidence/AsterTV-v3-M7-Bedroom-content-only-candidate-2026-11-06.md"
+}
