@@ -26,10 +26,11 @@ fail() { printf 'FAIL %s\\n' "$1"; }
 
     def fixture(self, cap=41, reclaimable=0, age_hours=1):
         stamp = int(time.time()) - age_hours * 3600
-        return f'mtime={stamp}\ncap={cap}\nreclaimable={reclaimable}\nsnapshot_covered=7397\n'
+        return f'mtime={stamp}\ncap={cap}\nreclaimable={reclaimable}\nsnapshot_covered=7397\nmovie_certified=774\nseason_certified=505\n'
 
     def test_healthy_audit(self):
-        self.assertIn('PASS media retention audit fresh', self.run_check(self.fixture()))
+        self.assertIn('774 movie-year and 505 season identities verified (not deletion candidates)',
+                      self.run_check(self.fixture()))
 
     def test_missing_and_stale_audit(self):
         self.assertIn('WARN media retention audit has no status yet', self.run_check('missing=1'))

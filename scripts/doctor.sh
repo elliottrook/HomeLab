@@ -1402,7 +1402,7 @@ REMOTE
 }
 
 check_media_retention_audit() {
-    local output mtime cap reclaimable snapshot_covered age_hours now_epoch
+    local output mtime cap reclaimable snapshot_covered movie_certified season_certified age_hours now_epoch
     if ! output="$(
         ssh -o BatchMode=yes -o ConnectTimeout=8 truenas /bin/bash -s <<'REMOTE'
 python3 - <<'PY'
@@ -1419,6 +1419,8 @@ else:
     print('cap=' + str(int(report['pool_cap_percent'])))
     print('reclaimable=' + str(int(physical.get('movie_potentially_reclaimable', 0)) + int(physical.get('episode_potentially_reclaimable', 0))))
     print('snapshot_covered=' + str(int(physical.get('movie_snapshot_covered', 0)) + int(physical.get('episode_snapshot_covered', 0))))
+    print('movie_certified=' + str(int(report['movie_year_inventory']['certified'])))
+    print('season_certified=' + str(int(report['season_path_inventory']['provider_certified_season_scopes'])))
 PY
 REMOTE
     )"; then
@@ -1432,9 +1434,11 @@ REMOTE
             cap) cap="$value" ;;
             reclaimable) reclaimable="$value" ;;
             snapshot_covered) snapshot_covered="$value" ;;
+            movie_certified) movie_certified="$value" ;;
+            season_certified) season_certified="$value" ;;
         esac
     done <<< "$output"
-    if [[ ! "${mtime:-}" =~ ^[0-9]+$ || ! "${cap:-}" =~ ^[0-9]+$ || ! "${reclaimable:-}" =~ ^[0-9]+$ ]]; then
+    if [[ ! "${mtime:-}" =~ ^[0-9]+$ || ! "${cap:-}" =~ ^[0-9]+$ || ! "${reclaimable:-}" =~ ^[0-9]+$ || ! "${movie_certified:-}" =~ ^[0-9]+$ || ! "${season_certified:-}" =~ ^[0-9]+$ ]]; then
         warn "media retention audit status is incomplete"
         return
     fi
@@ -1449,7 +1453,7 @@ REMOTE
     elif (( cap >= 60 )); then
         warn "Media pool ${cap}% full (retention trigger); live controller not enabled"
     else
-        pass "media retention audit fresh (${age_hours}h); pool ${cap}%, ${snapshot_covered:-0} snapshot-covered files"
+        pass "media retention audit fresh (${age_hours}h); pool ${cap}%, ${snapshot_covered:-0} snapshot-covered files, ${movie_certified} movie-year and ${season_certified} season identities verified (not deletion candidates)"
     fi
 }
 
