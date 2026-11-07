@@ -10,6 +10,16 @@ from video_archiver.retention_candidate_probe import main
 
 
 class CandidateProbeTests(TestCase):
+    def test_archive_movie_option_requires_archive_selection(self):
+        output = io.StringIO()
+        with (patch("sys.argv", ["probe", "--config", "/tmp/config.json",
+                                 "--data-root", "/tmp", "--kind", "archive-movie"]),
+              patch("video_archiver.retention_candidate_probe.observe",
+                    return_value={"status": "observed_only", "deletion_enabled": False}) as movie,
+              redirect_stdout(output)):
+            main()
+        self.assertTrue(movie.call_args.kwargs["archive"])
+
     def test_season_option_uses_season_observation_only(self):
         output = io.StringIO()
         with (patch("sys.argv", ["probe", "--config", "/tmp/config.json",

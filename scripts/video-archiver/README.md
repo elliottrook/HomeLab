@@ -48,8 +48,9 @@ per-candidate recheck. It holds all scopes if any queued download lacks a
 reliable ARR identity or if pagination fails. It is not installed in the
 scheduled TrueNAS audit and has no ARR credentials or mutation methods. A
 separate unscheduled `retention_candidate_probe` can use the existing local
-archiver environment to inspect one snapshot-free certified movie or one
-certified Archive season (`--kind season`, capped at 30 files). It prints
+archiver environment to inspect one snapshot-free certified movie, one
+certified Archive movie (`--kind archive-movie`), or one certified Archive
+season (`--kind season`, capped at 30 files). It prints
 only booleans and counts, reports source drift as a hold, and has no deletion
 method. Its result is diagnostic, not a controller decision.
 

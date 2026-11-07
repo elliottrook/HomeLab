@@ -38,7 +38,7 @@ def _fetch_queue(url: str, headers: dict[str, str]) -> tuple[int, object]:
         return error.code, None
 
 
-def observe(config_path: Path, data_root: Path) -> dict:
+def observe(config_path: Path, data_root: Path, *, archive: bool = False) -> dict:
     config = json.loads(config_path.read_text())
     if not isinstance(config, dict):
         raise RuntimeError("archiver configuration malformed")
@@ -60,9 +60,22 @@ def observe(config_path: Path, data_root: Path) -> dict:
             host, data_root=data_root, snapshots=snapshots,
         ).bytes > 0:
             snapshot_free.append((film, host))
-    if len(snapshot_free) != 1:
-        return {"status": "held_scope_count", "snapshot_free_certified_movies": len(snapshot_free)}
-    film, host = snapshot_free[0]
+    if archive:
+        archive_facts = sorted(
+            (row for row in years.certified_facts
+             if row.path.startswith("/media/archive-movies/")),
+            key=lambda row: row.provider_id or "",
+        )
+        if not archive_facts:
+            return {"status": "held_no_certified_archive_movie", "deletion_enabled": False}
+        film = archive_facts[0]
+        host = _host_path(film.path, data_root)
+        if host is None:
+            raise RuntimeError("certified movie path changed")
+    else:
+        if len(snapshot_free) != 1:
+            return {"status": "held_scope_count", "snapshot_free_certified_movies": len(snapshot_free)}
+        film, host = snapshot_free[0]
     with closing(sqlite3.connect(f"{radarr.as_uri()}?mode=ro", uri=True)) as db:
         file_rows = list(db.execute("""
             SELECT f.DateAdded,m.Monitored FROM Movies m
@@ -98,7 +111,9 @@ def observe(config_path: Path, data_root: Path) -> dict:
         ))
     _, _, cap = _pool_usage()
     return {
-        "status": "observed_only", "snapshot_free_certified_movies": 1,
+        "status": "observed_only", "snapshot_free": any(
+            row.provider_id == film.provider_id for row, _ in snapshot_free),
+        "snapshot_free_certified_movies": len(snapshot_free),
         "in_archive": film.path.startswith("/media/archive-movies/"),
         "radarr_file_record_unique": len(file_rows) == 1,
         "radarr_monitored": bool(file_rows[0][1]) if len(file_rows) == 1 else None,
@@ -207,11 +222,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--data-root", type=Path, required=True)
-    parser.add_argument("--kind", choices=("movie", "season"), default="movie")
+    parser.add_argument("--kind", choices=("movie", "archive-movie", "season"),
+                        default="movie")
     args = parser.parse_args()
     try:
         result = (observe_season(args.config, args.data_root) if args.kind == "season"
-                  else observe(args.config, args.data_root))
+                  else observe(args.config, args.data_root,
+                               archive=args.kind == "archive-movie"))
     except (RuntimeError, ValueError, OSError, sqlite3.Error, KeyError):
         result = {"status": "held_source_uncertain", "deletion_enabled": False}
     print(json.dumps(result, sort_keys=True))
