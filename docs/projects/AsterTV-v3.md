@@ -2037,7 +2037,10 @@ of those observation or promotion boundaries.
   records, focused commit and separately authorized Forgejo push/mirror check.
   The pre-graduation household guide is now prepared at
   `docs/runbooks/AsterTV-v3-User-Guide.md`; its final walkthrough and explicit
-  acceptance remain open.
+  acceptance remain open. The repository-side intent/efficiency review is also
+  complete; it recommends retaining the current architecture and adding no new
+  service for the remaining physical gates. Evidence:
+  `docs/projects/evidence/AsterTV-v3-M11-intent-and-efficiency-review-2026-11-06.md`.
 
 Gate: Jason accepts the household workflow on both targets; stopping Aster AI,
 Home/cameras or any optional integration degrades clearly without breaking core
@@ -2328,6 +2331,7 @@ explicit user acceptance.
 | 2026-11-06 | Accepted Bedroom content playback/class transport | Owner authorized one bounded library movie after an idle/checkpoint/hash preflight. The test retained no media identity and made no configuration, equipment, network or account change. | Bedroom reported playing/Movie at fresh sequences `1 → 2`, then returned to idle/Unknown at `3`; Kodi volume remained `97`, the adopted LG state was unchanged, recorder history remained empty, Home `10000` was restored and both Kodi/Aster retained zero restarts. Bedroom calibration and any equipment authority remain separate decisions. Evidence: `docs/projects/evidence/AsterTV-v3-M7-Bedroom-content-playback-acceptance-2026-11-06.md`. |
 | 2026-11-06 | Reconciled the post-acceptance M11 repository candidate | Two independent builds from `b2781022…94e43` reproduced the exact composition, bundle, plan, guard and SBOM hashes already pinned by the latest immutable candidate; the historical freezes remain unchanged. | The integrated gate passes 76 test files, 93 secret-scan files, 15 pages and 127 controls with zero conformance or operations gaps. Bedroom equipment/volume/full soak, explicit Family promotion, the physical walkthrough, external Media Lifecycle handoff and final handover remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M11-post-acceptance-reconciliation-2026-11-06.md`. |
 | 2026-11-06 | Prepared the pre-graduation household handover | Consolidated the accepted interaction language, page workflows, Aster AI and Remote behavior, account/privacy boundary, degraded operation and safe recovery without claiming unfinished room promotion. | The guide is ready for the non-author walkthrough. Bedroom equipment/volume/full soak, final Family promotion and explicit guide acceptance remain open. Guide: `docs/runbooks/AsterTV-v3-User-Guide.md`. |
+| 2026-11-06 | Completed the repository-side intent and efficiency review | Compared every v3 outcome with its compute, network, permission, storage, recovery and operational cost using the measured Jen and production-room evidence. | The current composition reuses existing authorities, adds no B60/scheduled AI/public ingress/always-on microphone/background camera/history store and retains practical low-spec headroom. No new service is recommended; physical Bedroom, soak, promotion and walkthrough gates remain. Evidence: `docs/projects/evidence/AsterTV-v3-M11-intent-and-efficiency-review-2026-11-06.md`. |
 
 ## Close-out
 
