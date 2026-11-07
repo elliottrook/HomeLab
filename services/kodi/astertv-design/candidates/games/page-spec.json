@@ -33,12 +33,13 @@
     "canvas": [1920, 1080],
     "safe_area": [72, 54, 1776, 972],
     "side_rail": {
-      "left": 62,
-      "top": 188,
-      "width": 82,
-      "height": 650,
-      "status": "inherited-global-shell",
-      "fixture": "collapsed destination markers; final limestone-backed icon mapping belongs to the v4 shell"
+      "left": 22,
+      "top": 268,
+      "width": 72,
+      "height": 544,
+      "status": "official-global-shell-with-v4-games-slot",
+      "items": ["Media", "Books", "News", "Home", "Music", "Games", "Requests", "Settings"],
+      "games_icon": "approved generic limestone-backed Aster icon until the dedicated Games icon is accepted"
     },
     "top_filters": {"left": 446, "top": 58, "height": 56, "items": ["Library", "Continue", "Platforms", "Requests"]},
     "hero": {"left": 184, "top": 164, "width": 1648, "height": 420, "text_safe_width": 760},

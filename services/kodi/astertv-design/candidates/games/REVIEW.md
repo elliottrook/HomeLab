@@ -28,10 +28,12 @@ top/side reveal into the deeper title area; it is not a separate title pill
 plus border. The artwork keeps exactly the same position and size. Box art is
 2:3, platform art is square, and missing art uses a quiet platform monogram.
 
-The circles at the left edge are the collapsed global side-navigation
-destinations, not controller or game-state indicators. The Games candidate
-retains that shell region. Its final named destinations and approved
-limestone-backed icon mapping belong to the global v4 shell, not this page.
+The left edge now uses the official collapsed Aster side rail: 72 pixels wide,
+native limestone-backed artwork, and the accepted Media, Books, News, Home,
+Music, Requests, and Settings ordering. Games is added directly below Music
+for v4, extending and re-centering the rail by one standard slot. Its current
+temporary icon reuses the approved generic limestone-backed Aster mark; it must
+be replaced when the dedicated Games icon is accepted.
 
 ## State-dependent primary action
 

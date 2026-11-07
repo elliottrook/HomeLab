@@ -98,8 +98,6 @@ class DesignSystemTests(unittest.TestCase):
             if node.attrib.get("data-brand-asset") == "plain-compass-32"
         ]
         self.assertEqual(len(images), 4)
-        self.assertEqual(rendered.count('data-shell-region="side-rail"'), 1)
-        self.assertEqual(rendered.count('data-shell-destination='), 4)
         for node in images:
             self.assertEqual((node.attrib["width"], node.attrib["height"]), ("32", "32"))
             href = node.attrib["{http://www.w3.org/1999/xlink}href"]
@@ -108,6 +106,36 @@ class DesignSystemTests(unittest.TestCase):
                 hashlib.sha256(payload).hexdigest(),
                 "ebd08d8a6224120a0a8b873e1f469572578fe8167089d2baaa1d70f338642030",
             )
+
+    def test_games_uses_official_side_rail_with_temporary_games_icon(self):
+        tokens = BUILD.load("tokens.json")
+        rendered = BUILD.games_page_render(
+            next(page for page in BUILD.load("catalogue.json")["pages"] if page["id"] == "games"),
+            tokens,
+            "focus",
+        )
+        root = BUILD.ET.fromstring(rendered)
+        images = [
+            node for node in root.iter("{http://www.w3.org/2000/svg}image")
+            if node.attrib.get("data-shell-destination")
+        ]
+        self.assertEqual(
+            [node.attrib["data-shell-destination"] for node in images],
+            ["media", "books", "news", "home", "music", "games", "requests", "settings"],
+        )
+        manifest = BUILD.load("official-side-rail-assets.json")
+        sources = {item["id"]: item for item in manifest["items"] if "data_uri" in item}
+        for node in images:
+            item = next(item for item in manifest["items"] if item["id"] == node.attrib["data-shell-destination"])
+            source = sources[item.get("asset_ref", item["id"])]
+            self.assertEqual((node.attrib["width"], node.attrib["height"]), ("32", "32"))
+            payload = base64.b64decode(node.attrib["{http://www.w3.org/1999/xlink}href"].split(",", 1)[1])
+            self.assertEqual(hashlib.sha256(payload).hexdigest(), source["export_sha256"])
+        games = next(node for node in images if node.attrib["data-shell-destination"] == "games")
+        requests = next(node for node in images if node.attrib["data-shell-destination"] == "requests")
+        self.assertEqual(games.attrib["data-asset-sha256"], requests.attrib["data-asset-sha256"])
+        self.assertEqual(rendered.count('data-shell-region="side-rail"'), 1)
+        self.assertEqual(rendered.count('data-shell-current="games"'), 1)
 
     def test_button_focus_does_not_change_geometry(self):
         tokens = BUILD.load("tokens.json")

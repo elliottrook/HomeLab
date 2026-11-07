@@ -228,6 +228,32 @@ def games_frame(title: str, body: str, tokens: dict) -> str:
 <rect width="1920" height="1080" fill="url(#page)"/>{body}<text x="1840" y="1044" text-anchor="end" fill="{c['charcoal']}" font-family="sans-serif" font-size="16">AsterTV design candidate · synthetic</text></svg>'''
 
 
+def games_side_rail(tokens: dict) -> str:
+    c = tokens["colors"]
+    manifest = load("official-side-rail-assets.json")
+    source_items = {item["id"]: item for item in manifest["items"]}
+    icons = []
+    for index, item in enumerate(manifest["items"]):
+        source = source_items[item.get("asset_ref", item["id"])]
+        y = 299 + index * 64
+        current = (
+            f'<rect data-shell-current="games" x="39" y="{y-3}" width="38" height="38" '
+            f'rx="12" fill="none" stroke="{c["champagne_gold"]}" stroke-width="2"/>'
+        ) if item["id"] == "games" else ""
+        icons.append(
+            current
+            + f'<image data-shell-destination="{item["id"]}" data-brand-asset="{source["id"]}-32" '
+            + f'data-asset-sha256="{source["export_sha256"]}" x="42" y="{y}" width="32" height="32" '
+            + f'xlink:href="{source["data_uri"]}"/>'
+        )
+    return (
+        f'<rect data-shell-region="side-rail" x="22" y="268" width="72" height="544" rx="24" '
+        f'fill="{c["light_jade"]}" fill-opacity=".46"/>'
+        f'<rect x="23" y="269" width="70" height="542" rx="23" fill="{c["charcoal"]}" fill-opacity=".95"/>'
+        + "".join(icons)
+    )
+
+
 def games_page_render(page: dict, tokens: dict, state: str) -> str:
     c = tokens["colors"]
     filters = ("Library", "Continue", "Platforms", "Requests")
@@ -243,13 +269,7 @@ def games_page_render(page: dict, tokens: dict, state: str) -> str:
             f'<text x="{x+122}" y="96" text-anchor="middle" fill="{c["warm_white"]}" '
             f'font-family="sans-serif" font-size="21">{label}</text>'
         )
-    rail = (
-        f'<rect data-shell-region="side-rail" x="62" y="188" width="82" height="650" rx="40" fill="{c["charcoal"]}" fill-opacity=".9"/>'
-        f'<circle data-shell-destination="current" cx="103" cy="245" r="20" fill="{c["champagne_gold"]}"/>'
-        f'<circle data-shell-destination="rest" cx="103" cy="324" r="20" fill="{c["stone"]}"/>'
-        f'<circle data-shell-destination="rest" cx="103" cy="403" r="20" fill="{c["stone"]}"/>'
-        f'<circle data-shell-destination="settings" cx="103" cy="759" r="20" fill="{c["stone"]}"/>'
-    )
+    rail = games_side_rail(tokens)
     if state == "service-offline":
         body = rail + "".join(filter_nodes) + (
             f'<rect x="360" y="260" width="1200" height="560" rx="34" fill="{c["charcoal"]}" fill-opacity=".94"/>'
