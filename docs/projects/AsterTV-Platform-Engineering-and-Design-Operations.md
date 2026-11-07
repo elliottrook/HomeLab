@@ -510,10 +510,13 @@ with no live appliance changed.
 
 **Gate:** a new engineer safely plans a synthetic repair from Start Here alone.
 
-The additive local candidate passes its automated gate at wiki commit
-`fc33f73` (foundation `1fdcf6a`). Human content acceptance, remote synchronization, the established
-LXC 113 site build/publication and post-acceptance mirror derivation remain
-deliberately pending; no live wiki or mirror changed in M2 preparation.
+The additive candidate passed its automated gate at wiki commit `fc33f73`
+(foundation `1fdcf6a`) and was subsequently reconciled through wiki commit
+`973600d`. Jason authorized publication on 2026-11-07. The established LXC 113
+path now serves all 27 validated AsterTV pages under a named rollback
+checkpoint. The independent derived-mirror reconciliation remains pending
+because the current 33-source accepted lock differs from the deployed mirror;
+publication did not blur those authorities.
 
 ### M3 — Design authority and pattern library
 
@@ -694,6 +697,7 @@ Dolby/HDR and equipment control preserved.
 | 2026-11-05 | Completed M8 Bedroom/Family read-only preflight | `docs/projects/evidence/AsterTV-Platform-M8-Bedroom-Family-preflight-2026-11-05.md`; exact identities, guards, audio state, build hashes and installed deltas | Both predecessors are clean and deltas are declared; corrected stale Bedroom desired audio description without changing it; Bedroom must migrate before Family after Jen owner acceptance |
 | 2026-11-06 | Reconciled canonical brand-asset authority | `docs/projects/evidence/AsterTV-Platform-brand-asset-authority-2026-11-06.md`; private `jason/brand-assets` revision `2bdb727…e2dce`; Git LFS materialization; exact project approval records | Workstation-path guidance removed; TV logo recorded as approved project master; Remote reconstruction remains blocked for owner acceptance; 29/29 generated outputs, 12/12 design tests and 3/3 skill tests pass; no live device changed |
 | 2026-11-06 | Enforced SVG-only Aster asset ingestion | `docs/projects/evidence/AsterTV-Platform-svg-asset-gate-2026-11-06.md`; `services/kodi/astertv-design/asset-policy.json`; deliberate unregistered-raster test; design skill and wiki contract | New Aster brand/UI assets must be SVG or placement-specific exports from the exact SVG; raster resizing/repurposing fails closed; existing rasters are frozen by aggregate path/hash; 14/14 design tests pass |
+| 2026-11-07 | Published the accepted AsterTV department to LXC 113 | Wiki commit `973600d`; candidate archive `3ddafc07…06e62`; named checkpoint `astertv-authored-973600d-20261107`; `docs/projects/evidence/AsterTV-Platform-M2-wiki-publication-2026-11-07.md` | All 27 pages are live and byte-identical; intake stayed active with zero restart and 33-source verification passes. The independently observed accepted-lock/mirror mismatch remains open; no mirror state changed. |
 
 ## Close-out
 
