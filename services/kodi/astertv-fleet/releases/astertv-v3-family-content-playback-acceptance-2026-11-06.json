@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-live-acceptance-receipt",
+  "id": "astertv-v3-family-content-playback-acceptance-2026-11-06",
+  "rollout": "astertv-v3-family-content-state-disabled-rollout-2026-11-06",
+  "target": {
+    "device_id": "astertv-family",
+    "hostname": "AsterTV-Family",
+    "address": "192.168.1.157"
+  },
+  "authorization": {
+    "owner_instruction": "carry on",
+    "bounded_playback_test": true,
+    "volume_automation_activation": false
+  },
+  "observation": {
+    "schema": "astertv-room-playback.v1",
+    "content_class": "Movie",
+    "playing_sequences": [3, 4],
+    "final_idle_sequence": 5,
+    "session_continuity_during_playback": true,
+    "media_identity_exported": false,
+    "home_assistant_entities_created": 0,
+    "home_assistant_events_created": 0,
+    "home_assistant_recorder_rows_with_playback_schema": 0,
+    "receiver_state": "on",
+    "receiver_volume_before_during_after": 0.44,
+    "receiver_muted_before_during_after": false,
+    "final_active_players": 0,
+    "family_kodi_restarts": 0,
+    "final_window_id": 10000,
+    "final_window_label": "Home",
+    "home_render_confirmed": true
+  },
+  "profile": {
+    "configured": false,
+    "enabled": false,
+    "volume_actions_possible": false
+  },
+  "outcome": "family-playing-class-freshness-no-history-and-idle-return-passed-activation-open"
+}
