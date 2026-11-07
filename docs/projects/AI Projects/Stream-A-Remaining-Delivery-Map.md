@@ -2380,6 +2380,14 @@ recomputed from the exact pinned selector output instead of being accepted for
 format alone. The focused shadow suite passes 5/5 and the combined
 selector/shadow/M6 suite passes 14/14. No shadow case or route was executed.
 
+All 13 content-free sealed-path sources are now in one
+[deterministic inactive runtime bundle](evidence/M3-K2-sealed-runtime-bundle-2026-11-06.md),
+SHA-256
+`3b7e7cf40b08808cb94721a5778a1474e35a4d8f8d30c7dac858a37dc6e6aed6`.
+Its normalized archive build is byte-reproducible, contains no private input or
+credential and is not deployed. This removes ad hoc cross-host source copying
+from the later platform review.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from
