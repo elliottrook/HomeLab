@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "family-physical-equipment-keys",
+  "owner": "fleet-engineering",
+  "layer": "kodi-keymap",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["remote-client-v3", "family-equipment-bridge"],
+  "targets": ["astertv-family"],
+  "owns": ["kodi/family-physical-equipment-keymap"],
+  "payload_sources": [
+    "services/kodi/astertv-fleet/materialized/family-physical-equipment-keys",
+    "services/kodi/astertv-fleet/materialize_family_physical_equipment.py",
+    "services/kodi/astertv-fleet/peripherals/captures/astertv-family-g20-20261106.json"
+  ],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "secret_refs": [],
+  "rollback_ref": "astertv-v3-m7-family-physical-keys-20261106",
+  "tests": [
+    "services/kodi/astertv-v3/remote_client/test_build_physical_equipment_keymap.py",
+    "services/kodi/astertv-v3/remote_client/test_physical_equipment.py"
+  ]
+}

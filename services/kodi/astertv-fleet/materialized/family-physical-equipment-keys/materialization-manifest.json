@@ -1,0 +1,30 @@
+{
+  "capture": {
+    "path": "services/kodi/astertv-fleet/peripherals/captures/astertv-family-g20-20261106.json",
+    "sha256": "f89e9adf6debc5854d949485a3c292694a3bea0f827993d240c4836f31be7701"
+  },
+  "files": [
+    {
+      "bytes": 539,
+      "destination": "/storage/.kodi/userdata/keymaps/z-astertv-v3-m7-family-equipment.xml",
+      "mode": "0644",
+      "scope": "astertv-family",
+      "sha256": "c09bef238457986f677d360b1cfa1d436495f5b952543ad75601ab66fb64bcfb"
+    }
+  ],
+  "id": "family-physical-equipment-keys",
+  "kind": "astertv-materialized-overlay",
+  "mutable_state": [
+    {
+      "bundled": false,
+      "path": "/storage/.aster-private/astertv-standby.json",
+      "sensitive": false
+    }
+  ],
+  "renderer": {
+    "path": "services/kodi/astertv-v3/remote_client/build_physical_equipment_keymap.py",
+    "sha256": "ab2d048ad9c1feac023ec262b4add565cd1e5f0751348cb57a6a835940927d5e"
+  },
+  "schema_version": 1,
+  "scope": "astertv-family"
+}

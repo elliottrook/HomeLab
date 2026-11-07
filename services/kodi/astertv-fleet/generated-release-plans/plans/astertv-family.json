@@ -8,7 +8,7 @@
   "bundle": {
     "built": false,
     "bytes": null,
-    "name": "astertv-family-f5ea04813bc1.tar.gz",
+    "name": "astertv-family-0efec83c2933.tar.gz",
     "sha256": null
   },
   "compatibility": {
@@ -22,7 +22,7 @@
       "astertv-guest"
     ]
   },
-  "composition_sha256": "f5ea04813bc1f9d60a624de29b55fdc1861fde319b7f01085fa62cfa40be57ff",
+  "composition_sha256": "0efec83c2933bc78c2fbe539ea051149774f285c3e5ced9ae7b833b577b45629",
   "deployable": false,
   "device_id": "astertv-family",
   "kind": "release-plan",
@@ -299,7 +299,7 @@
           "bytes": 98,
           "destination": "/storage/.aster-v3/m8-remote/manifest.json",
           "mode": "0600",
-          "sha256": "0fb27db7b43b9c589dc05f67b685539e08c9fa6ac8cb748a1d82afc3993d8e7f"
+          "sha256": "4bd3abfc68b47aef6c3b72f3e88bf9b61d966d9e2ff5df9e4b3b3afa89c02734"
         },
         {
           "bytes": 661,
@@ -308,16 +308,16 @@
           "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
         },
         {
-          "bytes": 2262,
+          "bytes": 2298,
           "destination": "/storage/.aster-v3/m8-remote/service.asterremote/equipment.py",
           "mode": "0644",
-          "sha256": "ea7779390051cd039a0f635eda6e306c9f22c1ecf5d4e113eafca1450a823097"
+          "sha256": "0f560cf9022a5ff2c8f6be74fcede2bd3b5243acc26638318ed86fe4a17ed1b7"
         },
         {
-          "bytes": 12408,
+          "bytes": 13817,
           "destination": "/storage/.aster-v3/m8-remote/service.asterremote/service.py",
           "mode": "0644",
-          "sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0"
+          "sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8"
         },
         {
           "bytes": 202,
@@ -332,16 +332,16 @@
           "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
         },
         {
-          "bytes": 2262,
+          "bytes": 2298,
           "destination": "/storage/.kodi/addons/service.asterremote/equipment.py",
           "mode": "0644",
-          "sha256": "ea7779390051cd039a0f635eda6e306c9f22c1ecf5d4e113eafca1450a823097"
+          "sha256": "0f560cf9022a5ff2c8f6be74fcede2bd3b5243acc26638318ed86fe4a17ed1b7"
         },
         {
-          "bytes": 12408,
+          "bytes": 13817,
           "destination": "/storage/.kodi/addons/service.asterremote/service.py",
           "mode": "0644",
-          "sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0"
+          "sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8"
         }
       ],
       "layer": "kodi-service",
@@ -354,9 +354,9 @@
       "payload_status": "complete",
       "payloads": [
         {
-          "bytes": 6250,
+          "bytes": 6245,
           "path": "services/kodi/astertv-fleet/materialize_remote_client.py",
-          "sha256": "a6a4219aa4c9193606b8197f9bf6eb0850ab74a8089bbb456ee4223102469652"
+          "sha256": "4b3ff34b718c5b4002b0bfded1a9122668fedac71a53a892490649462cd11e3b"
         },
         {
           "bytes": 661,
@@ -364,19 +364,19 @@
           "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
         },
         {
-          "bytes": 2262,
+          "bytes": 2298,
           "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/common/storage/.kodi/addons/service.asterremote/equipment.py",
-          "sha256": "ea7779390051cd039a0f635eda6e306c9f22c1ecf5d4e113eafca1450a823097"
+          "sha256": "0f560cf9022a5ff2c8f6be74fcede2bd3b5243acc26638318ed86fe4a17ed1b7"
         },
         {
-          "bytes": 12408,
+          "bytes": 13817,
           "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/common/storage/.kodi/addons/service.asterremote/service.py",
-          "sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0"
+          "sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8"
         },
         {
-          "bytes": 6090,
+          "bytes": 6085,
           "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/materialization-manifest.json",
-          "sha256": "2ac1e575c1954fa649e73bbc517901ee32da553f8c45cceaf757b72450e04ff9"
+          "sha256": "b6d9f446930b6074811cc1ccded0789a8c510093e29127453beda17355216e71"
         },
         {
           "bytes": 1639,
@@ -386,7 +386,7 @@
         {
           "bytes": 98,
           "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-family/storage/.aster-v3/m8-remote/manifest.json",
-          "sha256": "0fb27db7b43b9c589dc05f67b685539e08c9fa6ac8cb748a1d82afc3993d8e7f"
+          "sha256": "4bd3abfc68b47aef6c3b72f3e88bf9b61d966d9e2ff5df9e4b3b3afa89c02734"
         },
         {
           "bytes": 661,
@@ -394,14 +394,14 @@
           "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
         },
         {
-          "bytes": 2262,
+          "bytes": 2298,
           "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-family/storage/.aster-v3/m8-remote/service.asterremote/equipment.py",
-          "sha256": "ea7779390051cd039a0f635eda6e306c9f22c1ecf5d4e113eafca1450a823097"
+          "sha256": "0f560cf9022a5ff2c8f6be74fcede2bd3b5243acc26638318ed86fe4a17ed1b7"
         },
         {
-          "bytes": 12408,
+          "bytes": 13817,
           "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-family/storage/.aster-v3/m8-remote/service.asterremote/service.py",
-          "sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0"
+          "sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8"
         },
         {
           "bytes": 202,
@@ -419,7 +419,7 @@
       "assertions": [
         {
           "authority": "aster-agent",
-          "expected": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983",
+          "expected": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518",
           "key": "remote.gateway.sha256",
           "sensitive": false
         },
@@ -475,14 +475,14 @@
       "payload_status": "complete",
       "payloads": [
         {
-          "bytes": 4488,
+          "bytes": 4910,
           "path": "services/kodi/astertv-fleet/materialize_family_equipment_bridge.py",
-          "sha256": "347b3168e414dfe7aa93b9745c6c4c194fe5b189b62dc40eda71b954ee3d50df"
+          "sha256": "5cbadac0284a87d11f36bae50b946644d3ea8a34686c4fca41ed496beee02549"
         },
         {
-          "bytes": 6720,
+          "bytes": 7443,
           "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/config/custom_components/aster_room_bridge/__init__.py",
-          "sha256": "cfcd02e48a15234b283be3815f5c692eccb32224116a64ebd3f5c82ccc328554"
+          "sha256": "80df6f8e1cf9edf5d71c9d4540e32b4347ab8b13e9f249a0065c903e99cb40f3"
         },
         {
           "bytes": 6518,
@@ -500,9 +500,9 @@
           "sha256": "a0caa81000a091c6758de8e8135611970ecee3756d295c81aa3aaa40068c960a"
         },
         {
-          "bytes": 32585,
+          "bytes": 32192,
           "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/opt/aster-agent/aster_remote.py",
-          "sha256": "d2997764398a1ebe400e0c809b44dd8ef2b674d1e580219489d037d37b23e7d9"
+          "sha256": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518"
         },
         {
           "bytes": 9540,
@@ -545,12 +545,12 @@
           "sha256": "b72b204d8220cbf5f122aac9e8d384a91bb10c8613cd5b54a46d774fd74ebfa7"
         },
         {
-          "bytes": 4492,
+          "bytes": 4599,
           "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/materialization-manifest.json",
-          "sha256": "401b632c6fe11e33744a1b9169aa74f2989c80f5cf8eddcc96368c89f21e8524"
+          "sha256": "2737da31de2c7a68c224d94b986fa9e74e804fff57e2b9dfe0855eb201cf4aaf"
         }
       ],
-      "rollback_ref": "astertv-v3-m7-family-bridge-20261105 and HA backup 35b3cbd9",
+      "rollback_ref": "astertv-v3-m7-family-standby-20261106 (gateway predecessor 39d6239df804a86a74f187f6c24eb185f6fe9bd2e5a56fdab4bb20c5fcba1231) and HA backup 35b3cbd9",
       "tests": [
         "services/home-assistant/aster_room_bridge/tests"
       ]
@@ -744,6 +744,57 @@
       "rollback_ref": "astertv-media-lifecycle-AsterTV-Family-20261105-031033",
       "tests": [
         "services/kodi/astertv-v3/deploy/media-lifecycle/test_repair.py"
+      ]
+    },
+    {
+      "apply_strategy": "install",
+      "assertions": [],
+      "dependencies": [
+        "remote-client-v3",
+        "family-equipment-bridge"
+      ],
+      "id": "family-physical-equipment-keys",
+      "installed_payloads": [
+        {
+          "bytes": 539,
+          "destination": "/storage/.kodi/userdata/keymaps/z-astertv-v3-m7-family-equipment.xml",
+          "mode": "0644",
+          "sha256": "c09bef238457986f677d360b1cfa1d436495f5b952543ad75601ab66fb64bcfb"
+        }
+      ],
+      "layer": "kodi-keymap",
+      "owner": "fleet-engineering",
+      "owns": [
+        "kodi/family-physical-equipment-keymap"
+      ],
+      "payload_blockers": [],
+      "payload_status": "complete",
+      "payloads": [
+        {
+          "bytes": 3892,
+          "path": "services/kodi/astertv-fleet/materialize_family_physical_equipment.py",
+          "sha256": "9d635e9897c48401176682d943833a5fe76c5391e1ebe2d8cd96908b917b771e"
+        },
+        {
+          "bytes": 539,
+          "path": "services/kodi/astertv-fleet/materialized/family-physical-equipment-keys/keymaps/z-astertv-v3-m7-family-equipment.xml",
+          "sha256": "c09bef238457986f677d360b1cfa1d436495f5b952543ad75601ab66fb64bcfb"
+        },
+        {
+          "bytes": 958,
+          "path": "services/kodi/astertv-fleet/materialized/family-physical-equipment-keys/materialization-manifest.json",
+          "sha256": "a0efc3b7a860cb8f188f7db100420af2408830951e8ee0ed1874f81c87a0df69"
+        },
+        {
+          "bytes": 1255,
+          "path": "services/kodi/astertv-fleet/peripherals/captures/astertv-family-g20-20261106.json",
+          "sha256": "f89e9adf6debc5854d949485a3c292694a3bea0f827993d240c4836f31be7701"
+        }
+      ],
+      "rollback_ref": "astertv-v3-m7-family-physical-keys-20261106",
+      "tests": [
+        "services/kodi/astertv-v3/remote_client/test_build_physical_equipment_keymap.py",
+        "services/kodi/astertv-v3/remote_client/test_physical_equipment.py"
       ]
     },
     {
@@ -1001,6 +1052,7 @@
     "device-audio:systemd/pulseaudio-mask",
     "external-integration:aster-agent/family-equipment-actions",
     "external-integration:home-assistant/aster-room-bridge-family",
+    "kodi-keymap:kodi/family-physical-equipment-keymap",
     "kodi-presentation:kodi/plugin.video.astersearch/tv-person-search",
     "kodi-presentation:kodi/skin.asterhome/episode-art-cache",
     "kodi-presentation:kodi/skin.asterhome/tv-details-window",

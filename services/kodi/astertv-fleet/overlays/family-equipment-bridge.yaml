@@ -16,7 +16,7 @@
   "payload_blockers": [],
   "apply_strategy": "preserve-and-verify",
   "assertions": [
-    {"authority": "aster-agent", "key": "remote.gateway.sha256", "expected": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983", "sensitive": false},
+    {"authority": "aster-agent", "key": "remote.gateway.sha256", "expected": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518", "sensitive": false},
     {"authority": "aster-agent", "key": "remote.ui.app-js-sha256", "expected": "c4b3b371c18a7b3f53dad298ad8440f303b47f8c9c96cafbbb5c4c364e0df52b", "sensitive": false},
     {"authority": "aster-agent", "key": "equipment-key.mode", "expected": "0600", "sensitive": false},
     {"authority": "home-assistant", "key": "component.aster-room-bridge.init-sha256", "expected": "213a813d3c6b71ab5b6208223060bd24ed7f4a030a247aebe43bc0b012d95fac", "sensitive": false},
@@ -25,6 +25,6 @@
     {"authority": "opnsense", "key": "rule.5e3a94b5-8059-45f7-b45c-f3b7484c4cf1", "expected": "192.168.20.11>192.168.70.10:9120/tcp:loaded", "sensitive": false}
   ],
   "secret_refs": ["family-equipment-client", "home-assistant-room-bridge"],
-  "rollback_ref": "astertv-v3-m7-family-bridge-20261105 and HA backup 35b3cbd9",
+  "rollback_ref": "astertv-v3-m7-family-standby-20261106 (gateway predecessor 39d6239df804a86a74f187f6c24eb185f6fe9bd2e5a56fdab4bb20c5fcba1231) and HA backup 35b3cbd9",
   "tests": ["services/home-assistant/aster_room_bridge/tests"]
 }

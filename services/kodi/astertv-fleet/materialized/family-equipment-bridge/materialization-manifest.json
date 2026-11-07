@@ -34,11 +34,11 @@
     },
     {
       "authority": "aster-agent",
-      "bytes": 32585,
+      "bytes": 32192,
       "destination": "/opt/aster-agent/aster_remote.py",
       "mode": "0644",
       "scope": "external",
-      "sha256": "d2997764398a1ebe400e0c809b44dd8ef2b674d1e580219489d037d37b23e7d9"
+      "sha256": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518"
     },
     {
       "authority": "aster-agent",
@@ -130,7 +130,8 @@
     }
   ],
   "recovery": {
-    "aster_agent": "/var/lib/aster/checkpoints/astertv-v3-m7-family-bridge-20261105/",
+    "aster_agent": "/var/lib/aster/checkpoints/astertv-v3-m7-family-standby-20261106/",
+    "aster_agent_predecessor_sha256": "39d6239df804a86a74f187f6c24eb185f6fe9bd2e5a56fdab4bb20c5fcba1231",
     "home_assistant": "/config/.aster-checkpoints/astertv-v3-m7-family-bridge-20261105/",
     "home_assistant_backup": "35b3cbd9",
     "opnsense_rule_uuid": "5e3a94b5-8059-45f7-b45c-f3b7484c4cf1"

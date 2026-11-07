@@ -1535,6 +1535,13 @@ Evidence:
   fleet payloads are source-complete. Exact key capture and the owner-assisted
   room tests remain; no mapping is installed yet. Evidence:
   `docs/projects/evidence/AsterTV-v3-M7-physical-equipment-candidate-2026-11-06.md`.
+  - [x] Family accepted 2026-11-06. Exact G20 codes 114/115/113/116
+    produce one Onkyo volume step, mute/unmute, and coordinated AsterTV soft
+    standby plus explicit TCL/Onkyo off/on. The appliance remains network-live
+    in standby so either the physical or app power control can wake it. The
+    original navigation keymap remained byte-identical. Bedroom remains open.
+    Evidence:
+    `docs/projects/evidence/AsterTV-v3-M7-Family-physical-controls-and-standby-2026-11-06.md`.
 - [x] Define a content-free current-state contract for playing/paused/idle,
   media class,
   current Aster page, screensaver state, availability and explicit remote
@@ -2256,6 +2263,7 @@ explicit user acceptance.
 | 2026-11-06 | Made Jen the standing V3 canary and closed the camera-cost gate | Owner made Jen continuously available for bounded V3 navigation/restart/testing until production. The camera harness exposed a raw-JSON identity hash mismatch, not a camera defect; semantic canonicalization now preserves the same authority across approved serializers while invalid markers still fail closed. | Checkpointed repair installed reviewed resolver `6c7f1ae4…700900ef` to live and boot-stable custody, profile state resolved, and the 12-second camera test passed at 4 frames, 4.44% CPU, 116,388.75 B/s receive, 26,848 KiB RSS growth and 27.8°C. The service stopped and Home restored with no player. Kodi's 25-second stop fallback remains an open lifecycle observation. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Jen-camera-and-identity-2026-11-06.md`. |
 | 2026-11-06 | Closed automated artwork-binding latency on Jen | Added a content-free boolean harness for Media, Books, News, Music and YouTube Recommendations. A transient News refresh exposed the need for 250 ms binding stability and a final binding-count assertion before accepting a result. | Two passes completed in 284.6–820.9 ms with at most 82,727 received bytes per route, no player and exact Home restoration. Pixel rendering remains a physical-walkthrough concern. Evidence: `docs/projects/evidence/AsterTV-v3-M10-Jen-artwork-readiness-2026-11-06.md`. |
 | 2026-11-06 | Closed autonomous M10 and froze the repository-side M11 candidate | Reconciled the full Jen functional/account/failure/navigation/playback evidence, Bedroom/Family corruption and interruption recovery, two Jen reboots and dependency-denial evidence. A new disposable-root proof installed the complete Jen composition over the immutable v2 snapshot and restored all 577 v2 add-on files, 127 composition paths and both accepted-state directories. | The 72-file integrated gate passes; `astertv-v3-rc1-2026-11-06` pins source commit `762628af…2892` and deterministic per-device compositions/bundles. Only owner-assisted physical checks, volume choices, Bedroom soak/Family promotion and the external Media Lifecycle replacement handoff remain. Evidence: `docs/projects/evidence/AsterTV-v3-M10-automated-closure-and-M11-freeze-2026-11-06.md`. |
+| 2026-11-06 | Accepted Family physical equipment controls and AsterTV soft standby | Captured the exact G20 USB key codes and bound only Volume Down, Volume Up, Mute and Power to the authenticated same-room equipment route. App and physical Power now share one explicit state machine: Kodi records/restores the Aster window while the TCL/Onkyo chain receives explicit off/on. | Owner observed physical standby/wake, `0.560 → 0.555 → 0.560`, and mute `false → true → false`; Media Home, idle playback, all three Remote clients and the original navigation keymap were preserved. The exact live gateway is pinned separately from the broader unreleased content-state candidate. Bedroom remains open. Evidence: `docs/projects/evidence/AsterTV-v3-M7-Family-physical-controls-and-standby-2026-11-06.md`. |
 
 ## Close-out
 

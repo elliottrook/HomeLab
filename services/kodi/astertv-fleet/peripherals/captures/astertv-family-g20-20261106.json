@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-physical-equipment-keys",
+  "hostname": "AsterTV-Family",
+  "device": {
+    "name": "HAOBO Technology USB Composite Device Keyboard",
+    "usb_vid_pid": "4842:0001",
+    "capture_event_path": "/dev/input/event5"
+  },
+  "observed": {
+    "volume_down": {"linux_name": "KEY_VOLUMEDOWN", "linux_code": 114},
+    "volume_up": {"linux_name": "KEY_VOLUMEUP", "linux_code": 115},
+    "mute_toggle": {"linux_name": "KEY_MUTE", "linux_code": 113},
+    "power_toggle": {"linux_name": "KEY_POWER", "linux_code": 116}
+  },
+  "bindings": {
+    "volume_up": {"kind": "named", "value": "volume_up"},
+    "volume_down": {"kind": "named", "value": "volume_down"},
+    "mute_toggle": {"kind": "named", "value": "volume_mute"},
+    "power_toggle": {"kind": "named", "value": "power"}
+  },
+  "acceptance": {
+    "date": "2026-11-06",
+    "owner_observed": true,
+    "volume_down": "0.560 to 0.555",
+    "volume_up": "0.555 to 0.560",
+    "mute": "false to true to false with volume retained at 0.560",
+    "power": "physical key entered soft standby, powered off the TCL/Onkyo chain, then restored Media Home and cleared standby state",
+    "navigation_preserved_by": "pre-existing g20s-pro-plus.xml remained byte-identical"
+  }
+}

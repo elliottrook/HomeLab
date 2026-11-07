@@ -199,6 +199,9 @@ class RemoteTests(unittest.TestCase):
             "equipment.mute_on", "equipment.mute_off",
         })
         self.assertFalse(actions & {"volume.up", "power", "shell", "jsonrpc", "home.call_service"})
+        self.assertEqual(actions & {row for row in actions if row.startswith("system.")}, {
+            "system.standby_on", "system.standby_off",
+        })
         policy = REMOTE_HEADERS["Content-Security-Policy"]
         self.assertIn("connect-src 'self'", policy); self.assertNotIn("auth.elliottrook.com", policy)
         self.assertEqual(REMOTE_HEADERS["X-Frame-Options"], "DENY")
@@ -239,6 +242,7 @@ class RemoteTests(unittest.TestCase):
             self.call(gateway.command(denied, request, gateway.origin))
         self.assertEqual(caught.exception.status_code, 503)
         gateway.rooms["jen-lab"].equipment_condition = asyncio.Condition()
+        gateway.rooms["jen-lab"].last_seen = self.clock.value
 
         poll = EquipmentPoll(client_id="HA-Family", room_id="jen-lab", power="on",
                              volume_level=0.59, muted=False)
@@ -251,7 +255,9 @@ class RemoteTests(unittest.TestCase):
         self.call(publish())
         self.assertTrue(self.call(gateway.session(request))["rooms"][0]["equipment"]["connected"])
         self.assertEqual(self.call(gateway.command(denied, request, gateway.origin))["status"], "accepted")
-        self.assertEqual(len(gateway.rooms["jen-lab"].queue), 0)
+        self.assertEqual(len(gateway.rooms["jen-lab"].queue), 1)
+        self.assertEqual(gateway.rooms["jen-lab"].queue[-1].action,
+                         "system.standby_off")
         self.assertEqual(len(gateway.rooms["jen-lab"].equipment_queue), 1)
 
         forbidden = BrowserCommand(request_id="remote-equipmute", room_id="jen-lab",
@@ -276,6 +282,7 @@ class RemoteTests(unittest.TestCase):
             clock=self.clock,
         )
         room = gateway.rooms["bedroom"]
+        room.last_seen = self.clock.value
         room.equipment_last_seen = self.clock.value
         room.equipment_power = "on"
         room.equipment_volume_level = .25
@@ -296,6 +303,8 @@ class RemoteTests(unittest.TestCase):
         self.assertEqual(self.call(submit("power_toggle", "physical-power001"))["status"],
                          "accepted")
         self.assertEqual(room.equipment_queue[-1].action, "equipment.power_off")
+        self.assertEqual(room.queue[-1].action, "system.standby_on")
+        self.assertLessEqual(len(room.queue[-1].request_id), 63)
         self.assertEqual(self.call(submit("volume_up", "physical-volume01"))["status"],
                          "accepted")
         self.assertEqual(room.equipment_queue[-1].action, "equipment.volume_up")

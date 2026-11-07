@@ -10,6 +10,6 @@
     "output_contract": "Dolby passthrough and HDR",
     "controls": ["power", "volume-up", "volume-down", "mute"],
     "control_authority": "Home Assistant capability bridge",
-    "physical_remote_mapping": "pending exact key capture and owner equipment acceptance"
+    "physical_remote_mapping": "Owner accepted 2026-11-06: G20 4842:0001 KEY_VOLUMEDOWN 114, KEY_VOLUMEUP 115, KEY_MUTE 113 and KEY_POWER 116; Power enters/exits AsterTV soft standby and coordinates the TCL/Onkyo CEC chain"
   }
 }

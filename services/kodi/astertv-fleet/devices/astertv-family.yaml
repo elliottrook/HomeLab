@@ -19,7 +19,8 @@
     "family-dolby-hdr",
     "family-media-lifecycle",
     "family-kodi-restart",
-    "family-equipment-bridge"
+    "family-equipment-bridge",
+    "family-physical-equipment-keys"
   ],
   "external_integrations": [
     "jellyfin", "youtube", "seerr-arr", "audiobookshelf", "calibre-narration",

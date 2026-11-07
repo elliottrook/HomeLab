@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "f5ea04813bc1f9d60a624de29b55fdc1861fde319b7f01085fa62cfa40be57ff",
+  "composition_sha256": "0efec83c2933bc78c2fbe539ea051149774f285c3e5ced9ae7b833b577b45629",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [
@@ -110,7 +110,7 @@
     },
     {
       "authority": "aster-agent",
-      "expected": "f2780775df560903ecf6a0b4efe224343f327914bd680fe8fdd4abb24484e983",
+      "expected": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518",
       "key": "remote.gateway.sha256",
       "overlay": "family-equipment-bridge",
       "sensitive": false
@@ -269,7 +269,7 @@
       "mode": "0600",
       "overlay": "remote-client-v3",
       "path": "/storage/.aster-v3/m8-remote/manifest.json",
-      "sha256": "0fb27db7b43b9c589dc05f67b685539e08c9fa6ac8cb748a1d82afc3993d8e7f"
+      "sha256": "4bd3abfc68b47aef6c3b72f3e88bf9b61d966d9e2ff5df9e4b3b3afa89c02734"
     },
     {
       "bytes": 661,
@@ -279,18 +279,18 @@
       "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
     },
     {
-      "bytes": 2262,
+      "bytes": 2298,
       "mode": "0644",
       "overlay": "remote-client-v3",
       "path": "/storage/.aster-v3/m8-remote/service.asterremote/equipment.py",
-      "sha256": "ea7779390051cd039a0f635eda6e306c9f22c1ecf5d4e113eafca1450a823097"
+      "sha256": "0f560cf9022a5ff2c8f6be74fcede2bd3b5243acc26638318ed86fe4a17ed1b7"
     },
     {
-      "bytes": 12408,
+      "bytes": 13817,
       "mode": "0644",
       "overlay": "remote-client-v3",
       "path": "/storage/.aster-v3/m8-remote/service.asterremote/service.py",
-      "sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0"
+      "sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8"
     },
     {
       "bytes": 202,
@@ -307,18 +307,18 @@
       "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
     },
     {
-      "bytes": 2262,
+      "bytes": 2298,
       "mode": "0644",
       "overlay": "remote-client-v3",
       "path": "/storage/.kodi/addons/service.asterremote/equipment.py",
-      "sha256": "ea7779390051cd039a0f635eda6e306c9f22c1ecf5d4e113eafca1450a823097"
+      "sha256": "0f560cf9022a5ff2c8f6be74fcede2bd3b5243acc26638318ed86fe4a17ed1b7"
     },
     {
-      "bytes": 12408,
+      "bytes": 13817,
       "mode": "0644",
       "overlay": "remote-client-v3",
       "path": "/storage/.kodi/addons/service.asterremote/service.py",
-      "sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0"
+      "sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8"
     },
     {
       "bytes": 4090,
@@ -375,6 +375,13 @@
       "overlay": "family-media-lifecycle",
       "path": "/storage/.kodi/addons/skin.asterhome/tools/next_episode.py",
       "sha256": "875b413fa63b5fd618398824ec1ddf10d7a46822d7bd9ede20e6f40896cf5c6b"
+    },
+    {
+      "bytes": 539,
+      "mode": "0644",
+      "overlay": "family-physical-equipment-keys",
+      "path": "/storage/.kodi/userdata/keymaps/z-astertv-v3-m7-family-equipment.xml",
+      "sha256": "c09bef238457986f677d360b1cfa1d436495f5b952543ad75601ab66fb64bcfb"
     },
     {
       "bytes": 2954,
@@ -488,6 +495,7 @@
     "device-audio:systemd/pulseaudio-mask",
     "external-integration:aster-agent/family-equipment-actions",
     "external-integration:home-assistant/aster-room-bridge-family",
+    "kodi-keymap:kodi/family-physical-equipment-keymap",
     "kodi-presentation:kodi/plugin.video.astersearch/tv-person-search",
     "kodi-presentation:kodi/skin.asterhome/episode-art-cache",
     "kodi-presentation:kodi/skin.asterhome/tv-details-window",

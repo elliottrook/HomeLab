@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "9be4b045d076268360b26e9cc2ffe5ea0507d753ec9d90b8392a821e2bb8e829",
+  "composition_sha256": "f93fb485e76038a00f975081904175918fd5f3be1bb21e5b0dfc13200c76e110",
   "deployed": true,
   "device_id": "astertv-bedroom",
   "external_integrations": [
@@ -169,9 +169,9 @@
     ],
     "remote-client-v3": [
       {
-        "bytes": 6250,
+        "bytes": 6245,
         "path": "services/kodi/astertv-fleet/materialize_remote_client.py",
-        "sha256": "a6a4219aa4c9193606b8197f9bf6eb0850ab74a8089bbb456ee4223102469652"
+        "sha256": "4b3ff34b718c5b4002b0bfded1a9122668fedac71a53a892490649462cd11e3b"
       },
       {
         "bytes": 661,
@@ -179,19 +179,19 @@
         "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
       },
       {
-        "bytes": 2262,
+        "bytes": 2298,
         "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/common/storage/.kodi/addons/service.asterremote/equipment.py",
-        "sha256": "ea7779390051cd039a0f635eda6e306c9f22c1ecf5d4e113eafca1450a823097"
+        "sha256": "0f560cf9022a5ff2c8f6be74fcede2bd3b5243acc26638318ed86fe4a17ed1b7"
       },
       {
-        "bytes": 12408,
+        "bytes": 13817,
         "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/common/storage/.kodi/addons/service.asterremote/service.py",
-        "sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0"
+        "sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8"
       },
       {
-        "bytes": 6090,
+        "bytes": 6085,
         "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/materialization-manifest.json",
-        "sha256": "2ac1e575c1954fa649e73bbc517901ee32da553f8c45cceaf757b72450e04ff9"
+        "sha256": "b6d9f446930b6074811cc1ccded0789a8c510093e29127453beda17355216e71"
       },
       {
         "bytes": 1639,
@@ -201,7 +201,7 @@
       {
         "bytes": 98,
         "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-bedroom/storage/.aster-v3/m8-remote/manifest.json",
-        "sha256": "0fb27db7b43b9c589dc05f67b685539e08c9fa6ac8cb748a1d82afc3993d8e7f"
+        "sha256": "4bd3abfc68b47aef6c3b72f3e88bf9b61d966d9e2ff5df9e4b3b3afa89c02734"
       },
       {
         "bytes": 661,
@@ -209,14 +209,14 @@
         "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
       },
       {
-        "bytes": 2262,
+        "bytes": 2298,
         "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-bedroom/storage/.aster-v3/m8-remote/service.asterremote/equipment.py",
-        "sha256": "ea7779390051cd039a0f635eda6e306c9f22c1ecf5d4e113eafca1450a823097"
+        "sha256": "0f560cf9022a5ff2c8f6be74fcede2bd3b5243acc26638318ed86fe4a17ed1b7"
       },
       {
-        "bytes": 12408,
+        "bytes": 13817,
         "path": "services/kodi/astertv-fleet/materialized/remote-client-v3/targets/astertv-bedroom/storage/.aster-v3/m8-remote/service.asterremote/service.py",
-        "sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0"
+        "sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8"
       },
       {
         "bytes": 202,

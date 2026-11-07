@@ -22,6 +22,7 @@ import xbmcgui
 BASE = "http://192.168.70.10:9120/v1/remote"
 CONFIG = Path("/storage/.aster-private/asterremote-client.json")
 KEY = Path("/storage/.aster-private/asterremote-client.key")
+STANDBY = Path("/storage/.aster-private/astertv-standby.json")
 MAX_TEXT = 512
 WINDOWS = {
     10000: "media", 10103: "keyboard", 11110: "books", 11111: "news",
@@ -156,6 +157,40 @@ def rpc(method, params=None):
     return result.get("result", {})
 
 
+def standby_record():
+    if not STANDBY.is_file():
+        return None
+    try:
+        value = json.loads(STANDBY.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if (value.get("schema") != 1 or value.get("active") is not True
+            or not isinstance(value.get("restore_window"), int)):
+        return None
+    return value
+
+
+def set_standby(active):
+    if active:
+        players = rpc("Player.GetActivePlayers")
+        for player in players:
+            rpc("Player.Stop", {"playerid": player["playerid"]})
+        window = xbmcgui.getCurrentWindowId()
+        restore = window if window in WINDOWS else 10000
+        STANDBY.parent.mkdir(parents=True, exist_ok=True)
+        temporary = STANDBY.with_suffix(".tmp")
+        temporary.write_text(json.dumps({
+            "schema": 1, "active": True, "restore_window": restore,
+        }, sort_keys=True) + "\n", encoding="utf-8")
+        temporary.chmod(0o600)
+        temporary.replace(STANDBY)
+        return
+    record = standby_record()
+    STANDBY.unlink(missing_ok=True)
+    if record:
+        xbmc.executebuiltin("ActivateWindow({})".format(record["restore_window"]))
+
+
 def state():
     players = rpc("Player.GetActivePlayers")
     playback = "idle"
@@ -281,6 +316,10 @@ def execute(command):
         return "expired"
     action = command.get("action")
     text = command.get("text")
+    if action == "system.standby_on":
+        set_standby(True); return "completed"
+    if action == "system.standby_off":
+        set_standby(False); return "completed"
     if action == "nav.select":
         # Keep the web remote on the same semantic path as the physical G20
         # remote. Kodi's JSON-RPC Input.Select bypasses Aster's bounded

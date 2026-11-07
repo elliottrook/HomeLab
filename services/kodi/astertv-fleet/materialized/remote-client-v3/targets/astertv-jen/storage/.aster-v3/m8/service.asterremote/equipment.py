@@ -14,7 +14,10 @@ import urllib.request
 BASE = "http://192.168.70.10:9120/v1/remote/client/equipment"
 CONFIG = Path("/storage/.aster-private/asterremote-client.json")
 KEY = Path("/storage/.aster-private/asterremote-client.key")
-ALLOWED = frozenset({"volume_up", "volume_down", "mute_toggle", "power_toggle"})
+ALLOWED = frozenset({
+    "volume_up", "volume_down", "mute_toggle", "power_toggle",
+    "power_on", "power_off",
+})
 
 
 def identity() -> tuple[str, str]:

@@ -27,7 +27,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 REMOTE_ORIGIN = "https://aster.elliottrook.com"
-CANONICAL_VOICE_URL = "https://aster.elliottrook.com/voice/v3/v1/stt"
 COMMAND_LIFETIME_SECONDS = 15
 CONNECTED_SECONDS = 35
 MAX_QUEUE = 32
@@ -50,6 +49,7 @@ Action = Literal[
     "nav.back", "nav.home", "nav.context", "playback.toggle",
     "search.open", "text.send", "text.replace", "text.backspace", "text.clear",
     "text.cancel", "text.enter", "voice.search",
+    "system.standby_on", "system.standby_off",
     "equipment.power_on", "equipment.power_off",
     "equipment.volume_up", "equipment.volume_down",
     "equipment.mute_on", "equipment.mute_off",
@@ -98,7 +98,6 @@ class ClientPoll(BaseModel):
     input_sensitive: bool = False
     input_title: str = Field(default="", max_length=128)
     input_value: str = Field(default="", max_length=512)
-    content_state: "ContentState | None" = None
 
     @model_validator(mode="after")
     def protect_sensitive_input(self):
@@ -107,42 +106,6 @@ class ClientPoll(BaseModel):
         if not self.input_active and (self.input_sensitive or self.input_title or self.input_value):
             raise ValueError("inactive-input-content-forbidden")
         return self
-
-
-class ContentState(BaseModel):
-    """Current content-free playback observation from one AsterTV client."""
-
-    model_config = ConfigDict(
-        extra="forbid", str_strip_whitespace=True, populate_by_name=True,
-    )
-
-    schema_name: Literal["astertv-room-playback.v1"] = Field(
-        alias="schema", serialization_alias="schema"
-    )
-    session_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_.:-]{7,127}$")
-    sequence: int = Field(ge=1)
-    observed_epoch: int
-    expires_epoch: int
-    available: bool
-    playback_state: Literal["idle", "playing", "paused"]
-    content_class: Literal[
-        "Movie", "Television", "Music", "YouTube", "Podcast", "News",
-        "Book/Audiobook", "Unknown",
-    ]
-    page_id: str = Field(pattern=r"^[a-z][a-z0-9-]{1,63}$")
-    screensaver_active: bool
-
-    def validate_freshness(self, now_epoch: int) -> None:
-        if (self.observed_epoch > now_epoch or self.expires_epoch < now_epoch
-                or self.expires_epoch - self.observed_epoch > 30):
-            raise ValueError("content-state-stale")
-
-
-class ContentRead(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-
-    client_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9-]{0,31}$")
-    room_id: str = Field(pattern=r"^[a-z][a-z0-9-]{0,31}$")
 
 
 class ClientAck(BaseModel):
@@ -164,7 +127,10 @@ class PhysicalEquipmentCommand(BaseModel):
     client_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9-]{0,31}$")
     room_id: str = Field(pattern=r"^[a-z][a-z0-9-]{0,31}$")
     request_id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{7,63}$")
-    control: Literal["volume_up", "volume_down", "mute_toggle", "power_toggle"]
+    control: Literal[
+        "volume_up", "volume_down", "mute_toggle", "power_toggle",
+        "power_on", "power_off",
+    ]
 
 
 class EquipmentPoll(BaseModel):
@@ -220,7 +186,6 @@ class RoomRuntime:
     equipment_volume_level: float | None = None
     equipment_muted: bool | None = None
     equipment_last_outcome: str | None = None
-    content_state: ContentState | None = None
 
 
 class AsterRemoteGateway:
@@ -234,7 +199,7 @@ class AsterRemoteGateway:
         subject_rooms: dict[str, set[str]],
         network_rooms: dict[ipaddress.IPv4Network, set[str]] | None = None,
         trusted_proxies: set[ipaddress.IPv4Address] | None = None,
-        voice_url: str = CANONICAL_VOICE_URL,
+        voice_url: str = "http://192.168.70.14:9130/v1/stt",
         voice_key: str = "",
         origin: str = REMOTE_ORIGIN,
         clock: Callable[[], float] = time.time,
@@ -288,10 +253,6 @@ class AsterRemoteGateway:
         )
         self.router.add_api_route(
             "/v1/remote/equipment/ack", self.equipment_ack, methods=["POST"]
-        )
-        self.router.add_api_route(
-            "/v1/remote/equipment/content", self.equipment_content,
-            methods=["POST"],
         )
 
     async def index(self) -> FileResponse:
@@ -426,6 +387,10 @@ class AsterRemoteGateway:
         if payload.request_id in self.seen:
             return {"status": "accepted", "request_id": payload.request_id}
         room = self.rooms[payload.room_id]
+        if payload.action in {"equipment.power_on", "equipment.power_off"}:
+            return await self._queue_standby_pair(
+                payload.room_id, payload.request_id, payload.action, now
+            )
         if payload.action in EQUIPMENT_ACTIONS:
             return await self._queue_equipment(
                 payload.room_id, payload.request_id, payload.action, now
@@ -473,6 +438,43 @@ class AsterRemoteGateway:
             room.equipment_condition.notify_all()
         return {"status": "accepted", "request_id": request_id}
 
+    async def _queue_standby_pair(
+        self, room_id: str, request_id: str, equipment_action: str, now: float,
+    ) -> dict[str, str]:
+        room = self.rooms[room_id]
+        equipment = next((row for row in self.equipment_clients.values()
+                          if row.room_id == room_id), None)
+        if equipment is None or equipment_action not in equipment.actions:
+            raise HTTPException(403, "AsterTV equipment action denied")
+        if room.last_seen <= now - CONNECTED_SECONDS:
+            raise HTTPException(503, "AsterTV client unavailable")
+        if room.equipment_last_seen <= now - CONNECTED_SECONDS:
+            raise HTTPException(503, "AsterTV equipment bridge unavailable")
+        if room.equipment_power not in {"on", "off"}:
+            raise HTTPException(503, "AsterTV equipment power state unavailable")
+        self.seen = {key: expiry for key, expiry in self.seen.items() if expiry > now}
+        if request_id in self.seen:
+            return {"status": "accepted", "request_id": request_id}
+        if len(room.queue) >= MAX_QUEUE or len(room.equipment_queue) >= MAX_QUEUE:
+            raise HTTPException(503, "AsterTV remote queue is busy")
+        standby_action = (
+            "system.standby_on" if equipment_action == "equipment.power_off"
+            else "system.standby_off"
+        )
+        self.seen[request_id] = now + COMMAND_LIFETIME_SECONDS
+        room.queue.append(QueuedCommand(
+            request_id[:58] + "-box", standby_action, None,
+            now + COMMAND_LIFETIME_SECONDS,
+        ))
+        room.equipment_queue.append(QueuedCommand(
+            request_id, equipment_action, None, now + COMMAND_LIFETIME_SECONDS,
+        ))
+        async with room.condition:
+            room.condition.notify_all()
+        async with room.equipment_condition:
+            room.equipment_condition.notify_all()
+        return {"status": "accepted", "request_id": request_id}
+
     async def voice(self, request: Request, origin: str | None = Header(default=None)):
         self._same_origin(origin)
         self._browser(request)
@@ -516,21 +518,6 @@ class AsterRemoteGateway:
         room.input_sensitive = payload.input_sensitive
         room.input_title = payload.input_title
         room.input_value = payload.input_value
-        if payload.content_state is not None:
-            state = payload.content_state
-            try:
-                state.validate_freshness(int(self.clock()))
-            except ValueError as error:
-                raise HTTPException(409, "AsterTV content state stale") from error
-            previous = room.content_state
-            if previous is not None:
-                if state.session_id == previous.session_id:
-                    if state.sequence <= previous.sequence:
-                        raise HTTPException(409, "AsterTV content state replayed")
-                elif (state.sequence != 1
-                      or state.observed_epoch < previous.observed_epoch):
-                    raise HTTPException(409, "AsterTV content session invalid")
-            room.content_state = state
         deadline = time.monotonic() + 20
         while True:
             now = self.clock()
@@ -587,13 +574,18 @@ class AsterRemoteGateway:
             if room.equipment_muted is None:
                 raise HTTPException(503, "AsterTV equipment mute state unavailable")
             action = "equipment.mute_off" if room.equipment_muted else "equipment.mute_on"
+        elif payload.control in {"power_on", "power_off"}:
+            action = "equipment." + payload.control
         else:
             if room.equipment_power not in {"on", "off"}:
                 raise HTTPException(503, "AsterTV equipment power state unavailable")
             action = "equipment.power_off" if room.equipment_power == "on" else "equipment.power_on"
-        return await self._queue_equipment(
-            payload.room_id, payload.request_id, action, self.clock()
-        )
+        if action.startswith("equipment.power_"):
+            return await self._queue_standby_pair(
+                payload.room_id, payload.request_id, action, self.clock()
+            )
+        return await self._queue_equipment(payload.room_id, payload.request_id,
+                                           action, self.clock())
 
     def _equipment_client(self, client_id: str, room_id: str,
                           authorization: str | None, header_client: str | None):
@@ -648,19 +640,6 @@ class AsterRemoteGateway:
         room.equipment_last_seen = self.clock()
         room.equipment_last_outcome = payload.outcome
         return {"status": "recorded"}
-
-    async def equipment_content(
-        self,
-        payload: ContentRead,
-        authorization: str | None = Header(default=None),
-        x_astertv_client: str | None = Header(default=None),
-    ):
-        self._equipment_client(payload.client_id, payload.room_id,
-                               authorization, x_astertv_client)
-        state = self.rooms[payload.room_id].content_state
-        if state is None or state.expires_epoch < int(self.clock()):
-            return Response(status_code=204)
-        return {"room_id": payload.room_id, **state.model_dump(by_alias=True)}
 
 
 def _environment_clients() -> dict[str, ClientIdentity]:
@@ -757,7 +736,7 @@ def from_environment(claims, static_root: Path) -> AsterRemoteGateway:
         network_rooms=_environment_network_rooms(),
         trusted_proxies=_environment_trusted_proxies(),
         voice_url=os.environ.get(
-            "ASTER_REMOTE_VOICE_URL", CANONICAL_VOICE_URL
+            "ASTER_REMOTE_VOICE_URL", "http://192.168.70.14:9130/v1/stt"
         ),
         voice_key=os.environ.get("ASTER_REMOTE_SPEECH_API_KEY", ""),
         origin=os.environ.get("ASTER_REMOTE_ORIGIN", REMOTE_ORIGIN),

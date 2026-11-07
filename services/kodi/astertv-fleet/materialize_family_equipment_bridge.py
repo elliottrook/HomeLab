@@ -14,15 +14,19 @@ HERE = Path(__file__).resolve().parent
 CHECKOUT = HERE.parents[2]
 HA = CHECKOUT / "services/home-assistant/aster_room_bridge/custom_components/aster_room_bridge"
 AGENT = CHECKOUT / "services/aster-agent"
+FAMILY_GATEWAY = HERE / "recovery/family/aster_remote-family-standby-20261106.py"
 FILES = {
-    "/opt/aster-agent/aster_remote.py": AGENT / "aster_remote.py",
+    # Family's accepted gateway deliberately remains separate from the broader
+    # unreleased gateway candidate. This prevents a global source refresh from
+    # silently replacing the live, owner-accepted standby/equipment behavior.
+    "/opt/aster-agent/aster_remote.py": FAMILY_GATEWAY,
     **{"/opt/aster-agent/static/remote/" + path.relative_to(AGENT / "static/remote").as_posix(): path
        for path in sorted((AGENT / "static/remote").rglob("*")) if path.is_file()},
     **{"/config/custom_components/aster_room_bridge/" + path.relative_to(HA).as_posix(): path
        for path in sorted(HA.rglob("*")) if path.is_file()},
 }
 PINNED = {
-    "/opt/aster-agent/aster_remote.py": "d2997764398a1ebe400e0c809b44dd8ef2b674d1e580219489d037d37b23e7d9",
+    "/opt/aster-agent/aster_remote.py": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518",
     "/opt/aster-agent/static/remote/app.js": "76a14595af2da756a72975eb02afe45cd21ac035d8b118dfc67a2635258e0762",
     "/config/custom_components/aster_room_bridge/__init__.py": "80df6f8e1cf9edf5d71c9d4540e32b4347ab8b13e9f249a0065c903e99cb40f3",
     "/config/custom_components/aster_room_bridge/content_policy.py": "4ed19eade495e4d35f7b58cb3b8b54dc21de2158a3b782139dda3a1af21a82f8",
@@ -56,7 +60,8 @@ def render() -> tuple[dict[str, tuple[bytes, int]], dict]:
         "id": "family-equipment-bridge",
         "files": rows,
         "recovery": {
-            "aster_agent": "/var/lib/aster/checkpoints/astertv-v3-m7-family-bridge-20261105/",
+            "aster_agent": "/var/lib/aster/checkpoints/astertv-v3-m7-family-standby-20261106/",
+            "aster_agent_predecessor_sha256": "39d6239df804a86a74f187f6c24eb185f6fe9bd2e5a56fdab4bb20c5fcba1231",
             "home_assistant": "/config/.aster-checkpoints/astertv-v3-m7-family-bridge-20261105/",
             "home_assistant_backup": "35b3cbd9",
             "opnsense_rule_uuid": "5e3a94b5-8059-45f7-b45c-f3b7484c4cf1",

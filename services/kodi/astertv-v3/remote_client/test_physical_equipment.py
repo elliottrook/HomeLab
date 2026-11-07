@@ -20,6 +20,7 @@ class PhysicalEquipmentTests(unittest.TestCase):
         ast.parse(SOURCE)
         self.assertEqual(MODULE.ALLOWED, {
             "volume_up", "volume_down", "mute_toggle", "power_toggle",
+            "power_on", "power_off",
         })
         for forbidden in ("subprocess", "jsonrpc", "homeassistant", "volume_set"):
             self.assertNotIn(forbidden, SOURCE.casefold())

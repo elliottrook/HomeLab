@@ -95,6 +95,16 @@ class RemoteClientTests(unittest.TestCase):
         self.assertIn('CONTENT_STATE_SUPPORTED = False', SOURCE)
         self.assertIn('current.pop("content_state", None)', SOURCE)
 
+    def test_soft_standby_is_persistent_bounded_and_restores_aster_window(self):
+        self.assertIn('/storage/.aster-private/astertv-standby.json', SOURCE)
+        self.assertIn('rpc("Player.Stop"', SOURCE)
+        self.assertIn('temporary.chmod(0o600)', SOURCE)
+        self.assertIn('"system.standby_on"', SOURCE)
+        self.assertIn('"system.standby_off"', SOURCE)
+        self.assertIn('xbmc.executebuiltin("ActivateWindow({})"', SOURCE)
+        for forbidden in ('Application.Quit', 'System.Exec', 'System.Shutdown'):
+            self.assertNotIn(forbidden, SOURCE)
+
 
 if __name__ == "__main__":
     unittest.main()

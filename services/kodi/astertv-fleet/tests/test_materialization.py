@@ -53,9 +53,41 @@ MOVIE_YT_SPEC.loader.exec_module(MOVIE_YT_MODULE)
 LOW_SPEC = importlib.util.spec_from_file_location("jen_low_spec_materializer", ROOT / "materialize_jen_low_spec_runtime.py")
 LOW_SPEC_MODULE = importlib.util.module_from_spec(LOW_SPEC)
 LOW_SPEC.loader.exec_module(LOW_SPEC_MODULE)
+PHYSICAL_SPEC = importlib.util.spec_from_file_location(
+    "family_physical_equipment_materializer",
+    ROOT / "materialize_family_physical_equipment.py",
+)
+PHYSICAL_MODULE = importlib.util.module_from_spec(PHYSICAL_SPEC)
+PHYSICAL_SPEC.loader.exec_module(PHYSICAL_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
+    def test_family_equipment_gateway_pins_accepted_live_source_not_global_candidate(self):
+        files, manifest = EQUIPMENT_MODULE.render()
+        gateway = files["external/opt/aster-agent/aster_remote.py"][0]
+        self.assertEqual(
+            EQUIPMENT_MODULE.sha(gateway),
+            "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518",
+        )
+        self.assertEqual(gateway, EQUIPMENT_MODULE.FAMILY_GATEWAY.read_bytes())
+        self.assertNotEqual(gateway, (EQUIPMENT_MODULE.AGENT / "aster_remote.py").read_bytes())
+        self.assertIn("astertv-v3-m7-family-standby-20261106", manifest["recovery"]["aster_agent"])
+
+    def test_family_physical_keys_are_exact_and_do_not_capture_navigation(self):
+        files, manifest = PHYSICAL_MODULE.render()
+        self.assertEqual(set(files), {PHYSICAL_MODULE.RELATIVE})
+        self.assertEqual(manifest["scope"], "astertv-family")
+        self.assertEqual(PHYSICAL_MODULE.EXPECTED_CODES, {
+            "volume_down": 114, "volume_up": 115,
+            "mute_toggle": 113, "power_toggle": 116,
+        })
+        keymap = files[PHYSICAL_MODULE.RELATIVE][0].decode()
+        self.assertEqual(keymap.count("RunScript("), 4)
+        for control in ("volume_up", "volume_down", "mute_toggle", "power_toggle"):
+            self.assertIn(",{})".format(control), keymap)
+        for forbidden in ("<select>", "<return>", "<left>", "<right>", "<up>", "<down>"):
+            self.assertNotIn(forbidden, keymap)
+
     def test_family_restart_outputs_are_deterministic_and_manifest_bound(self):
         artifact = ROOT.parent / "dist/astertv-v2.0.7-release-2026-10-31.tar.gz"
         with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
@@ -93,7 +125,7 @@ class MaterializationTests(unittest.TestCase):
     def test_remote_client_materializes_current_accepted_lineage_for_each_target(self):
         files, manifest = REMOTE_MODULE.render()
         self.assertEqual(manifest["lineage"]["current_sha256"],
-                         "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0")
+                         "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8")
         self.assertEqual(set(manifest["targets"]), {"astertv-family", "astertv-bedroom", "astertv-jen"})
         destinations = {(row["scope"], row["destination"]) for row in manifest["files"]}
         self.assertIn(("common", "/storage/.kodi/addons/service.asterremote/equipment.py"), destinations)

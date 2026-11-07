@@ -52,7 +52,7 @@ def render() -> tuple[dict[str, tuple[bytes, int]], dict]:
     addon = {path.relative_to(ADDON).as_posix(): path.read_bytes()
              for path in sorted(ADDON.rglob("*")) if path.is_file()}
     current_service = sha(addon["service.py"])
-    if current_service != "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0":
+    if current_service != "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8":
         raise RuntimeError("remote-current-service-drift")
     addon_digest = tree_sha(addon)
     files: dict[str, tuple[bytes, int]] = {}
@@ -88,9 +88,9 @@ def render() -> tuple[dict[str, tuple[bytes, int]], dict]:
         "targets": sorted(TARGETS),
         "files": sorted(rows, key=lambda row: (row["scope"], row["destination"])),
         "lineage": {
-            "accepted_predecessor_sha256": "be50926bfce8379035cd0219ce3bb03894ac90a27edf4887777d7b8a38f1b4e8",
+            "accepted_predecessor_sha256": "6e932ee44a3637ae79edd45d646f09abda8a82b1e50d831f71e129797d7300d0",
             "current_sha256": current_service,
-            "evidence": "AsterTV v3 M7 content-state repository candidate; live publication remains gated",
+            "evidence": "AsterTV v3 M7 Family soft-standby candidate; live publication remains gated",
         },
         "mutable_state": [
             {"path": "/storage/.aster-private/asterremote-client.key", "bundled": False, "sensitive": True},
