@@ -14,45 +14,14 @@
 
 ## Current coordination status
 
-[The accepted-SYCL post-Xe qualification is actually armed](B60-Inference-Engineering/post-xe-qualification-plan-20261106.md)
-for November6 **16:20–17:05 Vancouver UTC−07**, recovery through17:20.
-Independent installed and armed reviews confirm the named registered route,
-exact53 global pins/base30/four fixed qualification sources, protected card,
-five entry plans,900second profile, accepted recovery artifacts and clean shared
-exclusion. The timer is enabled/waiting, numeric next trigger1794007200000000,
-LastTrigger0 and launcher inactive. No qualification is inferred before execution.
+[Actual post-Xe accepted-SYCL qualification passed and its closure is independently verified](B60-Inference-Engineering/post-xe-qualified-capture-continuation-20261106.md).
+The distinct16:40 B5 run passed three complete known-answer predicates, restored all five entry checkpoints and scheduled work, and released16:48:37 without assistance or deadline miss. Original Xe fault evidence and earlier pre-claim/snapshot failures remain retained. The separate17:07:53 closure permits accepted-SYCL continuation; new faults still refuse arming/admission.
 
-News-XPU attempt2 produced three real Xe reset/fault events14:54:23 before
-restoring/releasing14:56:48. Original OPEN evidence remains immutable; HTTP
-health and accepted bytes do not close correctness. Jason’s newer explicit
-reservation-autonomy messages authorize related bounded fixes and continued
-work without a three-attempt ceiling or repeated approval. Independent review
-accepts that existing authority for a structurally different accepted9B/SYCL
-known-answer test, without reset/reboot/driver changes. Only actual fixed
-answers, complete restoration, source-bound evidence and an independent
-postcheck can produce a separate incident closure. The normal35B route stays
-blocked until that closure verifies.
+The earlier16:20 B3 attempt stopped before claim/model because guest116's new environment-file path was outside checkpoint scope. A narrowly pinned guest-local wrapper added exact coverage without changing the accepted base30 controller or exporting secret bytes. M3's intervening K2 registration was preserved through exact predecessor reconciliation.
 
-News’s first OpenVINO session released failed. Its next17:25–17:50 reservation,
-recovery through18:05, is preserved. B60’s next actual guarded35B reservation is
-**18:10–18:55, recovery through19:10**, `b60-exclusive-20261106-day-r4`.
-Fresh retained archive integrity completed15:58:33. Source-only failure capture
-now includes a bounded/fenced HTTP client, independent new-fault monitor and
-once-only entry-backend restoration start;193 offline tests pass. Exact current
-post-News source reconciliation, fresh TrueNAS metadata, installation, final
-live review, arming, real model result and restored entry remain operational
-work to complete under existing Stream A approval.
+Next actual35B reasoning-on booking: **November6 18:10–18:55 Vancouver UTC−07**, recovery19:10, `b60-exclusive-20261106-day-r4`. It remains **unarmed** until News's17:25–17:50 booking actually restores/releases and final source/card/profile/plan/readiness checks pass. The ten-source capture integration includes bounded HTTP failure retention, client/candidate fencing, an independent new-fault monitor and its own exact guest116 wrapper.193 B60 offline tests plus independent source/live/actual qualification checks pass; none substitutes for the next real35B result.
 
-[An earlier actual35B reasoning-on trial ran](B60-Inference-Engineering/actual-35b-model-result-20261106.md).
-All41 layers offloaded with19.14GiB GPU residency; the two-request workload
-failed and the old request script lost partial failure metadata. Automatic
-restoration/release completed11:46:06 without assistance or deadline miss.
-The subsequent News mp0 is preserved in fresh entry plans rather than removed.
-The new capture fixes have not yet demonstrated a real model packet.
-
-No model promotion,27B+ capability/latency acceptance, frozen fresh9B baseline,
-or harder held-out contract is claimed. The programme remains active; this
-operational continuation must follow through to actual results.
+[The earlier35B trial](B60-Inference-Engineering/actual-35b-model-result-20261106.md) proved full41-layer offload/19.14GiB residency but lost partial request-failure metadata. The current operational task continues through a real failure-preserving packet and full restoration. No fresh baseline/held-out contract,27B+ capability/complete-answer p50/p95 acceptance or model promotion is claimed; the programme stays active.
 
 ## Historical coordination snapshots — superseded by the current result above
 

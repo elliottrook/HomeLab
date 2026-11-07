@@ -30,6 +30,15 @@ with host_exclusion(ROOT):
  call(['/usr/bin/python3','-B','-c',cmd])
  closed="import sys,json;sys.path.insert(0,"+repr(str(BASE.parent/'full-inference-pilot'))+");from b60_exclusive_card_bridge import require_incident_closed;print(json.dumps(require_incident_closed()))"
  closure=json.loads(call(['/usr/bin/python3','-B','-c',closed]));assert closure==integration['source_bound_incident_closure']
+ from lab_hours_exclusive_session import SessionStore
+ from news_xpu_boundary import observe
+ class ReadOnlyAdapter:
+  def _call(self,args,deadline,maximum=120):
+   assert time.time()<deadline
+   return call(list(args),min(maximum,deadline-time.time()))
+ prestore=SessionStore(ROOT/'model-arm-prechecks'/B,expected_uid=0);fd=prestore.lock()
+ try:observe(ReadOnlyAdapter(),prestore,row)
+ finally:os.close(fd)
  proof=verify(load_root_owned(),fixed_proxmox_inventory(),date='2026_11_06',now_epoch=row['start_epoch']+120,resolve=fixed_resolve,lstat=os.lstat)
  history=protected_bytes(ROOT/'backup-chain-history'/(B+'.json'));assert hashlib.sha256(history).hexdigest()==json.loads(card_raw)['backup_history_sha256'] and 0<=row['start_epoch']+120-json.loads(history)['observed_epoch']<=7200
  name='b60-model-trial-'+B;units=Path('/etc/systemd/system')

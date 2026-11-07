@@ -1,0 +1,23 @@
+{
+  "actual_B5_entry_has_activating_units": false,
+  "checks": [
+    "Immutable independent historical fullpass retained verbatim with originalobservedtime; fresh scheduledprogress separatelylabelled",
+    "Exact21proofs/source5/currentprofileSHA andfiveplanSHAs/currentall5checkpointverification bound",
+    "OnlyfixedknownTRIGGERS inactive-staticoneshots allowedtorun; PIDpositive/enablementunchanged; exactLastTrigger/start within2sec; BOTHstrictlyafterrestoreandhistoricalfullproof",
+    "Clockreadwalltimeboundedbyrequeststart/end; uptimepredatesqualification; historicalmonotoniccontinuity preserved",
+    "Waitingactive timers requirefinitefuture timestamp;0/infinityrefused",
+    "Freshready/noowners/no claimedrows/no markers; acceptedsoleDRM/GET; finalkernel/rehash; originalOPENpreserved; closurelast"
+  ],
+  "historical_fullpass_artifact_sha256": "47238d1b6369210edb0e1d28e69929f308c70e8967c452c4b788f441ebe88539",
+  "incident_closure_not_written_by_reviewer": true,
+  "no_live_effects": true,
+  "no_model_gpu_calls": true,
+  "observed_epoch": 1794009935,
+  "producer_sha256": "fcbd5f89b5707f68a2d91fd8b75644029f395fd7e4a72d90513f509e2351008d",
+  "schema": "b60-independent-temporal-acceptance-source-review.v1",
+  "tests": {
+    "actualpure_progress_predicate_cases_passed": 9,
+    "finitefuture_cases_passed": 4
+  },
+  "verdict": "PASS conditional technical source review; actual writer must pass every current gate"
+}

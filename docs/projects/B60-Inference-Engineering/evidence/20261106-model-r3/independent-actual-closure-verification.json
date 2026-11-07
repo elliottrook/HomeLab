@@ -1,0 +1,67 @@
+{
+  "active_scopes": [],
+  "bridge_verifier": {
+    "closure_sha256": "17fcd4550d33541f298c47170342ea6511f7e6d73152b595f303f6688d84ab10",
+    "postcheck_sha256": "6108d2f8f119d776acac69ec8e7697d3881f37e4b87059adf1f1a3f17518edab",
+    "qualified_booking_id": "b60-exclusive-20261106-day-r5"
+  },
+  "closure": {
+    "acceptance_source_sha256": "fcbd5f89b5707f68a2d91fd8b75644029f395fd7e4a72d90513f509e2351008d",
+    "accepted_epoch": 1794010073,
+    "incident_id": "b60-xe-20261106-1794002063",
+    "original_open_sha256": "7c1355adec390764cd970036233c1a70325d224b387e751dff4ef06db0e5cc6e",
+    "postcheck_sha256": "6108d2f8f119d776acac69ec8e7697d3881f37e4b87059adf1f1a3f17518edab",
+    "qualification_booking_id": "b60-exclusive-20261106-day-r5",
+    "schema": "b60-device-incident-closure.v1",
+    "state": "CLOSED_FOR_ACCEPTED_SYCL_CONTINUATION"
+  },
+  "current_checkpoint_verifications": {
+    "104": true,
+    "110": true,
+    "114": true,
+    "115": true,
+    "116": true
+  },
+  "current_observed_epoch": 1794010073,
+  "current_scheduled_progress": [],
+  "hashes": {
+    "acceptance-source.py": "fcbd5f89b5707f68a2d91fd8b75644029f395fd7e4a72d90513f509e2351008d",
+    "closure.json": "17fcd4550d33541f298c47170342ea6511f7e6d73152b595f303f6688d84ab10",
+    "independent-postcheck-acceptance.json": "47238d1b6369210edb0e1d28e69929f308c70e8967c452c4b788f441ebe88539",
+    "open.json": "7c1355adec390764cd970036233c1a70325d224b387e751dff4ef06db0e5cc6e",
+    "postcheck.json": "6108d2f8f119d776acac69ec8e7697d3881f37e4b87059adf1f1a3f17518edab"
+  },
+  "historical_observed_epoch": 1794009278,
+  "kernel": {
+    "new_hazards": 0,
+    "observed_epoch": 1794010073,
+    "since_epoch": 1794002064
+  },
+  "markers": {
+    "full-inference-drain.json": false,
+    "full-inference-drain.lock": false,
+    "lease.json": false,
+    "lease.lock": false
+  },
+  "no_gpu_model_calls": true,
+  "no_live_mutations": true,
+  "observed_epoch": 1794010224,
+  "plan_sha": {
+    "104": "7a8f1f81476b59b193d6fe6e601b4eb55ef71cecf2b06806149fc26c5368fc34",
+    "110": "71aa5f835b90f6ce2e506882e14837ad583b7c905e10ef3b2e78f5424ca0f122",
+    "114": "a96363f469cdf25ed50067cd90e4ab37722f83f19d04a56e6fa5d7178a157413",
+    "115": "8b1aed9f7feba2d537fb48253a508f2004950c03258b2b0db9e69cfeea303a86",
+    "116": "b60893d49abaa2e106babecaa765726ae8dbe8cab0cc595ffc59c097af83abb5"
+  },
+  "profile_sha": "a54fb14d366333ca7a78207ad5f0dd86daa2abc6d30f1d5e2f8bb9618bf2f2db",
+  "proof_record_count": 21,
+  "scope": "accepted-SYCL continuation only; not News engine qualification or capability/latency milestone",
+  "source_sha": {
+    "backup_chain_history.py": "0ebecf301c0b4fccdd4f128fdef9d09163eaf4e54cf871156ec80e5a8777d5e6",
+    "fixed_command.py": "16a74cf21a53a5c9ec7e5bec3fe9eeb1dc58e37da0f31fb25e038f7f4d9a388c",
+    "guest_entry_scope.py": "6fe93b41702b83a935305225273567a1ff60de8dd281622da68e0a0747a34479",
+    "known_answer_requests.py": "d0d305405222fe8dd301fc4216f8cfd1a00d04b539d0d300be282d9d1e5604de",
+    "qualification.py": "42af10d66f319bfe7c824b588cd869a2fac7f3740562fcb5297fd6c9c70ae91c"
+  },
+  "stage": "actual-durable-closure-read-only-verification"
+}

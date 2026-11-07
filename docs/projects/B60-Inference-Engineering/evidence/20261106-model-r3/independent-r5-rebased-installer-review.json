@@ -1,0 +1,24 @@
+{
+  "candidate_global": {
+    "b60_post_xe_r5_card_bridge.py": "3bd94a1e99491a0c23b4e530161389d3ef80a13fa7f2f5a35a9bad5f918df209",
+    "lab_hours_release_manifest.json": "555bb3ab2a976f521f74c3b866397ec3cab04ae49fbe494872dfc7ffe69d880d",
+    "lab_hours_reserved_runner.py": "27e33550698d01ec7af78a74c910d67ea191503732201210599e635ec9f3dea9",
+    "lab_hours_workloads.py": "e8a93e05c23c8bddcb329c0025963639a18926904455d11261bd28e2f5d2b4d9"
+  },
+  "installer_sha256": "37fbf657748b886eadd51ad3c47816ae72da879cca6a39a2a9f89b62c108c6b3",
+  "no_live_effects": true,
+  "observed_epoch": 1794007982,
+  "predecessors": {
+    "lab_hours_release_manifest.json": "090e49ac4fb18937f3b9287535bcd9df102d1fc0780d940eecb5bd61a4b3942d",
+    "lab_hours_reserved_runner.py": "418e521ed77de6e86ffc9361f7f121f57d3adb9866bfdf6fe30749fcc15c3b3b",
+    "lab_hours_workloads.py": "15cee88fc1f423b78b692e7ffdc30cfa6ff4835ebd3fd63ddeaaf03d0235cc3b"
+  },
+  "reviewed": [
+    "Every56currentpredecessorpin retained aside exactreviewedregistry/runner replacements;57thR5bridgeadded",
+    "Fulltextdiff ONLYnewV2entry/validator/earlyR5branch/kind",
+    "AllK2andV1existingregistration/routing retained unchanged",
+    "Fiveeffectsource hashes andfourglobalpayload hashes/syntaxverified"
+  ],
+  "schema": "b60-independent-r5-rebased-installer-review.v1",
+  "verdict": "PASS additive preservation review; finalinstalled audit needed"
+}

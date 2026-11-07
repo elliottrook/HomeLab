@@ -1,0 +1,99 @@
+{
+  "accepted_state": {
+    "ActiveState": "active",
+    "NRestarts": "0",
+    "SubState": "running"
+  },
+  "accepted_unit_sha": "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3",
+  "active_scopes": [],
+  "base30_sha": "e282a0e6a26a7e0302a70d2dbf953734048a5eb3697704d3cf0dce48803c3cd2",
+  "booking": {
+    "booking_id": "b60-exclusive-20261106-day-r5",
+    "created_epoch": 1794007600,
+    "end_epoch": 1794010200,
+    "kind": "exclusive-stack",
+    "owner": "b60-stream-a",
+    "restore_buffer_seconds": 900,
+    "schema": "aster-lab-hours-reservation.v1",
+    "start_epoch": 1794008400,
+    "state": "reserved",
+    "workload": "b60-accepted-sycl-post-xe-qualification-v2"
+  },
+  "card_sha": "a4e60ba0b4902f425a6621d85c7cc68cb8bad9d903447f6cc7b93a52597d505e",
+  "claimed": [],
+  "dispatch_intent_exists": false,
+  "global_pin_count": 57,
+  "global_sha": "555bb3ab2a976f521f74c3b866397ec3cab04ae49fbe494872dfc7ffe69d880d",
+  "guest116": {
+    "gateway_covered": true,
+    "old_helper_sha": {
+      "lab_hours_file_checkpoint.py": "5938e967448073ecce2afc733fb569a7bef113b9ddd2fb4385cf64ec7af783f7",
+      "lab_hours_guest_checkpoint.py": "76e8f228fcbcd302a67dbbfd8538a2f1e0dd2e39449b0e4745152c32aef9d76b",
+      "lab_hours_prepare_entry_plan.py": "2cf80b75ca067c2d9bb2aad861c81261ed304177e24040dff8f33487c883778a",
+      "lab_hours_unit_adapter.py": "f4781de620e9c0c10bf01eab162eb2564d8baf1d4d84670117649d368325bcbd"
+    },
+    "wrapper_sha": "6fe93b41702b83a935305225273567a1ff60de8dd281622da68e0a0747a34479"
+  },
+  "guest_available_kib": 13932732,
+  "health": {
+    "status": "ok"
+  },
+  "history_age_at_start": 694,
+  "host_available_kib": 52607152,
+  "inert_registry": {
+    "effects": "not-attempted",
+    "runtime_files": 1,
+    "target_units": "absent",
+    "workload_id": "b60-accepted-sycl-post-xe-qualification-v2"
+  },
+  "integration_receipt_sha": "0625f439379d569ff81ac949c574243000958feaa1953ce376801cde631bed85",
+  "launcher": {
+    "ActiveState": "inactive",
+    "MainPID": "0"
+  },
+  "markers": {
+    "full-inference-drain.json": false,
+    "full-inference-drain.lock": false,
+    "lease.json": false,
+    "lease.lock": false
+  },
+  "new_hazards": 0,
+  "no_live_mutations": true,
+  "no_model_gpu_calls": true,
+  "observed_epoch": 1794008061,
+  "operation_marker": false,
+  "plan_sha": {
+    "104": "7a8f1f81476b59b193d6fe6e601b4eb55ef71cecf2b06806149fc26c5368fc34",
+    "110": "71aa5f835b90f6ce2e506882e14837ad583b7c905e10ef3b2e78f5424ca0f122",
+    "114": "a96363f469cdf25ed50067cd90e4ab37722f83f19d04a56e6fa5d7178a157413",
+    "115": "8b1aed9f7feba2d537fb48253a508f2004950c03258b2b0db9e69cfeea303a86",
+    "116": "b60893d49abaa2e106babecaa765726ae8dbe8cab0cc595ffc59c097af83abb5"
+  },
+  "profile_sha": "a54fb14d366333ca7a78207ad5f0dd86daa2abc6d30f1d5e2f8bb9618bf2f2db",
+  "profile_units": 15,
+  "ready": {
+    "state": "ready"
+  },
+  "session_exists": false,
+  "source_sha": {
+    "backup_chain_history.py": "0ebecf301c0b4fccdd4f128fdef9d09163eaf4e54cf871156ec80e5a8777d5e6",
+    "fixed_command.py": "16a74cf21a53a5c9ec7e5bec3fe9eeb1dc58e37da0f31fb25e038f7f4d9a388c",
+    "guest_entry_scope.py": "6fe93b41702b83a935305225273567a1ff60de8dd281622da68e0a0747a34479",
+    "known_answer_requests.py": "d0d305405222fe8dd301fc4216f8cfd1a00d04b539d0d300be282d9d1e5604de",
+    "qualification.py": "42af10d66f319bfe7c824b588cd869a2fac7f3740562fcb5297fd6c9c70ae91c"
+  },
+  "timer": {
+    "ActiveState": "inactive",
+    "LastTriggerUSec": "",
+    "SubState": "dead",
+    "TimersCalendar": "{ OnCalendar=2026-11-06 16:40:00 America/Vancouver ; next_elapse=(null) }",
+    "UnitFileState": "disabled"
+  },
+  "trial_seconds": 600,
+  "verdict": "LIKELY RUN after exact future clock arming",
+  "residual_risks": [
+    "First post-reset accepted-SYCL actual startup/correctness remains experimental; no qualification pass yet.",
+    "600-second control envelope includes admission/checkpoint elapsed; dynamic margin gates must fail closed.",
+    "Exact fixed clock must be armed and numeric Next/Last verified independently."
+  ]
+}

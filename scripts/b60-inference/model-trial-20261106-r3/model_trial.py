@@ -39,7 +39,7 @@ def initialize():
  pins={p.name:hashlib.sha256(protected_bytes(p,executable=True,maximum=262144)).hexdigest() for p in BASE.glob('*.py')}
  require(len(pins)==30 and hashlib.sha256(canon(pins)).hexdigest()==BASE_SHA,'BASE_SOURCE_DRIFT')
  manifest=json.loads(protected_bytes(HERE/'manifest.json'))
- require(set(manifest)=={'model_trial.py','namespace_mount.py','fixed_command.py','guest_requests.py','guest_supervisor.py','backup_chain_history.py','legacy_requests.py','request_failure_capture.py','news_xpu_boundary.py'},'SOURCE_CLOSURE')
+ require(set(manifest)=={'model_trial.py','namespace_mount.py','fixed_command.py','guest_requests.py','guest_supervisor.py','backup_chain_history.py','legacy_requests.py','request_failure_capture.py','news_xpu_boundary.py','guest_entry_scope.py'},'SOURCE_CLOSURE')
  require(set(p.name for p in HERE.glob('*.py'))==set(manifest),'SOURCE_CLOSURE')
  for name,sha in manifest.items():require(hashlib.sha256(protected_bytes(HERE/name,executable=True,maximum=262144)).hexdigest()==sha,'SOURCE_DRIFT')
  for booking,sha in [('b60-exclusive-20261105-day-r4','b3f3c5ef5f63ea13f032c0817d510dbafc9cac62cba697b9643a0c1b30b1cd3a'),('b60-exclusive-20261105-day-r5','d6f95bd27723084c49ee620f3c54157e05b7e05e72684eb00c179c7ea72c2396')]:
@@ -93,6 +93,13 @@ def context(b):
    raise
  original_runner=adapter.runner
  def runner(command,timeout):
+  command=tuple(command)
+  prefix=('pct','exec','116','--','/usr/bin/python3','-B','/usr/local/libexec/local-ai-lease/entry-checkpoint/lab_hours_guest_checkpoint.py')
+  if command[:7]==prefix:
+   path=str(HERE/'guest_entry_scope.py');code,raw=original_runner(('pct','exec','116','--','sha256sum',path),10)
+   require(code==0 and raw.split()[0]==card['source_sha256']['guest_entry_scope.py'],'FIXED116_WRAPPER_HASH')
+   command=command[:6]+(path,'checkpoint')+command[7:]
+
   # Both the outer adapter and its unit adapter pass the same durable latch.
   if tuple(command)==('pct','exec','110','--','systemctl','start','aster-llama.service'):
    p=store.root/'entry-backend-start-intent.json'

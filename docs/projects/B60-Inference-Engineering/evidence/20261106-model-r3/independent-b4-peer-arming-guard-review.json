@@ -1,0 +1,21 @@
+{
+  "checks": [
+    "Both exactOpenVINO finalrows/latestterminalrestoration/finishlineage+900buffer checked BEFOREglobalregistrationeffects",
+    "Armer metadata-onlyNewsobserve gates wholepeerinterval + only3acceptedhistoricalfaults/no newfaults andactualclosure beforeenable",
+    "ReadOnlyAdapter calls onlyexistingmetadata/kernel/hashpaths; noGPU/model/lease/stacktransaction",
+    "Both knownhelper argv absent plus emptyguestscopes",
+    "ActualOpenVINOadapter84f9446b importsbaseXPUadapter694c9b andusesbase.unit_name; singleaster-musetalk-xpu-* scopecoversbothcurrentengines",
+    "Both installer/armer keepclearowner/claim/marker/timegates; fixed18:10clocksourceunchanged"
+  ],
+  "hashes": {
+    "arm_clock_r4.py": "29725e2e342a678a216462b151f4f4f30d5bc141815c21e6ae117987d86e9530",
+    "install_body.py.txt": "5c2ad0694f3ba51547fb933e929e4f6a2aebba7972421b525b432c949e6d8427",
+    "news_xpu_boundary.py": "4cc5d625ea63b4c0057bd79f133c66d02eebae8b8c271b597e00171341111c23"
+  },
+  "no_gpu_model_calls": true,
+  "no_live_effects": true,
+  "observed_epoch": 1794010570,
+  "schema": "b60-independent-b4-peer-arming-guard-review.v1",
+  "stage": "offline-source-only",
+  "verdict": "PASS reviewed guard delta; exact final peer sources/release and installed readiness remain required"
+}

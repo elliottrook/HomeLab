@@ -3,7 +3,7 @@ import ast,base64,hashlib,json
 import importlib.util
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-NAMES=('model_trial.py','namespace_mount.py','fixed_command.py','guest_requests.py','guest_supervisor.py','backup_chain_history.py','legacy_requests.py','request_failure_capture.py','news_xpu_boundary.py')
+NAMES=('model_trial.py','namespace_mount.py','fixed_command.py','guest_requests.py','guest_supervisor.py','backup_chain_history.py','legacy_requests.py','request_failure_capture.py','news_xpu_boundary.py','guest_entry_scope.py')
 manifest={n:hashlib.sha256((HERE/n).read_bytes()).hexdigest() for n in NAMES}
 files={n:base64.b64encode((HERE/n).read_bytes()).decode() for n in NAMES}
 history=Path('/private/tmp/b60-truenas-history-r4-receipt.json').read_bytes()

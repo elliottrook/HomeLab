@@ -1,0 +1,21 @@
+{
+  "schema": "b60-independent-r5-prior-postcheck-observation.v1",
+  "observation": {
+    "state": "postcheck-no-go",
+    "failure_type": "AssertionError",
+    "source_frames": [
+      {
+        "source_file": "<string>",
+        "line": 85,
+        "function": "<module>"
+      },
+      {
+        "source_file": "<string>",
+        "line": 48,
+        "function": "postcheck"
+      }
+    ]
+  },
+  "later_full_pass_artifact_sha256": "47238d1b6369210edb0e1d28e69929f308c70e8967c452c4b788f441ebe88539",
+  "note": "Retained initial transient NO_GO; no control weakening, service stops or runtime retries were used. See later actual Paperless schedule metadata and natural full recheck pass."
+}

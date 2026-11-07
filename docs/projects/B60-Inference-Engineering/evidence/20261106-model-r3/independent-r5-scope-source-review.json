@@ -1,0 +1,28 @@
+{
+  "actual_guest116_metadata_review_sha256": "bfa956b6062628475023b262902405c159be66701fe5ddb5029682ff4f45df03",
+  "hashes": {
+    "guest_entry_scope.py": "6fe93b41702b83a935305225273567a1ff60de8dd281622da68e0a0747a34479",
+    "qualification.py": "42af10d66f319bfe7c824b588cd869a2fac7f3740562fcb5297fd6c9c70ae91c"
+  },
+  "no_environment_contents_read": true,
+  "no_live_mutations": true,
+  "no_model_gpu_calls": true,
+  "observed_epoch": 1794007775,
+  "schema": "b60-independent-r5-scope-source-review.v1",
+  "source_review": [
+    "Exact old4helper pins match independentlyobserved live metadata",
+    "Onlygateway.env added to both frozenexactfile aliases",
+    "ExactB5booking/guest116/fixedcheckpointpaths andactions",
+    "Rootintercepts only oldfixed116checkpointcommand andhashesnewwrapper everycall",
+    "Acceptedbase30unchanged",
+    "600secondtrial +900restore fits1800booking with300startupslack; actualGPUmax300 unchanged"
+  ],
+  "stage": "offline-source-only",
+  "tests": {
+    "actual_wrapper_main_fake_argv_cases": 9,
+    "both_helper_scope_globals_restored_each_time": true,
+    "valid_prepare_capture_verify_restore_pass": true,
+    "wrong_guest_path_booking_missing_authorization_extra_args_refused": true
+  },
+  "verdict": "Scope wrapper and600second control envelope technically valid; final installed live readiness remains required"
+}

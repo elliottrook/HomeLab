@@ -29,9 +29,14 @@ with host_exclusion(ROOT):
   assert fields.get('ActiveState') in {'inactive','failed'} and fields.get('MainPID','0')=='0' and fields.get('TasksCurrent','0') in {'0','','[not set]'}
  scopes=call(['systemctl','list-units','--all','--no-legend','--plain','aster-local-ai-pilot-owner-*','aster-local-ai-pilot-guardian-*','b60-exclusive-owner-*','b60-exclusive-guardian-*']);assert not any(len(l.split())>3 and l.split()[2] in {'active','activating','deactivating'} for l in scopes.splitlines())
  assert not any(v.get('state')=='claimed' for v in bookings.list())
+ for peer_id in ('aster-news-video-ov-20261106-1525-r1','aster-news-video-ov-20261106-1725-r2'):
+  ov=bookings.get(peer_id);assert ov.get('owner')=='aster-news-video' and ov.get('state') in {'complete','failed'} and type(ov.get('finished_epoch')) is int and ov['finished_epoch']+900<=row['start_epoch']
+  number=ov.get('current_attempt',1);assert type(number) is int and 1<=number<=256
+  terminal_raw=protected_bytes(ROOT/'lab-hours-attempts'/('reservation-'+peer_id+'-attempt-'+str(number))/'terminal.json',maximum=65536);terminal=json.loads(terminal_raw)
+  assert terminal.get('booking_id')==peer_id and terminal.get('production_restored') is True and type(terminal.get('finished_epoch')) is int and ov['start_epoch']<=terminal['finished_epoch']<=ov['finished_epoch']
  assert row['state']=='reserved' and row['owner']=='b60-stream-a' and row['kind']=='exclusive-stack'
  start=row['start_epoch'];end=row['end_epoch'];assert (start,end)==(1794013800,1794016500)
- assert time.time()+600<start and not (ROOT/'exclusive-sessions'/B).exists()
+ assert time.time()+120<start and not (ROOT/'exclusive-sessions'/B).exists()
  # Every gate that can be checked without this new release is checked before
  # any installation. A spent trial is never reset or rebound.
  pins={p.name:hashlib.sha256(protected_bytes(p,executable=True,maximum=262144)).hexdigest() for p in BASE.glob('*.py')}
@@ -69,11 +74,14 @@ with host_exclusion(ROOT):
  guestcode="from pathlib import Path;import os,base64,hashlib,json;d=Path('/usr/local/libexec/local-ai-lease/model-trial-20261106-r3');assert not d.exists();d.mkdir(mode=0o755);files="+repr(guest_files)+";out={};\nfor n,v in files.items():\n p=d/n;raw=base64.b64decode(v);fd=os.open(p,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o644 if n in ('guest_supervisor.py','fixed_command.py') else 0o600);f=os.fdopen(fd,'wb');f.write(raw);f.flush();os.fsync(f.fileno());f.close();out[n]=hashlib.sha256(p.read_bytes()).hexdigest()\nfd=os.open(d,os.O_RDONLY);os.fsync(fd);os.close(fd);print(json.dumps(out))"
  observed=json.loads(call(['pct','exec','110','--','python3','-B','-c',guestcode]))
  assert observed=={n:MANIFEST[n] for n in guest_files}
+ wrappercode="from pathlib import Path;import os,base64,hashlib;d=Path('/usr/local/libexec/local-ai-lease/model-trial-20261106-r3');assert not d.exists();d.mkdir(mode=0o700);raw=base64.b64decode("+repr(FILES['guest_entry_scope.py'])+");fd=os.open(d/'guest_entry_scope.py',os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600);f=os.fdopen(fd,'wb');f.write(raw);f.flush();os.fsync(f.fileno());f.close();print(hashlib.sha256(raw).hexdigest())"
+ assert call(['pct','exec','116','--','python3','-B','-c',wrappercode])==MANIFEST['guest_entry_scope.py']
  hroot=ROOT/'backup-chain-history';assert hroot.stat().st_uid==0 and hroot.stat().st_mode&0o077==0
  create(hroot/(B+'.json'),raw_history)
  plans={}
  for g in ('104','110','114','115','116'):
-  v=json.loads(call(['pct','exec',g,'--','python3','-B','/usr/local/libexec/local-ai-lease/entry-checkpoint/lab_hours_prepare_entry_plan.py','--guest-id',g,'--booking-id',B],60));assert v['state']=='prepared';plans[g]=v['plan_sha256']
+  command=['pct','exec',g,'--','python3','-B']+([str(DEST/'guest_entry_scope.py'),'prepare'] if g=='116' else ['/usr/local/libexec/local-ai-lease/entry-checkpoint/lab_hours_prepare_entry_plan.py'])+['--guest-id',g,'--booking-id',B]
+  v=json.loads(call(command,60));assert v['state']=='prepared';plans[g]=v['plan_sha256']
  template=load_profile(ROOT/'exclusive-activations/b60-exclusive-20261106-day-r2.json',BASE)
  profile=dict(template,booking_id=B,guest_plans=plans,trial_seconds=1200)
  create(ROOT/'exclusive-activations'/(B+'.json'),canonical(profile));load_profile(ROOT/'exclusive-activations'/(B+'.json'),BASE)

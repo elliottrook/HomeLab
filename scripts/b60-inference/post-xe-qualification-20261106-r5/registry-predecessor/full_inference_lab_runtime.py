@@ -1,0 +1,511 @@
+"""Trusted wall-clock/monotonic owner wrapper for the full-drain candidate."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Callable
+
+from cooperative_lab_host_adapter import CooperativeHostObserver
+from full_inference_lab_session import (FullDrainError, FullDrainPaths,
+    FullInferenceDrainController)
+from full_inference_lab_sources import (AcceptedBaseline,
+    LocalProxmoxFullDrainSourceProducer, TrustedOwnerAttestation)
+from full_inference_lab_validator import LocalProxmoxFullDrainValidator
+from full_inference_lab_supervisor import (GpuUser, PersistentFullDrainSupervisor,
+                                            SupervisorError, recovery_only)
+from full_inference_lab_workload import (lab_absence_commands, lab_cleanup_command,
+                                         lab_is_absent)
+
+
+@dataclass
+class TrustedDrainOwner:
+    owner_id: str
+    wall_clock: Callable[[], float] = time.time
+    monotonic: Callable[[], float] = time.monotonic
+    _last_monotonic: float | None = None
+
+    def assert_present(self) -> None:
+        if not self.owner_id:
+            raise FullDrainError("owner identity is empty")
+        current = self.monotonic()
+        if self._last_monotonic is not None and current < self._last_monotonic:
+            raise FullDrainError("trusted monotonic clock moved backwards")
+        self._last_monotonic = current
+
+    def now_epoch(self) -> int:
+        self.assert_present()
+        return int(self.wall_clock())
+
+    def heartbeat(self, controller: FullInferenceDrainController) -> None:
+        controller.heartbeat(self.now_epoch())
+
+    def require_work_window(self, controller: FullInferenceDrainController) -> None:
+        controller.require_work_window(self.now_epoch())
+
+
+def _host_runner(argv, timeout: float):
+    result = subprocess.run(tuple(argv), capture_output=True, text=True,
+                            timeout=timeout, check=False)
+    return result.returncode, result.stdout
+
+
+def _gpu_users() -> frozenset[GpuUser]:
+    """Read render-node holders directly; inspection errors are not absence."""
+    users: set[GpuUser] = set()
+    for proc in Path("/proc").glob("[0-9]*"):
+        try:
+            pid = int(proc.name)
+            matched = False
+            for fd in (proc / "fd").iterdir():
+                try:
+                    if os.readlink(fd) == "/dev/dri/renderD128":
+                        matched = True
+                        break
+                except FileNotFoundError:
+                    continue
+                except PermissionError as exc:
+                    raise SupervisorError("GPU fd observation was not permitted") from exc
+            if not matched:
+                continue
+            stat = (proc / "stat").read_text(encoding="ascii")
+            starttime = int(stat.rsplit(")", 1)[1].split()[19])
+            cgroup = (proc / "cgroup").read_text(encoding="utf-8").strip()
+            executable = os.readlink(proc / "exe")
+            users.add(GpuUser(pid, starttime, cgroup, executable))
+        except FileNotFoundError:
+            continue
+        except (OSError, ValueError) as exc:
+            raise SupervisorError("GPU user observation failed") from exc
+    return frozenset(users)
+
+
+def _production_masked(runner: Callable[..., tuple[int, str]]) -> bool:
+    active = runner(("pct", "exec", "110", "--", "systemctl", "is-active",
+                     "aster-llama.service"), 5.0)
+    runtime_mask = runner(("pct", "exec", "110", "--", "readlink",
+                           "/run/systemd/system/aster-llama.service"), 5.0)
+    return (active[0] != 0 and runtime_mask[0] == 0
+            and runtime_mask[1].strip() == "/dev/null")
+
+
+def _accepted_gpu_baseline(users: frozenset[GpuUser]) -> frozenset[GpuUser]:
+    """Validate production identity, then require no holders after drain."""
+    if len(users) > 1 or any(not user.executable.endswith(
+            "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server")
+            or not user.cgroup.endswith(
+                "/lxc/110/ns/system.slice/aster-llama.service")
+            for user in users):
+        raise SupervisorError("pre-existing GPU holder is outside the accepted production identity")
+    return frozenset()
+
+
+def _run_pilot(args: argparse.Namespace, paths: FullDrainPaths, *,
+               runner: Callable[..., tuple[int, str]] = _host_runner,
+               gpu_users: Callable[[], frozenset[GpuUser]] = _gpu_users,
+               wall_clock: Callable[[], float] = time.time,
+               sleep: Callable[[float], None] = time.sleep) -> int:
+    baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
+    producer = LocalProxmoxFullDrainSourceProducer(
+        runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence),
+        wall_clock=wall_clock)
+    preflight = producer.collect(cycle=args.cycle, session_start_epoch=args.session_start_epoch)
+    now = int(wall_clock())
+    lead = args.session_start_epoch - now
+    if lead < 0 or lead > 60:
+        raise SupervisorError("effect start is outside the bounded preflight-to-S window")
+    if lead:
+        sleep(float(lead))
+    if int(wall_clock()) != args.session_start_epoch:
+        raise SupervisorError("effect start did not bind exactly to declared S")
+    controller = FullInferenceDrainController(
+        paths, lambda command: runner(command, 30.0), observer=CooperativeHostObserver(runner),
+        validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
+        owner_id=args.owner_id, allow_effects=True,
+        allow_news_overlap=args.news_overlap_authorized)
+    allowed_gpu_users = _accepted_gpu_baseline(gpu_users())
+    current_plan: dict[str, object] = {}
+
+    def lab_absent() -> bool:
+        plan = current_plan.get("plan")
+        if plan is None:
+            return True
+        return lab_is_absent(runner, lease_id=plan.lease_id, generation=plan.generation)
+
+    supervisor = PersistentFullDrainSupervisor(
+        controller, workload_runner=runner,
+        production_masked=lambda: _production_masked(runner),
+        lab_absent=lab_absent, gpu_users=gpu_users,
+        allowed_gpu_users=allowed_gpu_users, wall_clock=lambda: int(wall_clock()))
+    owner = TrustedDrainOwner(args.owner_id, wall_clock=wall_clock)
+    plan = supervisor.begin(preflight)
+    current_plan["plan"] = plan
+    try:
+        receipt = supervisor.run_smoke_bounded(
+            heartbeat=lambda: supervisor.heartbeat(owner.now_epoch()))
+        supervisor.restore(now_epoch=owner.now_epoch(), owner_present=True)
+    except BaseException:
+        if supervisor.active:
+            try:
+                supervisor.restore(now_epoch=owner.now_epoch(), owner_present=True)
+            except BaseException:
+                pass
+        raise
+    print(json.dumps({"effects": "pilot-complete", "lease_id": plan.lease_id,
+                      "generation": plan.generation,
+                      "receipt": {"profile": receipt["profile"],
+                                  "request_count": receipt["request_count"],
+                                  "exit_status": receipt["exit_status"]}}, sort_keys=True))
+    return 0
+
+
+def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
+             runner: Callable[..., tuple[int, str]] = _host_runner,
+             gpu_users: Callable[[], frozenset[GpuUser]] = _gpu_users,
+             wall_clock: Callable[[], float] = time.time,
+             sleep: Callable[[float], None] = time.sleep) -> int:
+    """Run one registered fixed SA3 transaction under the drain controller."""
+    tts_workload_id = None
+    musetalk_workload = False
+    if args.workload_profile == "sa3-expanded-source-quality-v1":
+        from sa3_expanded_quality_transaction import execute
+        from sa3_listener_adapter import run as run_sa3_listener
+    elif args.workload_profile == "sa3-evidence-envelope-quality-v1":
+        from sa3_evidence_envelope_transaction import execute
+        from sa3_evidence_envelope_listener_adapter import run as run_sa3_listener
+    elif args.workload_profile == "sa3-evidence-envelope-candidate-i-quality-v1":
+        from sa3_candidate_i_evidence_envelope_transaction import execute
+        from sa3_candidate_i_evidence_envelope_listener_adapter import run as run_sa3_listener
+    elif args.workload_profile == "sa3-evidence-matrix-candidate-j-public-v1":
+        from sa3_candidate_j_evidence_matrix_transaction import execute
+        from sa3_candidate_j_evidence_matrix_listener_adapter import run as run_sa3_listener
+    elif args.workload_profile == "astertv-v3-ebook-word-alignment-v1":
+        from epub_word_alignment_transaction import execute
+        from epub_word_alignment_adapter import run as run_sa3_listener
+    elif args.workload_profile == "aster-tts-dual-cpu-screen-v1":
+        from tts_dual_cpu_screen_transaction import execute
+        from tts_dual_cpu_screen_adapter import run as run_sa3_listener
+    elif args.workload_profile in {
+            "aster-tts-qwen-0p6b-cpu-screen-v1",
+            "aster-tts-qwen-1p7b-cpu-screen-v1"}:
+        from tts_single_cpu_screen_transaction import execute
+        from tts_single_cpu_screen_adapter import run as run_sa3_listener
+        tts_workload_id = args.workload_profile
+    elif args.workload_profile == "sa3-evidence-matrix-candidate-j-quality-v1":
+        from sa3_candidate_j_quality_transaction import execute
+        from sa3_candidate_j_quality_listener_adapter import run as run_sa3_listener
+    elif args.workload_profile == "aster-news-video-musetalk-xpu-smoke-v1":
+        from b60_musetalk_xpu_transaction import execute
+        from b60_musetalk_xpu_adapter import run as run_sa3_listener
+        musetalk_workload = True
+    elif args.workload_profile == "aster-news-video-musetalk-openvino-smoke-v1":
+        from b60_musetalk_openvino_transaction import execute
+        from b60_musetalk_openvino_adapter import run as run_sa3_listener
+        musetalk_workload = True
+    elif args.workload_profile == "m3-k2-shortlist-arbitration-development-v1":
+        from m3_k2_development_transaction import execute
+        from m3_k2_development_listener_adapter import run as run_sa3_listener
+    else:
+        raise SupervisorError("SA3 workload profile is not registered")
+
+    baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
+    producer = LocalProxmoxFullDrainSourceProducer(
+        runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence),
+        wall_clock=wall_clock)
+    if (musetalk_workload or args.workload_profile ==
+            "m3-k2-shortlist-arbitration-development-v1"):
+        from lab_hours_workloads import workload as registered_workload
+        lab_seconds = registered_workload(args.workload_profile).deadline_seconds
+    else:
+        lab_seconds = (
+                   (2400 if tts_workload_id is not None else
+                   (2700 if args.workload_profile ==
+                   "sa3-evidence-matrix-candidate-j-quality-v1" else
+                   (4500 if args.workload_profile ==
+                   "aster-tts-dual-cpu-screen-v1" else
+                   (900 if args.workload_profile ==
+                   "astertv-v3-ebook-word-alignment-v1" else
+                   (1800 if args.workload_profile ==
+                    "sa3-evidence-matrix-candidate-j-public-v1" else 2700))))))
+    preflight = producer.collect(cycle=args.cycle, session_start_epoch=args.session_start_epoch,
+                                 lab_seconds=lab_seconds)
+    now = int(wall_clock()); lead = args.session_start_epoch - now
+    if lead < 0 or lead > 60: raise SupervisorError("effect start is outside the bounded preflight-to-S window")
+    if lead: sleep(float(lead))
+    if int(wall_clock()) != args.session_start_epoch:
+        raise SupervisorError("effect start did not bind exactly to declared S")
+    controller = FullInferenceDrainController(
+        paths, lambda command: runner(command, 30.0), observer=CooperativeHostObserver(runner),
+        validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
+        owner_id=args.owner_id, allow_effects=True,
+        allow_news_overlap=args.news_overlap_authorized)
+    _accepted_gpu_baseline(gpu_users())
+    owner = TrustedDrainOwner(args.owner_id, wall_clock=wall_clock)
+    captured: dict[str, object] = {}
+
+    class CapturingController:
+        def begin(self, value, *, lab_seconds):
+            plan = controller.begin(value, lab_seconds=lab_seconds); captured["plan"] = plan; return plan
+        def restore(self, plan, *, now_epoch, owner_present):
+            return controller.restore(plan, now_epoch=now_epoch, owner_present=owner_present)
+
+    def heartbeat() -> None:
+        controller.heartbeat(owner.now_epoch())
+
+    def workload_runner(*, heartbeat, deadline_epoch):
+        plan = captured.get("plan")
+        if plan is None: raise SupervisorError("SA3 drain plan was not captured")
+        arguments = {"lease_id": plan.lease_id, "generation": plan.generation,
+                     "deadline_epoch": deadline_epoch, "heartbeat": heartbeat}
+        if tts_workload_id is not None:
+            arguments["workload_id"] = tts_workload_id
+        return run_sa3_listener(**arguments)
+
+    def cleanup_postcheck() -> None:
+        plan = captured.get("plan")
+        if plan is None:
+            raise SupervisorError("workload plan was not captured")
+        if args.workload_profile == "astertv-v3-ebook-word-alignment-v1":
+            from epub_word_alignment_adapter import absent
+            if not absent(runner, lease_id=plan.lease_id, generation=plan.generation):
+                raise SupervisorError("eBook alignment cleanup is not proven")
+        elif args.workload_profile == "aster-tts-dual-cpu-screen-v1":
+            from tts_dual_cpu_screen_adapter import absent
+            if not absent(runner, lease_id=plan.lease_id, generation=plan.generation):
+                raise SupervisorError("Aster TTS CPU screen cleanup is not proven")
+        elif tts_workload_id is not None:
+            from tts_single_cpu_screen_adapter import absent
+            if not absent(runner, workload_id=tts_workload_id,
+                          lease_id=plan.lease_id, generation=plan.generation):
+                raise SupervisorError("Aster TTS single CPU screen cleanup is not proven")
+        elif musetalk_workload:
+            if args.workload_profile == "aster-news-video-musetalk-openvino-smoke-v1":
+                from b60_musetalk_openvino_adapter import absent
+            else:
+                from b60_musetalk_xpu_adapter import absent
+            if not absent(runner, lease_id=plan.lease_id, generation=plan.generation):
+                raise SupervisorError("MuseTalk XPU cleanup is not proven")
+        elif not lab_is_absent(runner, lease_id=plan.lease_id,
+                               generation=plan.generation):
+            raise SupervisorError("SA3 listener cleanup is not proven")
+        _accepted_gpu_baseline(gpu_users())
+
+    execute_arguments = {"preflight": preflight, "controller": CapturingController(),
+                         "workload_runner": workload_runner,
+                         "retain_root": Path(args.retain_root), "now": owner.now_epoch,
+                         "heartbeat": heartbeat, "cleanup": cleanup_postcheck}
+    if tts_workload_id is not None:
+        execute_arguments["workload_id"] = tts_workload_id
+    receipt = execute(**execute_arguments)
+    print(json.dumps(receipt, sort_keys=True))
+    return 0
+
+
+def _run_m3(args: argparse.Namespace, paths: FullDrainPaths, *,
+            runner: Callable[..., tuple[int, str]] = _host_runner,
+            gpu_users: Callable[[], frozenset[GpuUser]] = _gpu_users,
+            wall_clock: Callable[[], float] = time.time,
+            sleep: Callable[[float], None] = time.sleep) -> int:
+    """Run the fixed, booked 35B M3 public gate with mount-aware recovery."""
+    from m3_joint_semantic_35b_transaction import DEADLINE_SECONDS, execute
+
+    baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
+    producer = LocalProxmoxFullDrainSourceProducer(
+        runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence),
+        wall_clock=wall_clock)
+    preflight = producer.collect(cycle=args.cycle,
+                                 session_start_epoch=args.session_start_epoch,
+                                 lab_seconds=DEADLINE_SECONDS)
+    now = int(wall_clock()); lead = args.session_start_epoch - now
+    if lead < 0 or lead > 60:
+        raise SupervisorError("effect start is outside the bounded preflight-to-S window")
+    if lead: sleep(float(lead))
+    if int(wall_clock()) != args.session_start_epoch:
+        raise SupervisorError("effect start did not bind exactly to declared S")
+    controller = FullInferenceDrainController(
+        paths, lambda command: runner(command, 30.0),
+        observer=CooperativeHostObserver(runner),
+        validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
+        owner_id=args.owner_id, allow_effects=True,
+        allow_news_overlap=args.news_overlap_authorized)
+    _accepted_gpu_baseline(gpu_users())
+    owner = TrustedDrainOwner(args.owner_id, wall_clock=wall_clock)
+    receipt = execute(
+        preflight=preflight, controller=controller, owner_id=args.owner_id,
+        cycle=args.cycle, runner=runner, retain_root=Path(args.retain_root),
+        now=owner.now_epoch, sleep=sleep,
+        heartbeat=lambda: controller.heartbeat(owner.now_epoch()))
+    print(json.dumps(receipt, sort_keys=True))
+    return 0
+
+
+def _run_rescue(args: argparse.Namespace, paths: FullDrainPaths, *,
+                runner: Callable[..., tuple[int, str]] = _host_runner,
+                gpu_users: Callable[[], frozenset[GpuUser]] = _gpu_users) -> int:
+    """Restore one exact durable lease; never resumes or starts workload."""
+    state = json.loads(paths.state.read_text(encoding="utf-8"))
+    if state.get("owner_id") != args.owner_id:
+        raise SupervisorError("rescue owner identity does not match durable state")
+    baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
+    controller = FullInferenceDrainController(
+        paths, lambda command: runner(command, 30.0), observer=CooperativeHostObserver(runner),
+        validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
+        owner_id=args.owner_id, allow_effects=True)
+    def recovery_absent() -> bool:
+        if lab_is_absent(runner, lease_id=args.lease_id, generation=args.generation):
+            return True
+        probes = lab_absence_commands(lease_id=args.lease_id, generation=args.generation)[:3]
+        active_code, _ = runner(probes[0], 10.0)
+        socket_code, socket_output = runner(probes[1], 10.0)
+        process_code, process_output = runner(probes[2], 10.0)
+        if not (active_code != 0 and socket_code == 0 and not socket_output.strip()
+                and process_code != 0 and not process_output.strip()):
+            return False
+        try:
+            _accepted_gpu_baseline(gpu_users())
+            return True
+        except SupervisorError:
+            return False
+    recovery_only(
+        controller, lease_id=args.lease_id, generation=args.generation,
+        restore_now_epoch=int(time.time()),
+        cleanup_runner=runner,
+        lab_absent=recovery_absent)
+    print(json.dumps({"effects": "rescue-restored", "lease_id": args.lease_id,
+                      "generation": args.generation}, sort_keys=True))
+    return 0
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--phase", choices=("pilot", "rescue", "start", "heartbeat", "resume", "restore"), required=True)
+    parser.add_argument("--state-root", type=Path, default=Path("/var/lib/local-ai-lab"))
+    parser.add_argument("--cycle")
+    parser.add_argument("--session-start-epoch", type=int)
+    parser.add_argument("--owner-id", required=True)
+    parser.add_argument("--owner-unit")
+    parser.add_argument("--admin-path-evidence", default="")
+    parser.add_argument("--lease-id")
+    parser.add_argument("--generation", type=int)
+    parser.add_argument("--model-sha256")
+    parser.add_argument("--binary-sha256")
+    parser.add_argument("--unit-sha256")
+    parser.add_argument("--effect-authorized", action="store_true")
+    parser.add_argument("--news-overlap-authorized", action="store_true")
+    parser.add_argument("--workload-profile", choices=(
+        "accepted-9b-direct-control-smoke-v1",
+        "accepted-9b-owner-loss-exercise-v1",
+        "sa3-expanded-source-quality-v1",
+        "sa3-evidence-envelope-quality-v1",
+        "sa3-evidence-envelope-candidate-i-quality-v1",
+        "sa3-evidence-matrix-candidate-j-public-v1",
+        "m3-joint-semantic-35b-public-v1",
+        "astertv-v3-ebook-word-alignment-v1",
+        "aster-tts-dual-cpu-screen-v1",
+        "aster-tts-qwen-0p6b-cpu-screen-v1",
+        "aster-tts-qwen-1p7b-cpu-screen-v1",
+        "aster-news-video-musetalk-xpu-smoke-v1",
+        "aster-news-video-musetalk-openvino-smoke-v1",
+        "sa3-evidence-matrix-candidate-j-quality-v1",
+        "m3-k2-shortlist-arbitration-development-v1"),
+        default="accepted-9b-direct-control-smoke-v1")
+    parser.add_argument("--retain-root", default="/var/lib/local-ai-lab/lab-hours-attempts")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Pinned host command; effects require an explicit per-invocation flag."""
+    args = _parser().parse_args(argv)
+    if not args.effect_authorized:
+        print(json.dumps({"effects": "not-attempted", "state": "disabled"}, sort_keys=True))
+        return 0
+    if args.phase == "start":
+        required = (args.cycle, args.session_start_epoch, args.admin_path_evidence,
+                    args.model_sha256, args.binary_sha256, args.unit_sha256)
+        if any(value in (None, "") for value in required):
+            raise SystemExit("start requires cycle, session start, admin evidence and three baseline hashes")
+    if args.phase == "pilot":
+        required = (args.cycle, args.session_start_epoch, args.admin_path_evidence,
+                    args.model_sha256, args.binary_sha256, args.unit_sha256,
+                    args.owner_unit)
+        if any(value in (None, "") for value in required):
+            raise SystemExit("pilot requires cycle, session start, owner unit, admin evidence and three baseline hashes")
+        if not re.fullmatch(r"aster-local-ai-pilot-owner-[A-Za-z0-9_-]+\.scope", args.owner_unit):
+            raise SystemExit("pilot owner unit is outside the fixed scope identity")
+    if args.phase in {"heartbeat", "resume", "restore", "rescue"} and (not args.lease_id or args.generation is None):
+        raise SystemExit("this phase requires the exact lease id and generation")
+    paths = FullDrainPaths(args.state_root)
+    runner = _host_runner
+    observer = CooperativeHostObserver(runner)
+    if args.phase == "pilot":
+        if args.workload_profile in {
+                "sa3-expanded-source-quality-v1",
+                "sa3-evidence-envelope-quality-v1",
+                "sa3-evidence-envelope-candidate-i-quality-v1",
+                "sa3-evidence-matrix-candidate-j-public-v1",
+                "astertv-v3-ebook-word-alignment-v1",
+                "aster-tts-dual-cpu-screen-v1",
+                "aster-tts-qwen-0p6b-cpu-screen-v1",
+                "aster-tts-qwen-1p7b-cpu-screen-v1",
+                "aster-news-video-musetalk-xpu-smoke-v1",
+                "aster-news-video-musetalk-openvino-smoke-v1",
+                "sa3-evidence-matrix-candidate-j-quality-v1",
+                "m3-k2-shortlist-arbitration-development-v1"}:
+            return _run_sa3(args, paths, runner=runner)
+        if args.workload_profile == "m3-joint-semantic-35b-public-v1":
+            return _run_m3(args, paths, runner=runner)
+        return _run_pilot(args, paths, runner=runner)
+    if args.phase == "rescue":
+        required = (args.cycle, args.model_sha256, args.binary_sha256, args.unit_sha256)
+        if any(value in (None, "") for value in required):
+            raise SystemExit("rescue requires cycle and three baseline hashes")
+        return _run_rescue(args, paths, runner=runner)
+    if args.phase == "start":
+        baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
+        producer = LocalProxmoxFullDrainSourceProducer(
+            runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence))
+        preflight = producer.collect(cycle=args.cycle, session_start_epoch=args.session_start_epoch)
+        validator = LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle)
+        controller = FullInferenceDrainController(
+            paths, lambda command: runner(command, 30.0), observer=observer,
+            validator=validator, owner_id=args.owner_id, allow_effects=True)
+        plan = controller.begin(preflight)
+        print(json.dumps({"effects": "drained", "lease_id": plan.lease_id,
+                          "generation": plan.generation}, sort_keys=True))
+        return 0
+    controller = FullInferenceDrainController(
+        paths, lambda command: runner(command, 30.0), observer=observer,
+        owner_id=args.owner_id, allow_effects=True)
+    plan = controller.resume_existing(lease_id=args.lease_id, generation=args.generation)
+    if args.phase == "heartbeat":
+        TrustedDrainOwner(args.owner_id).heartbeat(controller)
+        print(json.dumps({"effects": "heartbeat", "lease_id": plan.lease_id}, sort_keys=True))
+        return 0
+    if args.phase == "resume":
+        print(json.dumps({"effects": "not-attempted", "state": "resumed",
+                          "lease_id": plan.lease_id}, sort_keys=True))
+        return 0
+    required = (args.cycle, args.model_sha256, args.binary_sha256, args.unit_sha256)
+    if any(value in (None, "") for value in required):
+        raise SystemExit("restore requires cycle and three baseline hashes")
+    validator = LocalProxmoxFullDrainValidator(
+        runner, AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256), cycle=args.cycle)
+    controller.validator = validator
+    runner(lab_cleanup_command(lease_id=plan.lease_id,
+                               generation=plan.generation), 30.0)
+    if not lab_is_absent(runner, lease_id=plan.lease_id,
+                         generation=plan.generation):
+        raise SystemExit("lab scope/listener/process absence is unproven; lock retained")
+    controller.restore(plan, now_epoch=int(time.time()), owner_present=True)
+    print(json.dumps({"effects": "restored", "lease_id": plan.lease_id}, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
