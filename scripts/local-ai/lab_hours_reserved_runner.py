@@ -32,6 +32,7 @@ PROCESS_MARKERS = ("vzdump", "zstd -t", "f2_preflight", "f3_from_f2",
                    "sa3_candidate_j", "aster_tts_dual_cpu", "aster_tts_single_cpu",
                    "b60_musetalk_xpu_guest", "m3_k2")
 REGISTERED_RUNNER_KINDS = frozenset({
+    "b60-post-xe-card-r5",
     "b60-post-xe-card",
     "full-inference-pilot",
     "owner-loss-exercise",
@@ -212,6 +213,30 @@ def bounded_owner_failure(raw: str) -> str | None:
 
 
 def run(booking_id: str, *, retry: bool = False) -> int:
+
+    # A registered exclusive-card booking is dispatched by its exact future
+    # clock. The qualified inner controller remains its ONLY ledger claimant.
+    # Never import that controller here: shared module names must stay isolated.
+    if os.geteuid() == 0:
+        try:
+            exclusive = ReservationStore(RESERVATIONS).get(booking_id)
+        except Exception:
+            exclusive = None
+        if exclusive is not None and exclusive.get('workload') == 'b60-accepted-sycl-post-xe-qualification-v2':
+            try:
+                if retry:
+                    raise RunError('EXCLUSIVE_CARD_NOT_RETRYABLE')
+                load_manifest()
+                from lab_hours_workloads import validate_registry, validate_inactive_target
+                validate_registry()
+                validate_inactive_target(PILOT, workload_id='b60-accepted-sycl-post-xe-qualification-v2')
+                from b60_post_xe_r5_card_bridge import dispatch
+                return dispatch(exclusive, workload('b60-accepted-sycl-post-xe-qualification-v2'))
+            except Exception:
+                print(json.dumps({'state':'dispatch-refused','booking_id':booking_id,
+                    'workload':'b60-accepted-sycl-post-xe-qualification-v2',
+                    'qualification_claimed':False},sort_keys=True))
+                return 1
 
     # A registered exclusive-card booking is dispatched by its exact future
     # clock. The qualified inner controller remains its ONLY ledger claimant.

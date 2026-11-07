@@ -13,9 +13,11 @@ def okay(command, timeout):
     elif command[-2:] == ("--property=Result", "--value"):
         output='success'
     elif command[-2:] == ("--property=ActiveState", "--value"):
-        output='inactive'
-    elif "is-enabled" in command:
-        output='enabled'
+        output=('active' if "epub-narration-monitor.timer" in command
+                else 'inactive')
+    elif command[-2:] == ("--property=UnitFileState", "--value"):
+        output=('enabled' if "epub-narration-monitor.timer" in command
+                else 'disabled')
     else:
         output='active'
     return SimpleNamespace(returncode=0,stdout=output)
@@ -32,11 +34,12 @@ class DoctorTests(unittest.TestCase):
                 workload="accepted-9b-direct-control-smoke-v1",start_epoch=1100,end_epoch=1700)
             value=diagnose(store,now=1300,runner=okay)
             self.assertIn("MISSED_RESERVATION",value["codes"])
-    def test_current_epub_scheduler_is_required(self):
+    def test_retired_epub_scheduler_must_remain_inactive(self):
         def failed_scheduler(command, timeout):
             result=okay(command,timeout)
-            if command == ("systemctl","is-active","epub-narration-scheduler.timer"):
-                return SimpleNamespace(returncode=3,stdout="inactive")
+            if command == ("systemctl", "show", "epub-narration-scheduler.timer",
+                           "--property=ActiveState", "--value"):
+                return SimpleNamespace(returncode=0,stdout="active")
             return result
         with tempfile.TemporaryDirectory() as tmp:
             value=diagnose(ReservationStore(Path(tmp),clock=lambda:1000),now=1000,
