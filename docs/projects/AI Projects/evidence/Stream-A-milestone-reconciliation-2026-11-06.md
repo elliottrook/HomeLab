@@ -50,8 +50,9 @@ observation are ready. Routing, tools and promotion remain off.
    Collection remains conditional on qualification.
 4. **M6 decision:** apply the preregistered criteria to development, sealed
    evaluation and shadow evidence and make one explicit promote-or-reject
-   decision. A promotion here means only a bounded read-only route; it grants
-   no tools or authority.
+   decision. The deterministic content-free decision boundary is now
+   source-ready. A passing result means only a candidate for the bounded
+   read-only route; it grants no tools, deployment or authority.
 5. **M7/SA5 graduation:** prove the selected role through normal operator flow,
    independent critical-path passes, degraded/failure recovery, monitoring,
    documented limits and Jason's acceptance.

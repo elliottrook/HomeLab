@@ -23,3 +23,7 @@ fails closed.
 
 The focused source suite passes 3/3. No booking, lease, model call, evaluation
 access, route effect or promotion occurred.
+
+The later [MacBook custody SSH recovery](M3-K2-MacBook-custody-SSH-recovery-2026-11-06.md)
+verified both BatchMode transport forms, retained R5 custody and all five exact
+content-free export hashes without opening the sealed cases.
