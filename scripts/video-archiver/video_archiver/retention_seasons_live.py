@@ -24,6 +24,7 @@ class SeasonPathAudit:
     held_reasons: dict[str, int]
     provider_certified_season_scopes: int
     identity_held_reasons: dict[str, int]
+    certified_scope_item_ids: dict[tuple[int, int], tuple[str, ...]]
 
 
 def _mapped_path(series_path: object, relative: object) -> str | None:
@@ -81,9 +82,9 @@ def collect_season_paths(sonarr_db: Path, jellyfin_db: Path,
             refs[file_id].add((series_id, season))
         jellyfin_paths: Counter[str] = Counter()
         jf_seasons: dict[str, set[int | None]] = defaultdict(set)
-        jf_episode_facts: dict[str, tuple[int | None, str, str]] = {}
-        for path, season, series_id, season_id in jellyfin.execute(
-            "SELECT Path,ParentIndexNumber,SeriesId,SeasonId FROM BaseItems WHERE Type=? AND Path IS NOT NULL",
+        jf_episode_facts: dict[str, tuple[int | None, str, str, str]] = {}
+        for item_id, path, season, series_id, season_id in jellyfin.execute(
+            "SELECT Id,Path,ParentIndexNumber,SeriesId,SeasonId FROM BaseItems WHERE Type=? AND Path IS NOT NULL",
             (EPISODE_TYPE,),
         ):
             jellyfin_paths[str(path)] += 1
@@ -92,11 +93,13 @@ def collect_season_paths(sonarr_db: Path, jellyfin_db: Path,
                 season if type(season) is int else None,
                 _item_id(series_id) if series_id else "",
                 _item_id(season_id) if season_id else "",
+                _item_id(item_id),
             )
         scope_paths: dict[tuple[int, int], set[str]] = defaultdict(set)
         scope_holds: dict[tuple[int, int], set[str]] = defaultdict(set)
         scope_identity_holds: dict[tuple[int, int], set[str]] = defaultdict(set)
         scope_season_ids: dict[tuple[int, int], set[str]] = defaultdict(set)
+        scope_episode_ids: dict[tuple[int, int], set[str]] = defaultdict(set)
         exact_files = 0
         file_records = list(sonarr.execute(
             "SELECT Id,SeriesId,SeasonNumber,RelativePath FROM EpisodeFiles"
@@ -125,7 +128,7 @@ def collect_season_paths(sonarr_db: Path, jellyfin_db: Path,
                 scope_holds[scope].add("physical file absent")
             else:
                 exact_files += 1
-                jf_season, jf_series_id, jf_season_id = jf_episode_facts[mapped]
+                jf_season, jf_series_id, jf_season_id, jf_episode_id = jf_episode_facts[mapped]
                 if series_id not in matched_series:
                     scope_identity_holds[scope].add("series provider or root mismatch")
                 elif (jf_series_id != matched_series[series_id] or jf_season != season
@@ -134,6 +137,7 @@ def collect_season_paths(sonarr_db: Path, jellyfin_db: Path,
                     scope_identity_holds[scope].add("episode season or series ancestor mismatch")
                 else:
                     scope_season_ids[scope].add(jf_season_id)
+                    scope_episode_ids[scope].add(jf_episode_id)
         # A Jellyfin file under a Sonarr series root with no matching Sonarr
         # file means that season's scope is incomplete. Unknown season holds
         # every scope for that series.
@@ -155,7 +159,7 @@ def collect_season_paths(sonarr_db: Path, jellyfin_db: Path,
                     scope_holds[scope].add("unowned Jellyfin episode in series root")
         all_scopes = set(scope_paths) | set(scope_holds)
         sonarr_by_jf_series = {jf_id: sonarr_id for sonarr_id, jf_id in matched_series.items()}
-        for path, (season_number, jf_series_id, _) in jf_episode_facts.items():
+        for path, (season_number, jf_series_id, _, _) in jf_episode_facts.items():
             sonarr_id = sonarr_by_jf_series.get(jf_series_id)
             if sonarr_id is None:
                 continue
@@ -171,12 +175,19 @@ def collect_season_paths(sonarr_db: Path, jellyfin_db: Path,
                 scope_identity_holds[scope].add("season ancestor missing or inconsistent")
         reasons = Counter(reason for scope in all_scopes for reason in scope_holds[scope])
         identity_reasons = Counter(reason for scope in all_scopes for reason in scope_identity_holds[scope])
+        certified = {
+            scope: tuple(sorted(scope_episode_ids[scope]
+                                | scope_season_ids[scope]
+                                | {matched_series[scope[0]]}))
+            for scope in all_scopes
+            if not scope_holds[scope] and not scope_identity_holds[scope]
+            and scope[0] in matched_series and scope_episode_ids[scope]
+        }
         if (sonarr.execute("PRAGMA data_version").fetchone()[0] != sonarr_version
                 or jellyfin.execute("PRAGMA data_version").fetchone()[0] != jellyfin_version):
             raise RuntimeError("Sonarr or Jellyfin changed during season inventory")
         return SeasonPathAudit(len(file_records), exact_files, len(all_scopes),
                                sum(not scope_holds[scope] for scope in all_scopes),
                                dict(sorted(reasons.items())),
-                               sum(not scope_holds[scope] and not scope_identity_holds[scope]
-                                   for scope in all_scopes),
-                               dict(sorted(identity_reasons.items())))
+                               len(certified),
+                               dict(sorted(identity_reasons.items())), certified)

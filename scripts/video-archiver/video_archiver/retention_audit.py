@@ -16,6 +16,7 @@ from .retention_reclaim import estimate_unprotected_file, snapshot_names
 from .retention_activity_live import collect_active_item_ids
 from .retention_seasons_live import collect_season_paths
 from .retention_playback import read_playback_log_evidence
+from .retention_watch_live import collect_user_views, scope_watch_evidence
 from .retention_years_live import LiveYearConfig, _host_path, collect_movie_years
 
 
@@ -60,6 +61,26 @@ def audit(radarr_db: Path, sonarr_db: Path, jellyfin_db: Path, data_root: Path,
     playback = read_playback_log_evidence(jellyfin_db)
     active_items = collect_active_item_ids(jellyfin_url, jellyfin_key)
     seasons = collect_season_paths(sonarr_db, jellyfin_db, data_root)
+    sample_scopes = sorted(seasons.certified_scope_item_ids)[:2]
+    watch_sample: Counter[str] = Counter()
+    if sample_scopes:
+        with closing(sqlite3.connect(f"{jellyfin_db.as_uri()}?mode=ro", uri=True)) as db:
+            user_ids = frozenset(str(row[0]) for row in db.execute("SELECT Id FROM Users"))
+        if len(user_ids) != 7:
+            raise RuntimeError("household user roster changed")
+        item_ids = tuple(sorted({item for scope in sample_scopes
+                                 for item in seasons.certified_scope_item_ids[scope]}))
+        views = collect_user_views(item_ids, user_ids=user_ids,
+                                   jellyfin_url=jellyfin_url, jellyfin_api_key=jellyfin_key)
+        for scope in sample_scopes:
+            observation = scope_watch_evidence(
+                seasons.certified_scope_item_ids[scope], views, user_ids, playback)
+            if observation is None:
+                watch_sample["held_incomplete"] += 1
+            elif observation[1] or any(row.protected for row in observation[0]):
+                watch_sample["protected"] += 1
+            else:
+                watch_sample["observed_unwatched"] += 1
     snapshots = tuple(reversed(snapshot_names()))
     coverage: Counter[str] = Counter()
     with closing(sqlite3.connect(f"{jellyfin_db.as_uri()}?mode=ro", uri=True)) as db:
@@ -108,6 +129,12 @@ def audit(radarr_db: Path, sonarr_db: Path, jellyfin_db: Path, data_root: Path,
             "held_reasons": seasons.held_reasons,
             "provider_certified_season_scopes": seasons.provider_certified_season_scopes,
             "identity_held_reasons": seasons.identity_held_reasons,
+        },
+        "season_watch_sample": {
+            "sampled": len(sample_scopes),
+            "held_incomplete": watch_sample["held_incomplete"],
+            "protected": watch_sample["protected"],
+            "observed_unwatched": watch_sample["observed_unwatched"],
         },
         "media_data_snapshot_count": len(snapshots),
         "physical_inventory": dict(sorted(coverage.items())),

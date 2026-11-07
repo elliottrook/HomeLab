@@ -82,6 +82,8 @@ class SeasonPathTests(TestCase):
             self.assertEqual(result.season_scopes, 2)
             self.assertEqual(result.exact_season_scopes, 1)
             self.assertEqual(result.provider_certified_season_scopes, 1)
+            self.assertEqual(result.certified_scope_item_ids[(1, 1)],
+                             ('ep1', 'season1', 'series'))
             self.assertEqual(result.held_reasons, {"unowned Jellyfin episode in series root": 1})
             original_host_path = retention_seasons_live._host_path
             changed = False
@@ -102,6 +104,7 @@ class SeasonPathTests(TestCase):
             mismatched = collect_season_paths(sonarr, jellyfin, data)
             self.assertEqual(mismatched.exact_season_scopes, 1)
             self.assertEqual(mismatched.provider_certified_season_scopes, 0)
+            self.assertEqual(mismatched.certified_scope_item_ids, {})
             with sqlite3.connect(jellyfin) as db:
                 db.execute("UPDATE BaseItemProviders SET ProviderValue='101'")
                 db.execute("UPDATE BaseItems SET IndexNumber=3 WHERE Id='season1'")
