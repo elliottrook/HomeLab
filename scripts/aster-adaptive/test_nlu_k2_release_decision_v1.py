@@ -93,6 +93,22 @@ class K2ReleaseDecisionTests(unittest.TestCase):
                             evaluation_raw=raw(evaluation),
                             shadow_raw=raw(shadow))
 
+    def test_boolean_values_cannot_masquerade_as_integer_counts(self):
+        for record_name, field in (
+                ("development", "retries"),
+                ("development", "errors"),
+                ("evaluation", "retries"),
+                ("evaluation", "response_errors"),
+                ("shadow", "external_cost_microunits")):
+            development, evaluation, shadow = fixtures()
+            records = {"development": development, "evaluation": evaluation,
+                       "shadow": shadow}
+            records[record_name][field] = False
+            with self.assertRaises(ValueError):
+                decision.decide(development_raw=raw(development),
+                                evaluation_raw=raw(evaluation),
+                                shadow_raw=raw(shadow))
+
     def test_malformed_or_duplicate_json_fails_closed(self):
         development, evaluation, shadow = fixtures()
         malformed = raw(development)[:-1]

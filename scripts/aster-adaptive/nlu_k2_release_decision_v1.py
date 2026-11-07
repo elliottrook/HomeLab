@@ -46,8 +46,12 @@ def _development(value: object) -> bool:
                 != "aster-m3-k2-development-reconciliation.v1"
             or value.get("state") != "complete"
             or value.get("booking_id") != BOOKING_ID
-            or value.get("requests") != 192
-            or value.get("retries") != 0 or value.get("errors") != 0
+            or type(value.get("requests")) is not int
+            or value["requests"] != 192
+            or type(value.get("retries")) is not int
+            or value["retries"] != 0
+            or type(value.get("errors")) is not int
+            or value["errors"] != 0
             or value.get("production_restored") is not True
             or not _digest(value.get("result_sha256"))):
         raise ValueError("K2 development evidence changed")
@@ -64,8 +68,13 @@ def _development(value: object) -> bool:
 def _evaluation(value: object) -> bool:
     if (not isinstance(value, dict) or set(value) != EVALUATION_KEYS
             or value.get("schema") != "aster-nlu-k2-sealed-evaluation-score.v1"
-            or value.get("cases") != 32 or value.get("model_requests") != 32
-            or value.get("retries") != 0 or value.get("response_errors") != 0
+            or type(value.get("cases")) is not int or value["cases"] != 32
+            or type(value.get("model_requests")) is not int
+            or value["model_requests"] != 32
+            or type(value.get("retries")) is not int
+            or value["retries"] != 0
+            or type(value.get("response_errors")) is not int
+            or value["response_errors"] != 0
             or type(value.get("exact")) is not int
             or not 0 <= value["exact"] <= 32
             or type(value.get("unsafe_false_routes")) is not int
@@ -95,7 +104,7 @@ def _shadow(value: object) -> bool:
             or shadow_reconciliation.BOOKING_ID.fullmatch(value["booking_id"])
                 is None
             or value.get("workload_id") != shadow_reconciliation.WORKLOAD_ID
-            or value.get("cases") != 60
+            or type(value.get("cases")) is not int or value["cases"] != 60
             or type(value.get("accepted")) is not int
             or type(value.get("accepted_exact")) is not int
             or not 0 <= value["accepted"] <= 60
