@@ -46,7 +46,11 @@ currently playing items. A failed session scan fails the audit, so no stale
 `retention_queue_live` is a local read-only ARR queue adapter for the eventual
 per-candidate recheck. It holds all scopes if any queued download lacks a
 reliable ARR identity or if pagination fails. It is not installed in the
-TrueNAS audit yet and has no ARR credentials or mutation methods.
+scheduled TrueNAS audit and has no ARR credentials or mutation methods. A
+separate unscheduled `retention_candidate_probe` can use the existing local
+archiver environment to inspect one snapshot-free certified movie. It prints
+only booleans and counts, reports source drift as a hold, and has no deletion
+method. Its result is diagnostic, not a controller decision.
 
 `retention_subtitles_live.inspect_subtitles` is a separate read-only candidate
 manifest. It records embedded subtitle stream metadata and hashes sidecars
