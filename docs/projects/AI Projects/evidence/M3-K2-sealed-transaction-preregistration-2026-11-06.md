@@ -54,6 +54,7 @@ automatic routing off.
 
 - preregistration/relay/runner suite: 13/13 passed
 - Python syntax compilation: passed
+- platform session/terminal contract: commit `ae4585e2`, 5/5 focused tests
 - sealed input access: metadata/hash only; content not read
 - model requests: zero
 - B60 use: none

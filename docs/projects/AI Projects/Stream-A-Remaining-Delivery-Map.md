@@ -2352,7 +2352,11 @@ loopback tunnel graph, 32-request budget and complete teardown proof under
 canonical digest
 `9485b276e3fac0eb16854209c74b3d4723719f094595801a5128bcd1d437d772`.
 It refuses effect unless tonight's development transaction is a restored pass;
-no booking, workload registration, tunnel or deployment was created.
+no booking, workload registration, tunnel or deployment was created. Platform
+commit `ae4585e2` now independently freezes the content-free ready-session and
+terminal contracts: nonce hashes, booking/lease generation and exact deadline
+on entry; production restored, lease ready, locks absent and every temporary
+process/tunnel absent on every terminal outcome. Its focused suite passes 5/5.
 
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
