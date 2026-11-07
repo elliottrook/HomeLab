@@ -1,7 +1,7 @@
 # Aster Games deployment packet
 
-Status: prepared, inactive, Stream M approval required before every bounded
-state-changing section.
+Status: accepted for Stream A execution on 2026-11-06. Stop only on the
+project's non-waivable conditions, material drift, or scope expansion.
 
 This packet turns the repository candidate into server infrastructure only. It
 does not open the AsterTV v3 gate, expose the broker to an appliance, enable

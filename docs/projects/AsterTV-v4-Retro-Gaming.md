@@ -1,7 +1,7 @@
 # AsterTV v4 retro gaming
 
-> Status: Active — Stream M; M2 deployment packet ready, live deployment and
-> all AsterTV work gated
+> Status: Active — Stream A; M2 deployment packet accepted, live infrastructure
+> and all AsterTV work gated
 >
 > Owner: Jason
 >
@@ -61,7 +61,7 @@ appliance deployment is created.
 - Planning for an isolated server placement, private ingress, Authentik,
   NetBox, Doctor, Beszel, backups, and operational documentation.
 
-### Later infrastructure work requiring Stream M approval
+### Authorized Stream A infrastructure work
 
 - Allocate the guest/container and storage datasets.
 - Create identities, secret files, private DNS, proxy/Authentik integration,
@@ -202,9 +202,14 @@ frontend beside Kodi (duplicates the AsterTV shell and focus model).
 
 ## Pre-start risk assessment
 
-Authorization stream is **Stream M**. Repository-local documents, code,
-contracts, and tests may proceed. Every live state change needs an immediate
-bounded approval with target, effect, validation, and rollback.
+Authorization stream is **Stream A**. On 2026-11-06 Jason directed: “Continue
+stream a. Don’t stop until you need my approval. Push at the end of a milestone
+and then continue.” This accepts the recorded infrastructure scope, risks,
+exclusions, six bounded deployment changes, validation, and rollback envelope.
+It also authorizes the required milestone pushes to Forgejo `origin`, followed
+by read-only verification of the GitHub protection mirror. It does not waive
+non-waivable stop conditions, authorize public exposure, authorize direct
+GitHub pushes, or open the AsterTV v3/v4 gate.
 
 | Risk | Likelihood / impact | Control | Residual decision |
 |---|---|---|---|
@@ -282,12 +287,12 @@ deployment-local configuration.
   DNS names, UID/GID, datasets, snapshot policy, and recovery targets.
 - [x] Define Prowlarr/SABnzbd scoped credentials and dedicated category without
   changing either service.
-- [x] Produce the Stream M change packet and rollback checkpoints.
-- [ ] Obtain Jason's immediate approval for bounded change 1 before any live
-  mutation.
+- [x] Produce the bounded deployment packet and rollback checkpoints.
+- [x] Record Jason's Stream A authorization for the infrastructure deployment
+  and milestone pushes.
 
-Gate: the implementation packet has no guessed live facts and Jason approves
-the first bounded deployment change immediately before execution.
+Gate: the implementation packet has no guessed live facts and the recorded
+Stream A authorization covers its bounded changes.
 
 ### M3 — Deploy protected server infrastructure
 
@@ -500,9 +505,16 @@ Infrastructure completion alone is a milestone, not AsterTV v4 completion.
   No dataset, directory, share, guest, address, account, credential, route,
   backup, or monitoring object was created.
 
+### 2026-11-06 — Stream A authorization
+
+- Jason accepted Stream A continuation for the recorded infrastructure scope
+  and directed milestone pushes followed by continued execution.
+- The AsterTV gate, public-ingress exclusion, credential controls, destructive
+  stop conditions, and direct-GitHub-push prohibition remain unchanged.
+
 ## Closeout summary
 
-Open. The next permitted step is bounded change 1 in the prepared deployment
-packet, but only after immediate Stream M approval. No live change or AsterTV
-client work is authorized by this document alone.
+Open. Continue the accepted deployment packet through infrastructure
+graduation, pushing each completed milestone to Forgejo and verifying the
+GitHub mirror. No AsterTV client work is authorized until G3 passes.
 
