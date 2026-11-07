@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-live-rollout-receipt",
+  "id": "astertv-v3-bedroom-content-state-disabled-rollout-2026-11-06",
+  "candidate": "astertv-v3-bedroom-disabled-first-deployment-preparation-2026-11-06",
+  "candidate_source_commit": "7a9e3f3b52e0bb173b52633a8a5f8fbdc317f7c6",
+  "target": {
+    "device_id": "astertv-bedroom",
+    "hostname": "AsterTV-Bedroom",
+    "address": "192.168.1.140"
+  },
+  "authorization": {
+    "owner_confirmed_idle": true,
+    "owner_approved_push": true,
+    "owner_approved_disabled_first_rollout": true,
+    "equipment_actions": [],
+    "volume_automation_activation": false,
+    "playback_test": false
+  },
+  "recovery": {
+    "aster_checkpoint": "/var/lib/aster/checkpoints/astertv-v3-m7-bedroom-content-20261106",
+    "home_assistant_checkpoint": "/mnt/data/supervisor/homeassistant/.aster-checkpoints/astertv-v3-m7-bedroom-content-20261106",
+    "bedroom_checkpoint": "/storage/.aster-checkpoints/astertv-v3-m7-bedroom-content-20261106",
+    "aster_gateway_predecessor_sha256": "715b172a62e978ccaf79dfd3f9801da641cd067da72ad7187658efa9ccc0d73a",
+    "home_assistant_configuration_predecessor_sha256": "f84f240070f0cb7c1d1e9a46732cd2d9fe833217cafe9d183102bb0d1d547cfd",
+    "home_assistant_contract_predecessor_sha256": "ea42ebedcb59703b93d592b40da90d7796b65ab213a10f7caf671b61f131434f",
+    "bedroom_service_predecessor_sha256": "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49"
+  },
+  "installed": {
+    "aster_gateway_sha256": "a804c06732b291275de830dcb0f8188ade5fc4fc3d0a557a86a742d1557cf1b3",
+    "aster_environment_sha256": "4ed06d3c5c23e91ac0c49582668db3d74bbf8b01c0b999823bdee0109df77335",
+    "home_assistant_configuration_sha256": "9bd3886236e57816bb4e2b233fcf124f4139a73d978b9479f8e8ceb0c9777b99",
+    "home_assistant_contract_sha256": "2c927737a82312c4fa9707d980a9c2bb3b92ff974d8cbce929c52249d87be82a",
+    "bedroom_service_sha256": "b443edc794f86fc66b1c92d46a048ed18871d9aa325835a2cb8b486d265415c3",
+    "bedroom_content_session_sha256": "a85f477bc877f835d18a7027c7532fcbacdd3ff932912a976bdb5a0b5cfd8acb",
+    "bedroom_stable_manifest_sha256": "07e493972f8f841da77163b89843b231ba6ea31eef864a6acbca8dd8943cb4cc"
+  },
+  "proof": {
+    "gateway_schema": "astertv-room-playback.v1",
+    "identity_fields_exported": false,
+    "bedroom_idle_sequence": 35,
+    "bedroom_actions": [],
+    "bedroom_content_volume_configured": false,
+    "home_assistant_state_attribute_rows_with_playback_schema": 0,
+    "home_assistant_event_rows_with_playback_schema": 0,
+    "bedroom_active_players": 0,
+    "bedroom_kodi_restarts": 0,
+    "family_active_players": 0,
+    "family_kodi_restarts": 0,
+    "aster_agent_restarts": 0,
+    "home_assistant_core_check": "passed",
+    "home_assistant_container_restarts": 0,
+    "bedroom_live_stable_match": true,
+    "bedroom_boot_apply_enabled": true,
+    "temporary_staging_removed": true
+  },
+  "expected_candidate_gap": {
+    "reason": "bounded content-only rollout excludes unused equipment helper and full-tree manifest",
+    "missing_payloads": [
+      "/storage/.aster-v3/m8-remote/service.asterremote/equipment.py",
+      "/storage/.kodi/addons/service.asterremote/equipment.py"
+    ],
+    "manifest_matches_bounded_live_tree": true,
+    "full_composition_claimed": false
+  },
+  "outcome": "bedroom-content-state-live-no-equipment-or-volume-authority-playback-proof-open",
+  "evidence": "docs/projects/evidence/AsterTV-v3-M7-Bedroom-content-state-disabled-rollout-2026-11-06.md"
+}
