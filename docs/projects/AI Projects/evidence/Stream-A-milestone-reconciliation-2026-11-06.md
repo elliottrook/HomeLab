@@ -31,7 +31,9 @@ tightening to abstain/deny.
 The exact 56-pin combined Lab Hours release is installed inactive. Booking
 `aster-stream-a-m3-k2-20261106-2000-r1` covers 20:00–21:00
 America/Vancouver. A content-free post-window reconciler and one-time 21:05
-observation are ready. Routing, tools and promotion remain off.
+observation are ready. A same-day preflight correction now validates the 12
+private runtime pins in their actual LXC110 custody; the authoritative checker
+returns fully ready. Routing, tools and promotion remain off.
 
 ## Remaining work in delivery order
 

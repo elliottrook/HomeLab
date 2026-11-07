@@ -45,6 +45,21 @@ still fails closed unless the fresh installed-pin, reservation, whole-host
 lease, operation-lock, production-health and restoration gates pass. Sealed
 evaluation, tools, routing and promotion remain off.
 
+### Same-day readiness correction
+
+A later use of the standard Lab Hours checker exposed a deterministic pre-start
+defect: its generic validator looked for K2's private runtime pins on the host,
+although the reviewed installer correctly holds them in LXC110. The platform
+validator was corrected to inspect the actual guest custody and dependency
+closure while preserving the newer B60 R5 registration. The inactive two-file
+correction retained rollback and caused no restart or model effect.
+
+After installation the standard checker returned `ready` with every check
+true: booking/owner/window/recovery, dispatcher, exact registered release and
+12 guest pins, lease, locks and bounded session contract. This removes the
+specific admission fault that would otherwise have prevented tonight's
+workload from starting.
+
 ## Observation readiness
 
 A separate content-free reconciler now checks the authoritative booking,
