@@ -43,7 +43,7 @@
     "nlu_k2_development_runner_v1.py": "d5c9ef87bd49185466a12e7b53eab741d0f0dc40ce92c2977389dd2b0e5e3785",
     "nlu_k2_development_scorer_v1.py": "c43f3894ba65251b6fadbda1012bd2aead44c3357323b09f491f590ffd6e8558",
     "nlu_k2_shortlist_arbitrator_v1.py": "7c81894da9adbd1c3ee22b97d1487fcf2feadc1e4bc1e321a7c715479c517962",
-    "nlu_k3_development_runner_v1.py": "2ac71e79990b58b76ec2bacb46639e341eb554d0abf25fef1680c04a9d1d91b5",
+    "nlu_k3_development_runner_v1.py": "940d1de888bc00709f37db09604bd7062dbd9553dbdc970e7d9c8d705378bf96",
     "nlu_k3_development_scorer_v1.py": "61dce93dc94ec76725e5d1048ab099a383a9e418245629e9631e98e834a8a353",
     "nlu_k3_hierarchical_safety_preregistration_v1.py": "47b12ca52d7880121f2005ee53a788a981d5b9009721c9bfbb15f9c34485de14",
     "nlu_k3_hierarchical_safety_veto_v1.py": "3cf4b0a531596760e6ad811c090fded4434fdd55143663c470104abdeba41bff",

@@ -69,6 +69,8 @@ class K3DevelopmentRunnerTests(unittest.TestCase):
         self.assertTrue(result["complete"])
         self.assertEqual(4, result["attempted"])
         self.assertEqual(2, result["valid"])
+        self.assertEqual(runner.k2_runner.ENGINE_SHA256,
+                         result["engine_sha256"])
         self.assertEqual(4, opener.requests)
         self.assertEqual(0, result["retries"])
         encoded = json.dumps(result, sort_keys=True)

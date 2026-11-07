@@ -123,6 +123,7 @@ def run_cases(cases: list[dict[str, object]], token: str, *, endpoint=ENDPOINT,
               "valid": True})
     return {
         "schema": "aster-nlu-k3-development-run.v1",
+        "engine_sha256": k2_runner.ENGINE_SHA256,
         "attempted": model_requests,
         "valid": len(records),
         "retries": 0,
