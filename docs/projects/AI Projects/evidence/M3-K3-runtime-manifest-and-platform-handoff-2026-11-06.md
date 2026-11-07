@@ -52,9 +52,10 @@ or restoration gates.
 The platform owner must create a distinct, deterministic K3 registration and
 runner path rather than edit or replay K2. The inactive packet must:
 
-1. install the twelve exact runtime sources plus unchanged corpus and shortlist
-   custody in LXC110;
-2. register only `m3-k3-hierarchical-safety-development-v1` with 384 requests,
+1. install the five absent K3 runtime sources plus the K3 wrapper, preserve the
+   exact shared K2 sources and private corpus/shortlist custody in LXC110, and
+   explicitly pin the inherited K2 guest wrapper dependency;
+2. register only `m3-k3-hierarchical-safety-development-v1` with 192 cases / 384 requests,
    zero retries, 1,800-second deadline and 900-second recovery reserve;
 3. route the fixed runner kind through the existing full-drain owner, private
    loopback listener, root-custodied result, guardian and accepted-production
@@ -77,8 +78,8 @@ must pass immediately before effects.
 ## Boundary and exact next action
 
 No platform mutation, workload registration, booking, lease, service action,
-model request, route, tool or promotion occurred. The source branch must be
-made available to the platform owner through the named Forgejo branch, then the
-platform owner can build and return the inactive registration/install packet.
-The Forgejo push is the next external action and requires its immediate remote-
-write confirmation under `AGENTS.md`.
+model request, route, tool or promotion occurred. The local platform branch has
+now returned the deterministic inactive packet recorded in
+`M3-K3-platform-admission-and-inactive-packet-2026-11-06.md`. The next effect is
+one reversible inactive installation followed by an independent read-only
+audit; the later ledger check and booking remain conditional on that result.
