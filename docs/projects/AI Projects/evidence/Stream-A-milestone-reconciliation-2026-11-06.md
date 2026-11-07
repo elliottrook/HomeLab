@@ -44,9 +44,13 @@ promotion remain off.
    arbitration plus safety verdict records and cannot trust retained acceptance
    fields. The one-attempt runner now composes and tests exactly 384 ordered
    no-retry requests with durable stage journalling and first-error termination.
-   The remaining offline gate is an exact release/registry manifest and
-   platform admission packet. It must meet the existing coverage/privacy/safety
-   boundaries before any new effect is proposed.
+   Its exact 12-file runtime manifest now passes 145/145 complete K-series
+   tests and binds the 384-request deadline, endpoints, accepted model and all
+   source/input pins. The remaining gate is platform implementation and
+   reversible inactive validation of the distinct registered K3 workload,
+   followed by an authoritative booking-window check and independent readiness
+   audit. It must meet the existing coverage/privacy/safety boundaries before
+   any new effect is proposed.
 2. **M3 sealed qualification:** only if a future frozen development gate passes,
    admit the existing independently sealed 32-case evaluation through its
    accepted custody/disjointness proofs. The content-free scorer and its
