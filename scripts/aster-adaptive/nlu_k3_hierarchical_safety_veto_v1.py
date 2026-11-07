@@ -25,6 +25,11 @@ VERDICT_KEYS = {
     "route_eligible", "authority",
 }
 MODEL_VERDICT_KEYS = VERDICT_KEYS - {"schema", "authority"}
+DECISION_KEYS = {
+    "schema", "case_id", "shortlist_ids", "selected_label_id",
+    "final_label_id", "safety_verdict", "accepted", "disposition",
+    "authority", "route_effect", "automatic_routing",
+}
 
 
 def response_schema() -> dict[str, object]:
@@ -124,7 +129,7 @@ def decide(arbitration_record: dict[str, object],
         and verdict["route_eligible"]
             is (final["disposition"] == "route" and final["ambiguity"] == "clear")
     )
-    return {
+    return validate_decision({
         "schema": DECISION_SCHEMA,
         "case_id": arbitration["case_id"],
         "shortlist_ids": arbitration["shortlist_ids"],
@@ -136,4 +141,38 @@ def decide(arbitration_record: dict[str, object],
         "authority": "not-granted",
         "route_effect": False,
         "automatic_routing": "off",
-    }
+    })
+
+
+def validate_decision(value: object) -> dict[str, object]:
+    if (not isinstance(value, dict) or set(value) != DECISION_KEYS
+            or value.get("schema") != DECISION_SCHEMA
+            or not isinstance(value.get("case_id"), str)
+            or not value["case_id"]
+            or not isinstance(value.get("shortlist_ids"), list)
+            or len(value["shortlist_ids"]) != 4
+            or len(set(value["shortlist_ids"])) != 4
+            or any(type(item) is not str or item not in ontology.CATALOGUE
+                   for item in value["shortlist_ids"])
+            or value.get("selected_label_id") not in value["shortlist_ids"]
+            or value.get("final_label_id") not in ontology.CATALOGUE
+            or type(value.get("accepted")) is not bool
+            or value.get("disposition") not in DISPOSITIONS
+            or value.get("authority") != "not-granted"
+            or value.get("route_effect") is not False
+            or value.get("automatic_routing") != "off"):
+        raise ValueError("K3 decision changed")
+    verdict = validate_verdict(value["safety_verdict"])
+    final = ontology.CATALOGUE[value["final_label_id"]]
+    agreed = (
+        verdict["request_family"] == final["request_family"]
+        and verdict["disposition"] == final["disposition"]
+        and verdict["sensitivity"] == final["sensitivity"]
+        and verdict["ambiguity"] == final["ambiguity"]
+        and verdict["route_eligible"]
+            is (final["disposition"] == "route" and final["ambiguity"] == "clear")
+    )
+    expected_disposition = final["disposition"] if agreed else "abstain"
+    if value["accepted"] is not agreed or value["disposition"] != expected_disposition:
+        raise ValueError("K3 decision disagrees with safety verdict")
+    return dict(value)

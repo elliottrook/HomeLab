@@ -117,5 +117,13 @@ class K3HierarchicalSafetyVetoTests(unittest.TestCase):
         duplicate = b'{"choices":[],"choices":[]}'
         with self.assertRaises(ValueError): k3.parse_verdict(duplicate)
 
+    def test_retained_decision_cannot_change_acceptance_or_effect(self):
+        route = label("route")
+        value = k3.decide(record(route), verdict(route))
+        for field, changed in (("accepted", False), ("route_effect", True),
+                               ("authority", "granted")):
+            mutated = copy.deepcopy(value); mutated[field] = changed
+            with self.assertRaises(ValueError): k3.validate_decision(mutated)
+
 
 if __name__ == "__main__": unittest.main()
