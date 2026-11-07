@@ -2035,6 +2035,9 @@ of those observation or promotion boundaries.
   state and verified HDMI 0 Dolby/HDR contract.
 - [ ] Complete the user-facing handover, final intent/efficiency review, project
   records, focused commit and separately authorized Forgejo push/mirror check.
+  The pre-graduation household guide is now prepared at
+  `docs/runbooks/AsterTV-v3-User-Guide.md`; its final walkthrough and explicit
+  acceptance remain open.
 
 Gate: Jason accepts the household workflow on both targets; stopping Aster AI,
 Home/cameras or any optional integration degrades clearly without breaking core
@@ -2324,6 +2327,7 @@ explicit user acceptance.
 | 2026-11-06 | Deployed Bedroom content state with all action and volume authority absent | Owner-confirmed idle rollout enrolled `HA-Bedroom` with `actions: []`, preserved every accepted Family action/profile value, and installed only the Bedroom content publisher under three retained checkpoints. Two deliberately over-strict HA health probes restored exact predecessors before the corrected container-state gate retained the successor. | Authenticated Bedroom state is fresh, idle/Unknown and identity-free at sequence 35; recorder history remains empty, both Kodi clients and Aster have zero restarts, and Bedroom live/stable trees plus boot apply agree. The broader full-Remote candidate's unused equipment helper remains an explicitly recorded expected gap rather than being silently deployed. Playback/class acceptance and any Bedroom calibration remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M7-Bedroom-content-state-disabled-rollout-2026-11-06.md`. |
 | 2026-11-06 | Accepted Bedroom content playback/class transport | Owner authorized one bounded library movie after an idle/checkpoint/hash preflight. The test retained no media identity and made no configuration, equipment, network or account change. | Bedroom reported playing/Movie at fresh sequences `1 → 2`, then returned to idle/Unknown at `3`; Kodi volume remained `97`, the adopted LG state was unchanged, recorder history remained empty, Home `10000` was restored and both Kodi/Aster retained zero restarts. Bedroom calibration and any equipment authority remain separate decisions. Evidence: `docs/projects/evidence/AsterTV-v3-M7-Bedroom-content-playback-acceptance-2026-11-06.md`. |
 | 2026-11-06 | Reconciled the post-acceptance M11 repository candidate | Two independent builds from `b2781022…94e43` reproduced the exact composition, bundle, plan, guard and SBOM hashes already pinned by the latest immutable candidate; the historical freezes remain unchanged. | The integrated gate passes 76 test files, 93 secret-scan files, 15 pages and 127 controls with zero conformance or operations gaps. Bedroom equipment/volume/full soak, explicit Family promotion, the physical walkthrough, external Media Lifecycle handoff and final handover remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M11-post-acceptance-reconciliation-2026-11-06.md`. |
+| 2026-11-06 | Prepared the pre-graduation household handover | Consolidated the accepted interaction language, page workflows, Aster AI and Remote behavior, account/privacy boundary, degraded operation and safe recovery without claiming unfinished room promotion. | The guide is ready for the non-author walkthrough. Bedroom equipment/volume/full soak, final Family promotion and explicit guide acceptance remain open. Guide: `docs/runbooks/AsterTV-v3-User-Guide.md`. |
 
 ## Close-out
 

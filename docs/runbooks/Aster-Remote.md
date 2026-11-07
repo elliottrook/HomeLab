@@ -27,8 +27,9 @@ Current rooms:
 | AsterTV Bedroom | `bedroom` | `AsterTV-Bedroom` | `192.168.1.140` |
 
 The allowlist covers navigation, Home, context, Play/Pause, direct Aster Search
-and active Kodi text input. Volume, mute and power remain unavailable until M7
-installs explicit room-equipment authority.
+and active Kodi text input. Family also has accepted room-scoped volume, mute
+and explicit power authority through the M7 bridge. Bedroom and Jen equipment
+controls remain disabled until their separate room acceptance gates pass.
 
 ## User operation
 
