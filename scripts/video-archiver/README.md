@@ -38,6 +38,10 @@ run the deletion controller.
 The audit also checks Jellyfin's active sessions and reports only the count of
 currently playing items. A failed session scan fails the audit, so no stale
 "no playback" result can be treated as permission to remove media.
+`retention_queue_live` is a local read-only ARR queue adapter for the eventual
+per-candidate recheck. It holds all scopes if any queued download lacks a
+reliable ARR identity or if pagination fails. It is not installed in the
+TrueNAS audit yet and has no ARR credentials or mutation methods.
 
 `retention_subtitles_live.inspect_subtitles` is a separate read-only candidate
 manifest. It records embedded subtitle stream metadata and hashes sidecars
