@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-live-rollout-receipt",
+  "id": "astertv-v3-family-content-state-disabled-rollout-2026-11-06",
+  "candidate": "astertv-v3-rc1-family-content-gateway-candidate-2026-11-06",
+  "candidate_source_commit": "bace6554774acc7e0c98fa3c4b49bd0b98594d1e",
+  "validation_commit": "52c54afab372a7a9f9d50cac889805b4550a39cf",
+  "target": {
+    "device_id": "astertv-family",
+    "hostname": "AsterTV-Family",
+    "address": "192.168.1.157",
+    "composition_sha256": "a09ef2b5974a464738069caeb9fccab44c1feefc9d20763b83eb84bd92a79411"
+  },
+  "authorization": {
+    "owner_confirmed_idle": true,
+    "owner_approved_push": true,
+    "owner_approved_disabled_first_rollout": true,
+    "volume_automation_activation": false,
+    "playback_test": false
+  },
+  "recovery": {
+    "aster_checkpoint": "/var/lib/aster/checkpoints/astertv-v3-m7-family-content-20261106/aster_remote.py",
+    "aster_predecessor_sha256": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518",
+    "home_assistant_snapshot": "astertv-m7-content-pre-20261106",
+    "home_assistant_checkpoint": "/mnt/data/supervisor/homeassistant/.aster-checkpoints/astertv-v3-m7-family-content-20261106/aster_room_bridge",
+    "family_checkpoint": "/storage/.aster-checkpoints/astertv-v3-m7-family-content-20261106",
+    "family_predecessor_service_sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8",
+    "family_predecessor_manifest_sha256": "4bd3abfc68b47aef6c3b72f3e88bf9b61d966d9e2ff5df9e4b3b3afa89c02734"
+  },
+  "installed": {
+    "aster_gateway_sha256": "715b172a62e978ccaf79dfd3f9801da641cd067da72ad7187658efa9ccc0d73a",
+    "home_assistant_component_sha256": "0ab1cad5bda6754c50fae11c6752df04d2d26bcb137796bbfd34f94b1e43db77",
+    "home_assistant_policy_sha256": "98453ad7ed0d54735e5b9ed5bf25eb4af9706e1aabe63ce330b1d916d06e8a9d",
+    "home_assistant_contract_sha256": "ea42ebedcb59703b93d592b40da90d7796b65ab213a10f7caf671b61f131434f",
+    "home_assistant_manifest_sha256": "a0caa81000a091c6758de8e8135611970ecee3756d295c81aa3aaa40068c960a",
+    "family_service_sha256": "b443edc794f86fc66b1c92d46a048ed18871d9aa325835a2cb8b486d265415c3",
+    "family_content_session_sha256": "a85f477bc877f835d18a7027c7532fcbacdd3ff932912a976bdb5a0b5cfd8acb",
+    "family_stable_manifest_sha256": "b3cebef42445ee286738f0219b60954dece1236a98a54832616d787dcc34793a"
+  },
+  "proof": {
+    "gateway_schema": "astertv-room-playback.v1",
+    "identity_fields_exported": false,
+    "idle_sequence_observed": [8, 9],
+    "observation_seconds": 27,
+    "home_assistant_entities_created": 0,
+    "home_assistant_events_created": 0,
+    "home_assistant_recorder_rows_with_playback_schema": 0,
+    "content_volume_config_files": 0,
+    "family_active_players": 0,
+    "family_kodi_restarts": 0,
+    "aster_agent_restarts": 0,
+    "receiver_volume_before_and_after": 0.44,
+    "receiver_muted": false,
+    "home_assistant_core_check": "passed",
+    "release_guard": "clean",
+    "remote_http_status": 200,
+    "temporary_staging_removed": true
+  },
+  "outcome": "family-content-state-live-volume-automation-disabled-playback-proof-open"
+}

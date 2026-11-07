@@ -1483,7 +1483,7 @@ the component's key read was moved off the event loop and its permanent poll
 was registered as a background task. Evidence:
 `docs/projects/evidence/AsterTV-v3-M7-Family-bridge-2026-11-05.md`.
 
-The repository-only content-state and volume-policy candidate now pins the
+The content-state and volume-policy candidate pins the
 coarse current-state schema, freshness/replay denial, start/class-transition
 trigger, safe ramp, nighttime cap and manual-override behavior without fixed
 household levels or a Home Assistant service call. Its coordinated transport
@@ -1491,10 +1491,14 @@ candidate extends the existing outbound Kodi → gateway → Home Assistant path
 the client emits no media identity, the gateway retains one current room state,
 and Home Assistant keeps it only in volatile `hass.data` with no entity, event
 or recorder history. Client, pinned gateway, component, policy and full M10
-tests pass, and the fleet materializers hash-pin every changed source. It is not
-deployed.
+tests pass, and the fleet materializers hash-pin every changed source. The
+transport is now live on Family with no `content_volume` configuration and the
+profile still disabled; idle freshness and zero recorder history are proven.
+Playback/class transition, activation and Bedroom remain gated.
 Evidence:
-`docs/projects/evidence/AsterTV-v3-M7-content-volume-candidate-2026-11-06.md`.
+`docs/projects/evidence/AsterTV-v3-M7-content-volume-candidate-2026-11-06.md`
+and
+`docs/projects/evidence/AsterTV-v3-M7-Family-content-state-disabled-rollout-2026-11-06.md`.
 
 - [ ] Inventory the exact Family television and Onkyo receiver plus the Bedroom
   LG television, soundbar/receiver, connection paths, network capabilities,
@@ -1565,8 +1569,13 @@ Evidence:
   complete. The Family controller candidate now rotates an opaque session at
   each playback start, primes without changing volume after restart, consumes
   unavailable nighttime/level transitions without delayed action, and keeps
-  the selected profile disabled by default. Coordinated live publication on
-  Family and Bedroom remains open. Evidence:
+  the selected profile disabled by default.
+  - [x] Family disabled-first publication accepted 2026-11-06. Idle sequence
+    advanced, recorder/history remained empty, the receiver stayed at `0.44`,
+    and Home Assistant had no volume-controller configuration. Playback/class
+    transition and activation remain separate gates.
+  - [ ] Bedroom disabled-first publication remains open.
+  Evidence:
   `docs/projects/evidence/AsterTV-v3-M7-Family-volume-automation-candidate-2026-11-06.md`.
 - [ ] Calibrate separate Family and Bedroom volume profiles. Movies are the
   loudest baseline, then Television, YouTube, Music, Podcast/News and Books,
@@ -2281,6 +2290,7 @@ explicit user acceptance.
 | 2026-11-06 | Corrected the missing Family content gateway before rollout | A read-only live audit confirmed all accepted predecessors and zero active players, then repository review found the disabled volume freeze still packaged the standby-only gateway. The materializer now derives only the reviewed content transport onto that exact accepted Family source and explicitly retains the existing voice route. | No live state changed. Derived gateway `715b172a…73a`, Family composition `a09ef2b5…9411`; a superseding immutable freeze and pinned-runtime replay are required before deployment. Evidence: `docs/projects/evidence/AsterTV-v3-M7-Family-content-gateway-correction-2026-11-06.md`. |
 | 2026-11-06 | Superseded the incomplete disabled-volume freeze | Preserved the earlier freeze as evidence of the caught gap and added a new immutable record binding the derived content gateway, unchanged disabled Family profile and rebuilt device artifacts. | `astertv-v3-rc1-family-content-gateway-candidate-2026-11-06` points to `bace6554…4d1e`; all 54 fleet tests verify the corrected composition. A deterministic non-installing pinned-runtime replay bundle is ready; replay and all live gates remain open. |
 | 2026-11-06 | Passed the Family content-gateway pinned-runtime replay | The initial generic discovery run passed 53/55 and identified two intentionally inapplicable assertions (global voice default and unrelated installer asset). A Family-scoped deterministic bundle then passed all 14 gateway/contract tests in Aster's pinned environment. | Aster Agent retained PID `105026`, zero restarts and live hash `a064cfc5…8518`; no environment file, service mutation or retained temporary file. The live disabled-first rollout remains separately gated. Receipt: `services/kodi/astertv-fleet/releases/astertv-v3-family-content-gateway-runtime-replay-2026-11-06.json`. |
+| 2026-11-06 | Deployed Family content state with volume authority disabled | Owner-confirmed idle deployment installed the corrected gateway, volatile Home Assistant consumer and Family client in that order under retained Aster, HA and client checkpoints. No live `content_volume` configuration exists. | Idle sequence advanced `8 → 9` over 27 seconds; recorder contains no content entity/event/schema row; Onkyo remained on, unmuted and at `0.44`; HA check, Remote, Kodi and release guard pass. Playback/class transition, activation and Bedroom remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M7-Family-content-state-disabled-rollout-2026-11-06.md`. |
 
 ## Close-out
 
