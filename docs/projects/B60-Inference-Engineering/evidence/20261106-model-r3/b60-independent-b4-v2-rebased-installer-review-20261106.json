@@ -1,0 +1,39 @@
+{
+  "checks": [
+    "All10effect+4globalpayloadhashes andsyntaxverified",
+    "All57currentpredecessorpins retained exceptexactregistry/runnerchanges;58thfixedbridgeadded",
+    "PeerOVdiffonlyversion2026.4.1+guest/adapter/transaction/registrypins; M3K2andfullruntimeunchanged",
+    "Candidate registry/runnerdiff remainsONLYadditive35Bentry/guard/kind/earlyroute",
+    "No rollback/revert ofcurrentpeerwork; oldinstaller refusedbeforeeffects"
+  ],
+  "global_candidate": {
+    "b60_exclusive_card_bridge.py": "079e16a415276562227f1645fe1e3ab64f5b0b41c1f453ae215935b1ca14f7d9",
+    "lab_hours_release_manifest.json": "b1f6b069d7d23e99953fca9a19a2e054b58cc465bb357321826efe3cf53bb231",
+    "lab_hours_reserved_runner.py": "7afeb3525cab42531de483678f2bc1090e7e7d922ab0a8a6f57c9067da6b2421",
+    "lab_hours_workloads.py": "5a284b4ce07e423b272980fa525c82d5cce44881d7aad3fb1489c95b7f023a68"
+  },
+  "global_predecessors": {
+    "lab_hours_release_manifest.json": "ef939cdb0c749e65f39cfccef7606010d10364bd39132805f908c49ef3f7b8da",
+    "lab_hours_reserved_runner.py": "27e33550698d01ec7af78a74c910d67ea191503732201210599e635ec9f3dea9",
+    "lab_hours_workloads.py": "a90909c51689349775563f1e98a19e224384d1912ef590138fccb7202a9c76e2"
+  },
+  "installer_sha256": "764faf67645073b0f7ed74ff393d76a53b1088f2e17d63f923d592ad88dd5c65",
+  "no_live_effects": true,
+  "no_model_gpu_calls": true,
+  "observed_epoch": 1794012426,
+  "peer_v2_snapshot_sha256": "cfbac51ac76919b2b03641dd539ad745e399170b4c949e78e29d72d9cacaa590",
+  "schema": "b60-independent-b4-v2-rebased-installer-review.v1",
+  "source_manifest": {
+    "backup_chain_history.py": "0ebecf301c0b4fccdd4f128fdef9d09163eaf4e54cf871156ec80e5a8777d5e6",
+    "fixed_command.py": "9fd4e5746363e7cbdcac0d121d15cdac4ce990c24a1e988bc8b98faad8bcf260",
+    "guest_entry_scope.py": "3ddc43e038c705c01d5864bdf66b38395fe62de5b00dab406b6fa4bf07691886",
+    "guest_requests.py": "468e401675479a5581bdd5b99e86af02da72f9e7ec17e1202c65558ae32cdd53",
+    "guest_supervisor.py": "ca23df9ec859044cee61737be476a8eab53f4b30a30efbf3b1421863e8fe0449",
+    "legacy_requests.py": "dbc596c5b77a8ea9359868798d621ff951c331754b2b4968c177b80d079e3dca",
+    "model_trial.py": "2b348f76f9181cddcf2d5796d8fa806a806ebb39d1c53d9f35f745df09368154",
+    "namespace_mount.py": "031df2fb964c264c168cfd313de816391cb49d735701b17821edae2077a72566",
+    "news_xpu_boundary.py": "3473ede24c166da08c1ffbcc5fee908b5e6f873dff2454d26c59352e2146c307",
+    "request_failure_capture.py": "83e90abf36ed008ad921072e66005cfded3a2aa00b90b24cced42f1eef261bca"
+  },
+  "verdict": "PASS inactiveinstall source/payloadreview; finalactualinstalledaudit stillrequired"
+}

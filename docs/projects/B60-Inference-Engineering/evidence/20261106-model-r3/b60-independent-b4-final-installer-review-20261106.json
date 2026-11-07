@@ -1,0 +1,42 @@
+{
+  "checks": [
+    "All10effectsource+4globalpayload hashes andsyntax verifiedinertly",
+    "Exact current57pinpredecessor snapshot; allunrelatedpins retained;58thfixedbridgeadded",
+    "Fullregistry/runnerdiff ONLY35Bentry/guard/earlybranch/kind",
+    "NewK2guest-targetvalidatorandV1/V2routes preserved",
+    "BothOpenVINOactualfinalrestoredrelease checks beforeeffects; no peerclaims/currentowners",
+    "Qualifiedbase30 soleclaimant/oldguesthelpers unchanged; B4specific116wrapper pinned",
+    "Accepteddeviceclosureverifiedbeforeeffect; armerfullNewsintervalfaultgate beforeenable",
+    "Only18:10fixedclock disabled installation; actual18:10\u201318:55reserve19:10 binding"
+  ],
+  "global_candidate": {
+    "b60_exclusive_card_bridge.py": "079e16a415276562227f1645fe1e3ab64f5b0b41c1f453ae215935b1ca14f7d9",
+    "lab_hours_release_manifest.json": "53979c2b3b81469176efb5a92d30020f37b7fbda370c6aee13867cf326029096",
+    "lab_hours_reserved_runner.py": "7afeb3525cab42531de483678f2bc1090e7e7d922ab0a8a6f57c9067da6b2421",
+    "lab_hours_workloads.py": "d6c4caf937ee8de8231bf0074ac14a9adf7e35660fd96a473a9e90d525c1937c"
+  },
+  "global_predecessors": {
+    "lab_hours_release_manifest.json": "6131083a41a1fb1a1722d758585060b486ac081bc179150f244ac3d11068054b",
+    "lab_hours_reserved_runner.py": "27e33550698d01ec7af78a74c910d67ea191503732201210599e635ec9f3dea9",
+    "lab_hours_workloads.py": "5977a5f7c66ba12a7400d6e19233b7dc3ec7e5c7541f90c1b57c5436acc62a1c"
+  },
+  "installer_sha256": "7e1040c5c3b2f377d49d3d29bc1afcec4b4e795536330aa7f329a04b6058eb53",
+  "no_live_effects": true,
+  "no_model_gpu_calls": true,
+  "observed_epoch": 1794012295,
+  "peer_handoff_snapshot_sha256": "17f880860a3fe99b263436f0c0f55cb4639cd09c123298343453135e089b50a2",
+  "schema": "b60-independent-b4-final-installer-review.v1",
+  "source_manifest": {
+    "backup_chain_history.py": "0ebecf301c0b4fccdd4f128fdef9d09163eaf4e54cf871156ec80e5a8777d5e6",
+    "fixed_command.py": "9fd4e5746363e7cbdcac0d121d15cdac4ce990c24a1e988bc8b98faad8bcf260",
+    "guest_entry_scope.py": "3ddc43e038c705c01d5864bdf66b38395fe62de5b00dab406b6fa4bf07691886",
+    "guest_requests.py": "468e401675479a5581bdd5b99e86af02da72f9e7ec17e1202c65558ae32cdd53",
+    "guest_supervisor.py": "ca23df9ec859044cee61737be476a8eab53f4b30a30efbf3b1421863e8fe0449",
+    "legacy_requests.py": "dbc596c5b77a8ea9359868798d621ff951c331754b2b4968c177b80d079e3dca",
+    "model_trial.py": "2b348f76f9181cddcf2d5796d8fa806a806ebb39d1c53d9f35f745df09368154",
+    "namespace_mount.py": "031df2fb964c264c168cfd313de816391cb49d735701b17821edae2077a72566",
+    "news_xpu_boundary.py": "7c7087e430932d00fa36d119c6e3dfe05e8023f2bd1a44d1709a338a6788bb14",
+    "request_failure_capture.py": "83e90abf36ed008ad921072e66005cfded3a2aa00b90b24cced42f1eef261bca"
+  },
+  "verdict": "PASS for inactive installation; final actual installed readiness and arming verification required"
+}

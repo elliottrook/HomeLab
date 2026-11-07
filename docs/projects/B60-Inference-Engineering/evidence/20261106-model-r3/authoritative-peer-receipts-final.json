@@ -1,0 +1,20 @@
+{
+  "adaptive": {
+    "commit": "1c1f1c7e8144d0d16bf8255eb55f8e357487cde4",
+    "paths": {
+      "docs/projects/AI Projects/evidence/SA4-runner-interface-fix-inactive-install-result-2026-11-06.md": "4f6be31d030b4269c98275fedd8c496da0b7810ceccf6cc2021e78a7ed40414f",
+      "docs/projects/AI Projects/evidence/SA4-v5-install-and-v6-fresh-path-review-2026-11-06.md": "dc2ab7d226f1f180a10d28e7e3d260ae661601707672afc388406b63c9c8fd8a"
+    }
+  },
+  "b60": {
+    "commit": "1978e8b62afca427b2836fb08c8371b80f3aa3da"
+  },
+  "news": {
+    "commit": "d0fdf4dcabbef175f2216c10729338810d88cab2",
+    "new_native_commit": "c944758f",
+    "new_native_commit_not_remote_receipt": true
+  },
+  "platform": {
+    "commit": "6fb0207fec5190e0c34ed3bc72ea38e128f06127"
+  }
+}

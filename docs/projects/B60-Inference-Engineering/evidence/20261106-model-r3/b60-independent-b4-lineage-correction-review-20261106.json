@@ -1,0 +1,20 @@
+{
+  "checks": [
+    "All3acceptedjournalrecords required once with exacthazardprofile1/0/1",
+    "Everynewhazard refused;missing/contextprofilechange/duplicate/wrongtyperefused",
+    "Allother9sourcehashes unchanged",
+    "Clearready/markers/claims/current4patternowner-guardianinventory beforewrites",
+    "No dispatch/session; disabledclock/inactivelauncher; future+120sec",
+    "Preserveold4source/manifest/card/integrationbytes beforeexpectedSHAatomicreplacement",
+    "No globalregistry/base30/guest/model/timer mutation"
+  ],
+  "correction_source_sha256": "e62c4d7e6c9a59cf57369e96eb2d248f24296eac6f8aff51d800e2943e10f54d",
+  "new_boundary_sha256": "8ddab8d1e55d1bfddb110fc7500ba44e02f8a8e14de24e1992732a77fcc22d3d",
+  "no_gpu_model_calls": true,
+  "no_live_effects": true,
+  "observed_epoch": 1794012776,
+  "old_integration_sha256": "336d041b819f30b38443445f402571d9dffc7d36118a5459b5670e1048e294d3",
+  "predicate_tests_passed": 6,
+  "schema": "b60-independent-b4-lineage-correction-review.v1",
+  "verdict": "PASS guarded unarmed publication; finalactualreadiness required"
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "b60-independent-b4-journal-lineage-diagnostic.v1",
+  "diagnostic": {
+    "accepted_event_ids": [
+      1794002063552040,
+      1794002063556039,
+      1794002063556348
+    ],
+    "accepted_presence": [
+      {
+        "epoch_microseconds": 1794002063552040,
+        "epoch_type": "str",
+        "hazard": 1,
+        "message_bytes": 107,
+        "message_type": "str",
+        "priority": "6",
+        "transport": "kernel"
+      },
+      {
+        "epoch_microseconds": 1794002063556039,
+        "epoch_type": "str",
+        "hazard": 0,
+        "message_bytes": 166,
+        "message_type": "str",
+        "priority": "6",
+        "transport": "kernel"
+      },
+      {
+        "epoch_microseconds": 1794002063556348,
+        "epoch_type": "str",
+        "hazard": 1,
+        "message_bytes": 71,
+        "message_type": "str",
+        "priority": "6",
+        "transport": "kernel"
+      }
+    ],
+    "hazard_rows": [
+      {
+        "accepted": true,
+        "epoch_microseconds": 1794002063552040,
+        "hazard_count": 1
+      },
+      {
+        "accepted": true,
+        "epoch_microseconds": 1794002063556348,
+        "hazard_count": 1
+      }
+    ],
+    "missing_ids": [],
+    "total_journal_rows": 9
+  },
+  "finding": "Existing admission counted hazardous lines and required count equal all3incident records; middle immutable incident line is context and not hazardous under the same predicate, giving2!=3.",
+  "proposed_correction": "Require all3exact incident timestamps present and exact per-event hazard classification1/0/1; reject every new hazard outsideaccepted timestamps. Preserve original incident/closure and allrecords.",
+  "no_raw_messages_exported": true,
+  "no_model_gpu_calls": true,
+  "no_live_mutations": true
+}

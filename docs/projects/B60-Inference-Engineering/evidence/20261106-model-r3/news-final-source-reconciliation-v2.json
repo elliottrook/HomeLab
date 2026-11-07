@@ -1,0 +1,36 @@
+{
+  "guest_sha256": {
+    "b60_musetalk_openvino_guest.py": "0082de9f397b4eb4061c545cea075c3cfd598a5bb8d5970db7f668179c5f2133",
+    "b60_musetalk_xpu_guest.py": "224c7b45aab24076c15b5009efd77f679f0b271767d8bddbff64ab6309390209"
+  },
+  "model_trial_changed": false,
+  "new_installer_sha256": "764faf67645073b0f7ed74ff393d76a53b1088f2e17d63f923d592ad88dd5c65",
+  "new_news_booking": "aster-news-video-ov-20261106-2120-r3",
+  "observed_epoch": 1794012354,
+  "owner_release_epoch": 1794011685,
+  "peer_commit_is_not_forgejo_publication": true,
+  "peer_native_local_commit": "c944758f",
+  "preserved_changes": [
+    "K2 guest-target validation",
+    "OV2026.4.1 isolated runtime repin",
+    "existing V1/V2 qualification registrations"
+  ],
+  "prior_inactive_installer_sha256": "7e1040c5c3b2f377d49d3d29bc1afcec4b4e795536330aa7f329a04b6058eb53",
+  "prior_refusal": {
+    "before_registration_guest_or_trial_effects": true,
+    "gate": "OV_GUEST_SOURCE_HASH",
+    "line": 133
+  },
+  "schema": "b60-news-final-source-reconciliation.v2",
+  "source_sha256": {
+    "b60_musetalk_openvino_adapter.py": "6c4a2416f8ebed93f9c052c8967a499c7e9123d8c5a238d960da620d5148ed66",
+    "b60_musetalk_openvino_transaction.py": "e189f0aa0f96b135b74d0e49053bc3aed2139ffba95f96837cff6036aa1921d8",
+    "b60_musetalk_xpu_adapter.py": "694c9b412cd769b62b5302679ff5453cb2a6b376a61b5583d7e78771d603308b",
+    "b60_musetalk_xpu_transaction.py": "a2c67006c3559ff86ab35dadfa6c7e511293d28b21d4a08589248608c053b58b",
+    "full_inference_lab_runtime.py": "dab19afb5e01f8c9659d8209ed824f77f606c7d2f3ca0a4f67c9a6c37a2ecba3",
+    "lab_hours_release_manifest.json": "ef939cdb0c749e65f39cfccef7606010d10364bd39132805f908c49ef3f7b8da",
+    "lab_hours_reserved_runner.py": "27e33550698d01ec7af78a74c910d67ea191503732201210599e635ec9f3dea9",
+    "lab_hours_workloads.py": "a90909c51689349775563f1e98a19e224384d1912ef590138fccb7202a9c76e2"
+  },
+  "tests_passed": 196
+}

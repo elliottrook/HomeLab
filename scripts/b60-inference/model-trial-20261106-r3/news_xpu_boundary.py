@@ -12,17 +12,17 @@ NEWS = 'aster-news-video-xpu-20261106-1430-r1'
 MOUNT_SHA = '640906303474d1a7f7ed527bb8ea5bcba74390af8c8dfcb105fdc12f7642825e'
 HOST = Path('/usr/local/libexec/local-ai-lease/full-inference-pilot')
 PINS = {
-    'b60_exclusive_card_bridge.py': '3dc7fafdd5b1906cc28c6e1bc3096dbf51316cb756ddec476a10a4086d2d55a3',
+    'b60_exclusive_card_bridge.py': '079e16a415276562227f1645fe1e3ab64f5b0b41c1f453ae215935b1ca14f7d9',
     'b60_musetalk_xpu_transaction.py': 'a2c67006c3559ff86ab35dadfa6c7e511293d28b21d4a08589248608c053b58b',
     'b60_musetalk_xpu_adapter.py': '694c9b412cd769b62b5302679ff5453cb2a6b376a61b5583d7e78771d603308b',
-    'lab_hours_workloads.py': 'f98c8b30775d5910263704f66d9059b4db9a7729ed467329118894e71abf9f8b',
-    'lab_hours_reserved_runner.py': 'ff029f68eead659d1357463a1d8e411851950cb10d5221412781d11f4cffcd4c',
-    'full_inference_lab_runtime.py': 'fb89c007e4ebe2e896e7a38e6af71237a0907f672d7ae5fdd14c7f6df699fe42',
+    'lab_hours_workloads.py': '5a284b4ce07e423b272980fa525c82d5cce44881d7aad3fb1489c95b7f023a68',
+    'lab_hours_reserved_runner.py': '7afeb3525cab42531de483678f2bc1090e7e7d922ab0a8a6f57c9067da6b2421',
+    'full_inference_lab_runtime.py': 'dab19afb5e01f8c9659d8209ed824f77f606c7d2f3ca0a4f67c9a6c37a2ecba3',
 }
 GUEST = '/opt/aster-news-video-xpu/b60_musetalk_xpu_guest.py'
 GUEST_SHA = '224c7b45aab24076c15b5009efd77f679f0b271767d8bddbff64ab6309390209'
 OV_GUEST = '/opt/aster-news-video-xpu/b60_musetalk_openvino_guest.py'
-OV_GUEST_SHA = '9ebfacfcb006b8f2729fac19c161b587ed55d77eff73b9152d5c515c240a39aa'
+OV_GUEST_SHA = '0082de9f397b4eb4061c545cea075c3cfd598a5bb8d5970db7f668179c5f2133'
 
 
 def peer_released(row, start):
@@ -37,6 +37,30 @@ def hazards(raw):
         bool(re.search(r'\bxe\b', line)) and
         bool(re.search(r'\b(?:reset\w*|hang\w*|hung|wedged|device lost|fault\w*|error\w*)\b', line))
         for line in raw.lower().splitlines())
+
+
+def verify_incident_journal(raw, accepted_events):
+    # The middle accepted record is a multiline context entry: the existing
+    # per-line hazard predicate returns zero for it. Require its presence as
+    # lineage separately, while every later hazard still refuses admission.
+    expected = {1794002063552040: 1, 1794002063556039: 0, 1794002063556348: 1}
+    assert accepted_events == set(expected), 'INCIDENT_EVENT_IDENTITY'
+    seen = set()
+    historical = 0
+    for line in raw.splitlines():
+        value = json.loads(line)
+        message = value.get('MESSAGE', '')
+        assert isinstance(message, str), 'INCIDENT_MESSAGE_TYPE'
+        epoch = int(value['__REALTIME_TIMESTAMP'])
+        count = hazards(message)
+        if epoch in expected:
+            assert epoch not in seen and count == expected[epoch] and 'xe' in message.lower(), 'INCIDENT_EVENT_PROFILE_DRIFT'
+            seen.add(epoch)
+        if count:
+            assert epoch in accepted_events and 'xe' in message.lower(), 'NEW_NEWS_INTERVAL_DEVICE_OR_OOM_HAZARD'
+            historical += count
+    assert seen == accepted_events, 'INCIDENT_JOURNAL_LINEAGE_MISSING'
+    return historical
 
 
 def observe(adapter, store, booking):
@@ -65,13 +89,7 @@ def observe(adapter, store, booking):
     incident=json.loads(protected_bytes(Path('/var/lib/local-ai-lab/device-incidents/b60-xe-20261106-1794002063/open.json')))
     accepted_events={v['epoch_microseconds'] for v in incident['events']}
     raw_kernel=adapter._call(('journalctl','-k','--since','@'+str(peer['start_epoch']),'--no-pager','-o','json'),deadline,10)
-    historical=0
-    for line in raw_kernel.splitlines():
-        value=json.loads(line);message=value.get('MESSAGE','')
-        if hazards(message):
-            assert int(value['__REALTIME_TIMESTAMP']) in accepted_events and 'xe' in message.lower(), 'NEW_NEWS_INTERVAL_DEVICE_OR_OOM_HAZARD'
-            historical+=1
-    assert historical==len(accepted_events), 'INCIDENT_JOURNAL_LINEAGE_MISSING'
+    historical = verify_incident_journal(raw_kernel, accepted_events)
     peer_rows=[]
     for peer_id in ('aster-news-video-ov-20261106-1525-r1','aster-news-video-ov-20261106-1725-r2'):
         extra=ReservationStore(Path('/var/lib/local-ai-lab/reservations'),expected_uid=0).get(peer_id)

@@ -11,8 +11,10 @@ from __future__ import annotations
 import ast
 from dataclasses import dataclass
 import hashlib
+import json
 import os
 from pathlib import Path
+import subprocess
 
 
 @dataclass(frozen=True)
@@ -221,7 +223,71 @@ WORKLOADS = {
         result_max_bytes=65536,
         retryable_session=True, maximum_attempts=None,
     ),
+    "aster-news-video-musetalk-openvino-smoke-v1": WorkloadSpec(
+        workload_id="aster-news-video-musetalk-openvino-smoke-v1",
+        owner="aster-news-video",
+        request_count=1, per_request_timeout_seconds=900, deadline_seconds=900,
+        minimum_booking_seconds=1500, recovery_reserve_seconds=900,
+        runner_kind="aster-news-video-musetalk-xpu", runtime_pins=(
+            ("b60_musetalk_openvino_transaction.py",
+             "e189f0aa0f96b135b74d0e49053bc3aed2139ffba95f96837cff6036aa1921d8"),
+            ("b60_musetalk_openvino_adapter.py",
+             "6c4a2416f8ebed93f9c052c8967a499c7e9123d8c5a238d960da620d5148ed66"),
+            ("b60_musetalk_xpu_adapter.py",
+             "694c9b412cd769b62b5302679ff5453cb2a6b376a61b5583d7e78771d603308b"),
+            ("b60_musetalk_xpu_transaction.py",
+             "a2c67006c3559ff86ab35dadfa6c7e511293d28b21d4a08589248608c053b58b"),
+        ),
+        packet_sha256="0082de9f397b4eb4061c545cea075c3cfd598a5bb8d5970db7f668179c5f2133",
+        result_max_bytes=65536,
+        retryable_session=True, maximum_attempts=None,
+    ),
+    "m3-k2-shortlist-arbitration-development-v1": WorkloadSpec(
+        workload_id="m3-k2-shortlist-arbitration-development-v1",
+        owner="aster-stream-a", request_count=192,
+        per_request_timeout_seconds=45, deadline_seconds=1800,
+        minimum_booking_seconds=3600, recovery_reserve_seconds=900,
+        runner_kind="m3-k2-shortlist-arbitration-development",
+        runtime_pins=(
+            ("nlu_deterministic_guard_v1.py", "d7d62d19008519ae50aa9b46799ab1f277a51904f2e80e65c30517abca8a7135"),
+            ("nlu_k2_consensus_policy_v1.py", "9027abbcc446d9c63100178e3ce9add60275a1f134bde9d7beeb30aa4a4d504e"),
+            ("nlu_k2_development_runner_v1.py", "d5c9ef87bd49185466a12e7b53eab741d0f0dc40ce92c2977389dd2b0e5e3785"),
+            ("nlu_k2_development_scorer_v1.py", "c43f3894ba65251b6fadbda1012bd2aead44c3357323b09f491f590ffd6e8558"),
+            ("nlu_k2_shortlist_arbitration_preregistration_v1.py", "f3e633ac81d32bd63fb53e5a51339787cab1e66ee65f56874c012132a32f4f6a"),
+            ("nlu_k2_shortlist_arbitrator_v1.py", "7c81894da9adbd1c3ee22b97d1487fcf2feadc1e4bc1e321a7c715479c517962"),
+            ("nlu_local_model_adapter.py", "3a3b09f12bcd2088f0d604363a5bc0e69190c177eced50dc5a14eb582749aed0"),
+            ("nlu_threshold_policy.py", "984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d"),
+            ("nlu_whole_label_choice_v1.py", "6e7ee332ce74a44a5bb19877f9f8f0c90f814687279b3c4993fbb93fbd58948a"),
+            ("nlu-k2-runtime-manifest-v1.json", "619450ce1eca89d3c21c5007d23c2f27c85e67f80e3b0709d0ebccb17ec86c88"),
+            ("nlu-k2-development-corpus-v1.json", "9e2dd321c6660ad4bd09e9824c24b9727a30eba60a8df37e09f17d436ccce90a"),
+            ("nlu-k2-shortlist-v1.json", "620f5b5badce1c3ee70b5718a0d05ff4ad6261308360cc5c5dad588e4b977f6e"),
+        ),
+        packet_sha256="619450ce1eca89d3c21c5007d23c2f27c85e67f80e3b0709d0ebccb17ec86c88",
+        result_max_bytes=1048576,
+    ),
 }
+
+
+
+WORKLOADS['b60-accepted-sycl-post-xe-qualification-v1'] = WorkloadSpec(
+    workload_id='b60-accepted-sycl-post-xe-qualification-v1', owner='b60-stream-a', request_count=3,
+    per_request_timeout_seconds=30, deadline_seconds=900,
+    minimum_booking_seconds=2700, recovery_reserve_seconds=900,
+    runner_kind='b60-post-xe-card',
+    runtime_pins=(('b60_post_xe_card_bridge.py', '2c2f57a9d42d248456deb1d354d12bfd08e5e56ee3fa4ff7c92bebcac9934600'),),
+    result_max_bytes=8192, retryable_session=False, maximum_attempts=1,
+)
+
+
+
+WORKLOADS['b60-accepted-sycl-post-xe-qualification-v2'] = WorkloadSpec(
+    workload_id='b60-accepted-sycl-post-xe-qualification-v2', owner='b60-stream-a', request_count=3,
+    per_request_timeout_seconds=30, deadline_seconds=600,
+    minimum_booking_seconds=1800, recovery_reserve_seconds=900,
+    runner_kind='b60-post-xe-card-r5',
+    runtime_pins=(('b60_post_xe_r5_card_bridge.py', '3bd94a1e99491a0c23b4e530161389d3ef80a13fa7f2f5a35a9bad5f918df209'),),
+    result_max_bytes=8192, retryable_session=False, maximum_attempts=1,
+)
 
 
 REGISTERED_WORKLOADS = frozenset(WORKLOADS)
@@ -350,6 +416,19 @@ def validate_registry() -> None:
            for name, _ in candidate_j_quality.runtime_pins):
         raise ValueError("SA3 candidate-j quality excluded material entered registration")
 
+    k2 = workload("m3-k2-shortlist-arbitration-development-v1")
+    if (k2.owner != "aster-stream-a" or k2.request_count != 192
+            or k2.per_request_timeout_seconds != 45
+            or k2.deadline_seconds != 1800
+            or k2.minimum_booking_seconds != 3600
+            or k2.recovery_reserve_seconds != 900
+            or k2.runner_kind != "m3-k2-shortlist-arbitration-development"
+            or len(k2.runtime_pins) != 12
+            or k2.packet_sha256 !=
+                "619450ce1eca89d3c21c5007d23c2f27c85e67f80e3b0709d0ebccb17ec86c88"
+            or k2.result_max_bytes != 1048576):
+        raise ValueError("M3 K2 registration drift")
+
     musetalk = workload("aster-news-video-musetalk-xpu-smoke-v1")
     if (musetalk.owner != "aster-news-video"
             or musetalk.request_count != 1
@@ -365,7 +444,39 @@ def validate_registry() -> None:
             or not musetalk.retryable_session
             or musetalk.maximum_attempts is not None):
         raise ValueError("MuseTalk XPU registration drift")
+    musetalk_ov = workload("aster-news-video-musetalk-openvino-smoke-v1")
+    if (musetalk_ov.owner != "aster-news-video"
+            or musetalk_ov.request_count != 1
+            or musetalk_ov.deadline_seconds != 900
+            or musetalk_ov.minimum_booking_seconds != 1500
+            or musetalk_ov.recovery_reserve_seconds != 900
+            or musetalk_ov.runner_kind != "aster-news-video-musetalk-xpu"
+            or len(musetalk_ov.runtime_pins) != 4
+            or musetalk_ov.packet_sha256 !=
+                "0082de9f397b4eb4061c545cea075c3cfd598a5bb8d5970db7f668179c5f2133"
+            or musetalk_ov.result_max_bytes != 65536
+            or not musetalk_ov.retryable_session
+            or musetalk_ov.maximum_attempts is not None):
+        raise ValueError("MuseTalk OpenVINO registration drift")
 
+
+    b60 = workload('b60-accepted-sycl-post-xe-qualification-v1')
+    if (b60.owner != 'b60-stream-a' or b60.runner_kind != 'b60-post-xe-card'
+            or b60.request_count != 3 or b60.per_request_timeout_seconds != 30
+            or b60.deadline_seconds != 900 or b60.minimum_booking_seconds != 2700
+            or b60.recovery_reserve_seconds != 900 or b60.retryable_session
+            or b60.maximum_attempts != 1 or b60.result_max_bytes != 8192
+            or b60.runtime_pins != (('b60_post_xe_card_bridge.py', '2c2f57a9d42d248456deb1d354d12bfd08e5e56ee3fa4ff7c92bebcac9934600'),)):
+        raise ValueError('B60 fixed-card registration drift')
+
+    b60 = workload('b60-accepted-sycl-post-xe-qualification-v2')
+    if (b60.owner != 'b60-stream-a' or b60.runner_kind != 'b60-post-xe-card-r5'
+            or b60.request_count != 3 or b60.per_request_timeout_seconds != 30
+            or b60.deadline_seconds != 600 or b60.minimum_booking_seconds != 1800
+            or b60.recovery_reserve_seconds != 900 or b60.retryable_session
+            or b60.maximum_attempts != 1 or b60.result_max_bytes != 8192
+            or b60.runtime_pins != (('b60_post_xe_r5_card_bridge.py', '3bd94a1e99491a0c23b4e530161389d3ef80a13fa7f2f5a35a9bad5f918df209'),)):
+        raise ValueError('B60 fixed-card registration drift')
 
 def _local_imports(path: Path) -> set[str]:
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -378,9 +489,49 @@ def _local_imports(path: Path) -> set[str]:
     return names
 
 
+def _validate_k2_guest_target(spec: WorkloadSpec, *, expected_uid: int,
+                              runner=subprocess.run) -> dict[str, object]:
+    script = r'''import ast,hashlib,json,os,stat,sys
+from pathlib import Path
+value=json.loads(sys.stdin.read());root=Path(value["root"]);pins=value["pins"]
+modules={Path(name).stem for name in pins if name.endswith(".py")};imports=set()
+for name,expected in pins.items():
+ path=root/name
+ try: info=path.lstat()
+ except FileNotFoundError: raise SystemExit("MISSING:"+name)
+ mode=0o600 if name in {"nlu-k2-development-corpus-v1.json","nlu-k2-shortlist-v1.json"} else 0o644
+ if (not stat.S_ISREG(info.st_mode) or info.st_uid!=value["uid"] or info.st_nlink!=1
+     or stat.S_IMODE(info.st_mode)!=mode): raise SystemExit("CUSTODY:"+name)
+ raw=path.read_bytes()
+ if hashlib.sha256(raw).hexdigest()!=expected: raise SystemExit("PIN:"+name)
+ if name.endswith(".py"):
+  tree=ast.parse(raw,filename=name)
+  for node in ast.walk(tree):
+   if isinstance(node,ast.Import): imports.update(a.name.split(".",1)[0] for a in node.names)
+   elif isinstance(node,ast.ImportFrom) and node.level==0 and node.module: imports.add(node.module.split(".",1)[0])
+missing=sorted(name for name in imports if name.startswith("nlu_") and name not in modules)
+if missing: raise SystemExit("DEPENDENCY:"+",".join(missing))
+print(json.dumps({"runtime_files":len(pins),"runtime_location":"lxc110","dependencies":"complete"},sort_keys=True))'''
+    payload = {"root": "/usr/local/libexec/local-ai-lease/full-inference-pilot",
+               "pins": dict(spec.runtime_pins), "uid": expected_uid}
+    result = runner(("pct", "exec", "110", "--", "/usr/bin/python3", "-B",
+                     "-c", script), input=json.dumps(payload), capture_output=True,
+                    text=True, timeout=30, check=False)
+    try:
+        value = json.loads(result.stdout)
+    except (json.JSONDecodeError, TypeError) as exc:
+        raise ValueError("K2 guest runtime validation failed") from exc
+    if (result.returncode != 0 or value != {
+            "runtime_files": len(spec.runtime_pins),
+            "runtime_location": "lxc110", "dependencies": "complete"}):
+        raise ValueError("K2 guest runtime validation failed")
+    return value
+
+
 def validate_inactive_target(pilot_root: Path, *, unit_root: Path | None = None,
                              expected_uid: int = 0,
-                             workload_id: str = "sa3-expanded-source-quality-v1") -> dict[str, object]:
+                             workload_id: str = "sa3-expanded-source-quality-v1",
+                             guest_runner=subprocess.run) -> dict[str, object]:
     """Validate a root-owned, inert SA3 installation without executing it.
 
     The dependency-closure check is intentional.  A workload cannot become
@@ -389,36 +540,42 @@ def validate_inactive_target(pilot_root: Path, *, unit_root: Path | None = None,
     """
     spec = workload(workload_id)
     root = Path(pilot_root)
-    for name, expected in spec.runtime_pins:
-        path = root / name
-        try:
-            stat = path.lstat()
-        except FileNotFoundError as exc:
-            raise ValueError(f"target file missing:{name}") from exc
-        if (not path.is_file() or path.is_symlink() or stat.st_uid != expected_uid
-                or stat.st_nlink != 1 or hashlib.sha256(path.read_bytes()).hexdigest() != expected):
-            raise ValueError(f"target pin or custody mismatch:{name}")
+    if spec.runner_kind == "m3-k2-shortlist-arbitration-development":
+        target = _validate_k2_guest_target(spec, expected_uid=expected_uid,
+                                           runner=guest_runner)
+    else:
+        for name, expected in spec.runtime_pins:
+            path = root / name
+            try:
+                stat = path.lstat()
+            except FileNotFoundError as exc:
+                raise ValueError(f"target file missing:{name}") from exc
+            if (not path.is_file() or path.is_symlink() or stat.st_uid != expected_uid
+                    or stat.st_nlink != 1 or hashlib.sha256(path.read_bytes()).hexdigest() != expected):
+                raise ValueError(f"target pin or custody mismatch:{name}")
 
-    local_modules = {Path(name).stem for name, _ in spec.runtime_pins if name.endswith(".py")}
-    imports = set()
-    for name, _ in spec.runtime_pins:
-        if name.endswith(".py"):
-            imports.update(_local_imports(root / name))
-    registered_local_modules = {
-        Path(name).stem for item in WORKLOADS.values()
-        for name, _ in item.runtime_pins if name.endswith(".py")
-    }
-    missing = sorted(name for name in imports
-                     if name in registered_local_modules and name not in local_modules)
-    if missing:
-        raise ValueError("unregistered local dependency:" + ",".join(missing))
+        local_modules = {Path(name).stem for name, _ in spec.runtime_pins if name.endswith(".py")}
+        imports = set()
+        for name, _ in spec.runtime_pins:
+            if name.endswith(".py"):
+                imports.update(_local_imports(root / name))
+        registered_local_modules = {
+            Path(name).stem for item in WORKLOADS.values()
+            for name, _ in item.runtime_pins if name.endswith(".py")
+        }
+        missing = sorted(name for name in imports
+                         if name in registered_local_modules and name not in local_modules)
+        if missing:
+            raise ValueError("unregistered local dependency:" + ",".join(missing))
+        target = {"runtime_files": len(spec.runtime_pins),
+                  "runtime_location": "host", "dependencies": "complete"}
 
     unit_root = Path("/etc/systemd/system") if unit_root is None else Path(unit_root)
     target_prefix = unit_root / f"aster-lab-hours-booking-{spec.workload_id}"
     for suffix in (".service", ".timer"):
         if (target_prefix.with_suffix(suffix)).exists():
             raise ValueError(f"target unit must remain inactive:{suffix}")
-    return {"workload_id": spec.workload_id, "runtime_files": len(spec.runtime_pins),
+    return {"workload_id": spec.workload_id, **target,
             "target_units": "absent", "effects": "not-attempted"}
 
 

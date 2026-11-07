@@ -18,7 +18,7 @@ with host_exclusion(ROOT):
  assert not any((ROOT/n).exists() or (ROOT/n).is_symlink() for n in ('lease.json','lease.lock','full-inference-drain.json','full-inference-drain.lock')) and not Path('/run/local-ai-lab-operation.lock').exists()
  assert json.loads(call(['/usr/local/sbin/local-ai-lease','status']))=={'state':'ready'}
  bookings=ReservationStore(ROOT/'reservations',expected_uid=0);row=bookings.get(B)
- assert row['state']=='reserved' and row['workload']=='b60-qwen36-35b-failure-capture-v1' and row['start_epoch']==1794013800 and row['end_epoch']==1794016500 and time.time()+120<row['start_epoch']
+ assert row['state']=='reserved' and row['owner']=='b60-stream-a' and row['kind']=='exclusive-stack' and row['workload']=='b60-qwen36-35b-failure-capture-v1' and row['start_epoch']==1794013800 and row['end_epoch']==1794016500 and time.time()+120<row['start_epoch']
  assert not any(v.get('state')=='claimed' for v in bookings.list())
  raw=call(['systemctl','list-units','--all','--no-legend','--plain','aster-local-ai-pilot-owner-*','aster-local-ai-pilot-guardian-*','b60-exclusive-owner-*','b60-exclusive-guardian-*']);assert not any(len(l.split())>3 and l.split()[2] in {'active','activating','deactivating'} for l in raw.splitlines())
  assert not (ROOT/'exclusive-dispatch'/(B+'.json')).exists() and not (ROOT/'exclusive-sessions'/B).exists()
