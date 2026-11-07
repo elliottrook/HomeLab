@@ -2313,6 +2313,13 @@ its shared lock cleared, the lease is ready, and the valid installed 58-pin
 successor release retains the exact K2 runtime. The 20:00 transaction therefore
 remains scheduled; it has not been manually invoked or retried.
 
+The [post-development continuation card](evidence/M3-K2-post-development-continuation-card-2026-11-06.md)
+now fixes what happens after the 21:05 observation so the programme does not
+stall. Reconciliation, evidence, offline diagnosis and generation of the
+content-free inactive-install plan proceed autonomously. Only the resulting
+fixed-root two-host inactive deployment remains a separate effect gate; it is
+one bounded approval, not approval for each test.
+
 The [K2 M6 decision boundary](evidence/M6-K2-promote-or-reject-decision-boundary-2026-11-06.md)
 is now source-ready before the candidate result exists. It binds complete
 development, independently custodied sealed-evaluation and no-effect shadow
