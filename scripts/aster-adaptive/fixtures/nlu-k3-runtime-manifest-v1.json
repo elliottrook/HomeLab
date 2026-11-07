@@ -1,0 +1,56 @@
+{
+  "authority": "not-granted",
+  "automatic_routing": "off",
+  "candidate_id": "k3-hierarchical-safety-veto-v1",
+  "endpoints": [
+    "http://192.168.70.12:11435/v1/chat/completions",
+    "http://127.0.0.1:11436/v1/chat/completions"
+  ],
+  "guest_id": 110,
+  "inputs": {
+    "corpus_sha256": "9e2dd321c6660ad4bd09e9824c24b9727a30eba60a8df37e09f17d436ccce90a",
+    "preregistration_sha256": "0710f8d42eee2e3eeeef4e41d5acb7bcc5b050ec7b2cf032a80bff4b0d56b444",
+    "shortlist_sha256": "620f5b5badce1c3ee70b5718a0d05ff4ad6261308360cc5c5dad588e4b977f6e"
+  },
+  "model": {
+    "artifact_path": "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf",
+    "artifact_sha256": "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13",
+    "binary_path": "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server",
+    "binary_sha256": "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5",
+    "identity": "aster-qwen3.5-9b",
+    "service": "aster-llama.service",
+    "unit_path": "/etc/systemd/system/aster-llama.service",
+    "unit_sha256": "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"
+  },
+  "runtime": {
+    "lab_hours_booking_required": true,
+    "minimum_booking_seconds": 3600,
+    "model_requests": 384,
+    "per_request_timeout_seconds": 45,
+    "recovery_reserve_seconds": 900,
+    "retries": 0,
+    "service_restart": "booked-full-drain-restore-required",
+    "shared_operation_lock_required": true,
+    "tools": "forbidden",
+    "wall_deadline_seconds": 1800,
+    "whole_host_lease_required": true
+  },
+  "schema": "aster-nlu-k3-runtime-manifest.v1",
+  "sealed_evaluation_access": false,
+  "sources": {
+    "nlu_deterministic_guard_v1.py": "d7d62d19008519ae50aa9b46799ab1f277a51904f2e80e65c30517abca8a7135",
+    "nlu_k2_consensus_policy_v1.py": "9027abbcc446d9c63100178e3ce9add60275a1f134bde9d7beeb30aa4a4d504e",
+    "nlu_k2_development_runner_v1.py": "d5c9ef87bd49185466a12e7b53eab741d0f0dc40ce92c2977389dd2b0e5e3785",
+    "nlu_k2_development_scorer_v1.py": "c43f3894ba65251b6fadbda1012bd2aead44c3357323b09f491f590ffd6e8558",
+    "nlu_k2_shortlist_arbitrator_v1.py": "7c81894da9adbd1c3ee22b97d1487fcf2feadc1e4bc1e321a7c715479c517962",
+    "nlu_k3_development_runner_v1.py": "2ac71e79990b58b76ec2bacb46639e341eb554d0abf25fef1680c04a9d1d91b5",
+    "nlu_k3_development_scorer_v1.py": "61dce93dc94ec76725e5d1048ab099a383a9e418245629e9631e98e834a8a353",
+    "nlu_k3_hierarchical_safety_preregistration_v1.py": "47b12ca52d7880121f2005ee53a788a981d5b9009721c9bfbb15f9c34485de14",
+    "nlu_k3_hierarchical_safety_veto_v1.py": "3cf4b0a531596760e6ad811c090fded4434fdd55143663c470104abdeba41bff",
+    "nlu_local_model_adapter.py": "3a3b09f12bcd2088f0d604363a5bc0e69190c177eced50dc5a14eb582749aed0",
+    "nlu_threshold_policy.py": "984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d",
+    "nlu_whole_label_choice_v1.py": "6e7ee332ce74a44a5bb19877f9f8f0c90f814687279b3c4993fbb93fbd58948a"
+  },
+  "status": "source-ready-not-installed",
+  "workload_id": "m3-k3-hierarchical-safety-development-v1"
+}
