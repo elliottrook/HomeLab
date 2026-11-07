@@ -8,7 +8,7 @@ class K2SealedTransactionPreregistrationTests(unittest.TestCase):
     def test_exact_contract_is_non_authorizing(self):
         value = prereg.artifact()
         summary = prereg.validate(value)
-        self.assertEqual(10, summary["runtime_pins"])
+        self.assertEqual(11, summary["runtime_pins"])
         self.assertEqual(32, summary["model_requests"])
         self.assertFalse(summary["effect_authorized"])
         self.assertFalse(value["effect"]["tools"])

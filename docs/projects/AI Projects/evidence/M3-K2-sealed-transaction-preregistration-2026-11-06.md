@@ -3,7 +3,7 @@
 ## Outcome
 
 The complete non-authorizing contract for one future K2 sealed-evaluation
-transaction is frozen before any effect. It binds the private inputs, ten
+transaction is frozen before any effect. It binds the private inputs, eleven
 runtime source pins, existing control direction, tunnel topology, request
 budget, development prerequisite and full restoration proof.
 
@@ -11,10 +11,10 @@ budget, development prerequisite and full restoration proof.
 
 - preregistration source:
   `scripts/aster-adaptive/nlu_k2_sealed_transaction_preregistration_v1.py`
-- source SHA-256: `ef38c74a3b620845ed9cfc8f303c73ebd3bea6e6e15aab948a81c340b82ecbe4`
-- focused test SHA-256: `78c054a15346074e7a18a5681641ded64b392847613935de7ee92154915f2a4d`
+- source SHA-256: `2b9f75131dd30e705a1f2f499ac3741c0223d921304a5d724fd87ae088a5ce6a`
+- focused test SHA-256: `c66232cb7aecef395da7a34d99e4ade83ccdad2e9b041eec08915e7d97187d21`
 - canonical preregistration SHA-256:
-  `9485b276e3fac0eb16854209c74b3d4723719f094595801a5128bcd1d437d772`
+  `66ea288e456d4cef6e0143c882a5b647a9fab7170f0ef0e3bd6b1952463ff7cc`
 - future workload ID: `m3-k2-sealed-evaluation-v1`
 - exact effect: 32 cases, 32 requests, zero retries, 45-second per-request
   timeout, 1,800-second deadline, 900-second recovery reserve
@@ -54,7 +54,8 @@ automatic routing off.
 
 - preregistration/relay/runner suite: 13/13 passed
 - Python syntax compilation: passed
-- platform session/terminal contract: commit `ae4585e2`, 5/5 focused tests
+- platform session/terminal contract: refreshed at commit `eeeb7b9a`, 5/5
+  focused tests against the eleven-pin preregistration digest
 - sealed input access: metadata/hash only; content not read
 - model requests: zero
 - B60 use: none

@@ -52,6 +52,8 @@ def artifact() -> dict[str, object]:
                 "ca802811dd700e164bbd538735e2d0c670b5d1f841a1947e36cde7e3aa221a1a",
             "nlu_k2_sealed_relay_v1.py":
                 "bd39e387219994611b28e53fdc527de337cce98c01fd08061fe343d7bfeb0c78",
+            "nlu_k2_sealed_macbook_wrapper_v1.py":
+                "e3880b4112f98333bcca3bca97a58850473e4df353a940f6c08dfa2d6866d2d2",
             "nlu_k2_sealed_evaluation_scorer_v1.py":
                 "f28a1e0e364edbf97be6fc0f4f32ac0955571d2dd9718f65f39f9ca6d1bab873",
             "nlu_k2_consensus_policy_v1.py":
@@ -119,7 +121,7 @@ def validate(value: object) -> dict[str, object]:
     if value != expected:
         raise ValueError("K2 sealed transaction preregistration changed")
     pins = value["runtime_pins"]
-    if (len(pins) != 10
+    if (len(pins) != 11
             or any(not isinstance(digest, str) or HEX64.fullmatch(digest) is None
                    for digest in pins.values())):
         raise ValueError("K2 sealed transaction runtime pins changed")

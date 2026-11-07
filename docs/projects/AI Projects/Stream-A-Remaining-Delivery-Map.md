@@ -2347,16 +2347,24 @@ MacBook, so no new access was assumed. The coordinator, private listener and
 booked effect remain uninstalled and conditional on the development pass.
 
 The resulting [sealed-transaction preregistration](evidence/M3-K2-sealed-transaction-preregistration-2026-11-06.md)
-binds ten exact runtime pins, both already-present MacBook private inputs, the
+binds eleven exact runtime pins, both already-present MacBook private inputs, the
 loopback tunnel graph, 32-request budget and complete teardown proof under
 canonical digest
-`9485b276e3fac0eb16854209c74b3d4723719f094595801a5128bcd1d437d772`.
+`66ea288e456d4cef6e0143c882a5b647a9fab7170f0ef0e3bd6b1952463ff7cc`.
 It refuses effect unless tonight's development transaction is a restored pass;
 no booking, workload registration, tunnel or deployment was created. Platform
-commit `ae4585e2` now independently freezes the content-free ready-session and
+commits `ae4585e2` and `eeeb7b9a` independently freeze and refresh the
+content-free ready-session and
 terminal contracts: nonce hashes, booking/lease generation and exact deadline
 on entry; production restored, lease ready, locks absent and every temporary
 process/tunnel absent on every terminal outcome. Its focused suite passes 5/5.
+
+The [fixed MacBook custody wrapper](evidence/M3-K2-MacBook-sealed-wrapper-boundary-2026-11-06.md)
+now closes the secret-handling gap: it accepts the transaction nonce only on
+standard input, validates nine local runtime pins and both exact private
+inputs, runs each child once, retains mode-0600 evidence and removes the nonce
+on every exit. It has no network address or SSH client and was tested only with
+temporary synthetic fixtures.
 
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
