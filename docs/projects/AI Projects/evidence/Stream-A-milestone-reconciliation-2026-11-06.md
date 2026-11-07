@@ -40,8 +40,10 @@ observation are ready. Routing, tools and promotion remain off.
    agreement and full production restoration.
 2. **M3 sealed qualification:** only if the frozen development gate passes,
    admit the existing independently sealed 32-case evaluation through its
-   accepted custody/disjointness proofs. Do not expose it for tuning. A
-   development rejection closes this K2 candidate instead.
+   accepted custody/disjointness proofs. The content-free scorer and its
+   separate restoration-bound reconciliation are now source-ready. Do not
+   expose the cases for tuning. A development rejection closes this K2
+   candidate instead.
 3. **M5 no-effect shadow:** compare the qualified candidate with the current
    deterministic route on representative traffic without executing either
    proposed route. Measure abstention, privacy, latency and cost. The

@@ -2314,6 +2314,13 @@ scores to one deterministic promote-or-reject result. Even a passing result is
 only a non-authorizing bounded read-only candidate: tools, deployment and
 automatic routing remain off.
 
+The conditional [K2 sealed-evaluation scorer](evidence/M3-K2-sealed-evaluation-scorer-boundary-2026-11-06.md)
+is also frozen against the exact independently retained 32-case identity. It
+returns only counts, quality/safety metrics and a result digest, then requires
+a separate matching registered-workload terminal proof before it may assert
+production restoration. The execution transport and booked effect remain
+separate gates; no sealed request was opened by this source work.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from
