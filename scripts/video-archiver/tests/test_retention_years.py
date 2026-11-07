@@ -28,6 +28,8 @@ class MovieYearTests(TestCase):
                            film('tmdb:2', 'jf-2', '/media/archive-movies/b.mkv'))
         self.assertEqual(result.counts, {1939: 2})
         self.assertEqual(result.held, 0)
+        self.assertEqual(tuple(row.jellyfin_item_id for row in result.certified_facts),
+                         ('jf-1', 'jf-2'))
 
     def test_duplicate_provider_or_path_never_inflates_count(self):
         result = inventory(film('tmdb:1', 'jf-1', '/media/movies/a.mkv'),
@@ -36,6 +38,7 @@ class MovieYearTests(TestCase):
                            film('tmdb:4', 'jf-4', '/media/movies/c.mkv'))
         self.assertEqual(result.counts, {})
         self.assertEqual(result.held, 4)
+        self.assertEqual(result.certified_facts, ())
 
     def test_missing_file_identity_year_or_user_visibility_is_held(self):
         result = inventory(

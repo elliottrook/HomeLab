@@ -31,6 +31,7 @@ class MovieYearInventory:
     counted: int
     held: int
     complete_source_scan: bool
+    certified_facts: tuple[MovieYearFact, ...] = ()
 
 
 def count_verified_movie_years(
@@ -49,7 +50,7 @@ def count_verified_movie_years(
     path_counts = Counter(row.path for row in facts if row.path)
     item_counts = Counter(row.jellyfin_item_id for row in facts if row.jellyfin_item_id)
     years: Counter[int] = Counter()
-    counted = 0
+    certified: list[MovieYearFact] = []
     for row in facts:
         if (
             not row.provider_id or provider_counts[row.provider_id] != 1
@@ -62,5 +63,7 @@ def count_verified_movie_years(
         ):
             continue
         years[row.release_year] += 1
-        counted += 1
-    return MovieYearInventory(dict(years), len(facts), counted, len(facts) - counted, True)
+        certified.append(row)
+    counted = len(certified)
+    return MovieYearInventory(dict(years), len(facts), counted, len(facts) - counted,
+                              True, tuple(certified))

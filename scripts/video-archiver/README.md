@@ -35,8 +35,8 @@ root-readable `status.json` with aggregate pool, snapshot, movie-year,
 season-path, provider-certified season and retained-playback counts. The season
 counts are identity evidence, not deletion candidates. This schedule does not
 run the deletion controller.
-The season collector also keeps exact episode, season and series item IDs in
-process memory for certified scopes. The daily audit checks two such scopes
+The year and season collectors keep exact certified Jellyfin item IDs in
+process memory. The daily audit checks two films and two whole-season scopes
 against all seven household views and retained playback, then writes only
 aggregate protected/incomplete/unwatched sample counts; it does not serialize
 IDs or paths into `status.json`.
