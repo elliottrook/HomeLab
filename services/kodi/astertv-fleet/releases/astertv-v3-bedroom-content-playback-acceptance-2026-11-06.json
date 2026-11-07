@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-live-acceptance-receipt",
+  "id": "astertv-v3-bedroom-content-playback-acceptance-2026-11-06",
+  "rollout": "astertv-v3-bedroom-content-state-disabled-rollout-2026-11-06",
+  "source_commit": "2844b49f8ebf6cf44af8cacaeda34daaf292e0f9",
+  "target": {
+    "device_id": "astertv-bedroom",
+    "hostname": "AsterTV-Bedroom",
+    "address": "192.168.1.140"
+  },
+  "authorization": {
+    "owner_approved_one_bounded_playback": true,
+    "equipment_actions": [],
+    "volume_automation_activation": false
+  },
+  "preflight": {
+    "active_players": 0,
+    "kodi_restarts": 0,
+    "gateway_idle_sequence": 59,
+    "bedroom_actions": [],
+    "bedroom_content_volume_configured": false,
+    "rollback_checkpoints_present": true
+  },
+  "proof": {
+    "gateway_schema": "astertv-room-playback.v1",
+    "identity_fields_exported": false,
+    "playing_class": "Movie",
+    "playing_sequences": [1, 2],
+    "final_idle_sequence": 3,
+    "kodi_volume_before_during_after": 97,
+    "kodi_muted_before_during_after": false,
+    "lg_power_before_during_after": "on",
+    "lg_volume_before_during_after": 0.0,
+    "lg_muted_before_during_after": false,
+    "home_assistant_state_attribute_rows_with_playback_schema": 0,
+    "home_assistant_event_rows_with_playback_schema": 0,
+    "final_active_players": 0,
+    "final_window_id": 10000,
+    "final_window_label": "Home",
+    "bedroom_kodi_restarts": 0,
+    "aster_agent_restarts": 0,
+    "temporary_probe_removed": true
+  },
+  "outcome": "bedroom-content-playback-class-accepted-no-equipment-or-volume-authority",
+  "evidence": "docs/projects/evidence/AsterTV-v3-M7-Bedroom-content-playback-acceptance-2026-11-06.md"
+}
