@@ -2031,6 +2031,13 @@ of those observation or promotion boundaries.
   the complete composition was deliberately not inferred or silently installed.
   The exact Bedroom-first/Family-second promotion, acceptance and rollback
   sequence is prepared at `docs/runbooks/AsterTV-v3-Promotion.md`.
+  A 1,049-second headless idle soak also passed with the television and sound
+  chain left off: 20/20 samples had no player or restart, Wi-Fi stayed
+  `-56 to -54 dBm` with power saving off, the 535-file guard stayed clean and
+  20 ICMP probes had zero loss. This closes only idle/Wi-Fi/service stability;
+  complete-composition deployment, reboot and normal-use playback remain open.
+  Evidence:
+  `docs/projects/evidence/AsterTV-v3-M11-Bedroom-headless-idle-soak-2026-11-06.md`.
 - [ ] Obtain explicit Family promotion approval after Bedroom acceptance and
   confirm playback is idle.
 - [ ] Deploy independently to Family, preserving its v2 checkpoint, account
@@ -2335,6 +2342,7 @@ explicit user acceptance.
 | 2026-11-06 | Prepared the pre-graduation household handover | Consolidated the accepted interaction language, page workflows, Aster AI and Remote behavior, account/privacy boundary, degraded operation and safe recovery without claiming unfinished room promotion. | The guide is ready for the non-author walkthrough. Bedroom equipment/volume/full soak, final Family promotion and explicit guide acceptance remain open. Guide: `docs/runbooks/AsterTV-v3-User-Guide.md`. |
 | 2026-11-06 | Completed the repository-side intent and efficiency review | Compared every v3 outcome with its compute, network, permission, storage, recovery and operational cost using the measured Jen and production-room evidence. | The current composition reuses existing authorities, adds no B60/scheduled AI/public ingress/always-on microphone/background camera/history store and retains practical low-spec headroom. No new service is recommended; physical Bedroom, soak, promotion and walkthrough gates remain. Evidence: `docs/projects/evidence/AsterTV-v3-M11-intent-and-efficiency-review-2026-11-06.md`. |
 | 2026-11-06 | Prepared the v3 Bedroom-first promotion and rollback runbook | Bound the immutable bundle builder and composition runner to strict identity, idle, checkpoint, room-audio, candidate-validation, accept, reboot/soak and rollback gates. | The operational path is resumable without treating plan-only generated files, a partial Bedroom rollout or one room's accepted state as another room's authority. No appliance changed. Runbook: `docs/runbooks/AsterTV-v3-Promotion.md`. |
+| 2026-11-06 | Passed the Bedroom headless idle soak | Owner authorized a soak while the television and sound system stayed off. Twenty fail-fast samples over 1,049 seconds sent no AV/camera/equipment command and required idle playback, active services, zero restarts and Wi-Fi power saving off. | Every sample passed; load `0.07–0.50`, memory `14,658,200–14,693,852 KiB`, temperature `41–45 °C`, signal `-56 to -54 dBm`, 0% packet loss, clean 535-file guard and zero Kodi/Beszel restart. Full composition, reboot, audible normal-use, equipment and volume acceptance remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M11-Bedroom-headless-idle-soak-2026-11-06.md`. |
 
 ## Close-out
 

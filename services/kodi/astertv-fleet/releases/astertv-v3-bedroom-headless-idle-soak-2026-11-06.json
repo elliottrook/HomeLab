@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-acceptance-observation",
+  "id": "astertv-v3-bedroom-headless-idle-soak-2026-11-06",
+  "target": {
+    "device_id": "astertv-bedroom",
+    "hostname": "AsterTV-Bedroom"
+  },
+  "scope": "headless-idle-wifi-and-service-stability",
+  "live_effect": false,
+  "av_commands_sent": 0,
+  "window": {
+    "start_utc": "2026-11-07T06:21:03Z",
+    "end_utc": "2026-11-07T06:38:32Z",
+    "seconds": 1049,
+    "samples": 20,
+    "interval_seconds": 55
+  },
+  "predecessor": {
+    "guard_outcome": "clean",
+    "guard_files": 535,
+    "remote_service_sha256": "b443edc794f86fc66b1c92d46a048ed18871d9aa325835a2cb8b486d265415c3",
+    "content_session_sha256": "a85f477bc877f835d18a7027c7532fcbacdd3ff932912a976bdb5a0b5cfd8acb"
+  },
+  "observations": {
+    "players_nonempty_samples": 0,
+    "kodi_restart_max": 0,
+    "beszel_restart_max": 0,
+    "wifi_power_save_off_samples": 20,
+    "load_1m_min": 0.07,
+    "load_1m_max": 0.5,
+    "mem_available_kib_min": 14658200,
+    "mem_available_kib_max": 14693852,
+    "temperature_c_min": 41.0,
+    "temperature_c_max": 45.0,
+    "wifi_signal_dbm_min": -56,
+    "wifi_signal_dbm_max": -54,
+    "wifi_tx_mbit_s_min": 260.0,
+    "wifi_tx_mbit_s_max": 866.7,
+    "icmp_packets": 20,
+    "icmp_packet_loss_percent": 0.0,
+    "icmp_rtt_ms_min": 1.404,
+    "icmp_rtt_ms_average": 1.946,
+    "icmp_rtt_ms_max": 2.646,
+    "icmp_rtt_ms_stddev": 0.322,
+    "kernel_wifi_fault_lines": 0,
+    "kodi_error_priority_entries": 0,
+    "post_guard_outcome": "clean",
+    "post_guard_files": 535
+  },
+  "outcome": "pass-headless-idle-full-acceptance-open",
+  "open": [
+    "astertv-bedroom:physical-equipment-controls",
+    "astertv-bedroom:volume-profile-and-safety",
+    "astertv-bedroom:full-composition-deployment",
+    "astertv-bedroom:reboot-persistence",
+    "astertv-bedroom:normal-use-playback-soak"
+  ]
+}
