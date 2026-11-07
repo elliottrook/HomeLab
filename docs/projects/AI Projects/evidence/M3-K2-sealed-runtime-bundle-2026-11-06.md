@@ -33,10 +33,18 @@ mode 0600.
 - authority: not granted
 - archive deployed or transferred: no
 
+Platform commit `c1417aef` adds an independent fail-closed archive validator.
+It reads the exact bundle without extraction and pins the outer archive,
+canonical member set and metadata, manifest authority fields, preregistration
+digest and all thirteen source digests. Its focused tests pass 4/4, syntax
+compilation passes and validation of the exact archive returns 13 sources,
+`private_inputs_included=false`, `effect_authorized=false` and
+`authority=not-granted`.
+
 ## Remaining gate
 
-The archive is only a review/staging candidate. Platform review must bind it
-to the private-listener/session transaction and a reversible inactive
-installer. No host may unpack or activate it for an effect unless the K2
-development gate is a restored pass and the later workload has its own
-admissible Lab Hours booking.
+The archive is only a review/staging candidate. Its identity and content are
+now independently bound, but a reversible inactive installer remains open.
+No host may unpack or activate it for an effect unless the K2 development gate
+is a restored pass and the later workload has its own admissible Lab Hours
+booking.
