@@ -1,4 +1,5 @@
 import importlib.util
+import ast
 import json
 import tempfile
 import unittest
@@ -62,15 +63,21 @@ PHYSICAL_SPEC.loader.exec_module(PHYSICAL_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
-    def test_family_equipment_gateway_pins_accepted_live_source_not_global_candidate(self):
+    def test_family_gateway_adds_only_content_transport_to_accepted_behavior(self):
         files, manifest = EQUIPMENT_MODULE.render()
         gateway = files["external/opt/aster-agent/aster_remote.py"][0]
         self.assertEqual(
             EQUIPMENT_MODULE.sha(gateway),
-            "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518",
+            "715b172a62e978ccaf79dfd3f9801da641cd067da72ad7187658efa9ccc0d73a",
         )
-        self.assertEqual(gateway, EQUIPMENT_MODULE.FAMILY_GATEWAY.read_bytes())
+        self.assertNotEqual(gateway, EQUIPMENT_MODULE.FAMILY_GATEWAY.read_bytes())
         self.assertNotEqual(gateway, (EQUIPMENT_MODULE.AGENT / "aster_remote.py").read_bytes())
+        source = gateway.decode()
+        ast.parse(source)
+        self.assertIn('"/v1/remote/equipment/content"', source)
+        self.assertIn('content_state: "ContentState | None" = None', source)
+        self.assertIn(EQUIPMENT_MODULE.LEGACY_VOICE_URL, source)
+        self.assertNotIn("CANONICAL_VOICE_URL", source)
         self.assertIn("astertv-v3-m7-family-standby-20261106", manifest["recovery"]["aster_agent"])
 
     def test_family_physical_keys_are_exact_and_do_not_capture_navigation(self):

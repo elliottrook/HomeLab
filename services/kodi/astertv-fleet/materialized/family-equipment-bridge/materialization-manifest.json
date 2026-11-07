@@ -34,11 +34,11 @@
     },
     {
       "authority": "aster-agent",
-      "bytes": 32192,
+      "bytes": 35119,
       "destination": "/opt/aster-agent/aster_remote.py",
       "mode": "0644",
       "scope": "external",
-      "sha256": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518"
+      "sha256": "715b172a62e978ccaf79dfd3f9801da641cd067da72ad7187658efa9ccc0d73a"
     },
     {
       "authority": "aster-agent",

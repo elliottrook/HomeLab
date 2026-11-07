@@ -98,6 +98,7 @@ class ClientPoll(BaseModel):
     input_sensitive: bool = False
     input_title: str = Field(default="", max_length=128)
     input_value: str = Field(default="", max_length=512)
+    content_state: "ContentState | None" = None
 
     @model_validator(mode="after")
     def protect_sensitive_input(self):
@@ -106,6 +107,42 @@ class ClientPoll(BaseModel):
         if not self.input_active and (self.input_sensitive or self.input_title or self.input_value):
             raise ValueError("inactive-input-content-forbidden")
         return self
+
+
+class ContentState(BaseModel):
+    """Current content-free playback observation from one AsterTV client."""
+
+    model_config = ConfigDict(
+        extra="forbid", str_strip_whitespace=True, populate_by_name=True,
+    )
+
+    schema_name: Literal["astertv-room-playback.v1"] = Field(
+        alias="schema", serialization_alias="schema"
+    )
+    session_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_.:-]{7,127}$")
+    sequence: int = Field(ge=1)
+    observed_epoch: int
+    expires_epoch: int
+    available: bool
+    playback_state: Literal["idle", "playing", "paused"]
+    content_class: Literal[
+        "Movie", "Television", "Music", "YouTube", "Podcast", "News",
+        "Book/Audiobook", "Unknown",
+    ]
+    page_id: str = Field(pattern=r"^[a-z][a-z0-9-]{1,63}$")
+    screensaver_active: bool
+
+    def validate_freshness(self, now_epoch: int) -> None:
+        if (self.observed_epoch > now_epoch or self.expires_epoch < now_epoch
+                or self.expires_epoch - self.observed_epoch > 30):
+            raise ValueError("content-state-stale")
+
+
+class ContentRead(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    client_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9-]{0,31}$")
+    room_id: str = Field(pattern=r"^[a-z][a-z0-9-]{0,31}$")
 
 
 class ClientAck(BaseModel):
@@ -186,6 +223,7 @@ class RoomRuntime:
     equipment_volume_level: float | None = None
     equipment_muted: bool | None = None
     equipment_last_outcome: str | None = None
+    content_state: ContentState | None = None
 
 
 class AsterRemoteGateway:
@@ -253,6 +291,10 @@ class AsterRemoteGateway:
         )
         self.router.add_api_route(
             "/v1/remote/equipment/ack", self.equipment_ack, methods=["POST"]
+        )
+        self.router.add_api_route(
+            "/v1/remote/equipment/content", self.equipment_content,
+            methods=["POST"],
         )
 
     async def index(self) -> FileResponse:
@@ -518,6 +560,21 @@ class AsterRemoteGateway:
         room.input_sensitive = payload.input_sensitive
         room.input_title = payload.input_title
         room.input_value = payload.input_value
+        if payload.content_state is not None:
+            state = payload.content_state
+            try:
+                state.validate_freshness(int(self.clock()))
+            except ValueError as error:
+                raise HTTPException(409, "AsterTV content state stale") from error
+            previous = room.content_state
+            if previous is not None:
+                if state.session_id == previous.session_id:
+                    if state.sequence <= previous.sequence:
+                        raise HTTPException(409, "AsterTV content state replayed")
+                elif (state.sequence != 1
+                      or state.observed_epoch < previous.observed_epoch):
+                    raise HTTPException(409, "AsterTV content session invalid")
+            room.content_state = state
         deadline = time.monotonic() + 20
         while True:
             now = self.clock()
@@ -640,6 +697,19 @@ class AsterRemoteGateway:
         room.equipment_last_seen = self.clock()
         room.equipment_last_outcome = payload.outcome
         return {"status": "recorded"}
+
+    async def equipment_content(
+        self,
+        payload: ContentRead,
+        authorization: str | None = Header(default=None),
+        x_astertv_client: str | None = Header(default=None),
+    ):
+        self._equipment_client(payload.client_id, payload.room_id,
+                               authorization, x_astertv_client)
+        state = self.rooms[payload.room_id].content_state
+        if state is None or state.expires_epoch < int(self.clock()):
+            return Response(status_code=204)
+        return {"room_id": payload.room_id, **state.model_dump(by_alias=True)}
 
 
 def _environment_clients() -> dict[str, ClientIdentity]:

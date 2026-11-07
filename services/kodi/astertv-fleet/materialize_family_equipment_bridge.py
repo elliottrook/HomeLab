@@ -15,10 +15,14 @@ CHECKOUT = HERE.parents[2]
 HA = CHECKOUT / "services/home-assistant/aster_room_bridge/custom_components/aster_room_bridge"
 AGENT = CHECKOUT / "services/aster-agent"
 FAMILY_GATEWAY = HERE / "recovery/family/aster_remote-family-standby-20261106.py"
+GATEWAY_CANDIDATE = AGENT / "aster_remote.py"
+FAMILY_GATEWAY_SHA256 = "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518"
+GATEWAY_CANDIDATE_SHA256 = "3ad1f24ff56aee121dbd26e997f93af618e6c8f085417f95a22fdc414c0d222d"
+LEGACY_VOICE_URL = "http://192.168.70.14:9130/v1/stt"
 FILES = {
-    # Family's accepted gateway deliberately remains separate from the broader
-    # unreleased gateway candidate. This prevents a global source refresh from
-    # silently replacing the live, owner-accepted standby/equipment behavior.
+    # The gateway is rendered separately below. Its source is hash-pinned and
+    # its unrelated voice-default change is removed before it enters the
+    # Family composition.
     "/opt/aster-agent/aster_remote.py": FAMILY_GATEWAY,
     **{"/opt/aster-agent/static/remote/" + path.relative_to(AGENT / "static/remote").as_posix(): path
        for path in sorted((AGENT / "static/remote").rglob("*")) if path.is_file()},
@@ -26,7 +30,7 @@ FILES = {
        for path in sorted(HA.rglob("*")) if path.is_file()},
 }
 PINNED = {
-    "/opt/aster-agent/aster_remote.py": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518",
+    "/opt/aster-agent/aster_remote.py": "715b172a62e978ccaf79dfd3f9801da641cd067da72ad7187658efa9ccc0d73a",
     "/opt/aster-agent/static/remote/app.js": "76a14595af2da756a72975eb02afe45cd21ac035d8b118dfc67a2635258e0762",
     "/config/custom_components/aster_room_bridge/__init__.py": "0ab1cad5bda6754c50fae11c6752df04d2d26bcb137796bbfd34f94b1e43db77",
     "/config/custom_components/aster_room_bridge/content_policy.py": "98453ad7ed0d54735e5b9ed5bf25eb4af9706e1aabe63ce330b1d916d06e8a9d",
@@ -41,11 +45,42 @@ def canonical(value: object) -> bytes:
     return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode()
 
 
+def family_content_gateway() -> bytes:
+    """Return accepted Family behavior plus the reviewed content transport.
+
+    The shared gateway candidate also changes the default speech route. That
+    route is outside this rollout, so the Family payload removes only that
+    unrelated delta and keeps the already accepted internal default. Both the
+    live predecessor and candidate inputs are immutable hash boundaries.
+    """
+    predecessor = FAMILY_GATEWAY.read_bytes()
+    candidate = GATEWAY_CANDIDATE.read_bytes()
+    if sha(predecessor) != FAMILY_GATEWAY_SHA256:
+        raise RuntimeError("accepted-family-gateway-drift")
+    if sha(candidate) != GATEWAY_CANDIDATE_SHA256:
+        raise RuntimeError("content-gateway-candidate-drift")
+
+    text = candidate.decode("utf-8")
+    replacements = (
+        ('CANONICAL_VOICE_URL = "https://aster.elliottrook.com/voice/v3/v1/stt"\n', ""),
+        ('voice_url: str = CANONICAL_VOICE_URL,',
+         f'voice_url: str = "{LEGACY_VOICE_URL}",'),
+        ('"ASTER_REMOTE_VOICE_URL", CANONICAL_VOICE_URL',
+         f'"ASTER_REMOTE_VOICE_URL", "{LEGACY_VOICE_URL}"'),
+    )
+    for old, new in replacements:
+        if text.count(old) != 1:
+            raise RuntimeError("family-gateway-normalization-anchor")
+        text = text.replace(old, new, 1)
+    return text.encode("utf-8")
+
+
 def render() -> tuple[dict[str, tuple[bytes, int]], dict]:
     files = {}
     rows = []
     for destination, source in sorted(FILES.items()):
-        data = source.read_bytes()
+        data = (family_content_gateway() if destination == "/opt/aster-agent/aster_remote.py"
+                else source.read_bytes())
         if destination in PINNED and sha(data) != PINNED[destination]:
             raise RuntimeError("accepted-source-drift:" + destination)
         relative = "external" + destination
