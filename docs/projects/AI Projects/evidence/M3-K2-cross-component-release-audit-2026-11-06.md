@@ -4,7 +4,7 @@
 
 The complete current K2 source boundary passes its combined offline audit at
 Stream A commit `d94f2893` and platform
-commit `bd0f80dbb661badc96f34f028ef03fc333ddd47f`.
+commit `90d99b4c`.
 
 ## Measured result
 
@@ -20,6 +20,13 @@ not place under `test_nlu_k2*.py`. An initial attempt to invoke that module from
 the repository root could not resolve its sibling import; rerunning from its
 source directory passed 3/3 without a source change. The platform run covered
 all eight current `test_m3_k2*.py` modules.
+
+A separate broad platform regression now also passes all 52 current Lab Hours
+tests. Platform commit `90d99b4c` restores the two manifest-pinned fixed-card
+sources that were absent from the worktree and updates three stale tests to the
+current dispatcher, 57-pin release and retired-EPUB-scheduler baseline. Both
+restored source digests exactly match the pre-existing release manifest; no
+installed file or active booking was changed.
 
 ## Boundary
 

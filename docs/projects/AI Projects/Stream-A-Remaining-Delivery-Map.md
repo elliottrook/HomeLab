@@ -2405,6 +2405,9 @@ passes 127/127 offline tests across the exact Stream A and platform heads. It
 covers development, sealed evaluation, no-effect shadow, release decision,
 reconciliation, session, bundle validation and inactive-install boundaries.
 This is integration evidence, not a runtime result or deployment.
+The broader platform source closure now also passes 52/52 Lab Hours tests at
+platform commit `90d99b4c`; its restored fixed-card source bytes match the
+already-pinned 57-file release without changing the installed platform.
 
 The conditional [M7/SA5 operational-graduation preregistration](evidence/M7-K2-operational-graduation-preregistration-2026-11-06.md)
 is now also frozen before any K2 result. After a passing M6 decision it still
