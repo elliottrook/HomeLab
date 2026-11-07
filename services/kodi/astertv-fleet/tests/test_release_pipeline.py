@@ -169,7 +169,7 @@ class ReleasePipelineTests(unittest.TestCase):
         artifact_root = ROOT.parent / "dist"
         with tempfile.TemporaryDirectory() as destination:
             result = PLANS.build(ROOT, Path(destination), artifact_root)
-            freeze = json.loads((ROOT / "releases/astertv-v3-rc1-2026-11-06.json").read_text())
+            freeze = json.loads((ROOT / "releases/astertv-v3-rc1-family-standby-amendment-2026-11-06.json").read_text())
             self.assertEqual(result["verified_artifacts"], 4)
             self.assertEqual(result["built_bundles"], 4)
             self.assertEqual(result["deployable_devices"], 3)
