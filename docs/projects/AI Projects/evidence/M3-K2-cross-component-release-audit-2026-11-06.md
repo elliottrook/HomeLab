@@ -3,18 +3,18 @@
 ## Outcome
 
 The complete current K2 source boundary passes its combined offline audit at
-Stream A commit `921678fb` and platform
+Stream A commit `bc420f99` and platform
 commit `bd0f80dbb661badc96f34f028ef03fc333ddd47f`.
 
 ## Measured result
 
 | Surface | Tests | Result |
 |---|---:|---|
-| Stream A K2 development, sealed evaluation, shadow, release-decision and graduation sources | 83 | pass |
+| Stream A K2 development, sealed evaluation, shadow, release-decision and graduation sources | 88 | pass |
 | Platform development, reconciliation, session, bundle and inactive-install sources | 31 | pass |
-| **Combined** | **114** | **pass** |
+| **Combined** | **119** | **pass** |
 
-The Stream A discovery run covered 80 tests and the deterministic bundle
+The Stream A discovery run covered 85 tests and the deterministic bundle
 builder's separately invoked suite covered the three tests its filename does
 not place under `test_nlu_k2*.py`. An initial attempt to invoke that module from
 the repository root could not resolve its sibling import; rerunning from its
