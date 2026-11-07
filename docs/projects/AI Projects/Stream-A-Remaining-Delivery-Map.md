@@ -2323,7 +2323,9 @@ one bounded approval, not approval for each test.
 The [K2 M6 decision boundary](evidence/M6-K2-promote-or-reject-decision-boundary-2026-11-06.md)
 is now source-ready before the candidate result exists. It binds complete
 development, independently custodied sealed-evaluation and no-effect shadow
-scores to one deterministic promote-or-reject result. Even a passing result is
+evidence to one deterministic promote-or-reject result. It now rejects the raw
+shadow score and requires the registered-workload reconciliation with exact
+result binding, zero effects and production restoration. Even a passing result is
 only a non-authorizing bounded read-only candidate: tools, deployment and
 automatic routing remain off.
 
@@ -2479,7 +2481,7 @@ It binds the exact 60-case envelope to one complete registered Lab Hours
 terminal, zero retries/errors/effects and `production_restored=true`; unknown
 fields or any identity, digest, count, effect or restoration drift are rejected.
 Exact integer typing also rejects Boolean zero lookalikes. The current combined
-K2 source audit passes 148/148. This remains source-only:
+K2 source audit passes 149/149. This remains source-only:
 no fixture, shadow collection, booking, route or provider effect exists.
 
 The previously implicit NLU stage now has an explicit

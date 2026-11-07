@@ -50,12 +50,15 @@ returns fully ready. Routing, tools and promotion remain off.
    deterministic route on representative traffic without executing either
    proposed route. Measure abstention, privacy, latency and cost. The
    K2-specific non-authorizing route selector is now source-ready; the
-   exact 60-case no-effect shadow contract and scorer are also source-ready.
-   Collection remains conditional on qualification.
+   exact 60-case no-effect shadow contract, scorer and restored-terminal
+   reconciler are also source-ready. Collection remains conditional on
+   qualification.
 4. **M6 decision:** apply the preregistered criteria to development, sealed
    evaluation and shadow evidence and make one explicit promote-or-reject
    decision. The deterministic content-free decision boundary is now
-   source-ready. A passing result means only a candidate for the bounded
+   source-ready and refuses the raw shadow score unless its exact Lab Hours
+   terminal proves production restoration and zero effects. A passing result
+   means only a candidate for the bounded
    read-only route; it grants no tools, deployment or authority.
 5. **M7/SA5 graduation:** prove the selected role through normal operator flow,
    independent critical-path passes, degraded/failure recovery, monitoring,
