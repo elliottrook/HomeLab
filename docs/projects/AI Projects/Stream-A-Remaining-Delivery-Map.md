@@ -2374,6 +2374,12 @@ digests, sends the relay nonce to the MacBook wrapper on standard input, and
 requires matching 32-request wrapper and relay terminals before cleanup. No
 private listener or B60 effect was started.
 
+The conditional [M5 no-effect shadow boundary](evidence/M5-K2-no-effect-shadow-boundary-2026-11-06.md)
+was also tightened during the wait: every stored route-proposal digest is now
+recomputed from the exact pinned selector output instead of being accepted for
+format alone. The focused shadow suite passes 5/5 and the combined
+selector/shadow/M6 suite passes 14/14. No shadow case or route was executed.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from

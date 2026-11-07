@@ -91,6 +91,9 @@ def validate(value: object) -> dict[str, object]:
         _, proposed = selector.select(
             request_id=case_id, principal_ref="shadow-principal",
             interpretation=final, now=1, ttl_seconds=300)
+        proposal_sha256 = hashlib.sha256(selector.canonical(proposed)).hexdigest()
+        if case["route_proposal_sha256"] != proposal_sha256:
+            raise ValueError("K2 shadow route proposal digest changed")
         if case["candidate_accepted"]:
             expected_route = (proposed["status"], proposed["backend_id"], proposed["egress"])
             accepted += 1; exact += final_id == expected_id

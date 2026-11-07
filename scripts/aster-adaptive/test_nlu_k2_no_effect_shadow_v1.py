@@ -73,6 +73,13 @@ class K2NoEffectShadowTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "digest"):
             shadow.validate(value)
 
+    def test_each_route_proposal_digest_is_recomputed(self):
+        value = fixture()
+        value["cases"][0]["route_proposal_sha256"] = "0" * 64
+        value["release_sha256"] = shadow.release_sha256(value)
+        with self.assertRaisesRegex(ValueError, "route proposal digest"):
+            shadow.validate(value)
+
     def test_unaccepted_candidate_is_forced_to_abstain(self):
         value = fixture(); row = value["cases"][0]
         row.update(candidate_accepted=False, route_status="abstain",
