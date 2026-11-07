@@ -72,6 +72,7 @@
   "states": [
     "rest",
     "focus",
+    "side-rail-focus",
     "empty-library",
     "service-offline",
     "missing-art",
@@ -88,7 +89,8 @@
     "first_last": "edge input stays on the edge item and never leaks to a hidden control",
     "disabled": "disabled actions are skipped and expose a concise recoverable reason",
     "back": "dialog to detail, detail to prior rail item, Games to Home",
-    "menu": "open the game action sheet only from a game tile; otherwise no action"
+    "menu": "open the game action sheet only from a game tile; otherwise no action",
+    "side_rail": "Left from the page edge expands the official rail on Games; Up/Down stays within the eight destinations; Right returns to the exact prior page control; Back collapses the rail without leaving Games"
   },
   "accessibility": {
     "minimum_body_px": 24,

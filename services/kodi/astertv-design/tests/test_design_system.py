@@ -137,6 +137,24 @@ class DesignSystemTests(unittest.TestCase):
         self.assertEqual(rendered.count('data-shell-region="side-rail"'), 1)
         self.assertEqual(rendered.count('data-shell-current="games"'), 1)
 
+    def test_games_expanded_side_rail_preserves_order_and_focuses_games(self):
+        rendered = BUILD.games_page_render(
+            next(page for page in BUILD.load("catalogue.json")["pages"] if page["id"] == "games"),
+            BUILD.load("tokens.json"),
+            "side-rail-focus",
+        )
+        root = BUILD.ET.fromstring(rendered)
+        rail = next(
+            node for node in root.iter("{http://www.w3.org/2000/svg}rect")
+            if node.attrib.get("data-shell-region") == "side-rail"
+        )
+        self.assertEqual((rail.attrib["x"], rail.attrib["y"], rail.attrib["width"], rail.attrib["height"]),
+                         ("22", "268", "250", "544"))
+        self.assertEqual(rail.attrib["data-shell-state"], "expanded")
+        self.assertEqual(rendered.count('data-shell-focus='), 8)
+        self.assertEqual(rendered.count('data-shell-focus="games"'), 1)
+        self.assertNotIn('data-shell-current="games"', rendered)
+
     def test_button_focus_does_not_change_geometry(self):
         tokens = BUILD.load("tokens.json")
         self.assertEqual(tokens["geometry"]["pill_radius"], 28)
@@ -177,7 +195,7 @@ class DesignSystemTests(unittest.TestCase):
             if item["source"] == "games"
         }
         self.assertTrue({
-            "rest", "focus", "empty-library", "service-offline", "missing-art",
+            "rest", "focus", "side-rail-focus", "empty-library", "service-offline", "missing-art",
             "long-title", "detail", "install", "request", "save-conflict",
         } <= states)
 

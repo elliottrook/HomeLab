@@ -33,7 +33,9 @@ native limestone-backed artwork, and the accepted Media, Books, News, Home,
 Music, Requests, and Settings ordering. Games is added directly below Music
 for v4, extending and re-centering the rail by one standard slot. Its current
 temporary icon reuses the approved generic limestone-backed Aster mark; it must
-be replaced when the dedicated Games icon is accepted.
+be replaced when the dedicated Games icon is accepted. The expanded fixture
+retains the official 250-pixel shell, exposes all eight labels, and focuses
+Games with jade plus the champagne-gold rim.
 
 ## State-dependent primary action
 
@@ -85,6 +87,7 @@ route back to Home.
 
 - Main page: `generated/renders/pages/games.svg`
 - Focus: `generated/renders/pages/games-focus.svg`
+- Side rail focus: `generated/renders/pages/games-side-rail-focus.svg`
 - Empty: `generated/renders/pages/games-empty-library.svg`
 - Offline: `generated/renders/pages/games-service-offline.svg`
 - Missing art: `generated/renders/pages/games-missing-art.svg`

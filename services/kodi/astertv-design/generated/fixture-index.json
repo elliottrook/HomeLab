@@ -130,6 +130,16 @@
     },
     {
       "height": 1080,
+      "id": "page-games-side-rail-focus",
+      "kind": "page",
+      "path": "generated/renders/pages/games-side-rail-focus.svg",
+      "source": "games",
+      "state": "side-rail-focus",
+      "synthetic": true,
+      "width": 1920
+    },
+    {
+      "height": 1080,
       "id": "page-games-empty-library",
       "kind": "page",
       "path": "generated/renders/pages/games-empty-library.svg",

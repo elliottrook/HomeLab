@@ -598,9 +598,10 @@ Infrastructure completion alone is a milestone, not AsterTV v4 completion.
   before editing. The candidate changes no accepted colors, geometry, motion,
   asset provenance, or existing page contract and adds no Aster-owned raster.
 - Added a design-only Games page specification, Games page catalogue mapping,
-  eight closed remote focus graphs, and ten deterministic synthetic 1920×1080
-  review fixtures covering rest, focus, empty, offline, missing-art,
-  long-title, detail, install, request, and save-conflict states.
+  eight closed remote focus graphs, and eleven deterministic synthetic
+  1920×1080 review fixtures covering rest, content focus, expanded side-rail
+  focus, empty, offline, missing-art, long-title, detail, install, request, and
+  save-conflict states.
 - The candidate prioritizes Continue playing, Ready on this TV, Platforms,
   Library, and conditional Requests; distinguishes Resume, Play, Install, and
   Request; skips disabled actions; and returns focus to the exact prior item
@@ -615,10 +616,12 @@ Infrastructure completion alone is a milestone, not AsterTV v4 completion.
   Games occupies a new standard slot directly below Music and temporarily uses
   the generic Aster rail icon pending a dedicated accepted Games icon. Every
   Games top-filter pill embeds the exact approved 32×32 plain-compass export.
+  The expanded-rail fixture and focus graph now cover all eight destinations,
+  Games focus, edge clamping, Back-to-collapse, and exact return focus.
 - Jen's measured ceiling constrains the design to 1536 MiB total UI memory,
   256 MiB art cache, two prefetched rows, seven visible box-art tiles, no
   animated background, one simultaneous fade, and 1920-pixel maximum art.
-- Design tests pass 20/20, generated outputs reproduce byte-for-byte, all focus
+- Design tests pass 21/21, generated outputs reproduce byte-for-byte, all focus
   graphs are closed, and the Aster Games infrastructure validator plus broker
   tests remain green. The visual and interaction candidate still requires
   owner acceptance. Platform/core/controller claims remain deferred until
