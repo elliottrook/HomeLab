@@ -2407,7 +2407,7 @@ inactive plan, with reverse-order rollback and no restart, access grant or
 workload effect. The fixed-root installation itself remains unperformed.
 
 The current [cross-component K2 release audit](evidence/M3-K2-cross-component-release-audit-2026-11-06.md)
-passes 132/132 offline tests across the exact Stream A and platform heads. It
+passes 137/137 offline tests across the exact Stream A and platform heads. It
 covers development, sealed evaluation, no-effect shadow, release decision,
 reconciliation, session, bundle validation and inactive-install boundaries.
 This is integration evidence, not a runtime result or deployment.
@@ -2452,6 +2452,12 @@ is now source-ready. It validates exact balance, frozen labels, distinct roles
 and zero development/sealed overlap while exporting only content-free set
 digests. Its focused suite passes 5/5. No representative fixture has yet been
 created or opened; that effect remains conditional on the earlier K2 gates.
+
+The [blind M5 label-review boundary](evidence/M5-K2-shadow-label-review-boundary-2026-11-06.md)
+now recomputes the custody-bound case and label digests, requires the exact
+distinct preregistered reviewer and refuses any review after candidate output
+exists. The combined custody/review suite passes 10/10. No labels or candidate
+output were opened or created.
 
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free

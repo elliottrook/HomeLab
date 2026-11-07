@@ -90,6 +90,9 @@ def seal(records: object, *, development_case_ids: object,
             canonical(sorted(seen_hashes))).hexdigest(),
         "label_set_sha256": hashlib.sha256(
             canonical(sorted(label_rows, key=lambda row: row["id"]))).hexdigest(),
+        "custodian_id_sha256": hashlib.sha256(custodian_id.encode()).hexdigest(),
+        "label_reviewer_id_sha256": hashlib.sha256(
+            label_reviewer_id.encode()).hexdigest(),
         "preregistration_sha256": summary["preregistration_sha256"],
         "zero_development_or_sealed_overlap": True,
         "custodian_and_label_reviewer_distinct": True,

@@ -10,11 +10,11 @@ commit `90d99b4c`.
 
 | Surface | Tests | Result |
 |---|---:|---|
-| Stream A K2 development, sealed evaluation, shadow, release-decision and graduation sources | 101 | pass |
+| Stream A K2 development, sealed evaluation, shadow, release-decision and graduation sources | 106 | pass |
 | Platform development, reconciliation, session, bundle and inactive-install sources | 31 | pass |
-| **Combined** | **132** | **pass** |
+| **Combined** | **137** | **pass** |
 
-The Stream A discovery run covered 98 tests and the deterministic bundle
+The Stream A discovery run covered 103 tests and the deterministic bundle
 builder's separately invoked suite covered the three tests its filename does
 not place under `test_nlu_k2*.py`. An initial attempt to invoke that module from
 the repository root could not resolve its sibling import; rerunning from its

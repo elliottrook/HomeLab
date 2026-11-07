@@ -21,11 +21,16 @@ keeps effects unauthorized, authority ungranted and automatic routing off.
 ## Verification
 
 - source SHA-256:
-  `0b0d0df9995d9a56aa9756b4a28111f70be9eb914210606bdda0fae9e526e163`
+  `85df82dd68763b395ce6dfe4df9006f0007c741de10f77e5cc7c3a56f30856d2`
 - test SHA-256:
   `4d1dac9d011adf1a5b9fc84b66ee18b7fe18f012b112765973e35f39852f22e9`
 - focused custody tests: 5/5 pass
-- complete `test_nlu_k2*.py` discovery: 98/98 pass
+- complete `test_nlu_k2*.py` discovery after the paired blind-review boundary:
+  103/103 pass
+
+The receipt now also binds digests of both distinct role identities so the
+separate blind-label reviewer can prove it is the preregistered reviewer
+without exposing either private fixture content or candidate output.
 
 No fixture was created, labelled, opened or transferred. No model, provider,
 route, booking, lease, service, tool or deployment was invoked. Actual fixture
