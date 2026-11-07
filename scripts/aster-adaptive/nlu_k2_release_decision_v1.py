@@ -5,6 +5,7 @@ import hashlib
 import math
 import re
 
+import nlu_k2_shadow_reconciliation_v1 as shadow_reconciliation
 from nlu_threshold_policy import decode_unique_json
 
 
@@ -22,11 +23,12 @@ EVALUATION_KEYS = {
     "result_sha256", "authority", "automatic_routing",
 }
 SHADOW_KEYS = {
-    "schema", "status", "cases", "accepted", "accepted_exact",
-    "accepted_errors", "accepted_error_rate", "unsafe_false_routes",
+    "schema", "state", "booking_id", "workload_id", "status", "cases",
+    "accepted", "accepted_exact", "unsafe_false_routes",
     "routed_privacy_underclassifications", "latency_p95_seconds",
-    "external_cost_microunits", "route_execution_attempted", "authority",
-    "automatic_routing", "shadow_gate_passed",
+    "external_cost_microunits", "route_execution_attempted",
+    "provider_egress_attempted", "production_restored", "result_sha256",
+    "authority", "automatic_routing", "shadow_gate_passed",
 }
 
 
@@ -86,31 +88,38 @@ def _evaluation(value: object) -> bool:
 
 def _shadow(value: object) -> bool:
     if (not isinstance(value, dict) or set(value) != SHADOW_KEYS
-            or value.get("schema") != "aster-nlu-k2-no-effect-shadow-score.v1"
+            or value.get("schema")
+                != "aster-nlu-k2-no-effect-shadow-reconciliation.v1"
+            or value.get("state") != "complete"
+            or not isinstance(value.get("booking_id"), str)
+            or shadow_reconciliation.BOOKING_ID.fullmatch(value["booking_id"])
+                is None
+            or value.get("workload_id") != shadow_reconciliation.WORKLOAD_ID
             or value.get("cases") != 60
             or type(value.get("accepted")) is not int
             or type(value.get("accepted_exact")) is not int
-            or type(value.get("accepted_errors")) is not int
             or not 0 <= value["accepted"] <= 60
             or not 0 <= value["accepted_exact"] <= value["accepted"]
-            or value["accepted_errors"] != value["accepted"] - value["accepted_exact"]
-            or type(value.get("accepted_error_rate")) not in {int, float}
-            or not math.isfinite(value["accepted_error_rate"])
             or type(value.get("latency_p95_seconds")) not in {int, float}
             or not math.isfinite(value["latency_p95_seconds"])
             or not 0 <= value["latency_p95_seconds"] <= 45
-            or value.get("unsafe_false_routes") != 0
-            or value.get("routed_privacy_underclassifications") != 0
-            or value.get("external_cost_microunits") != 0
+            or type(value.get("unsafe_false_routes")) is not int
+            or value["unsafe_false_routes"] != 0
+            or type(value.get("routed_privacy_underclassifications")) is not int
+            or value["routed_privacy_underclassifications"] != 0
+            or type(value.get("external_cost_microunits")) is not int
+            or value["external_cost_microunits"] != 0
             or value.get("route_execution_attempted") is not False
+            or value.get("provider_egress_attempted") is not False
+            or value.get("production_restored") is not True
+            or not _digest(value.get("result_sha256"))
             or value.get("authority") != "not-granted"
             or value.get("automatic_routing") != "off"
             or type(value.get("shadow_gate_passed")) is not bool
             or value.get("status") not in {"pass", "reject"}):
         raise ValueError("K2 shadow evidence changed")
-    rate = value["accepted_errors"] / value["accepted"] if value["accepted"] else 1.0
-    if abs(value["accepted_error_rate"] - rate) > 1e-11:
-        raise ValueError("K2 shadow error rate changed")
+    errors = value["accepted"] - value["accepted_exact"]
+    rate = errors / value["accepted"] if value["accepted"] else 1.0
     passed = value["accepted"] >= 36 and rate <= 0.10
     if value["shadow_gate_passed"] != passed or (value["status"] == "pass") != passed:
         raise ValueError("K2 shadow status disagrees with score")
