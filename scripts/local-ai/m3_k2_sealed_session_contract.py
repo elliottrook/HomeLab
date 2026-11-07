@@ -5,7 +5,7 @@ import re
 
 
 PREREGISTRATION_SHA256 = (
-    "9485b276e3fac0eb16854209c74b3d4723719f094595801a5128bcd1d437d772"
+    "66ea288e456d4cef6e0143c882a5b647a9fab7170f0ef0e3bd6b1952463ff7cc"
 )
 WORKLOAD_ID = "m3-k2-sealed-evaluation-v1"
 BOOKING_ID = re.compile(
