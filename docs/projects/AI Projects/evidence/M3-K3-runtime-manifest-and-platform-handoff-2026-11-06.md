@@ -2,8 +2,9 @@
 
 ## Result
 
-The exact K3 source-only runtime manifest is frozen at Stream A commit
-`8e0a60d9`. It binds workload
+The exact K3 source-only runtime manifest was frozen at Stream A commit
+`8e0a60d9` and received its engine-result lineage correction at `dd6cd011`. It
+binds workload
 `m3-k3-hierarchical-safety-development-v1` to candidate
 `k3-hierarchical-safety-veto-v1`, LXC110, the accepted 9B/SYCL model and unit,
 the fixed J2 corpus/shortlist/preregistration identities, both permitted
@@ -20,8 +21,10 @@ drift fail closed.
 - manifest test SHA-256:
   `57a2b8b911e007d717747df7971f0431f0d3954f04ae08563dc2f1a8f2849cc5`;
 - runtime manifest SHA-256:
-  `f1c53344cfe9121d27ca979e4305d0557232cd6b3840a5678473b0b70429510b`;
-- runner source commit: `cac0fcd7`;
+  `0a9866a10c4079879fc7d7e8298969074cc50e44b36afd3b1c56e570fe08fa45`;
+- runner SHA-256:
+  `940d1de888bc00709f37db09604bd7062dbd9553dbdc970e7d9c8d705378bf96`;
+- runner source commit: `dd6cd011`;
 - scorer source commit: `b81ba688`; and
 - hierarchical safety/preregistration source commit: `662b52e5`.
 
