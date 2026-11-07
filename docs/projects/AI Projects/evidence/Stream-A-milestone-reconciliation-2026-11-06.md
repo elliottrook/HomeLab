@@ -40,12 +40,13 @@ promotion remain off.
    and development evidence. K3 will add an independent hierarchical
    route-eligibility, ambiguity and sensitivity veto before label acceptance;
    its source, preregistration and content-free scorer boundaries now pass
-   16/16 focused tests. The scorer independently recomputes decisions from raw
+   21/21 focused tests. The scorer independently recomputes decisions from raw
    arbitration plus safety verdict records and cannot trust retained acceptance
-   fields. The remaining offline gate is its one-attempt development runner
-   composition and durable evidence/recovery contract. It must meet the
-   existing coverage/privacy/safety boundaries before any new effect is
-   proposed.
+   fields. The one-attempt runner now composes and tests exactly 384 ordered
+   no-retry requests with durable stage journalling and first-error termination.
+   The remaining offline gate is an exact release/registry manifest and
+   platform admission packet. It must meet the existing coverage/privacy/safety
+   boundaries before any new effect is proposed.
 2. **M3 sealed qualification:** only if a future frozen development gate passes,
    admit the existing independently sealed 32-case evaluation through its
    accepted custody/disjointness proofs. The content-free scorer and its
