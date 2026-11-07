@@ -2,15 +2,21 @@
 """Optionally flag notably loaded language in individual stories."""
 
 import json
+import os
 import sqlite3
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
 DB_PATH = Path(__file__).parent / "news.db"
-ASTER_LLAMA_URL = "http://192.168.70.12:11435/v1/chat/completions"
-MODEL = "qwen3.5-9b"
-API_KEY_PATH = Path("/root/.news-aggregator-llama-key")
+ASTER_LLAMA_URL = os.environ.get(
+    "NEWS_LLM_URL", "http://127.0.0.1:11436/v1/chat/completions"
+)
+MODEL = os.environ.get("NEWS_LLM_MODEL", "qwen3.5-9b")
+API_KEY_PATH = Path(
+    os.environ.get("NEWS_LLM_API_KEY_PATH", "/etc/news-aggregator/cpu-llama-api-key")
+)
+REQUEST_TIMEOUT_SECONDS = int(os.environ.get("NEWS_LLM_TIMEOUT_SECONDS", "300"))
 BATCH_LIMIT = 50
 
 SYSTEM_PROMPT = (
@@ -38,7 +44,7 @@ def check_one(title: str, summary: str, api_key: str) -> str | None:
         data=payload,
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
     )
-    with urllib.request.urlopen(request, timeout=60) as response:
+    with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
         result = json.load(response)
     text = result["choices"][0]["message"]["content"].strip()
     return None if text.upper().startswith("NONE") else text

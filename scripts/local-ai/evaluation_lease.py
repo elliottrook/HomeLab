@@ -40,8 +40,6 @@ EXERCISE_RESTORE_DEADLINE_SECONDS = 5 * 60
 QUIESCE_TARGETS = (
     "lxc104:aster-agent.service",
     "lxc116:aster-speech.service",
-    "lxc114:news-aggregator-ingest.timer",
-    "lxc114:news-aggregator-digest.timer",
 )
 QUIESCE_STATES = tuple((target, "masked+inactive") for target in QUIESCE_TARGETS)
 BACKEND_TARGET = "lxc110:aster-llama.service"

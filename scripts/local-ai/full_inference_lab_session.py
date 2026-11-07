@@ -1,4 +1,4 @@
-"""Offline, disabled-by-default five-effect full-inference lab drain."""
+"""Offline, disabled-by-default B60 full-inference lab drain."""
 
 from __future__ import annotations
 
@@ -14,9 +14,7 @@ from host_exclusion import host_exclusion
 
 MAX_DRAIN_SECONDS = 45 * 60
 FULL_DRAIN_CONSUMERS = (("104", "aster-agent.service"), ("116", "aster-speech.service"),
-                        ("110", "aster-llama.service"),
-                        ("114", "news-aggregator-ingest.timer"),
-                        ("114", "news-aggregator-digest.timer"))
+                        ("110", "aster-llama.service"))
 
 
 class FullDrainError(ValueError):
@@ -92,10 +90,6 @@ def canonical_commands() -> tuple[tuple[tuple[str, ...], ...], tuple[tuple[str, 
         FULL_WARMUP_COMMAND,
         _command("116", "systemctl", "start", "aster-speech.service"),
         _command("104", "systemctl", "start", "aster-agent.service"),
-        _command("114", "systemctl", "unmask", "--runtime", "news-aggregator-ingest.timer"),
-        _command("114", "systemctl", "start", "news-aggregator-ingest.timer"),
-        _command("114", "systemctl", "unmask", "--runtime", "news-aggregator-digest.timer"),
-        _command("114", "systemctl", "start", "news-aggregator-digest.timer"),
     )
     return drain, restore
 

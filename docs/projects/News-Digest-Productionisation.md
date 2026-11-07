@@ -329,3 +329,96 @@ Beszel, Doctor and backup/restore integration. Jason's iPhone acceptance must
 cover lock/background playback, pause/resume and failure messaging. The final
 milestone must include the mandatory documentation-adequacy reflection and a
 fresh-operator handover for the daily briefing workflow.
+
+## Proxmox CPU inference authority migration — 2026-11-07
+
+The owner approved replacing the News workflow's B60 text dependency with the
+same Qwen3.5 9B Q4_K_M model on bounded Proxmox CPU, provided the host could
+afford it, and removing News from B60 Lab Hours drain effects after cutover.
+Mac-hosted TTS remains authoritative and is outside this change.
+
+### Capacity and shadow evidence
+
+- The pinned model is 5,627,044,256 bytes with SHA-256
+  `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`.
+  The CPU `llama-server` is llama.cpp build 11429 with SHA-256
+  `5faf410bbbc00a1b94b09ee01623699f255365628dfa73b1ee552d9e52a2231d`.
+- The isolated LXC126 shadow used 8 vCPUs, a temporary 12 GiB guest ceiling,
+  `MemoryMax=10G`, `MemorySwapMax=0`, `CPUQuota=800%`, nice 15 and a loopback
+  listener. Its pre-test snapshot is
+  `pre-news-cpu-shadow-20261107`; News services and timers stayed disabled.
+- `llama-bench` measured 22.16 prompt tokens/s and 5.13 generated tokens/s.
+- A non-publishing replay of the exact 2026-11-07 morning digest completed all
+  12 stories and 26 calls in 927.302 seconds, producing 14,272 characters with
+  no empty or reasoning-contaminated responses.
+- A non-writing replay of the current 50-item language-note batch completed
+  50/50 valid calls in 203.011 seconds and identified one flagged item.
+- Proxmox retained more than 42 GiB available memory. Load remained below 10
+  on 40 logical CPUs. Host swap rose by about 148 MiB early in the shadow run
+  and then remained stable; the shadow cgroup did not swap. This is accepted
+  with a 16 GiB LXC114 guest ceiling, a 10 GiB no-swap inference cgroup, and
+  continued host-memory monitoring.
+- The shadow service is stopped and LXC126 is back at its original 8 GiB RAM /
+  512 MiB swap limits. Pinned benchmark files remain for resumability.
+
+### Promotion gate and prepared release
+
+The release changes all three text clients (`digest.py`, `summarize.py` and
+`language_notes.py`) to a configurable loopback authority, raises request
+timeouts to 300 seconds, and adds a dedicated low-priority CPU llama service.
+The service is loopback-only, authenticated, concurrency-one, CPU-only, bounded
+to 8 vCPUs/10 GiB and prohibited from swap. Digest and ingest services require
+the local service and have no automatic B60 fallback.
+
+The prepared B60 controller change removes both LXC114 News timers from full
+drain, cooperative and Stream A evaluation effect inventories. It must be
+activated only after the local endpoint passes live smoke tests and every
+active controller/release-manifest pin is reconciled. Historical run cards are
+retained as historical evidence rather than silently rewritten.
+
+The initial promotion pass did not mutate live services. Its authoritative
+window check for
+`2026-11-07T10:16:00-07:00` through `2026-11-07T12:16:00-07:00` returned
+`PRIORITY_DEDICATION_ACTIVE` for project `aster-news-video`. Its continuous
+dedication is bounded through `2026-11-14T09:35:20-07:00` and admits only the
+`aster-news-video-` registered workload prefix. This migration is not silently
+broadened into that project.
+
+### CPU authority cutover evidence
+
+The boundary was then corrected: installing and activating independent
+Proxmox CPU inference does not consume or compete for B60. LXC114 snapshot
+`pre-news-cpu-authority-20261107` protects rollback. The guest was raised from
+8 to 16 GiB, received the pinned model/runtime, and now runs
+`news-aggregator-cpu-llama.service` on authenticated loopback
+`127.0.0.1:11436` with 8-vCPU quota, `MemoryMax=10G`, `MemorySwapMax=0` and
+nice 10. The three News clients now default to that endpoint with no B60
+fallback.
+
+An authenticated live summary returned 641 characters and the paired language
+check completed successfully. Both News timers are enabled and have valid next
+triggers. The CPU service reported zero swap use; Proxmox retained about 47 GiB
+available during the live check. A real hourly pipeline fetched and clustered
+feeds, then its language stage was terminated by concurrent priority attempt
+`aster-news-video-000003`. This did not indicate a CPU failure: it proved the
+still-installed historical drain inventory was stopping independent News work.
+After that attempt succeeded and proved production restoration, the
+authoritative dispatcher release was checkpointed and repinned. Its no-effect
+preflight now reports a three-effect drain/seven-effect restore plan, all 68
+release pins validate, and neither command inventory contains LXC114 or a News
+unit. The cooperative drain inventory likewise contains only Aster Agent and
+Aster Speech.
+
+The real hourly pipeline was then retried. It completed successfully from
+17:33:32 to 17:36:54 UTC (3 minutes 22 seconds), including one new two-outlet
+Qwen summary and 50 language checks with two flagged items. The CPU service
+remained active with zero cgroup swap; both News timers remained enabled with
+future triggers. This is the live acceptance evidence for CPU authority and
+removal from the authoritative B60 Lab Hours drain.
+
+### Rollback
+
+Rollback restores the client/service files and LXC configuration checkpoint,
+but must not silently re-enable B60 calls during an active Lab Hours owner.
+Restore the former B60 endpoint only in a separately clear window, or keep News
+failed closed until that window exists.

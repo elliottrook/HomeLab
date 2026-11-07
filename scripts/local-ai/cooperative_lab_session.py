@@ -19,8 +19,7 @@ DEFAULT_PILOT_SECONDS = 30 * 60
 MIN_RESTORE_RESERVE_SECONDS = 15 * 60
 MIN_NEWS_MARGIN_SECONDS = 5 * 60
 LAB_TIMEZONE = ZoneInfo("America/Vancouver")
-ALLOWED_CONSUMERS = (("104", "aster-agent.service"), ("116", "aster-speech.service"),
-                     ("114", "news-aggregator-ingest.timer"), ("114", "news-aggregator-digest.timer"))
+ALLOWED_CONSUMERS = (("104", "aster-agent.service"), ("116", "aster-speech.service"))
 
 
 class LabSessionError(ValueError):

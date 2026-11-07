@@ -43,8 +43,7 @@ class EvaluationLeaseTests(unittest.TestCase):
             baseline=ProductionBaseline(
                 units=(("lxc104:aster-agent.service", "enabled+active"),
                        ("lxc116:aster-speech.service", "enabled+active")),
-                timers=(("lxc114:news-aggregator-ingest.timer", "enabled+active"),
-                        ("lxc114:news-aggregator-digest.timer", "enabled+active")),
+                timers=(),
             ), watchdog_independent=True, hard_deadline_epoch=5500,
             restore_deadline_epoch=5500 + RESTORE_RESERVE_SECONDS,
             admission_receipt="stream-a-evaluation-admission-sha256:" + "d" * 64,

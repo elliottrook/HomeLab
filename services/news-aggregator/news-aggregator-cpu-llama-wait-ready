@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""Fail the CPU llama unit unless its loopback health endpoint becomes ready."""
+
+import json
+import time
+import urllib.error
+import urllib.request
+
+
+deadline = time.monotonic() + 170
+while time.monotonic() < deadline:
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:11436/health", timeout=3) as response:
+            if response.status == 200 and json.load(response).get("status") == "ok":
+                raise SystemExit(0)
+    except (OSError, ValueError, urllib.error.URLError):
+        pass
+    time.sleep(2)
+raise SystemExit("News CPU llama did not become ready within 170 seconds")

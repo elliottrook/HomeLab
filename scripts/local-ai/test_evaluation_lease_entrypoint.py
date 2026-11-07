@@ -34,14 +34,11 @@ class EntryPointTests(unittest.TestCase):
             "endpoint_idle": True, "gpu_holders": ["lxc110:aster-llama.service"],
             "registered_targets": [
                 "lxc104:aster-agent.service", "lxc116:aster-speech.service",
-                "lxc114:news-aggregator-ingest.timer",
-                "lxc114:news-aggregator-digest.timer",
             ], "quiesced_targets": [],
             "baseline": {
                 "units": [["lxc104:aster-agent.service", "enabled+active"],
                           ["lxc116:aster-speech.service", "enabled+active"]],
-                "timers": [["lxc114:news-aggregator-ingest.timer", "enabled+active"],
-                           ["lxc114:news-aggregator-digest.timer", "enabled+active"]],
+                "timers": [],
             }, "watchdog_independent": True, "hard_deadline_epoch": 5500,
             "restore_deadline_epoch": 6400, "now_epoch": 1000,
             "admission_receipt": admission_receipt,
@@ -58,14 +55,11 @@ class EntryPointTests(unittest.TestCase):
             "endpoint_idle": True, "gpu_holders": ["lxc110:aster-llama.service"],
             "registered_targets": [
                 "lxc104:aster-agent.service", "lxc116:aster-speech.service",
-                "lxc114:news-aggregator-ingest.timer",
-                "lxc114:news-aggregator-digest.timer",
             ], "quiesced_targets": [],
             "baseline": {
                 "units": [["lxc104:aster-agent.service", "enabled+active"],
                           ["lxc116:aster-speech.service", "enabled+active"]],
-                "timers": [["lxc114:news-aggregator-ingest.timer", "enabled+active"],
-                           ["lxc114:news-aggregator-digest.timer", "enabled+active"]],
+                "timers": [],
             }, "watchdog_independent": True, "hard_deadline_epoch": 1120,
             "restore_deadline_epoch": 1300, "now_epoch": 1000,
         }

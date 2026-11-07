@@ -61,32 +61,32 @@ class CooperativeLabSessionTests(unittest.TestCase):
             controller = CooperativeLabController(paths, calls.append, allow_effects=True,
                                                    observer=observer, owner_id="test-owner")
             value = controller.begin(self.preflight())
-            self.assertEqual(len(calls), 4)
+            self.assertEqual(len(calls), 2)
             self.assertTrue(paths.lock.exists())
             controller.require_work_window(self.epoch(10, 29))
             with self.assertRaisesRegex(LabSessionError, "window has ended"):
                 controller.require_work_window(self.epoch(10, 30))
             controller.restore(value, now_epoch=self.epoch(10, 50), owner_present=True)
-            self.assertEqual(len(calls), 12)
-            self.assertEqual(len(observations), 12)
+            self.assertEqual(len(calls), 6)
+            self.assertEqual(len(observations), 6)
             self.assertFalse(paths.lock.exists())
             self.assertIn("restore-verified", paths.journal.read_text())
 
     def test_failed_effect_keeps_lock_and_does_not_auto_restore(self):
         calls = []
-        def fail_on_third(command):
+        def fail_on_second(command):
             calls.append(command)
-            if len(calls) == 3:
+            if len(calls) == 2:
                 raise RuntimeError("synthetic failure")
         with tempfile.TemporaryDirectory() as tmp:
             paths = CooperativeLabPaths(Path(tmp) / "state")
-            controller = CooperativeLabController(paths, fail_on_third, allow_effects=True,
+            controller = CooperativeLabController(paths, fail_on_second, allow_effects=True,
                                                    observer=lambda *_: True, owner_id="test-owner")
             with self.assertRaises(RuntimeError):
                 controller.begin(self.preflight())
             self.assertTrue(paths.lock.exists())
             self.assertTrue(paths.state.exists())
-            self.assertEqual(len(calls), 3)
+            self.assertEqual(len(calls), 2)
             controller.restore(plan(self.preflight()), now_epoch=self.epoch(10, 50), owner_present=True)
             self.assertFalse(paths.lock.exists())
 

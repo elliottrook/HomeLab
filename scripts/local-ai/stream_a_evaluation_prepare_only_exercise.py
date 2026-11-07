@@ -51,14 +51,10 @@ F2_TIMERS = ("f2-preflight-prepare-20261026.timer", "f2-preflight-final-20261026
 CONSUMERS = (
     ("104", "aster-agent.service", "unit"),
     ("116", "aster-speech.service", "unit"),
-    ("114", "news-aggregator-ingest.timer", "timer"),
-    ("114", "news-aggregator-digest.timer", "timer"),
 )
 REGISTERED = (
     "lxc104:aster-agent.service",
     "lxc116:aster-speech.service",
-    "lxc114:news-aggregator-ingest.timer",
-    "lxc114:news-aggregator-digest.timer",
 )
 MODEL = "Qwen3.5 9B Q4_K_M"
 BACKEND = "llama.cpp b11429 SYCL/Level Zero"
@@ -293,7 +289,7 @@ class Exercise:
         pre = self.prestate(lease_id)
         now = self.clock()
         baseline = {"units": [[REGISTERED[0], "enabled+active"], [REGISTERED[1], "enabled+active"]],
-                    "timers": [[REGISTERED[2], "enabled+active"], [REGISTERED[3], "enabled+active"]]}
+                    "timers": []}
         intent = {"lease_id": lease_id, "generation": generation, "exercise_marker": MARKER,
                   "model": MODEL, "backend": BACKEND, "endpoint": ENDPOINT,
                   "backend_active": True, "endpoint_authenticated": True, "endpoint_idle": True,

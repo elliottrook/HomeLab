@@ -31,8 +31,7 @@ class AdapterTests(unittest.TestCase):
             ProductionBaseline(
                 (("lxc104:aster-agent.service", "enabled+active"),
                  ("lxc116:aster-speech.service", "enabled+active")),
-                (("lxc114:news-aggregator-ingest.timer", "enabled+active"),
-                 ("lxc114:news-aggregator-digest.timer", "enabled+active")),
+                (),
             ), True, 5500, 6400,
             "stream-a-evaluation-admission-sha256:" + "d" * 64,
         )
@@ -185,7 +184,7 @@ class AdapterTests(unittest.TestCase):
             self.assertEqual(result["effects"], "restored")
             self.assertFalse(path.exists())
             self.assertFalse(recovered.lock_path.exists())
-            self.assertEqual(len(recovery_calls), 8)
+            self.assertEqual(len(recovery_calls), 4)
 
     def test_clean_prepared_lease_can_cancel_without_consumer_commands(self):
         calls = []
@@ -305,7 +304,7 @@ class AdapterTests(unittest.TestCase):
                 endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
             )
             self.assertEqual(result["effects"], "restored")
-            self.assertEqual(len(calls), 16)
+            self.assertEqual(len(calls), 8)
 
     def test_restore_failure_retains_lock(self):
         calls = []
