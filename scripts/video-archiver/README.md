@@ -36,6 +36,14 @@ season-path, provider-certified season and retained-playback counts. The season
 counts are identity evidence, not deletion candidates. This schedule does not
 run the deletion controller.
 
+`retention_subtitles_live.inspect_subtitles` is a separate read-only candidate
+manifest. It records embedded subtitle stream metadata and hashes sidecars
+whose ownership is unambiguous. On TrueNAS, inject
+`jellyfin_container_probe(path, data_root=...)` because `ffprobe` is available
+inside the existing Jellyfin container, where the media root is `/media`.
+Unknown ownership, nested sidecars and probe failure hold the candidate. This
+manifest is not yet wired into the daily audit or a deletion backend.
+
 Downconverts aged Radarr/Sonarr current-library video (movies/TV) to roughly 1–2 GB and hands the
 result to the `archive-movies`/`archive-tv` roots created by the Plex-to-Jellyfin migration
 project. Design and safety rationale: [`Video-Library-Archiving.md`](<../../docs/projects/completed projects/Video-Library-Archiving.md>).
