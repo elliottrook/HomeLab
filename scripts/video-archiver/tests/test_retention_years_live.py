@@ -83,3 +83,17 @@ class LiveYearTests(TestCase):
         with self.assertRaisesRegex(RuntimeError, 'roster'):
             collect_movie_years(config, today=date(2026, 11, 6),
                                 fetch=Session({'u1': ['a', 'b'], 'u2': ['a', 'b']}))
+
+    def test_concurrent_jellyfin_change_aborts_year_inventory(self):
+        session = Session({'u1': ['a', 'b'], 'u2': ['a', 'b']})
+        changed = False
+        def mutating_fetch(url, headers):
+            nonlocal changed
+            if not changed:
+                changed = True
+                with sqlite3.connect(self.jf) as db:
+                    db.execute('UPDATE BaseItems SET ProductionYear=1940 WHERE Id=\'b\'')
+            return session(url, headers)
+        with self.assertRaisesRegex(RuntimeError, 'changed during movie-year inventory'):
+            collect_movie_years(self.config, today=date(2026, 11, 6),
+                                fetch=mutating_fetch)

@@ -118,6 +118,8 @@ def collect_movie_years(config: LiveYearConfig, *, today: date,
     if not config.jellyfin_api_key or config.expected_user_count <= 0:
         raise ValueError("Jellyfin key and expected household size are required")
     with closing(_connect_readonly(config.jellyfin_db)) as jellyfin, closing(_connect_readonly(config.radarr_db)) as radarr:
+            jellyfin_version = jellyfin.execute("PRAGMA data_version").fetchone()[0]
+            radarr_version = radarr.execute("PRAGMA data_version").fetchone()[0]
             user_ids = [str(row[0]) for row in jellyfin.execute("SELECT Id FROM Users")]
             if len(user_ids) != config.expected_user_count or len(set(user_ids)) != len(user_ids):
                 raise RuntimeError("household user roster changed")
@@ -159,6 +161,9 @@ def collect_movie_years(config: LiveYearConfig, *, today: date,
                     arr_identity_verified=(len(matches) == 1 and matches[0] == (year, path, True)),
                     visible_user_ids=frozenset(user for user, visible in views.items() if item in visible),
                 ))
+            if (jellyfin.execute("PRAGMA data_version").fetchone()[0] != jellyfin_version
+                    or radarr.execute("PRAGMA data_version").fetchone()[0] != radarr_version):
+                raise RuntimeError("Radarr or Jellyfin changed during movie-year inventory")
             return count_verified_movie_years(
                 tuple(facts), expected_user_ids=frozenset(user_ids),
                 source_scan_complete=True, today=today,

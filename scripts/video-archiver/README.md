@@ -32,8 +32,9 @@ persist a household Keep choice. No authenticated feed or client route is live.
 The read-only audit is installed at `/mnt/Media/data/tools/media-retention-audit`
 on TrueNAS. Cron 9 runs `run-retention-audit.sh` at 10:45 daily and writes only a
 root-readable `status.json` with aggregate pool, snapshot, movie-year,
-season-path and retained-playback counts. The season counts are path evidence,
-not deletion candidates. This schedule does not run the deletion controller.
+season-path, provider-certified season and retained-playback counts. The season
+counts are identity evidence, not deletion candidates. This schedule does not
+run the deletion controller.
 
 Downconverts aged Radarr/Sonarr current-library video (movies/TV) to roughly 1–2 GB and hands the
 result to the `archive-movies`/`archive-tv` roots created by the Plex-to-Jellyfin migration
