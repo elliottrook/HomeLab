@@ -2321,6 +2321,14 @@ a separate matching registered-workload terminal proof before it may assert
 production restoration. The execution transport and booked effect remain
 separate gates; no sealed request was opened by this source work.
 
+The source-only [MacBook sealed-shortlist boundary](evidence/M3-K2-MacBook-sealed-shortlist-boundary-2026-11-06.md)
+now pins the exact accepted corpus and independently sealed evaluation, derives
+deterministic Apple NaturalLanguage top-four candidates, and writes only a
+create-only mode-0600 private result. Its focused tests and Swift typecheck
+pass. It has no network client or service credential and was not executed on
+the sealed artifact; a private bounded transport and a distinct booked effect
+remain required after the development gate passes.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from
