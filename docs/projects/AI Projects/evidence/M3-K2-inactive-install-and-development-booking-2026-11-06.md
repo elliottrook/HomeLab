@@ -85,3 +85,9 @@ reserved.
 Stream A did not remove or alter the other owner's lock. The exact next runtime
 check is to rerun readiness after that booking's normal restoration/release;
 K2 remains fail-closed if the operation lock is still present then.
+
+One same-thread read-only heartbeat, `aster-k2-19-05-readiness-recheck`, is
+active for 19:05 and must pause itself after that single check. It may only run
+the authoritative readiness checks, record the bounded result and continue
+offline work; it cannot claim, invoke, retry, reschedule, release, promote,
+install, stop or restart either workload.
