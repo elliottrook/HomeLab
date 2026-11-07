@@ -2337,6 +2337,15 @@ content-free terminal summary. Its 19-test focused suite passes. The registered
 relay, cross-host transaction and distinct Lab Hours booking remain deliberately
 absent until the development result passes with production restored.
 
+The [transaction relay boundary](evidence/M3-K2-sealed-evaluation-relay-boundary-2026-11-06.md)
+now closes the next source gap without adding access: it binds only two local
+loopback ports, accepts exactly the frozen K2 request bytes, injects only a
+transaction-scoped private-listener nonce and exits after 32 no-retry requests.
+Read-only topology checks prove the existing Mac mini-to-MacBook SSH path is
+the usable control direction; Proxmox cannot currently authenticate to the
+MacBook, so no new access was assumed. The coordinator, private listener and
+booked effect remain uninstalled and conditional on the development pass.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from

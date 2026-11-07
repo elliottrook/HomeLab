@@ -22,9 +22,10 @@ against the sealed artifact and made no model request.
 
 The runner rejects redirects, direct LAN endpoints, tool calls, reasoning
 content, unknown response fields, altered sealed identity, altered shortlist
-shape, non-finite scores, duplicates and incomplete result sets. Sealed request
-text and expected labels remain in the MacBook process and are not written to
-records, metrics, journal events or standard output.
+shape, non-finite scores, duplicates and incomplete result sets. Expected
+labels remain exclusively in the MacBook process. Each request text necessarily
+transits the fixed relay and accepted model for inference, but is not written
+to records, metrics, journal events or standard output by this runner.
 
 The bearer accepted by this source is a transaction-scoped relay nonce, not a
 B60 service credential. The future registered platform effect must create the
