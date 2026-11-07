@@ -3,7 +3,8 @@
 ## Result
 
 The prospective 60-case K2 no-effect shadow phase now has a source-only,
-fail-closed reconciliation boundary at Stream A source commit `1fe7e285`.
+fail-closed reconciliation boundary introduced at Stream A source commit
+`1fe7e285` and type-hardened at `5fc7b84d`.
 It refuses to treat the scored shadow envelope as operational evidence unless
 one exact Lab Hours terminal also proves:
 
@@ -17,19 +18,21 @@ one exact Lab Hours terminal also proves:
 On success it returns only content-free score fields plus the restoration and
 no-effect proof. Authority remains `not-granted` and automatic routing remains
 `off`. Unknown terminal fields, changed identities, incomplete or unrestored
-state, count drift, a digest mismatch or any effect all fail closed.
+state, count drift, a digest mismatch or any effect all fail closed. Exact
+integer typing prevents Boolean values from masquerading as zero retries,
+errors or cost.
 
 ## Verification
 
 - source SHA-256:
-  `085165f7884bf22664b291f36cd36b3851f37cc0dbe911aad66d47033cc74e4c`
+  `a5745653ac547f8eceef625a83cda2e441f964dac11b808e6dbf32214d0a6290`
 - test SHA-256:
-  `3bd18fa2c888ea4207fcd5d0a62810fcd6f2d0e868473080feca14a801be99ff`
-- focused reconciliation tests: 5/5 pass
-- complete `test_nlu_k2*.py` discovery: 113/113 pass
+  `cfcb5fc266af83b3665dda7a406d77a68faf1a8d96cd26d09c4db0c844ec36a0`
+- focused reconciliation tests: 6/6 pass
+- complete `test_nlu_k2*.py` discovery: 114/114 pass
 - deterministic bundle-builder suite: 3/3 pass
 - platform `test_m3_k2*.py` suite: 31/31 pass
-- combined current K2 source audit: 147/147 pass
+- combined current K2 source audit: 148/148 pass
 
 The first attempted extra bundle test invocation named a nonexistent module and
 failed before executing a test. The correct existing module

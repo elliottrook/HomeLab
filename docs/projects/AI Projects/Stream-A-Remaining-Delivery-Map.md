@@ -2478,7 +2478,8 @@ The prospective shadow result now also has a fail-closed
 It binds the exact 60-case envelope to one complete registered Lab Hours
 terminal, zero retries/errors/effects and `production_restored=true`; unknown
 fields or any identity, digest, count, effect or restoration drift are rejected.
-The current combined K2 source audit passes 147/147. This remains source-only:
+Exact integer typing also rejects Boolean zero lookalikes. The current combined
+K2 source audit passes 148/148. This remains source-only:
 no fixture, shadow collection, booking, route or provider effect exists.
 
 The previously implicit NLU stage now has an explicit
