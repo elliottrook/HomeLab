@@ -22,6 +22,7 @@ class MovieYearFact:
     physical_present: bool
     arr_identity_verified: bool
     visible_user_ids: frozenset[str]
+    arr_movie_id: int | None = None
 
 
 @dataclass(frozen=True)
@@ -49,6 +50,8 @@ def count_verified_movie_years(
     provider_counts = Counter(row.provider_id for row in facts if row.provider_id)
     path_counts = Counter(row.path for row in facts if row.path)
     item_counts = Counter(row.jellyfin_item_id for row in facts if row.jellyfin_item_id)
+    arr_id_counts = Counter(row.arr_movie_id for row in facts
+                            if type(row.arr_movie_id) is int and row.arr_movie_id > 0)
     years: Counter[int] = Counter()
     certified: list[MovieYearFact] = []
     for row in facts:
@@ -57,6 +60,8 @@ def count_verified_movie_years(
             or not row.jellyfin_item_id or item_counts[row.jellyfin_item_id] != 1
             or not row.path.startswith("/") or path_counts[row.path] != 1
             or not row.physical_present or not row.arr_identity_verified
+            or type(row.arr_movie_id) is not int or row.arr_movie_id <= 0
+            or arr_id_counts[row.arr_movie_id] != 1
             or row.visible_user_ids != expected_user_ids
             or type(row.release_year) is not int
             or not 1878 <= row.release_year <= today.year

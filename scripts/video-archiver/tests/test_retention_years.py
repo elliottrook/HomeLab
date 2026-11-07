@@ -12,7 +12,8 @@ USERS = frozenset({'a', 'b'})
 def film(provider: str, item: str, path: str, year: int = 1939, **changes) -> MovieYearFact:
     values = dict(provider_id=provider, release_year=year, jellyfin_item_id=item,
                   path=path, physical_present=True, arr_identity_verified=True,
-                  visible_user_ids=USERS)
+                  visible_user_ids=USERS,
+                  arr_movie_id=int(provider.split(':')[-1]))
     values.update(changes)
     return MovieYearFact(**values)
 
@@ -40,12 +41,19 @@ class MovieYearTests(TestCase):
         self.assertEqual(result.held, 4)
         self.assertEqual(result.certified_facts, ())
 
+    def test_duplicate_radarr_movie_id_holds_both_rows(self):
+        result = inventory(film('tmdb:1', 'jf-1', '/media/a.mkv', arr_movie_id=9),
+                           film('tmdb:2', 'jf-2', '/media/b.mkv', arr_movie_id=9))
+        self.assertEqual(result.counts, {})
+        self.assertEqual(result.certified_facts, ())
+
     def test_missing_file_identity_year_or_user_visibility_is_held(self):
         result = inventory(
             film('tmdb:1', 'jf-1', '/a', physical_present=False),
             film('tmdb:2', 'jf-2', '/b', arr_identity_verified=False),
             film('tmdb:3', 'jf-3', '/c', release_year=None),
             film('tmdb:4', 'jf-4', '/d', visible_user_ids=frozenset({'a'})),
+            film('tmdb:5', 'jf-5', '/e', arr_movie_id=None),
         )
         self.assertEqual(result.counts, {})
 

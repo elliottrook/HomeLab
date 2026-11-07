@@ -129,7 +129,7 @@ def collect_movie_years(config: LiveYearConfig, *, today: date,
                 "SELECT ItemId,ProviderValue FROM BaseItemProviders WHERE ProviderId='Tmdb'"
             ):
                 provider_rows[_item_id(item_id)].append(str(provider_value))
-            arr_rows: dict[str, list[tuple[int, str | None, bool]]] = defaultdict(list)
+            arr_rows: dict[str, list[tuple[int, int, str | None, bool]]] = defaultdict(list)
             for movie_id, tmdb, year, folder, selected_file_id, file_id, relative in radarr.execute("""
                 SELECT m.Id, md.TmdbId, md.Year, m.Path, m.MovieFileId, f.Id, f.RelativePath
                 FROM Movies m JOIN MovieMetadata md ON md.Id=m.MovieMetadataId
@@ -140,7 +140,8 @@ def collect_movie_years(config: LiveYearConfig, *, today: date,
                 mapped = None
                 if file_id is not None and folder and relative and folder.startswith("/media/movie/"):
                     mapped = "/media/" + (folder.rstrip("/") + "/" + relative)[len("/media/movie/"):]
-                arr_rows[str(tmdb)].append((year, mapped, file_id is not None and selected_file_id == file_id))
+                arr_rows[str(tmdb)].append((movie_id, year, mapped,
+                                            file_id is not None and selected_file_id == file_id))
             facts: list[MovieYearFact] = []
             for item_id, path, year in jellyfin.execute(
                 "SELECT Id,Path,ProductionYear FROM BaseItems WHERE Type=? AND Path IS NOT NULL",
@@ -158,8 +159,9 @@ def collect_movie_years(config: LiveYearConfig, *, today: date,
                     jellyfin_item_id=item,
                     path=path,
                     physical_present=bool(mapped and mapped.is_file()),
-                    arr_identity_verified=(len(matches) == 1 and matches[0] == (year, path, True)),
+                    arr_identity_verified=(len(matches) == 1 and matches[0][1:] == (year, path, True)),
                     visible_user_ids=frozenset(user for user, visible in views.items() if item in visible),
+                    arr_movie_id=matches[0][0] if len(matches) == 1 else None,
                 ))
             if (jellyfin.execute("PRAGMA data_version").fetchone()[0] != jellyfin_version
                     or radarr.execute("PRAGMA data_version").fetchone()[0] != radarr_version):
