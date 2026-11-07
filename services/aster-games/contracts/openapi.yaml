@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: Aster Games Broker
+  version: 0.1.0
+  description: Proposal-only, content-minimizing API for a future AsterTV v4 client.
+servers: []
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      security: []
+      responses:
+        "200": {description: Process is healthy}
+  /v1/capabilities:
+    get:
+      responses:
+        "200": {description: Static capabilities and release-gate status}
+  /v1/catalog:
+    get:
+      parameters:
+        - {name: search, in: query, schema: {type: string, maxLength: 128}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100}}
+      responses:
+        "200": {description: Sanitized RomM catalogue fields only}
+  /v1/proposals:
+    post:
+      parameters:
+        - {name: Idempotency-Key, in: header, required: true, schema: {type: string, maxLength: 128}}
+        - {name: X-Aster-Device, in: header, required: true, schema: {type: string, maxLength: 128}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ProposalInput"}
+      responses:
+        "201": {description: Pending proposal created; never executed}
+        "200": {description: Idempotent replay}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer}
+  schemas:
+    ProposalInput:
+      type: object
+      additionalProperties: false
+      required: [action, game_id]
+      properties:
+        action: {type: string, enum: [request_game, install_game]}
+        game_id: {type: string, maxLength: 128}
+        device_id: {type: string, maxLength: 128}
+

@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-11-06 — AsterTV v4 retro gaming infrastructure candidate
+
+- Created the Stream M AsterTV v4 retro gaming project from the repository's
+  historical `PROJECT.md` structure and current Project Creation Standard.
+- Selected ROMarr 1.8.0 for acquisition/DAT verification and RomM 5.4.0 for the
+  catalogue, metadata, saves, and future device sync, with all upstream images
+  pinned to immutable OCI manifest digests.
+- Built a private, inactive Compose candidate and a content-minimizing Aster
+  Games broker that can read a sanitized catalogue and store idempotent pending
+  proposals but has no approval or execution route.
+- Added static safety validation, synthetic unit tests, a content-silent Doctor
+  probe, OpenAPI contract, and isolated backup/restore requirements.
+- Added a fail-closed gate that prohibits Kodi, AsterTV v4 design/client, fleet
+  overlay, or appliance work until AsterTV v3 is deployed and owner-accepted.
+  No live system, remote repository, or AsterTV appliance was changed.
+
 ## 2026-11-06 — Aster News video presenter and wardrobe design
 
 - Prepared Aster's accepted fictional 2026 visual baseline and a candidate-only

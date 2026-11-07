@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "astertv_v3_deployed": false,
+  "astertv_v3_owner_accepted": false,
+  "evidence_refs": [],
+  "v4_client_work_allowed": false,
+  "reason": "Closed until AsterTV v3 deployment and owner acceptance are recorded."
+}
+

@@ -1,0 +1,158 @@
+name: aster-games
+
+services:
+  romm-db:
+    image: mariadb:11.8.5@sha256:345fa26d595e8c7fe298e0c4098ed400356f502458769c8902229b3437d6da2b
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: romm
+      MARIADB_USER: romm
+      MARIADB_PASSWORD: ${ROMM_DB_PASSWORD:?required outside Git}
+      MARIADB_ROOT_PASSWORD: ${ROMM_DB_ROOT_PASSWORD:?required outside Git}
+    volumes:
+      - ${ASTER_GAMES_STATE_ROOT:?absolute state root required}/mariadb:/var/lib/mysql
+    networks: [state]
+    healthcheck:
+      test: ["CMD-SHELL", "healthcheck.sh --connect --innodb_initialized"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    security_opt: ["no-new-privileges:true"]
+
+  romm-cache:
+    image: valkey/valkey:8.1.4-alpine@sha256:e706d1213aaba6896c162bb6a3a9e1894e1a435f28f8f856d14fab2e10aa098b
+    restart: unless-stopped
+    command: ["valkey-server", "--requirepass", "${ROMM_CACHE_PASSWORD:?required outside Git}", "--appendonly", "yes", "--save", "60", "1"]
+    environment:
+      ROMM_CACHE_PASSWORD: ${ROMM_CACHE_PASSWORD:?required outside Git}
+    volumes:
+      - ${ASTER_GAMES_STATE_ROOT:?absolute state root required}/valkey:/data
+    networks: [state]
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli -a \"$$ROMM_CACHE_PASSWORD\" ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    security_opt: ["no-new-privileges:true"]
+
+  romm:
+    image: rommapp/romm:5.4.0@sha256:03295f95a6290e752641f9553ac4198b0e5b71b879d57f7b2371b98f608feb54
+    restart: unless-stopped
+    depends_on:
+      romm-db:
+        condition: service_healthy
+      romm-cache:
+        condition: service_healthy
+    environment:
+      DB_HOST: romm-db
+      DB_NAME: romm
+      DB_USER: romm
+      DB_PASSWD: ${ROMM_DB_PASSWORD:?required outside Git}
+      REDIS_HOST: romm-cache
+      REDIS_PASSWORD: ${ROMM_CACHE_PASSWORD:?required outside Git}
+      ROMM_AUTH_SECRET_KEY: ${ROMM_AUTH_SECRET_KEY:?required outside Git}
+      ROMM_SESSION_SECURE_COOKIE: "true"
+      ROMM_CORS_ALLOWED_ORIGINS: ${ROMM_PUBLIC_ORIGIN:?private HTTPS origin required}
+      FORWARDED_ALLOW_IPS: ${ASTER_GAMES_TRUSTED_PROXY:?trusted proxy address required}
+      HASHEOUS_API_ENABLED: "true"
+      DEVICE_INSTALL_ENABLED: "false"
+      TZ: America/Vancouver
+    volumes:
+      - ${ASTER_GAMES_LIBRARY_ROOT:?absolute library root required}:/romm/library:ro
+      - ${ASTER_GAMES_STATE_ROOT:?absolute state root required}/romm/assets:/romm/assets
+      - ${ASTER_GAMES_STATE_ROOT:?absolute state root required}/romm/config:/romm/config
+      - ${ASTER_GAMES_STATE_ROOT:?absolute state root required}/romm/resources:/romm/resources
+    ports:
+      - "${ASTER_GAMES_UI_BIND_ADDRESS:-127.0.0.1}:${ROMM_LOOPBACK_PORT:-8080}:8080"
+    networks: [frontend, state, egress]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/heartbeat', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    security_opt: ["no-new-privileges:true"]
+
+  romarr:
+    image: ghcr.io/blizzhacker/romarr:1.8.0@sha256:19cbfad5189d630cc914eed1efb174dbd05c1888484b9ef6eb3698f71dc56458
+    restart: unless-stopped
+    depends_on:
+      romm:
+        condition: service_healthy
+    environment:
+      PUID: ${ASTER_GAMES_UID:?numeric storage owner required}
+      PGID: ${ASTER_GAMES_GID:?numeric storage group required}
+      UMASK: "002"
+      TZ: America/Vancouver
+      LIBRARY_KIND: romm
+      LIBRARY_URL: http://romm:8080
+      LIBRARY_API_KEY: ${ROMM_ROMARR_API_KEY:?scoped RomM token required}
+      LIBRARY_PATH: /roms
+      ROMARR_PASSWORD: ${ROMARR_PASSWORD:?required outside Git}
+      ROMARR_API_KEY: ${ROMARR_API_KEY:?required outside Git}
+      PROWLARR_URL: ${PROWLARR_URL:?private Prowlarr URL required}
+      PROWLARR_API_KEY: ${PROWLARR_API_KEY:?required outside Git}
+      SABNZBD_URL: ${SABNZBD_URL:?private SABnzbd URL required}
+      SABNZBD_API_KEY: ${SABNZBD_API_KEY:?required outside Git}
+      DAT_PATH: /dats
+    volumes:
+      - ${ASTER_GAMES_STATE_ROOT:?absolute state root required}/romarr:/config
+      - ${ASTER_GAMES_LIBRARY_ROOT:?absolute library root required}:/roms
+      - ${ASTER_GAMES_DOWNLOAD_ROOT:?absolute staging root required}:${ASTER_GAMES_DOWNLOAD_ROOT:?absolute staging root required}
+      - ${ASTER_GAMES_DAT_ROOT:?absolute DAT root required}:/dats:ro
+    ports:
+      - "${ASTER_GAMES_UI_BIND_ADDRESS:-127.0.0.1}:${ROMARR_LOOPBACK_PORT:-6868}:6868"
+    networks: [frontend, egress]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:6868/api/health', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    security_opt: ["no-new-privileges:true"]
+
+  broker:
+    build:
+      context: ./broker
+      args:
+        PYTHON_BASE: python:3.13.9-alpine3.22@sha256:e5fa639e49b85986c4481e28faa2564b45aa8021413f31026c3856e5911618b1
+    image: localhost/aster-games-broker:0.1.0
+    restart: unless-stopped
+    depends_on:
+      romm:
+        condition: service_healthy
+    environment:
+      ASTER_GAMES_BIND: 0.0.0.0
+      ASTER_GAMES_PORT: "8099"
+      ASTER_GAMES_DB: /state/proposals.sqlite3
+      ASTER_GAMES_CLIENT_TOKEN_FILE: /run/secrets/broker_client_token
+      ASTER_GAMES_ROMM_URL: http://romm:8080
+      ASTER_GAMES_ROMM_TOKEN_FILE: /run/secrets/romm_broker_token
+      ASTER_GAMES_RELEASE_GATE: /config/release-gate.json
+    volumes:
+      - ${ASTER_GAMES_STATE_ROOT:?absolute state root required}/broker:/state
+      - ./config/release-gate.json:/config/release-gate.json:ro
+      - ${ASTER_GAMES_SECRET_ROOT:?absolute secret root required}/broker-client-token:/run/secrets/broker_client_token:ro
+      - ${ASTER_GAMES_SECRET_ROOT:?absolute secret root required}/romm-broker-token:/run/secrets/romm_broker_token:ro
+    ports:
+      - "${ASTER_GAMES_BROKER_BIND_ADDRESS:-127.0.0.1}:${ASTER_GAMES_BROKER_LOOPBACK_PORT:-8099}:8099"
+    networks: [frontend]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8099/health', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+networks:
+  frontend:
+    internal: true
+  state:
+    internal: true
+  egress:
+    driver: bridge
+
