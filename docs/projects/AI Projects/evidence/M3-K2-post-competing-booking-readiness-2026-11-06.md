@@ -20,6 +20,11 @@ accepts the complete registry/release composition. This supersedes the earlier
 temporary `shared_locks_absent=false` observation; that observation was caused
 by the legitimate claimed predecessor booking, not a K2 defect.
 
+The next separate reservation starts at 21:20. K2 ends at 21:00 and its fixed
+900-second recovery reserve ends at 21:15, leaving a five-minute ledger gap.
+The later reservation therefore does not consume K2's execution or recovery
+window.
+
 ## Boundary
 
 This was read-only reconciliation. It did not claim or invoke K2, retry the
