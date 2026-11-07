@@ -2,19 +2,19 @@
   "files": [
     {
       "authority": "home-assistant",
-      "bytes": 7443,
+      "bytes": 10668,
       "destination": "/config/custom_components/aster_room_bridge/__init__.py",
       "mode": "0644",
       "scope": "external",
-      "sha256": "80df6f8e1cf9edf5d71c9d4540e32b4347ab8b13e9f249a0065c903e99cb40f3"
+      "sha256": "0ab1cad5bda6754c50fae11c6752df04d2d26bcb137796bbfd34f94b1e43db77"
     },
     {
       "authority": "home-assistant",
-      "bytes": 6518,
+      "bytes": 9162,
       "destination": "/config/custom_components/aster_room_bridge/content_policy.py",
       "mode": "0644",
       "scope": "external",
-      "sha256": "4ed19eade495e4d35f7b58cb3b8b54dc21de2158a3b782139dda3a1af21a82f8"
+      "sha256": "98453ad7ed0d54735e5b9ed5bf25eb4af9706e1aabe63ce330b1d916d06e8a9d"
     },
     {
       "authority": "home-assistant",

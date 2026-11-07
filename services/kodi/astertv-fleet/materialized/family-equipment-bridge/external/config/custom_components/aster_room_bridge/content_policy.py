@@ -119,6 +119,66 @@ class VolumeDecision:
     ramp: tuple[float, ...]
 
 
+class VolumeSessionController:
+    """Fail-closed state machine for one room's playback-session volume."""
+
+    def __init__(self, profile: VolumeProfile):
+        self.profile = profile
+        self.previous: PlaybackObservation | None = None
+        self.last_level: float | None = None
+        self.manual_override = False
+
+    def observe(self, current: PlaybackObservation, *, current_level: float,
+                nighttime: bool) -> VolumeDecision:
+        if (type(current_level) not in {int, float}
+                or not math.isfinite(current_level)
+                or not 0 <= current_level <= 1):
+            raise ContentPolicyError("current-volume")
+        previous = self.previous
+        new_session = (previous is not None
+                       and previous.session_id != current.session_id)
+        if new_session:
+            self.manual_override = False
+        elif (previous is not None and self.last_level is not None
+              and previous.playback_state in {"playing", "paused"}
+              and abs(current_level - self.last_level) > 0.0011):
+            self.manual_override = True
+
+        # A controller restart while media is already playing must never alter
+        # the room. It primes from observation and waits for the next real
+        # playback start or class transition.
+        if previous is None:
+            self.previous = current
+            self.last_level = current_level
+            return VolumeDecision("startup-prime", None, ())
+
+        decision = decide_volume(
+            previous=previous, current=current, current_level=current_level,
+            profile=self.profile, nighttime=nighttime,
+            manual_override=self.manual_override,
+        )
+        self.previous = current
+        self.last_level = current_level
+        return decision
+
+    def applied(self, level: float) -> None:
+        if type(level) not in {int, float} or not 0 <= level <= 1:
+            raise ContentPolicyError("applied-volume")
+        self.last_level = float(level)
+
+    def suppress(self, current: PlaybackObservation,
+                 current_level: float | None = None) -> VolumeDecision:
+        """Consume an observation when required control context is absent."""
+        if (self.previous is not None
+                and self.previous.session_id != current.session_id):
+            self.manual_override = False
+        self.previous = current
+        if (type(current_level) in {int, float}
+                and math.isfinite(current_level) and 0 <= current_level <= 1):
+            self.last_level = float(current_level)
+        return VolumeDecision("context-unavailable", None, ())
+
+
 def _ramp(current: float, target: float, maximum_step: float) -> tuple[float, ...]:
     if abs(target - current) < 1e-9:
         return ()

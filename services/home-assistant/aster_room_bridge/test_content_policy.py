@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import sys
 import unittest
@@ -6,7 +7,7 @@ import unittest
 HERE = Path(__file__).resolve().parent / "custom_components" / "aster_room_bridge"
 sys.path.insert(0, str(HERE))
 from content_policy import (ContentPolicyError, CurrentState, PlaybackObservation,
-                            VolumeProfile, decide_volume)
+                            VolumeProfile, VolumeSessionController, decide_volume)
 
 
 def payload(**updates):
@@ -46,6 +47,21 @@ class ContentPolicyTests(unittest.TestCase):
             PlaybackObservation.parse(value, now_epoch=110)
         with self.assertRaisesRegex(ContentPolicyError, "playback-identity"):
             PlaybackObservation.parse(payload(expires_epoch=109), now_epoch=110)
+
+    def test_owner_selected_family_profile_is_exact_and_disabled(self):
+        profile_path = HERE.parent.parent / "profiles" / "family.json"
+        value = json.loads(profile_path.read_text())
+        self.assertEqual(value["status"], "owner-selected-not-enabled")
+        self.assertFalse(value["enabled"])
+        self.assertEqual(value["nighttime_entity"], "sun.sun")
+        self.assertEqual(value["nighttime_on_state"], "below_horizon")
+        self.assertEqual(value["nighttime_off_state"], "above_horizon")
+        self.assertEqual(value["targets"], {
+            "Movie": 0.60, "Television": 0.58, "YouTube": 0.455,
+            "Music": 0.43, "Podcast": 0.44, "News": 0.44,
+            "Book/Audiobook": 0.44,
+        })
+        self.assertEqual(value["nighttime_ceiling"], 0.60)
 
     def test_all_coarse_classes_are_accepted_but_unknown_never_changes_volume(self):
         for name in ("Movie", "Television", "Music", "YouTube", "Podcast",
@@ -114,6 +130,61 @@ class ContentPolicyTests(unittest.TestCase):
         self.assertNotIn("kodi_volume", fields)
         self.assertNotIn("audio_route", fields)
         self.assertNotIn("passthrough", fields)
+
+    def test_controller_primes_on_restart_and_latches_manual_override(self):
+        controller = VolumeSessionController(self.profile)
+        already_playing = self.observation()
+        primed = controller.observe(already_playing, current_level=0.52,
+                                    nighttime=False)
+        self.assertEqual((primed.reason, primed.ramp), ("startup-prime", ()))
+        manual_change = self.observation(sequence=2)
+        manual = controller.observe(manual_change, current_level=0.51,
+                                    nighttime=False)
+        self.assertEqual((manual.reason, manual.ramp), ("manual-override", ()))
+        self.assertTrue(controller.manual_override)
+        next_session = self.observation(
+            session_id="session-0002", sequence=1, content_class="Music",
+            page_id="music",
+        )
+        reset = controller.observe(next_session, current_level=0.51,
+                                   nighttime=False)
+        self.assertEqual((reset.reason, reset.target),
+                         ("content-transition", 0.45))
+        self.assertFalse(controller.manual_override)
+
+    def test_controller_acts_after_idle_prime_and_tracks_applied_level(self):
+        controller = VolumeSessionController(self.profile)
+        idle = self.observation(playback_state="idle")
+        self.assertEqual(
+            controller.observe(idle, current_level=0.50,
+                               nighttime=False).reason,
+            "startup-prime",
+        )
+        playing = self.observation(session_id="session-0002", sequence=1)
+        decision = controller.observe(playing, current_level=0.50,
+                                      nighttime=False)
+        self.assertEqual(decision.target, 0.60)
+        for level in decision.ramp:
+            controller.applied(level)
+        same = self.observation(session_id="session-0002", sequence=2)
+        unchanged = controller.observe(same, current_level=0.60,
+                                       nighttime=False)
+        self.assertEqual((unchanged.reason, unchanged.ramp),
+                         ("no-transition", ()))
+
+    def test_missing_control_context_consumes_transition_without_late_action(self):
+        controller = VolumeSessionController(self.profile)
+        idle = self.observation(playback_state="idle")
+        controller.observe(idle, current_level=0.50, nighttime=False)
+        playing = self.observation(session_id="session-0002", sequence=1)
+        suppressed = controller.suppress(playing, current_level=0.50)
+        self.assertEqual((suppressed.reason, suppressed.ramp),
+                         ("context-unavailable", ()))
+        later = self.observation(session_id="session-0002", sequence=2)
+        decision = controller.observe(later, current_level=0.50,
+                                      nighttime=False)
+        self.assertEqual((decision.reason, decision.ramp),
+                         ("no-transition", ()))
 
 
 if __name__ == "__main__":

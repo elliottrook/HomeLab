@@ -31,7 +31,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-0efec83c2933"
+      "version": "composition-b2d22320b470"
     },
     {
       "name": "beszel-client-v1",
@@ -46,7 +46,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-0efec83c2933"
+      "version": "composition-b2d22320b470"
     },
     {
       "name": "family-dolby-hdr",
@@ -61,7 +61,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-0efec83c2933"
+      "version": "composition-b2d22320b470"
     },
     {
       "name": "remote-client-v3",
@@ -76,7 +76,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-0efec83c2933"
+      "version": "composition-b2d22320b470"
     },
     {
       "name": "family-equipment-bridge",
@@ -91,7 +91,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-0efec83c2933"
+      "version": "composition-b2d22320b470"
     },
     {
       "name": "family-kodi-restart",
@@ -106,7 +106,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-0efec83c2933"
+      "version": "composition-b2d22320b470"
     },
     {
       "name": "family-media-lifecycle",
@@ -121,7 +121,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-0efec83c2933"
+      "version": "composition-b2d22320b470"
     },
     {
       "name": "family-physical-equipment-keys",
@@ -136,7 +136,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-0efec83c2933"
+      "version": "composition-b2d22320b470"
     },
     {
       "name": "news-playback-v3",
@@ -151,7 +151,7 @@
         }
       ],
       "type": "application",
-      "version": "composition-0efec83c2933"
+      "version": "composition-b2d22320b470"
     },
     {
       "name": "tv-details-v3",
@@ -166,17 +166,17 @@
         }
       ],
       "type": "application",
-      "version": "composition-0efec83c2933"
+      "version": "composition-b2d22320b470"
     }
   ],
   "metadata": {
     "component": {
       "name": "astertv-family",
       "type": "device",
-      "version": "0efec83c2933"
+      "version": "b2d22320b470"
     }
   },
-  "serialNumber": "urn:uuid:astertv-0efec83c2933bc78c2fbe539ea051149",
+  "serialNumber": "urn:uuid:astertv-b2d22320b47037a2883a6524968ef2c1",
   "specVersion": "1.5",
   "version": 1
 }

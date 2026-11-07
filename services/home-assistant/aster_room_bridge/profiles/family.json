@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-content-volume-profile",
+  "room_id": "family",
+  "status": "owner-selected-not-enabled",
+  "targets": {
+    "Book/Audiobook": 0.44,
+    "Movie": 0.6,
+    "Music": 0.43,
+    "News": 0.44,
+    "Podcast": 0.44,
+    "Television": 0.58,
+    "YouTube": 0.455
+  },
+  "nighttime_ceiling": 0.6,
+  "maximum_step": 0.02,
+  "nighttime_entity": "sun.sun",
+  "nighttime_on_state": "below_horizon",
+  "nighttime_off_state": "above_horizon",
+  "enabled": false
+}

@@ -4,11 +4,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-import itertools
 import json
 from pathlib import Path
 import queue
-import secrets
 import socket
 import threading
 import time
@@ -17,6 +15,8 @@ import urllib.request
 
 import xbmc
 import xbmcgui
+
+from content_session import ContentSession
 
 
 BASE = "http://192.168.70.10:9120/v1/remote"
@@ -41,8 +41,7 @@ CONTENT_BY_ITEM = {
     "movie": "Movie", "episode": "Television", "musicvideo": "Music",
     "song": "Music",
 }
-SESSION_ID = "boot-" + secrets.token_hex(16)
-SEQUENCES = itertools.count(1)
+CONTENT_SESSION = ContentSession()
 CONTENT_STATE_SUPPORTED = True
 NAVIGATION = {
     "nav.up": "Input.Up", "nav.down": "Input.Down",
@@ -213,13 +212,14 @@ def state():
         player_type, "Unknown"
     ))
     now = int(time.time())
+    session_id, sequence = CONTENT_SESSION.observe(playback)
     result = {
         "current_page": page,
         "playback": playback,
         "content_state": {
             "schema": "astertv-room-playback.v1",
-            "session_id": SESSION_ID,
-            "sequence": next(SEQUENCES),
+            "session_id": session_id,
+            "sequence": sequence,
             "observed_epoch": now,
             "expires_epoch": now + 30,
             "available": True,

@@ -43,6 +43,16 @@ class ComponentSourceTests(unittest.TestCase):
         isolation = SOURCE[content:equipment]
         self.assertIn("except Exception", isolation)
 
+    def test_content_volume_is_disabled_by_default_and_fixed_entity_only(self):
+        self.assertIn('vol.Optional("enabled", default=False)', SOURCE)
+        self.assertIn('if volume and volume["enabled"]', SOURCE)
+        self.assertIn('"media_player", "volume_set"', SOURCE)
+        self.assertIn('"entity_id": self.contract.volume_entity', SOURCE)
+        self.assertIn('self.nighttime_on_state,', SOURCE)
+        self.assertIn('self.nighttime_off_state,', SOURCE)
+        self.assertIn('nighttime.state == self.nighttime_on_state', SOURCE)
+        self.assertNotIn('command.get("volume_level")', SOURCE)
+
     def test_multi_room_config_is_backward_compatible_and_unique(self):
         self.assertIn('vol.Required("rooms")', SOURCE)
         self.assertIn('domain_config.get("rooms", [domain_config])', SOURCE)

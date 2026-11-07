@@ -28,8 +28,8 @@ FILES = {
 PINNED = {
     "/opt/aster-agent/aster_remote.py": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518",
     "/opt/aster-agent/static/remote/app.js": "76a14595af2da756a72975eb02afe45cd21ac035d8b118dfc67a2635258e0762",
-    "/config/custom_components/aster_room_bridge/__init__.py": "80df6f8e1cf9edf5d71c9d4540e32b4347ab8b13e9f249a0065c903e99cb40f3",
-    "/config/custom_components/aster_room_bridge/content_policy.py": "4ed19eade495e4d35f7b58cb3b8b54dc21de2158a3b782139dda3a1af21a82f8",
+    "/config/custom_components/aster_room_bridge/__init__.py": "0ab1cad5bda6754c50fae11c6752df04d2d26bcb137796bbfd34f94b1e43db77",
+    "/config/custom_components/aster_room_bridge/content_policy.py": "98453ad7ed0d54735e5b9ed5bf25eb4af9706e1aabe63ce330b1d916d06e8a9d",
 }
 
 

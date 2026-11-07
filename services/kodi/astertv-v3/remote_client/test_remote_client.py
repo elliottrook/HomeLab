@@ -89,6 +89,8 @@ class RemoteClientTests(unittest.TestCase):
         )]
         for forbidden in ('"title"', '"label"', '"file"', '"path"', '"plot"'):
             self.assertNotIn(forbidden, state_block)
+        self.assertIn("CONTENT_SESSION.observe(playback)", SOURCE)
+        self.assertNotIn('SESSION_ID = "boot-', SOURCE)
 
     def test_rolling_upgrade_preserves_remote_against_predecessor_gateway(self):
         self.assertIn('str(error) == "gateway-http-422"', SOURCE)

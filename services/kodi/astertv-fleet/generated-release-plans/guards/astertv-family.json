@@ -1,5 +1,5 @@
 {
-  "composition_sha256": "0efec83c2933bc78c2fbe539ea051149774f285c3e5ced9ae7b833b577b45629",
+  "composition_sha256": "b2d22320b47037a2883a6524968ef2c1967560c4a06493c74a7bd76174e438cb",
   "dependency_policy": "all-required-available",
   "device_id": "astertv-family",
   "expected_assertions": [
@@ -269,7 +269,7 @@
       "mode": "0600",
       "overlay": "remote-client-v3",
       "path": "/storage/.aster-v3/m8-remote/manifest.json",
-      "sha256": "4bd3abfc68b47aef6c3b72f3e88bf9b61d966d9e2ff5df9e4b3b3afa89c02734"
+      "sha256": "b3cebef42445ee286738f0219b60954dece1236a98a54832616d787dcc34793a"
     },
     {
       "bytes": 661,
@@ -279,6 +279,13 @@
       "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
     },
     {
+      "bytes": 946,
+      "mode": "0644",
+      "overlay": "remote-client-v3",
+      "path": "/storage/.aster-v3/m8-remote/service.asterremote/content_session.py",
+      "sha256": "a85f477bc877f835d18a7027c7532fcbacdd3ff932912a976bdb5a0b5cfd8acb"
+    },
+    {
       "bytes": 2298,
       "mode": "0644",
       "overlay": "remote-client-v3",
@@ -286,11 +293,11 @@
       "sha256": "0f560cf9022a5ff2c8f6be74fcede2bd3b5243acc26638318ed86fe4a17ed1b7"
     },
     {
-      "bytes": 13817,
+      "bytes": 13842,
       "mode": "0644",
       "overlay": "remote-client-v3",
       "path": "/storage/.aster-v3/m8-remote/service.asterremote/service.py",
-      "sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8"
+      "sha256": "b443edc794f86fc66b1c92d46a048ed18871d9aa325835a2cb8b486d265415c3"
     },
     {
       "bytes": 202,
@@ -307,6 +314,13 @@
       "sha256": "60b4241165812244a8c55e3262385e54c758bf6d4aae409e767960a6daf72506"
     },
     {
+      "bytes": 946,
+      "mode": "0644",
+      "overlay": "remote-client-v3",
+      "path": "/storage/.kodi/addons/service.asterremote/content_session.py",
+      "sha256": "a85f477bc877f835d18a7027c7532fcbacdd3ff932912a976bdb5a0b5cfd8acb"
+    },
+    {
       "bytes": 2298,
       "mode": "0644",
       "overlay": "remote-client-v3",
@@ -314,11 +328,11 @@
       "sha256": "0f560cf9022a5ff2c8f6be74fcede2bd3b5243acc26638318ed86fe4a17ed1b7"
     },
     {
-      "bytes": 13817,
+      "bytes": 13842,
       "mode": "0644",
       "overlay": "remote-client-v3",
       "path": "/storage/.kodi/addons/service.asterremote/service.py",
-      "sha256": "a8b26f93425e5f17cdfdb3348fd4adca1e711c0c976b8eab2fc8baab8c3709b8"
+      "sha256": "b443edc794f86fc66b1c92d46a048ed18871d9aa325835a2cb8b486d265415c3"
     },
     {
       "bytes": 4090,

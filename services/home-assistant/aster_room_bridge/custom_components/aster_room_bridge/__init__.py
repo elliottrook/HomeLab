@@ -16,10 +16,33 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .contract import EQUIPMENT_ACTIONS, RoomContract, observation
-from .content_policy import CurrentState, PlaybackObservation
+from .content_policy import (
+    CONTENT_CLASSES, CurrentState, PlaybackObservation, VolumeProfile,
+    VolumeSessionController,
+)
 
 
 DOMAIN = "aster_room_bridge"
+VOLUME_TARGETS = CONTENT_CLASSES - {"Unknown"}
+VOLUME_PROFILE_SCHEMA = vol.Schema({
+    vol.Optional("enabled", default=False): cv.boolean,
+    vol.Required("targets"): vol.Schema({
+        vol.Required(name): vol.All(vol.Coerce(float), vol.Range(min=0, max=1))
+        for name in sorted(VOLUME_TARGETS)
+    }),
+    vol.Required("nighttime_ceiling"): vol.All(
+        vol.Coerce(float), vol.Range(min=0, max=1)
+    ),
+    vol.Required("nighttime_entity"): cv.entity_id,
+    vol.Required("nighttime_on_state"): cv.string,
+    vol.Required("nighttime_off_state"): cv.string,
+    vol.Optional("maximum_step", default=0.02): vol.All(
+        vol.Coerce(float), vol.Range(min=0.001, max=0.05)
+    ),
+    vol.Optional("ramp_delay", default=0.25): vol.All(
+        vol.Coerce(float), vol.Range(min=0.1, max=2.0)
+    ),
+})
 ROOM_SCHEMA = vol.Schema({
     vol.Required("gateway_url"): cv.url,
     vol.Required("client_id"): cv.string,
@@ -28,6 +51,7 @@ ROOM_SCHEMA = vol.Schema({
     vol.Required("power_entity"): cv.entity_id,
     vol.Required("volume_entity"): cv.entity_id,
     vol.Required("actions"): vol.All(cv.ensure_list, [vol.In(EQUIPMENT_ACTIONS)]),
+    vol.Optional("content_volume"): VOLUME_PROFILE_SCHEMA,
 })
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Any(
@@ -62,6 +86,22 @@ class RoomBridge:
         self.session = async_get_clientsession(hass)
         self.content_state = CurrentState()
         self.content_supported = True
+        volume = config.get("content_volume")
+        self.volume_controller = None
+        self.nighttime_entity = None
+        self.nighttime_on_state = None
+        self.nighttime_off_state = None
+        self.ramp_delay = None
+        if volume and volume["enabled"]:
+            self.volume_controller = VolumeSessionController(VolumeProfile(
+                targets=dict(volume["targets"]),
+                nighttime_ceiling=volume["nighttime_ceiling"],
+                maximum_step=volume["maximum_step"],
+            ))
+            self.nighttime_entity = volume["nighttime_entity"]
+            self.nighttime_on_state = volume["nighttime_on_state"]
+            self.nighttime_off_state = volume["nighttime_off_state"]
+            self.ramp_delay = volume["ramp_delay"]
 
     def _headers(self) -> dict[str, str]:
         return {"Authorization": "Bearer " + self.key,
@@ -109,6 +149,40 @@ class RoomBridge:
         self.hass.data.setdefault(DOMAIN, {}).setdefault(
             "content_states", {}
         )[self.room_id] = state
+        await self._content_volume(state)
+
+    async def _content_volume(self, state: PlaybackObservation):
+        controller = self.volume_controller
+        if controller is None:
+            return
+        volume = self.hass.states.get(self.contract.volume_entity)
+        nighttime = self.hass.states.get(self.nighttime_entity)
+        level = volume.attributes.get("volume_level") if volume else None
+        level_valid = (isinstance(level, (int, float))
+                       and not isinstance(level, bool) and 0 <= level <= 1)
+        nighttime_valid = (nighttime is not None
+                           and nighttime.state in {
+                               self.nighttime_on_state,
+                               self.nighttime_off_state,
+                           })
+        if not level_valid or not nighttime_valid:
+            controller.suppress(
+                state, current_level=float(level) if level_valid else None
+            )
+            return
+        decision = controller.observe(
+            state, current_level=float(level),
+            nighttime=nighttime.state == self.nighttime_on_state,
+        )
+        for target in decision.ramp:
+            await self.hass.services.async_call(
+                "media_player", "volume_set",
+                {"entity_id": self.contract.volume_entity,
+                 "volume_level": target},
+                blocking=True,
+            )
+            controller.applied(target)
+            await asyncio.sleep(self.ramp_delay)
 
     async def run(self):
         while True:
