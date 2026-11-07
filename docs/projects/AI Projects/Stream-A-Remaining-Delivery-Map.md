@@ -2329,6 +2329,14 @@ pass. It has no network client or service credential and was not executed on
 the sealed artifact; a private bounded transport and a distinct booked effect
 remain required after the development gate passes.
 
+The paired [MacBook-local sealed-evaluation runner](evidence/M3-K2-sealed-evaluation-local-runner-boundary-2026-11-06.md)
+is also source-frozen. It accepts only the exact sealed identity and private
+shortlist, permits exactly 32 no-retry requests through a fixed loopback-only
+transaction relay, retains mode-0600 records and metrics, and exposes only a
+content-free terminal summary. Its 19-test focused suite passes. The registered
+relay, cross-host transaction and distinct Lab Hours booking remain deliberately
+absent until the development result passes with production restored.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from
