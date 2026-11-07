@@ -4,6 +4,7 @@
   "id": "astertv-v3-bedroom-content-only-candidate-2026-11-06",
   "target": "AsterTV-Bedroom",
   "deployment_authorized": false,
+  "superseded_by": "astertv-v3-bedroom-disabled-first-deployment-preparation-2026-11-06",
   "live_state_changed": false,
   "equipment_actions": [],
   "outputs": {

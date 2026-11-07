@@ -4,6 +4,10 @@ Date: 2026-11-06 (America/Vancouver)
 Target: `AsterTV-Bedroom` / `192.168.1.140`  
 Outcome: repository candidate complete; no live deployment authorized or made
 
+This initial two-transform boundary record is retained for provenance. The
+complete client-inclusive candidate and rollback runner supersede it in
+`AsterTV-v3-M7-Bedroom-disabled-first-deployment-preparation-2026-11-06.md`.
+
 ## Read-only preflight
 
 - The resolved target is `AsterTV-Bedroom`, not Family or Jen.

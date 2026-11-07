@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-deployment-preparation-receipt",
+  "id": "astertv-v3-bedroom-disabled-first-deployment-preparation-2026-11-06",
+  "target": "AsterTV-Bedroom",
+  "deployment_authorized": false,
+  "live_state_changed": false,
+  "equipment_actions": [],
+  "manifest_sha256": "6852bc3ead1f50606c9d7f5942cc9df2b6abf5024420e7710cee946b76ffcee2",
+  "files": {
+    "aster_gateway_sha256": "a804c06732b291275de830dcb0f8188ade5fc4fc3d0a557a86a742d1557cf1b3",
+    "home_assistant_contract_sha256": "2c927737a82312c4fa9707d980a9c2bb3b92ff974d8cbce929c52249d87be82a",
+    "bedroom_remote_service_sha256": "b443edc794f86fc66b1c92d46a048ed18871d9aa325835a2cb8b486d265415c3",
+    "bedroom_content_session_sha256": "a85f477bc877f835d18a7027c7532fcbacdd3ff932912a976bdb5a0b5cfd8acb",
+    "bedroom_installer_sha256": "c3980a7256d7109a14d5d7149b3925e991464b584708853af7a779e50dc83455",
+    "aster_installer_sha256": "2f4bc465b8b589743152cc3609f38a4b464dfac340093efd8972a109eb888ce8"
+  },
+  "predecessor": {
+    "aster_environment_sha256": "038c8a1042a10678f7f3f920529fee37c2c2bfe42f4ba61b77519fcffd5dc4fc",
+    "home_assistant_configuration_sha256": "f84f240070f0cb7c1d1e9a46732cd2d9fe833217cafe9d183102bb0d1d547cfd",
+    "home_assistant_contract_sha256": "ea42ebedcb59703b93d592b40da90d7796b65ab213a10f7caf671b61f131434f",
+    "bedroom_remote_service_sha256": "c28bf36e9b99159b1ee5bf22ae4d83d90b0c53a557de2c236e6d1b05cfba5d49",
+    "content_session_present": false
+  },
+  "tests": {
+    "bedroom_candidate_and_installers": "9/9 passed",
+    "home_assistant_bridge": "20/20 passed",
+    "remote_client": "38/38 passed",
+    "fleet": "54/54 passed"
+  },
+  "evidence": "docs/projects/evidence/AsterTV-v3-M7-Bedroom-disabled-first-deployment-preparation-2026-11-06.md"
+}
