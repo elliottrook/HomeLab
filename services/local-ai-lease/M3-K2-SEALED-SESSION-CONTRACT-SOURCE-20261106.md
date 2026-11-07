@@ -8,11 +8,11 @@ production.
 
 | File | SHA-256 |
 |---|---|
-| `scripts/local-ai/m3_k2_sealed_session_contract.py` | `ababef0497832491764b78eb9871f1ac737e3e631c013e95be6c93efb661ddd5` |
+| `scripts/local-ai/m3_k2_sealed_session_contract.py` | `42f54b08c9e95857181e1d01eee641813a2ffcb45fad901e05d8edacb9009a58` |
 | `scripts/local-ai/test_m3_k2_sealed_session_contract.py` | `d75919a6fa231caa92b3c3943bd724477ac801081c08bc75bbf784e97dc11bcf` |
 
-The contract pins the refreshed eleven-pin Stream A preregistration digest
-`66ea288e456d4cef6e0143c882a5b647a9fab7170f0ef0e3bd6b1952463ff7cc`
+The contract pins the refreshed twelve-pin Stream A preregistration digest
+`4e7754585aeeef597c66eb2d3f2c6bf673f140f35c2f06d1856274429580adb1`
 and future workload ID `m3-k2-sealed-evaluation-v1`.
 
 ## Ready session
