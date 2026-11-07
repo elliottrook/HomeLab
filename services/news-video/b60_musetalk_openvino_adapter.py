@@ -17,7 +17,7 @@ from b60_musetalk_openvino_transaction import (
 
 
 GUEST_SCRIPT = "/opt/aster-news-video-xpu/b60_musetalk_openvino_guest.py"
-GUEST_SCRIPT_SHA256 = "9ebfacfcb006b8f2729fac19c161b587ed55d77eff73b9152d5c515c240a39aa"
+GUEST_SCRIPT_SHA256 = "0082de9f397b4eb4061c545cea075c3cfd598a5bb8d5970db7f668179c5f2133"
 COMMON_GUEST_SCRIPT = "/opt/aster-news-video-xpu/b60_musetalk_xpu_guest.py"
 COMMON_GUEST_SCRIPT_SHA256 = "224c7b45aab24076c15b5009efd77f679f0b271767d8bddbff64ab6309390209"
 PYTHONPATH = "/opt/aster-news-video-xpu/venv/lib/python3.12/site-packages:/opt/aster-news-video-xpu"

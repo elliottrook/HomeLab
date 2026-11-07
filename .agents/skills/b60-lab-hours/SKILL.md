@@ -201,9 +201,19 @@ original times in the ledger. Promotion is admission only; it does not itself
 start effects.
 
 For an uncertain first-use backend, prefer a bounded heartbeat during the
-session. It may report state to the owning agent; the owner may then diagnose,
-repin and explicitly dispatch the fixed workload autonomously within the
-approved booking. Never implement an unexamined retry loop. Stop on unrestored
-failure, a new material risk, an out-of-envelope change, or insufficient time
-for the full bounded attempt. Remove the heartbeat at terminal state or the
-recovery cutoff.
+session. When the booking is an approved autonomous envelope, make that
+heartbeat the acting owner: on `failed_restored` with `retry_available=true`,
+it must immediately diagnose, repin, validate, obtain any required independent
+re-audit and explicitly dispatch the fixed workload itself. A notification is
+informational and must not pause action for user acknowledgement. Do not use a
+read-only observer as the only continuation mechanism unless the user asked for
+observation only or a separately proven wake path starts an acting owner without
+user intervention. Never describe a passive reporter as autonomous execution.
+
+Never implement an unexamined retry loop. Stop on unrestored failure, a new
+material risk, an out-of-envelope change, or insufficient time for the full
+bounded attempt. If time is exhausted after restoration, release early and,
+when the approved objective remains active, check and reserve the next clear
+window rather than silently stopping. Remove the heartbeat at terminal state or
+replace its booking identity and cutoff when work legitimately moves to a new
+reservation.

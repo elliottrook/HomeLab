@@ -389,7 +389,7 @@ and all production changes have their required authorization.
   evaluation should use a separately registered supported runtime such as an
   OpenVINO/ONNX path rather than retrying the same Level Zero stack.
 - Converted the fixed MuseTalk 1.5 positional encoder and UNet to a fixed-batch
-  OpenVINO 2026.3.1 IR. The alternative keeps Whisper, VAE and latent/decode
+  OpenVINO IR. The alternative keeps Whisper, VAE and latent/decode
   work on CPU and assigns only the converted UNet to OpenVINO `GPU`; the
   transient unit remains private-networked, capped at 12 GiB and zero swap.
   Exact OpenVINO Python, core, GPU-plugin, IR XML and IR BIN hashes are checked
@@ -413,6 +413,26 @@ and all production changes have their required authorization.
   `LIKELY RUN`: every deterministic control and dependency is closed, with
   first-use OpenVINO GPU discovery/compile/inference as the only remaining
   experimental uncertainty.
+- Replacement booking `aster-news-video-ov-20261106-1725-r2` reached the first
+  real OpenVINO GPU compile and crashed natively at
+  `OPENVINO_COMPILE_GPU`. Production restored cleanly. The scheduled heartbeat
+  reported the retry opportunity but was incorrectly configured read-only, so
+  it could not diagnose or dispatch the retry itself; by the time the owning
+  agent resumed, the full 60-second setup plus 900-second attempt no longer fit.
+  The restored session was released early rather than bypassing V2 admission.
+- Corrected the autonomy flow in the live heartbeat and B60 skill: an approved
+  autonomous session now uses an acting owner heartbeat. On a restored,
+  retryable failure it diagnoses, repins, validates, independently re-audits
+  when required and dispatches the retry without waiting for user
+  acknowledgement. A read-only observer can no longer be represented as the
+  sole autonomous continuation mechanism.
+- Upgraded the isolated runtime to official OpenVINO 2026.4.1, reconverted the
+  fixed-batch IR on CPU and repinned the Python binding, runtime core, GPU
+  plugin, XML, guest, adapter, transaction, registry and release manifest.
+  Booking `aster-news-video-ov-20261106-2120-r3` reserves 21:20–22:20 Pacific
+  with recovery through 22:35. Standard readiness is green and the independent
+  B60-skill audit returned `LIKELY RUN`, with no deterministic blocker; only
+  first-use OpenVINO 2026.4.1 GPU compilation/inference remains uncertain.
 
 ## Close-out
 
