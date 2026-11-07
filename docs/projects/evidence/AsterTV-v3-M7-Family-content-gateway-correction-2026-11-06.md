@@ -66,11 +66,27 @@ Its manifest sets both `service_mutation` and `environment_file_loaded` false,
 and binds the derived gateway plus both immutable inputs. It is a test artifact,
 not deployment authority.
 
+The first pinned-runtime replay used the generic gateway discovery command:
+53 of 55 tests passed. The two failures were scope mismatches rather than
+gateway failures: the generic suite required the deliberately excluded global
+voice default and checked an unrelated Remote installer asset hash. The bundle
+was therefore narrowed to the gateway functional suite plus a Family-specific
+contract test. Deterministic bundle
+`c66bf35c68ec74823c9d40b0fa66cb2572c2fc02f1dacac7f6f91fd4bb1fb5ab`
+then passed all 14 tests in Aster's pinned environment. The Family-specific
+tests prove the accepted voice default, content route and identity-free schema.
+
+Aster Agent remained active at PID `105026`, zero restarts and live gateway
+`a064cfc5…8518` before and after both replays. No environment file was loaded,
+no service was restarted or replaced, and all temporary guest and Proxmox
+files were removed. Receipt:
+`services/kodi/astertv-fleet/releases/astertv-v3-family-content-gateway-runtime-replay-2026-11-06.json`.
+
 ## Remaining effect gate
 
-Do not install from this record. First issue a superseding immutable freeze,
-then replay the gateway tests in Aster's pinned environment. A live rollout
-still requires idle-display confirmation, exact checkpoints, gateway-first
+Do not install from this record. The corrected immutable freeze and pinned
+runtime replay are complete. A live rollout still requires idle-display
+confirmation, exact checkpoints, gateway-first
 installation, Home Assistant second, Family client last, and content
 freshness/replay/no-history proof while the volume profile remains disabled.
 

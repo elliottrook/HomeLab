@@ -29,6 +29,7 @@ BASE = load(
     CHECKOUT / "services/kodi/astertv-v3/m10/build_gateway_test_bundle.py",
 )
 FAMILY = load("astertv_family_gateway_materializer", HERE / "materialize_family_equipment_bridge.py")
+FAMILY_RUNTIME_TEST = HERE / "runtime-tests/test_family_content_gateway.py"
 
 
 def sha256(data: bytes) -> str:
@@ -51,6 +52,15 @@ def build(output: Path) -> dict:
         payloads.append((relative, data))
         rows.append({"path": relative, "bytes": len(data), "sha256": sha256(data)})
 
+    runtime_test = FAMILY_RUNTIME_TEST.read_bytes()
+    BASE.scan_payload(FAMILY_RUNTIME_TEST, runtime_test)
+    payloads.append(("test_family_content_gateway.py", runtime_test))
+    rows.append({
+        "path": "test_family_content_gateway.py",
+        "bytes": len(runtime_test),
+        "sha256": sha256(runtime_test),
+    })
+
     manifest = {
         "schema_version": 1,
         "kind": "astertv-family-content-gateway-tests",
@@ -60,6 +70,10 @@ def build(output: Path) -> dict:
         "gateway_sha256": sha256(derived),
         "accepted_predecessor_sha256": FAMILY.FAMILY_GATEWAY_SHA256,
         "candidate_source_sha256": FAMILY.GATEWAY_CANDIDATE_SHA256,
+        "test_command": [
+            "/opt/aster-agent/venv/bin/python", "-m", "unittest", "-v",
+            "test_aster_remote", "test_family_content_gateway",
+        ],
         "files": rows,
     }
     encoded = (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode()

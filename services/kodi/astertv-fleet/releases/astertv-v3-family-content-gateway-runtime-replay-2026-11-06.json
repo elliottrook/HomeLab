@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-candidate-validation-receipt",
+  "id": "astertv-v3-family-content-gateway-runtime-replay-2026-11-06",
+  "candidate": "astertv-v3-rc1-family-content-gateway-candidate-2026-11-06",
+  "candidate_source_commit": "bace6554774acc7e0c98fa3c4b49bd0b98594d1e",
+  "target": "Aster LXC 104 temporary directory",
+  "environment": {
+    "python": "/opt/aster-agent/venv/bin/python",
+    "environment_file_loaded": false,
+    "service_mutation": false
+  },
+  "attempts": [
+    {
+      "bundle_sha256": "8d6f989e1205dab8c26ffd4f18872a504aa670c931fa1b1430176535eb17aaf1",
+      "command_scope": "generic gateway discovery",
+      "tests": 55,
+      "passed": 53,
+      "failed": 2,
+      "result": "scope-correction-required",
+      "reason": [
+        "generic suite required the deliberately excluded global voice default",
+        "generic suite checked an unrelated Remote installer asset hash"
+      ]
+    },
+    {
+      "bundle_sha256": "c66bf35c68ec74823c9d40b0fa66cb2572c2fc02f1dacac7f6f91fd4bb1fb5ab",
+      "command_scope": "gateway functional plus Family-specific contract",
+      "tests": 14,
+      "passed": 14,
+      "failed": 0,
+      "result": "passed"
+    }
+  ],
+  "live_service": {
+    "before_pid": 105026,
+    "after_pid": 105026,
+    "before_restarts": 0,
+    "after_restarts": 0,
+    "before_sha256": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518",
+    "after_sha256": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518"
+  },
+  "cleanup": {
+    "guest_temporary_files_removed": true,
+    "proxmox_temporary_file_removed": true
+  },
+  "outcome": "pinned-runtime-replay-passed-live-rollout-still-gated"
+}
+
