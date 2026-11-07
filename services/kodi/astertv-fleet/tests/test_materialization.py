@@ -60,6 +60,12 @@ PHYSICAL_SPEC = importlib.util.spec_from_file_location(
 )
 PHYSICAL_MODULE = importlib.util.module_from_spec(PHYSICAL_SPEC)
 PHYSICAL_SPEC.loader.exec_module(PHYSICAL_MODULE)
+GATEWAY_BUNDLE_SPEC = importlib.util.spec_from_file_location(
+    "family_gateway_test_bundle",
+    ROOT / "build_family_gateway_test_bundle.py",
+)
+GATEWAY_BUNDLE_MODULE = importlib.util.module_from_spec(GATEWAY_BUNDLE_SPEC)
+GATEWAY_BUNDLE_SPEC.loader.exec_module(GATEWAY_BUNDLE_MODULE)
 
 
 class MaterializationTests(unittest.TestCase):
@@ -79,6 +85,21 @@ class MaterializationTests(unittest.TestCase):
         self.assertIn(EQUIPMENT_MODULE.LEGACY_VOICE_URL, source)
         self.assertNotIn("CANONICAL_VOICE_URL", source)
         self.assertIn("astertv-v3-m7-family-standby-20261106", manifest["recovery"]["aster_agent"])
+
+    def test_family_gateway_runtime_bundle_is_deterministic_and_non_installing(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            first = Path(temporary) / "first.tar.gz"
+            second = Path(temporary) / "second.tar.gz"
+            one = GATEWAY_BUNDLE_MODULE.build(first)
+            two = GATEWAY_BUNDLE_MODULE.build(second)
+        self.assertEqual(one["sha256"], two["sha256"])
+        self.assertEqual(one["manifest"], two["manifest"])
+        self.assertFalse(one["manifest"]["service_mutation"])
+        self.assertFalse(one["manifest"]["environment_file_loaded"])
+        self.assertEqual(
+            one["manifest"]["gateway_sha256"],
+            "715b172a62e978ccaf79dfd3f9801da641cd067da72ad7187658efa9ccc0d73a",
+        )
 
     def test_family_physical_keys_are_exact_and_do_not_capture_navigation(self):
         files, manifest = PHYSICAL_MODULE.render()

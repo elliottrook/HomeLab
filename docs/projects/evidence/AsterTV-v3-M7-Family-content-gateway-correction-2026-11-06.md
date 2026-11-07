@@ -49,7 +49,7 @@ route. Hash and normalization anchors fail closed on either input changing.
 - Derived gateway parses as Python and retains the accepted voice default.
 - 20 Home Assistant policy/component/contract tests pass.
 - 38 Kodi client/session/installer tests pass.
-- All 53 fleet/materialization/release tests pass against the superseding
+- All 54 fleet/materialization/release tests pass against the superseding
   immutable freeze.
 - Verified Family release outputs are composition `a09ef2b5…9411`, bundle
   `5eb17b3f…feed`, plan `f47481ab…2661`, guard `96040595…3f14` and SBOM
@@ -59,6 +59,12 @@ The Mac package index could not supply the repository's pinned future FastAPI
 version for a fresh isolated dynamic gateway replay. The shared gateway
 candidate already passed its pinned-environment tests; a new pinned Aster
 runtime replay remains mandatory immediately before any live deployment.
+
+A deterministic, secret-scanned, non-installing replay bundle is ready at
+SHA-256 `8d6f989e1205dab8c26ffd4f18872a504aa670c931fa1b1430176535eb17aaf1`.
+Its manifest sets both `service_mutation` and `environment_file_loaded` false,
+and binds the derived gateway plus both immutable inputs. It is a test artifact,
+not deployment authority.
 
 ## Remaining effect gate
 

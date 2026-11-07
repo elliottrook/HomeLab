@@ -50,12 +50,12 @@
     }
   },
   "validation": {
-    "focused_tests": 76,
-    "fleet_tests": 53,
+    "focused_tests": 77,
+    "fleet_tests": 54,
     "fleet_failures": 0,
     "derived_gateway_sha256": "715b172a62e978ccaf79dfd3f9801da641cd067da72ad7187658efa9ccc0d73a",
     "profile_enabled": false,
-    "pinned_runtime_replay": "open",
+    "pinned_runtime_replay": "bundle-ready-8d6f989e1205dab8c26ffd4f18872a504aa670c931fa1b1430176535eb17aaf1",
     "family_live_acceptance": "open"
   }
 }
