@@ -58,7 +58,7 @@
       "design_spec": "services/kodi/astertv-design/candidates/games/page-spec.json",
       "family": "Games",
       "id": "games",
-      "status": "candidate"
+      "status": "owner-accepted-v4-design-only"
     },
     {
       "controls": [

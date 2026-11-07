@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "games-v4-design-candidate",
-  "status": "candidate-owner-review",
+  "status": "owner-accepted-design-only",
   "authority": "AsterTV Experience Design",
   "approval_boundary": {
     "allowed": [

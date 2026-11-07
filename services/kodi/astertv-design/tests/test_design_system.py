@@ -191,11 +191,11 @@ class DesignSystemTests(unittest.TestCase):
     def test_games_is_design_only_and_integration_gated(self):
         catalogue = BUILD.load("catalogue.json")
         games = next(page for page in catalogue["pages"] if page["id"] == "games")
-        self.assertEqual(games["status"], "candidate")
+        self.assertEqual(games["status"], "owner-accepted-v4-design-only")
         self.assertNotIn("template", games)
         self.assertTrue(games["design_spec"].startswith("services/kodi/astertv-design/"))
         spec = json.loads((BUILD.ROOT / games["design_spec"]).read_text())
-        self.assertEqual(spec["status"], "candidate-owner-review")
+        self.assertEqual(spec["status"], "owner-accepted-design-only")
         self.assertIn("Kodi XML or add-on source", spec["approval_boundary"]["held_until_v3_acceptance"])
         self.assertEqual(spec["jen_performance_ceiling"]["memory_budget_mib"], 1536)
         self.assertEqual(spec["jen_performance_ceiling"]["prefetch_rows"], 2)

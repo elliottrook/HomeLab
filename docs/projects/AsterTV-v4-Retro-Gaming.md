@@ -1,7 +1,7 @@
 # AsterTV v4 retro gaming
 
 > Status: Active — Stream A; M4 server infrastructure graduated, M5 design-only
-> candidate in review, and all implementation/integration held at the v3 gate
+> accepted, and all implementation/integration held at the v3 gate
 >
 > Owner: Jason
 >
@@ -346,7 +346,7 @@ client, fleet, device, broker-ingress, or integration work can start.
 - [ ] Define supported platform/core/controller matrix and performance budget.
   The measured Jen performance budget is recorded; the real support matrix is
   intentionally deferred to post-v3 integration testing.
-- [ ] Obtain visual and interaction acceptance before fleet implementation.
+- [x] Obtain visual and interaction acceptance before fleet implementation.
 
 Gate: the design candidate passes design-engineering acceptance and remains
 separate from fleet deployment.
@@ -623,14 +623,15 @@ Infrastructure completion alone is a milestone, not AsterTV v4 completion.
   animated background, one simultaneous fade, and 1920-pixel maximum art.
 - Design tests pass 22/22, generated outputs reproduce byte-for-byte, all focus
   graphs are closed, and the Aster Games infrastructure validator plus broker
-  tests remain green. The visual and interaction candidate still requires
-  owner acceptance. Platform/core/controller claims remain deferred until
-  real post-v3 integration testing.
+  tests remain green. Jason accepted the visual hierarchy, terminology, focus
+  model, dialog behavior, and performance/accessibility envelope on 2026-11-07.
+  This is design-only acceptance: platform/core/controller claims remain
+  deferred until real post-v3 integration testing, and it does not open G3.
 
 ## Closeout summary
 
-Server infrastructure graduated at M4 and the M5 design-only candidate is ready
-for owner review. The project remains open and implementation-held at G3: no
+Server infrastructure graduated at M4 and the M5 design-only experience is
+owner accepted. The project remains open and implementation-held at G3: no
 Kodi, client, fleet, device, broker-ingress, or integration work is authorized
 until v3 deployment, clean fleet evidence, Jason's v3 owner acceptance, and
 explicit permission to open the v4 client gate are recorded.

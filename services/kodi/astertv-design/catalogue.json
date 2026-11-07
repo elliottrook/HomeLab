@@ -84,7 +84,7 @@
     {"id":"media","family":"Media","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/Home.xml"},
     {"id":"music","family":"Music","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/IncludesMusic.xml"},
     {"id":"books","family":"Books","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/custom_1110_books.xml"},
-    {"id":"games","family":"Games","status":"candidate","design_spec":"services/kodi/astertv-design/candidates/games/page-spec.json"},
+    {"id":"games","family":"Games","status":"owner-accepted-v4-design-only","design_spec":"services/kodi/astertv-design/candidates/games/page-spec.json"},
     {"id":"settings","family":"Settings","status":"accepted-v2","template":"services/kodi/astertv-v2/reconciliation/payload/skin.asterhome/1080i/Home.xml"},
     {"id":"youtube","family":"YouTube","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1191_youtube_rework.xml"},
     {"id":"movie","family":"Movie","status":"accepted-v3-candidate","template":"services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot/1080i/custom_1194_movie_rework.xml"},

@@ -1,6 +1,6 @@
 # AsterTV v4 Games design candidate
 
-Status: **candidate — owner visual/interaction acceptance required**
+Status: **owner accepted — design authority only (2026-11-07)**
 
 This is design authority only. It creates no Kodi XML, add-on, emulator core,
 controller mapping, fleet overlay, device identity, broker ingress, appliance
@@ -103,8 +103,8 @@ All fixtures are deterministic 1920×1080 SVGs using synthetic titles and art.
 
 ## Acceptance boundary
 
-Owner acceptance may approve the visual hierarchy, terminology, focus model,
-dialog behavior, and performance/accessibility envelope. It does not authorize
-implementation or integration. The exact platform/core/controller support
-matrix remains deferred until the post-v3 integration phase can test real
-hardware and RetroPlayer behavior.
+Jason accepted the visual hierarchy, terminology, focus model, dialog behavior,
+and performance/accessibility envelope on 2026-11-07. This acceptance does not
+authorize implementation or integration. The exact platform/core/controller
+support matrix remains deferred until the post-v3 integration phase can test
+real hardware and RetroPlayer behavior.
