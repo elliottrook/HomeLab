@@ -28,10 +28,10 @@ top/side reveal into the deeper title area; it is not a separate title pill
 plus border. The artwork keeps exactly the same position and size. Box art is
 2:3, platform art is square, and missing art uses a quiet platform monogram.
 
-The earlier circles at the left edge were anonymous side-navigation
-placeholders, not controller or game-state indicators. They have been removed
-from the Games candidate. The global v4 shell owns that rail and must supply
-named destinations with approved limestone-backed icons before integration.
+The circles at the left edge are the collapsed global side-navigation
+destinations, not controller or game-state indicators. The Games candidate
+retains that shell region. Its final named destinations and approved
+limestone-backed icon mapping belong to the global v4 shell, not this page.
 
 ## State-dependent primary action
 

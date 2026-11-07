@@ -609,11 +609,12 @@ Infrastructure completion alone is a milestone, not AsterTV v4 completion.
   as a title pill plus a separate three-sided border. The corrected fixture
   uses one continuous jade surface behind the unchanged artwork geometry,
   flowing directly into the deeper title treatment.
-- Owner review also identified anonymous side-rail dots and missing compass
-  marks in the top filters. The dots were non-semantic shell placeholders and
-  have been removed from the Games candidate; the global v4 shell must later
-  provide approved limestone-backed destinations. Every Games top-filter pill
-  now embeds the exact approved 32×32 plain-compass export at its native size.
+- Owner review also identified unclear side-rail dots and missing compass marks
+  in the top filters. The dots are now explicitly recorded as collapsed global
+  shell destinations, not controller or game-state indicators; the rail remains
+  present while final limestone-backed destination mapping stays with the v4
+  shell. Every Games top-filter pill embeds the exact approved 32×32
+  plain-compass export at its native size.
 - Jen's measured ceiling constrains the design to 1536 MiB total UI memory,
   256 MiB art cache, two prefetched rows, seven visible box-art tiles, no
   animated background, one simultaneous fade, and 1920-pixel maximum art.

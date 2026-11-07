@@ -243,7 +243,13 @@ def games_page_render(page: dict, tokens: dict, state: str) -> str:
             f'<text x="{x+122}" y="96" text-anchor="middle" fill="{c["warm_white"]}" '
             f'font-family="sans-serif" font-size="21">{label}</text>'
         )
-    rail = ""
+    rail = (
+        f'<rect data-shell-region="side-rail" x="62" y="188" width="82" height="650" rx="40" fill="{c["charcoal"]}" fill-opacity=".9"/>'
+        f'<circle data-shell-destination="current" cx="103" cy="245" r="20" fill="{c["champagne_gold"]}"/>'
+        f'<circle data-shell-destination="rest" cx="103" cy="324" r="20" fill="{c["stone"]}"/>'
+        f'<circle data-shell-destination="rest" cx="103" cy="403" r="20" fill="{c["stone"]}"/>'
+        f'<circle data-shell-destination="settings" cx="103" cy="759" r="20" fill="{c["stone"]}"/>'
+    )
     if state == "service-offline":
         body = rail + "".join(filter_nodes) + (
             f'<rect x="360" y="260" width="1200" height="560" rx="34" fill="{c["charcoal"]}" fill-opacity=".94"/>'

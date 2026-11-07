@@ -98,7 +98,8 @@ class DesignSystemTests(unittest.TestCase):
             if node.attrib.get("data-brand-asset") == "plain-compass-32"
         ]
         self.assertEqual(len(images), 4)
-        self.assertNotIn('cx="103"', rendered)
+        self.assertEqual(rendered.count('data-shell-region="side-rail"'), 1)
+        self.assertEqual(rendered.count('data-shell-destination='), 4)
         for node in images:
             self.assertEqual((node.attrib["width"], node.attrib["height"]), ("32", "32"))
             href = node.attrib["{http://www.w3.org/1999/xlink}href"]
