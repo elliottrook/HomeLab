@@ -3,7 +3,7 @@
 ## Outcome
 
 The complete current K2 source boundary passes its combined offline audit at
-Stream A commit `d94f2893` and platform
+Stream A commit `f55d0b0a` and platform
 commit `90d99b4c`.
 
 ## Measured result
