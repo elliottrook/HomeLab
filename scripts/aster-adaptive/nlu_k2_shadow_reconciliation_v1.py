@@ -29,14 +29,19 @@ def reconcile(envelope_raw: bytes, terminal_raw: bytes) -> dict[str, object]:
             or not isinstance(terminal.get("booking_id"), str)
             or BOOKING_ID.fullmatch(terminal["booking_id"]) is None
             or terminal.get("workload_id") != WORKLOAD_ID
-            or terminal.get("requests") != 60 or terminal.get("retries") != 0
-            or terminal.get("errors") != 0
+            or type(terminal.get("requests")) is not int
+            or terminal["requests"] != 60
+            or type(terminal.get("retries")) is not int
+            or terminal["retries"] != 0
+            or type(terminal.get("errors")) is not int
+            or terminal["errors"] != 0
             or terminal.get("production_restored") is not True
             or terminal.get("result_sha256") != envelope_sha
             or HEX64.fullmatch(terminal.get("result_sha256", "")) is None
             or terminal.get("route_execution_attempted") is not False
             or terminal.get("provider_egress_attempted") is not False
-            or terminal.get("external_cost_microunits") != 0):
+            or type(terminal.get("external_cost_microunits")) is not int
+            or terminal["external_cost_microunits"] != 0):
         raise ValueError("K2 shadow terminal evidence changed")
     return {
         "schema": "aster-nlu-k2-no-effect-shadow-reconciliation.v1",

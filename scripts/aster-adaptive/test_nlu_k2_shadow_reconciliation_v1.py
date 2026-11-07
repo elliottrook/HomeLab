@@ -42,6 +42,12 @@ class K2ShadowReconciliationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,"terminal"):
                 reconciliation.reconcile(envelope,raw(terminal))
 
+    def test_boolean_values_cannot_masquerade_as_integer_zero(self):
+        for field in ("retries", "errors", "external_cost_microunits"):
+            envelope, terminal = evidence(); terminal[field] = False
+            with self.assertRaisesRegex(ValueError, "terminal"):
+                reconciliation.reconcile(envelope, raw(terminal))
+
     def test_result_digest_and_booking_identity_are_exact(self):
         envelope, terminal = evidence(); terminal["result_sha256"]="0"*64
         with self.assertRaisesRegex(ValueError,"terminal"):
