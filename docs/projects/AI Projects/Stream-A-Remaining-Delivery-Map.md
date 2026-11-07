@@ -2317,6 +2317,12 @@ retried. Content-free diagnosis shows all seven unsafe routes were shared
 local/model errors. The immediate offline successor is K3: a materially
 distinct hierarchical route-eligibility, ambiguity and sensitivity veto that
 must be frozen and pass public/development gates before any new B60 effect.
+Its first [source boundary](evidence/M3-K3-hierarchical-safety-source-boundary-2026-11-06.md)
+is now complete: the independent safety stage sees no final label IDs, exact
+semantic agreement is mandatory, and any disagreement abstains. The focused
+suite passes 11/11 and the complete K-family source discovery passes 132/132.
+The next offline item is its fixed development runner/scorer composition and
+content-free result contract; no workload or booking exists yet.
 
 The [post-development continuation card](evidence/M3-K2-post-development-continuation-card-2026-11-06.md)
 now fixes what happens after the 21:05 observation so the programme does not
