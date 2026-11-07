@@ -41,3 +41,9 @@ envelope with the frozen M5 scorer.
 
 The representative sanitized S0 fixture, its independent labels and the later
 qualified candidate collection remain separate gates.
+
+The matching [fixture preregistration](M5-K2-shadow-fixture-preregistration-2026-11-06.md)
+now fixes those gates before authoring: 60 unique cases, ten per family, no
+development/sealed overlap, distinct fixture custodian and label reviewer,
+labels frozen before candidate collection, and request digests only in public
+evidence. Its focused suite passes 4/4; no fixture has been created.

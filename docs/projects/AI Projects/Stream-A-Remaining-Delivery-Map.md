@@ -2429,6 +2429,13 @@ does not create the representative fixture, call a model or execute a route;
 independent fixture labels and qualified-candidate collection remain later
 gates.
 
+The associated [M5 fixture preregistration](evidence/M5-K2-shadow-fixture-preregistration-2026-11-06.md)
+now freezes 60 unique sanitized cases, ten per family, zero overlap with the
+development and sealed sets, distinct custody/review roles and labels hidden
+from candidate output. Its focused suite passes 4/4. Actual fixture creation,
+independent review and candidate collection remain conditional on K2 passing
+the earlier gates.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from
