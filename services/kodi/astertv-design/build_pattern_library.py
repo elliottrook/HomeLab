@@ -23,6 +23,10 @@ RUNTIME_ROOTS = [
     ROOT / "services/aster-agent/static/remote",
 ]
 ASSET_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
+PLAIN_COMPASS_32_DATA_URI = (
+    "data:image/png;base64,"
+    "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"
+)
 
 
 def load(name: str):
@@ -218,7 +222,8 @@ def games_tile(x: int, label: str, tokens: dict, *, focused: bool = False,
 
 def games_frame(title: str, body: str, tokens: dict) -> str:
     c = tokens["colors"]
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-label="{svg_escape(title)}">
+    xlink_namespace = ' xmlns:xlink="http://www.w3.org/1999/xlink"' if "xlink:" in body else ""
+    return f'''<svg xmlns="http://www.w3.org/2000/svg"{xlink_namespace} width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-label="{svg_escape(title)}">
 <defs><linearGradient id="page" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#302820"/><stop offset=".42" stop-color="{c['charcoal']}"/><stop offset="1" stop-color="{c['warm_white']}"/></linearGradient><linearGradient id="art" x1="0" y1="0" x2="1" y2="1"><stop stop-color="{c['jade']}"/><stop offset="1" stop-color="{c['champagne_gold']}"/></linearGradient></defs>
 <rect width="1920" height="1080" fill="url(#page)"/>{body}<text x="1840" y="1044" text-anchor="end" fill="{c['charcoal']}" font-family="sans-serif" font-size="16">AsterTV design candidate · synthetic</text></svg>'''
 
@@ -233,16 +238,12 @@ def games_page_render(page: dict, tokens: dict, state: str) -> str:
         filter_nodes.append(
             f'<rect x="{x}" y="60" width="204" height="56" rx="28" fill="{c["charcoal"]}" '
             f'stroke="{c["champagne_gold"]}" stroke-width="{4 if current else 2}"/>'
-            f'<text x="{x+102}" y="96" text-anchor="middle" fill="{c["warm_white"]}" '
+            f'<image data-brand-asset="plain-compass-32" x="{x+18}" y="72" width="32" height="32" '
+            f'xlink:href="{PLAIN_COMPASS_32_DATA_URI}"/>'
+            f'<text x="{x+122}" y="96" text-anchor="middle" fill="{c["warm_white"]}" '
             f'font-family="sans-serif" font-size="21">{label}</text>'
         )
-    rail = (
-        f'<rect x="62" y="188" width="82" height="650" rx="40" fill="{c["charcoal"]}" fill-opacity=".9"/>'
-        f'<circle cx="103" cy="245" r="20" fill="{c["champagne_gold"]}"/>'
-        f'<circle cx="103" cy="324" r="20" fill="{c["stone"]}"/>'
-        f'<circle cx="103" cy="403" r="20" fill="{c["stone"]}"/>'
-        f'<circle cx="103" cy="759" r="20" fill="{c["stone"]}"/>'
-    )
+    rail = ""
     if state == "service-offline":
         body = rail + "".join(filter_nodes) + (
             f'<rect x="360" y="260" width="1200" height="560" rx="34" fill="{c["charcoal"]}" fill-opacity=".94"/>'

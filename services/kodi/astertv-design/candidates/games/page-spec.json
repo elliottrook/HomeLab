@@ -32,7 +32,10 @@
   "layout": {
     "canvas": [1920, 1080],
     "safe_area": [72, 54, 1776, 972],
-    "side_rail": {"left": 62, "top": 188, "width": 82, "height": 650},
+    "side_rail": {
+      "status": "inherited-global-shell-not-defined-here",
+      "fixture": "omitted until the v4 shell assigns approved limestone-backed icons and destinations"
+    },
     "top_filters": {"left": 446, "top": 58, "height": 56, "items": ["Library", "Continue", "Platforms", "Requests"]},
     "hero": {"left": 184, "top": 164, "width": 1648, "height": 420, "text_safe_width": 760},
     "content_rails": {"left": 184, "top": 622, "width": 1648, "tile_width": 210, "tile_height": 296, "visible_tiles": 7},

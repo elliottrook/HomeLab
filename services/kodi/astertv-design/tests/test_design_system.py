@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import importlib.util
 import json
 import sys
@@ -83,6 +85,28 @@ class DesignSystemTests(unittest.TestCase):
             self.assertRegex(export["sha256"], r"^[0-9a-f]{64}$")
             self.assertEqual(len(export["dimensions"]), 2)
             self.assertTrue(export["export_recipe"])
+
+    def test_games_top_rail_uses_exact_approved_plain_compass_export(self):
+        rendered = BUILD.games_page_render(
+            next(page for page in BUILD.load("catalogue.json")["pages"] if page["id"] == "games"),
+            BUILD.load("tokens.json"),
+            "focus",
+        )
+        root = BUILD.ET.fromstring(rendered)
+        images = [
+            node for node in root.iter("{http://www.w3.org/2000/svg}image")
+            if node.attrib.get("data-brand-asset") == "plain-compass-32"
+        ]
+        self.assertEqual(len(images), 4)
+        self.assertNotIn('cx="103"', rendered)
+        for node in images:
+            self.assertEqual((node.attrib["width"], node.attrib["height"]), ("32", "32"))
+            href = node.attrib["{http://www.w3.org/1999/xlink}href"]
+            payload = base64.b64decode(href.split(",", 1)[1])
+            self.assertEqual(
+                hashlib.sha256(payload).hexdigest(),
+                "ebd08d8a6224120a0a8b873e1f469572578fe8167089d2baaa1d70f338642030",
+            )
 
     def test_button_focus_does_not_change_geometry(self):
         tokens = BUILD.load("tokens.json")

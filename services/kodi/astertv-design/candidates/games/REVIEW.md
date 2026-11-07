@@ -21,12 +21,17 @@ The main page prioritizes household play state:
 4. Your library.
 5. Requests only when proposals exist.
 
-The top filters are Library, Continue, Platforms, and Requests. Current context
-uses gold. Artwork focus is one continuous jade selection surface flowing from
-the narrow top/side reveal into the deeper title area; it is not a separate
-title pill plus border. The artwork keeps exactly the same position and size.
-Box art is 2:3, platform art is square, and missing art uses a quiet platform
-monogram.
+The top filters are Library, Continue, Platforms, and Requests. Each pill uses
+the exact approved 32×32 plain Aster compass export; current context uses gold.
+Artwork focus is one continuous jade selection surface flowing from the narrow
+top/side reveal into the deeper title area; it is not a separate title pill
+plus border. The artwork keeps exactly the same position and size. Box art is
+2:3, platform art is square, and missing art uses a quiet platform monogram.
+
+The earlier circles at the left edge were anonymous side-navigation
+placeholders, not controller or game-state indicators. They have been removed
+from the Games candidate. The global v4 shell owns that rail and must supply
+named destinations with approved limestone-backed icons before integration.
 
 ## State-dependent primary action
 
