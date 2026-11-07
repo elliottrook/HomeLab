@@ -2414,6 +2414,13 @@ Restart, fixed-root installation and automatic-routing activation remain
 separate gates; tools and repair remain out of scope. Its focused suite passes
 4/4 and no runtime effect was attempted.
 
+The corresponding [M7 deterministic scorer](evidence/M7-K2-operational-graduation-scorer-boundary-2026-11-06.md)
+is source-ready as well. It requires two independent 12-case normal-flow
+passes plus a separate six-case no-restart fallback exercise and combined
+healthy monitoring. Even exact success yields only an owner-acceptance
+candidate; release, deployment, tools and automatic routing remain off. Its
+focused suite passes 5/5.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from

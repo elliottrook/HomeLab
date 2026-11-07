@@ -38,3 +38,9 @@ or local fallback; and retains a 45-second candidate latency ceiling.
 The focused suite passes 4/4 and syntax compilation passes. This source work
 created no booking, runtime effect, deployment, route or model request. It also
 produces no UI or spoken output, so no design or Aster voice change is involved.
+
+The matching [deterministic scorer](M7-K2-operational-graduation-scorer-boundary-2026-11-06.md)
+is also source-frozen. It validates the two normal passes, distinct identities,
+one safe no-restart fallback exercise and combined monitoring, but can emit
+only a graduation candidate for owner acceptance. Its focused suite passes
+5/5; it cannot release or activate routing.
