@@ -21,12 +21,16 @@ the repository root could not resolve its sibling import; rerunning from its
 source directory passed 3/3 without a source change. The platform run covered
 all eight current `test_m3_k2*.py` modules.
 
-A separate broad platform regression now also passes all 52 current Lab Hours
-tests. Platform commit `90d99b4c` restores the two manifest-pinned fixed-card
+A separate broad platform regression now also passes all 52 Lab Hours tests
+for the 57-pin branch snapshot. Platform commit `90d99b4c` restores the two manifest-pinned fixed-card
 sources that were absent from the worktree and updates three stale tests to the
 current dispatcher, 57-pin release and retired-EPUB-scheduler baseline. Both
 restored source digests exactly match the pre-existing release manifest; no
-installed file or active booking was changed.
+installed file or active booking was changed. A separately owned booking then
+advanced the installed platform to a valid 58-pin successor. The authoritative
+K2 checker accepts that successor and reports the scheduled K2 transaction
+ready; the 57-pin branch snapshot is therefore historical source-closure
+evidence, not authority to overwrite the installed release.
 
 ## Boundary
 

@@ -2307,6 +2307,12 @@ recorded in the [November 6 milestone reconciliation](evidence/Stream-A-mileston
 | **5. Qualify one supervised repair class (later D4/SA4)** | Only an exact reversible fix can be proposed and, after Jason's specific approval, carried out. | Precondition/checkpoint, exact target and action, AI-PAM grant, independent postcheck, rollback, uncertain-outcome reconciliation and emergency stop. | **COMPLETE.** v10 performed one exact disposable-canary repair with a retained original checkpoint, one consumed grant, zero retries, one independent observer proof and all three registered postchecks passing. Terminal and cleanup evidence prove the target healthy, controls/exchange absent, lease ready and production healthy. Automatic repair authority, routing and promotion remain off. |
 | **6. Add low-resource automatic handover (M3–M6)** | Routine requests stay on deterministic/local paths; only requests that need stronger capability go to Codex or another approved provider, with privacy and cost controls. | Stable Decision/Capability contracts, representative routing labels, calibrated abstention, shadow comparison, measured latency/privacy/cost, and one evidence-backed promote-or-reject decision. The first route is read-only; a route never grants tools. | **K2 INSTALLED INACTIVE; DEVELOPMENT TRANSACTION SCHEDULED; ROUTING OFF.** K1 was rejected before effect because it overlapped the closed prompt-only whole-label family. K2's fixed shortlister places the correct label in 179/192 four-label sets (93.2%). Its strict arbitrator/parser, frozen consensus policy, content-free scorer, one-attempt journaled runner and exact accepted-9B runtime manifest pass 30/30 tests. Platform review corrected the production/private-listener endpoint contract and rebased the package onto the exact current 53-pin Lab Hours release. The 56-pin combined release is installed inactive with rollback retained. Authoritative booking `aster-stream-a-m3-k2-20261106-2000-r1` covers 20:00–21:00 America/Vancouver. A separate content-free reconciler passes its focused suite and the one-time post-window observation is scheduled for 21:05. The conditional sealed-evaluation admission boundary, non-authorizing M5 route selector and exact 60-case no-effect shadow scorer are source-ready; personal data cannot propose cloud egress, the first Codex proposal is read-only only and no proposed shadow route can execute. The next gate is the one development transaction and production-restoration proof. Sealed evaluation, tools and automatic routing remain off. |
 
+The [post-competing-booking readiness check](evidence/M3-K2-post-competing-booking-readiness-2026-11-06.md)
+now passes every standard gate. The predecessor booking finished failed-restored,
+its shared lock cleared, the lease is ready, and the valid installed 58-pin
+successor release retains the exact K2 runtime. The 20:00 transaction therefore
+remains scheduled; it has not been manually invoked or retried.
+
 The [K2 M6 decision boundary](evidence/M6-K2-promote-or-reject-decision-boundary-2026-11-06.md)
 is now source-ready before the candidate result exists. It binds complete
 development, independently custodied sealed-evaluation and no-effect shadow
@@ -2405,9 +2411,11 @@ passes 127/127 offline tests across the exact Stream A and platform heads. It
 covers development, sealed evaluation, no-effect shadow, release decision,
 reconciliation, session, bundle validation and inactive-install boundaries.
 This is integration evidence, not a runtime result or deployment.
-The broader platform source closure now also passes 52/52 Lab Hours tests at
-platform commit `90d99b4c`; its restored fixed-card source bytes match the
-already-pinned 57-file release without changing the installed platform.
+The platform branch's 57-pin source closure also passes 52/52 Lab Hours tests
+at platform commit `90d99b4c`. A separately owned restored booking subsequently
+advanced the installed platform to its valid 58-pin successor. The authoritative
+K2 checker accepts that successor and reports this booking ready; the 57-pin
+snapshot will not be used to overwrite the live release.
 
 The conditional [M7/SA5 operational-graduation preregistration](evidence/M7-K2-operational-graduation-preregistration-2026-11-06.md)
 is now also frozen before any K2 result. After a passing M6 decision it still
