@@ -52,6 +52,25 @@ modifying K2 to reinterpret the spent result would be invalid. A successor
 must be materially distinct and return to public/development evidence before
 any new independently booked effect.
 
+### Content-free successor diagnosis
+
+Aggregate label metadata shows all seven unsafe accepted routes came from
+agreement between K2's local first candidate and the model selection:
+
+- four unsupported-internal cases were accepted as change-request routes;
+- one ambiguous household-command case was accepted as a home-control route;
+- one unsupported-internal case was accepted as a home-control route; and
+- one unsupported-public case was accepted as a read-only-investigation route.
+
+The current consensus can accept shared local/model mistakes; its safety
+tightening helps only when the model independently chooses a stricter
+non-route label. The next source candidate is therefore **K3**, a materially
+distinct hierarchical safety-veto design. It must classify route eligibility,
+ambiguity and sensitivity independently of final label arbitration, refuse a
+route on any disagreement, and then demonstrate at least 116 accepted with
+zero unsafe false routes on public/development evidence. K3 must be frozen
+before any new private or B60 effect and may not inspect K2's sealed evaluation.
+
 ## Independent restoration postcheck
 
 - the lease is exactly `ready`;
@@ -76,5 +95,5 @@ any new independently booked effect.
 Do not install the conditional sealed two-host runtime, open the sealed
 evaluation, create a sealed booking, collect the M5 shadow set, make an M6
 decision or enable routing for K2. Continue autonomous offline successor
-selection from the frozen public/development contracts. Any future B60 effect
+selection through the K3 source boundary above. Any future B60 effect
 requires its own registered workload and authoritative Lab Hours booking.

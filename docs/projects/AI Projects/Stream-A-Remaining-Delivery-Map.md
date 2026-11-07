@@ -2313,7 +2313,10 @@ transaction has 192 requests, zero retries/errors and exact retained-result
 binding. Its frozen score records 110 accepted and seven unsafe false routes,
 so K2 cannot advance to sealed evaluation, M5 or M6. Production, schedules,
 lease and locks passed independent postchecks; the spent booking was not
-retried.
+retried. Content-free diagnosis shows all seven unsafe routes were shared
+local/model errors. The immediate offline successor is K3: a materially
+distinct hierarchical route-eligibility, ambiguity and sensitivity veto that
+must be frozen and pass public/development gates before any new B60 effect.
 
 The [post-development continuation card](evidence/M3-K2-post-development-continuation-card-2026-11-06.md)
 now fixes what happens after the 21:05 observation so the programme does not
