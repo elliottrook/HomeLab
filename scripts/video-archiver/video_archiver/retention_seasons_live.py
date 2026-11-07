@@ -154,6 +154,18 @@ def collect_season_paths(sonarr_db: Path, jellyfin_db: Path,
                 for scope in affected:
                     scope_holds[scope].add("unowned Jellyfin episode in series root")
         all_scopes = set(scope_paths) | set(scope_holds)
+        sonarr_by_jf_series = {jf_id: sonarr_id for sonarr_id, jf_id in matched_series.items()}
+        for path, (season_number, jf_series_id, _) in jf_episode_facts.items():
+            sonarr_id = sonarr_by_jf_series.get(jf_series_id)
+            if sonarr_id is None:
+                continue
+            if season_number is None:
+                affected = {scope for scope in all_scopes if scope[0] == sonarr_id}
+            else:
+                affected = {(sonarr_id, season_number)} & all_scopes
+            for scope in affected:
+                if path not in scope_paths[scope]:
+                    scope_identity_holds[scope].add("unowned Jellyfin episode in provider season")
         for scope in all_scopes:
             if not scope_holds[scope] and len(scope_season_ids[scope]) != 1:
                 scope_identity_holds[scope].add("season ancestor missing or inconsistent")

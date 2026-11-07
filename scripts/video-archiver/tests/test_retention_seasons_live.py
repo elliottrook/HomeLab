@@ -107,3 +107,12 @@ class SeasonPathTests(TestCase):
                 db.execute("UPDATE BaseItems SET IndexNumber=3 WHERE Id='season1'")
             wrong_season = collect_season_paths(sonarr, jellyfin, data)
             self.assertEqual(wrong_season.provider_certified_season_scopes, 0)
+            with sqlite3.connect(jellyfin) as db:
+                db.execute("UPDATE BaseItems SET IndexNumber=1 WHERE Id='season1'")
+                db.execute("""INSERT INTO BaseItems VALUES
+                    ('ep4','/media/other/stray.mkv',1,
+                     'MediaBrowser.Controller.Entities.TV.Episode','series','season1',NULL)""")
+            stray = collect_season_paths(sonarr, jellyfin, data)
+            self.assertEqual(stray.exact_season_scopes, 1)
+            self.assertEqual(stray.provider_certified_season_scopes, 0)
+            self.assertEqual(stray.identity_held_reasons['unowned Jellyfin episode in provider season'], 2)
