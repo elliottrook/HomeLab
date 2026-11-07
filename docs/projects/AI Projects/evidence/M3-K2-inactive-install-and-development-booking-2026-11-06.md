@@ -69,3 +69,19 @@ passes 11/11; the platform's combined K2 and refreshed reserved-runner suite
 passes 28/28. A one-time same-thread observation is scheduled for 21:05
 America/Vancouver, after the booked recovery reserve. It cannot invoke, retry,
 reschedule or promote K2.
+
+### 18:24 pre-window occupancy check
+
+A fresh standard checker run returned temporary `no_go` only because
+`/run/local-ai-lab-operation.lock` was legitimately present for claimed booking
+`b60-exclusive-20261106-day-r4`, owner `b60-stream-a`, workload
+`b60-qwen36-35b-failure-capture-v1`. The lock was created with that booking's
+claim at 18:13:11 and no process held an undisclosed flock. Its authoritative
+booking ends at 18:55, 65 minutes before K2's 20:00 start. The full-drain lock
+was absent; K2's booking, registry/release, dispatcher and lease checks all
+passed, and the authoritative 20:00–21:00 window still returns exactly K2 as
+reserved.
+
+Stream A did not remove or alter the other owner's lock. The exact next runtime
+check is to rerun readiness after that booking's normal restoration/release;
+K2 remains fail-closed if the operation lock is still present then.
