@@ -2,8 +2,8 @@
 
 ## Result
 
-The current 57-pin Lab Hours release is now source-exact in the platform
-worktree. A broad Lab Hours regression found that the manifest had advanced to
+The branch's 57-pin Lab Hours release is now source-exact in the platform
+worktree. A broad Lab Hours regression found that this branch manifest had advanced to
 the fixed-card-capture release while two source files were not represented by
 the checked-out tree and three tests still described the preceding dispatcher,
 release name and EPUB scheduler baseline.
@@ -31,3 +31,11 @@ passes 52/52. `git diff --check` also passes.
 This was an offline source reconciliation only. It did not claim or alter a
 booking, acquire a lease, change a lock, install a file, invoke a workload,
 stop or restart a service, or change a model or route.
+
+After this commit, a separately owned B60 booking completed restored and left
+the installed platform on its valid 58-pin successor release. The authoritative
+K2 readiness checker accepts that installed release and the scheduled K2
+runtime, but this 57-pin branch snapshot must not be described as the live
+current release or used to overwrite it. Its value is exact source closure for
+the preceding branch baseline; later platform work must rebase on the 58-pin
+installed source or its owning branch.
