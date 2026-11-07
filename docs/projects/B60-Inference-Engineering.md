@@ -1000,3 +1000,11 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 Not started. The project is active under the bounded Stream A envelope above.
 Production load remains blocked by incomplete M1 preflight and rollback gates;
 the explicitly excluded operations remain individually gated.
+
+## 20:12 actual calendar reconciliation
+
+K2 completed/restored/released20:07:07 (terminalfe36f82eeb1547e14260b646e24f49fae4bbc86bcf82a873ea7ec4a8a73ec86c); current accepted backend metadata health and sole GPU-holder checks pass, base30 and News/public registry pins are unchanged, kernel clean from the original incident cutoff. A read-only hash check first used a nonexistent binary path and refused; the corrected exact documented path passes. No AI/service effect occurred in either check.
+
+R8 conditional capacity was actually cancelled untouched20:12:27. Its protected start−900 margin overlapped R7's full recovery window, as independently confirmed by the actual reservation method. R7's complete window now has only its own reservation. No earlier full qualification+recovery window fits before News's21:05 protected boundary with final readiness time. No timer/card/profile/candidate package was ever installed for R8. Do not replay or relabel its cancelled record. A distinct model reservation must be made after actual R7 restoration/release, with current full availability and backup margins.
+
+A distinct, reviewed nonexclusive read-only archive preparation can run after R7 is actually installed/armed and K2 restored, during20:42–21:00 with full1,140s budget and hard21:19 cutoff. It claims/books no AI trial. The23:22 freshness projection is conditional, not model admission; future experiment gates remain unchanged. New faults, active owners or insufficient capacity still refuse.

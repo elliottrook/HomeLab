@@ -1,0 +1,16 @@
+{
+  "active_left_margin_seconds": 900,
+  "actual_method_ast_exercised": true,
+  "after_only_r8_removal": [
+    "R7"
+  ],
+  "no_live_effects": true,
+  "observed_epoch": 1794021103,
+  "r7_fullwindow_conflicts": [
+    "R7",
+    "R8"
+  ],
+  "schema": "b60-independent-booking-margin-review.v1",
+  "source_sha256": "7c0995f8eb96c83a37f6b5fe13b9118387f89fa26b290398bd9e59ad3e46dfdd",
+  "terminal_right_margin_seconds": 900
+}
