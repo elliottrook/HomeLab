@@ -2,11 +2,11 @@
   "files": [
     {
       "authority": "home-assistant",
-      "bytes": 10668,
+      "bytes": 11157,
       "destination": "/config/custom_components/aster_room_bridge/__init__.py",
       "mode": "0644",
       "scope": "external",
-      "sha256": "0ab1cad5bda6754c50fae11c6752df04d2d26bcb137796bbfd34f94b1e43db77"
+      "sha256": "66843f8b304f59cc298dfd722fdb947ab797a8c927cd8c1366d0d671462adba3"
     },
     {
       "authority": "home-assistant",

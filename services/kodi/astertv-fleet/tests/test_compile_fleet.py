@@ -37,6 +37,8 @@ class FleetCompilerTests(unittest.TestCase):
             self.assertFalse(by_id["astertv-guest"]["deployed"])
             self.assertEqual(by_id["astertv-guest"]["lifecycle"], "candidate")
             self.assertEqual(by_id["astertv-guest"]["overlays"], [])
+            self.assertIn("bedroom-equipment-bridge", by_id["astertv-bedroom"]["overlays"])
+            self.assertIn("bedroom-physical-equipment-keys", by_id["astertv-bedroom"]["overlays"])
 
     def test_compilation_is_byte_deterministic(self):
         with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:

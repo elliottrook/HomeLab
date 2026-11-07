@@ -60,6 +60,18 @@ PHYSICAL_SPEC = importlib.util.spec_from_file_location(
 )
 PHYSICAL_MODULE = importlib.util.module_from_spec(PHYSICAL_SPEC)
 PHYSICAL_SPEC.loader.exec_module(PHYSICAL_MODULE)
+BEDROOM_PHYSICAL_SPEC = importlib.util.spec_from_file_location(
+    "bedroom_physical_equipment_materializer",
+    ROOT / "materialize_bedroom_physical_equipment.py",
+)
+BEDROOM_PHYSICAL_MODULE = importlib.util.module_from_spec(BEDROOM_PHYSICAL_SPEC)
+BEDROOM_PHYSICAL_SPEC.loader.exec_module(BEDROOM_PHYSICAL_MODULE)
+BEDROOM_BRIDGE_SPEC = importlib.util.spec_from_file_location(
+    "bedroom_equipment_bridge_materializer",
+    ROOT / "materialize_bedroom_equipment_bridge.py",
+)
+BEDROOM_BRIDGE_MODULE = importlib.util.module_from_spec(BEDROOM_BRIDGE_SPEC)
+BEDROOM_BRIDGE_SPEC.loader.exec_module(BEDROOM_BRIDGE_MODULE)
 GATEWAY_BUNDLE_SPEC = importlib.util.spec_from_file_location(
     "family_gateway_test_bundle",
     ROOT / "build_family_gateway_test_bundle.py",
@@ -115,6 +127,36 @@ class MaterializationTests(unittest.TestCase):
             self.assertIn(",{})".format(control), keymap)
         for forbidden in ("<select>", "<return>", "<left>", "<right>", "<up>", "<down>"):
             self.assertNotIn(forbidden, keymap)
+
+    def test_bedroom_physical_keys_are_owner_observed_and_exact(self):
+        files, manifest = BEDROOM_PHYSICAL_MODULE.render()
+        self.assertEqual(set(files), {BEDROOM_PHYSICAL_MODULE.RELATIVE})
+        self.assertEqual(manifest["scope"], "astertv-bedroom")
+        self.assertEqual(BEDROOM_PHYSICAL_MODULE.EXPECTED_CODES, {
+            "volume_down": 114, "volume_up": 115,
+            "mute_toggle": 113, "power_toggle": 116,
+        })
+        keymap = files[BEDROOM_PHYSICAL_MODULE.RELATIVE][0].decode()
+        self.assertEqual(keymap.count("RunScript("), 4)
+        for control in ("volume_up", "volume_down", "mute_toggle", "power_toggle"):
+            self.assertIn(",{})".format(control), keymap)
+        for forbidden in ("<select>", "<return>", "<left>", "<right>", "<up>", "<down>"):
+            self.assertNotIn(forbidden, keymap)
+
+    def test_bedroom_wake_bridge_is_fixed_mac_and_argument_free(self):
+        files, manifest = BEDROOM_BRIDGE_MODULE.render()
+        wake_path = "external/opnsense/usr/local/sbin/astertv-bedroom-lg-wake"
+        self.assertIn(wake_path, files)
+        wake = files[wake_path][0].decode()
+        self.assertIn("vlan0.30 74:90:bc:ab:a6:c8", wake)
+        self.assertIn('(\"192.168.30.255\", 9)', wake)
+        self.assertNotIn("$1", wake)
+        self.assertNotIn("sys.argv", wake)
+        init_path = "external/home-assistant/config/custom_components/aster_room_bridge/__init__.py"
+        self.assertIn(init_path, files)
+        component = files[init_path][0].decode()
+        self.assertIn('"shell_command.astertv_bedroom_lg_wake"', component)
+        self.assertEqual(manifest["id"], "bedroom-equipment-bridge")
 
     def test_family_restart_outputs_are_deterministic_and_manifest_bound(self):
         artifact = ROOT.parent / "dist/astertv-v2.0.7-release-2026-10-31.tar.gz"

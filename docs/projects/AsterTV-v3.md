@@ -1975,7 +1975,7 @@ The following work is deliberately separated from autonomous Stream A. Code,
 fixtures, manifests and rollback may be prepared without Jason, but none of
 these items may be marked accepted from automation alone:
 
-1. **Family complete; Bedroom open.** Capture the exact Kodi/Linux names or numeric codes emitted by Volume Up,
+1. **Complete.** Capture the exact Kodi/Linux names or numeric codes emitted by Volume Up,
    Volume Down, Mute and Power on the physical AsterTV remote for each hardware
    profile. Confirm ordinary navigation, Select, Back and playback keys remain
    unchanged after the candidate keymap is installed.
@@ -1983,11 +1983,14 @@ these items may be marked accepted from automation alone:
    Onkyo, then one explicit TCL power transition with the expected single CEC
    receiver transition. Confirm the equipment's original remotes still recover
    the room during a Home Assistant outage.
-3. **Open.** Bedroom: observe one LG volume step down/up and mute/unmute reaching the
+3. **Complete.** Bedroom: observe one LG volume step down/up and mute/unmute reaching the
    attached receiver/soundbar through ARC/eARC SIMPLINK/CEC, with no duplicate
    step, then confirm explicit LG power and physical recovery. Record the
    attached audio model when convenient; it is a recovery/inventory fact, not
-   a prerequisite for this TV-mediated test.
+   a prerequisite for this TV-mediated test. The Vizio Dolby Digital soundbar,
+   exact G20 codes, one-step volume, mute, power-off and fixed-MAC dual-format
+   Wi-Fi wake were owner-accepted on 2026-11-07. Evidence:
+   `docs/projects/evidence/AsterTV-v3-M11-Bedroom-physical-controls-and-wake-2026-11-07.md`.
 4. **Family complete; Bedroom open.** Select comfortable per-room volume targets for Movie, Television, YouTube,
    Music, Podcast/News and Book/Audiobook after the safe ramp/nighttime policy
    is staged. Automation must not invent household levels.
@@ -2038,6 +2041,10 @@ of those observation or promotion boundaries.
   complete-composition deployment, reboot and normal-use playback remain open.
   Evidence:
   `docs/projects/evidence/AsterTV-v3-M11-Bedroom-headless-idle-soak-2026-11-06.md`.
+  Bedroom physical equipment control and wake are also accepted and reconciled
+  into named composition overlays; full-composition deployment, reboot and two
+  normal-use runs remain open. Evidence:
+  `docs/projects/evidence/AsterTV-v3-M11-Bedroom-physical-controls-and-wake-2026-11-07.md`.
 - [ ] Obtain explicit Family promotion approval after Bedroom acceptance and
   confirm playback is idle.
 - [ ] Deploy independently to Family, preserving its v2 checkpoint, account
@@ -2345,6 +2352,7 @@ explicit user acceptance.
 | 2026-11-06 | Passed the Bedroom headless idle soak | Owner authorized a soak while the television and sound system stayed off. Twenty fail-fast samples over 1,049 seconds sent no AV/camera/equipment command and required idle playback, active services, zero restarts and Wi-Fi power saving off. | Every sample passed; load `0.07–0.50`, memory `14,658,200–14,693,852 KiB`, temperature `41–45 °C`, signal `-56 to -54 dBm`, 0% packet loss, clean 535-file guard and zero Kodi/Beszel restart. Full composition, reboot, audible normal-use, equipment and volume acceptance remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M11-Bedroom-headless-idle-soak-2026-11-06.md`. |
 | 2026-11-06 | Revalidated the silent fleet and corrected Remote parity | The content-free Remote check initially treated Family's generated Python bytecode cache as deployed-source drift; all four reviewed source files already matched stable custody. The corrected probe excludes runtime caches and now passes gateway, room, custody and manifest checks on Family, Bedroom and Jen. | Five focused tests and the integrated 76-file gate pass at `ca9eb961…609ef`; 93 secret-scan files, 15 pages and 127 controls have zero gaps. The formal fleet observations remain honestly stale rather than being timestamp-refreshed from partial checks. Evidence: `docs/projects/evidence/AsterTV-v3-M11-silent-fleet-revalidation-2026-11-06.md`. |
 | 2026-11-07 | Passed the Bedroom promotion preflight without changing the appliance | Two independent builds reproduced the 17-file tree and all frozen bundle/plan/guard/SBOM hashes. Bedroom was idle and clean; Wi-Fi, monitoring, audio policy and every required content-free external dependency passed through its authorized control path. | The promotion runbook's display gate remains closed, so no bundle was transferred or applied. Bedroom TV/audio availability, physical remote codes, CEC/mute/power proof, room volume targets, reboot and two normal-use runs remain. Evidence: `docs/projects/evidence/AsterTV-v3-M11-Bedroom-promotion-preflight-2026-11-07.md`. |
+| 2026-11-07 | Accepted Bedroom physical equipment controls and reliable LG Wi-Fi wake | Captured the exact G20 codes, restored the missing reviewed equipment helper, enabled only the six room-scoped equipment actions, and proved one-step volume, mute/unmute and LG/Vizio power-off. Raw routed wake was unreliable, so the final path uses one source-restricted forced SSH command and a fixed-MAC helper that emits native plus UDP-broadcast magic packets only on the IoT interface. | Owner observed the final physical Power cycle wake the LG/Vizio chain in about one second. Named Bedroom keymap and external-bridge overlays, exact rule/helper assertions, rollback checkpoints and regression tests now protect the room-specific behavior. Bedroom volume targets, full composition deployment, reboot and two normal-use runs remain open. Evidence: `docs/projects/evidence/AsterTV-v3-M11-Bedroom-physical-controls-and-wake-2026-11-07.md`. |
 
 ## Close-out
 

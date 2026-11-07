@@ -19,7 +19,7 @@
     {"authority": "aster-agent", "key": "remote.gateway.sha256", "expected": "a064cfc5ea275e2f28c3c5d8e98cb2e3743a9a284ffe08760d91913304bb8518", "sensitive": false},
     {"authority": "aster-agent", "key": "remote.ui.app-js-sha256", "expected": "c4b3b371c18a7b3f53dad298ad8440f303b47f8c9c96cafbbb5c4c364e0df52b", "sensitive": false},
     {"authority": "aster-agent", "key": "equipment-key.mode", "expected": "0600", "sensitive": false},
-    {"authority": "home-assistant", "key": "component.aster-room-bridge.init-sha256", "expected": "213a813d3c6b71ab5b6208223060bd24ed7f4a030a247aebe43bc0b012d95fac", "sensitive": false},
+    {"authority": "home-assistant", "key": "component.aster-room-bridge.init-sha256", "expected": "66843f8b304f59cc298dfd722fdb947ab797a8c927cd8c1366d0d671462adba3", "sensitive": false},
     {"authority": "home-assistant", "key": "aster-room-bridge.contract", "expected": "HA-Family:family:TCL-power:Onkyo-volume-mute:six-actions:outbound-only", "sensitive": false},
     {"authority": "home-assistant", "key": "aster-room-bridge.key-mode", "expected": "0600", "sensitive": false},
     {"authority": "opnsense", "key": "rule.5e3a94b5-8059-45f7-b45c-f3b7484c4cf1", "expected": "192.168.20.11>192.168.70.10:9120/tcp:loaded", "sensitive": false}

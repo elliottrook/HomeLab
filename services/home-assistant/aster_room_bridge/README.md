@@ -12,21 +12,23 @@ action allowlist. Family uses:
 - receiver volume/mute: `media_player.tx_rz30`;
 - actions: explicit power on/off, volume up/down and mute on/off.
 
-Bedroom uses its accepted LG webOS entity for both power and volume/mute. The
-LG is expected to forward volume and mute through the existing HDMI ARC/eARC
-SIMPLINK/CEC chain; this is not accepted until one bounded live step proves
-fresh feedback, one audible transition and no duplicate CEC command.
+Bedroom uses its accepted LG webOS entity for power and volume/mute. The LG
+forwards volume, mute and power-off through the HDMI ARC/eARC SIMPLINK/CEC
+chain. Because routed raw wake was unreliable over Wi-Fi, Bedroom's optional
+`power_on_service` is restricted by schema to
+`shell_command.astertv_bedroom_lg_wake`. That command uses a source-restricted,
+forced-command SSH key to invoke one fixed-MAC OPNsense helper, which emits
+both native and UDP-broadcast magic packets on only the IoT interface.
 
 The client key lives in a separate regular file with no group/other permission.
 It is not placed in YAML, source, logs or the browser. Home Assistant initiates
 all traffic to `/v1/remote/equipment/{poll,ack}`; the component opens no inbound
 port and registers no general Home Assistant service.
 
-An empty action allowlist is the explicit content-only mode. It permits the
-same authenticated room identity to read volatile content state but cannot
-queue a power, volume or mute command. This mode is intended for Bedroom's
-disabled-first rollout while its LG feedback and TV-mediated CEC path remain
-unaccepted.
+An empty action allowlist remains the explicit content-only rollout mode. It
+permits the same authenticated room identity to read volatile content state
+but cannot queue a power, volume or mute command. Bedroom used this mode before
+its independent physical acceptance; future rooms must do the same.
 
 The repository candidate also polls `/v1/remote/equipment/content` with that
 same room-scoped identity. The response is a strict, 30-second content-free
@@ -35,8 +37,9 @@ screensaver state and ephemeral session/sequence metadata. It is retained only
 in `hass.data` as current volatile state: the component creates no sensor,
 event, recorder row or viewing-history log. Duplicate reads are idempotent;
 stale, malformed, replayed or wrong-room observations fail closed. Family's
-coordinated path and exact profile were accepted live on 2026-11-06; Bedroom
-remains disabled pending its independent deployment gate.
+coordinated path and exact profile were accepted live on 2026-11-06. Bedroom's
+physical controls and wake path were owner-accepted on 2026-11-07; its release
+composition still follows the normal fleet promotion gate.
 
 Rolling upgrades preserve the accepted controls. A new Kodi client retries
 once without the optional content envelope when the predecessor gateway rejects
@@ -80,12 +83,11 @@ aster_room_bridge:
       key_file: /config/.aster-private/aster-room-bridge-bedroom.key
       power_entity: media_player.lg_webos_tv_oled55g4sub_dccqljr
       volume_entity: media_player.lg_webos_tv_oled55g4sub_dccqljr
-      actions: []
+      power_on_service: shell_command.astertv_bedroom_lg_wake
+      actions: *equipment_actions
 ```
 
-Do not enable the Bedroom row or create its key until the gateway checkpoint,
-exact Home-Assistant-to-gateway network path, configuration rollback and
-restart recovery plan are all verified. Keep `actions: []` during the
-disabled-first content-state rollout. Its TV-mediated CEC path still requires
-independent physical acceptance before a later, separately accepted change may
-expose equipment controls.
+Bedroom's key, fixed entity bindings, power service and OPNsense forced command
+are deployment-owned mutable state and are never bundled as credentials. A
+promotion must verify their exact modes, hashes, source restrictions and
+rollback checkpoints before replacing the accepted composition.

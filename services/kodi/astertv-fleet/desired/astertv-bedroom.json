@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "eab64fd2a4d67c54b9f89080ba410952ffabf237aeafd072f50709be2d9bb3b7",
+  "composition_sha256": "df99481a5073c2a2ea4af462c93dc213f9d68cd28c86f4d3e8e9fd1a4cad1aa2",
   "deployed": true,
   "device_id": "astertv-bedroom",
   "external_integrations": [
@@ -20,10 +20,12 @@
   "lifecycle": "production",
   "overlays": [
     "release-guard-v1",
+    "remote-client-v3",
+    "bedroom-equipment-bridge",
+    "bedroom-physical-equipment-keys",
     "bedroom-stereo",
     "bedroom-wifi-stability",
     "beszel-client-v1",
-    "remote-client-v3",
     "tv-details-v3"
   ],
   "ownership": {
@@ -31,6 +33,21 @@
       "layer": "device-audio",
       "owner": "bedroom-stereo",
       "resource": "kodi/settings/bedroom-stereo-output"
+    },
+    "external-integration:home-assistant/aster-room-bridge-bedroom": {
+      "layer": "external-integration",
+      "owner": "bedroom-equipment-bridge",
+      "resource": "home-assistant/aster-room-bridge-bedroom"
+    },
+    "external-integration:opnsense/bedroom-lg-wake-relay": {
+      "layer": "external-integration",
+      "owner": "bedroom-equipment-bridge",
+      "resource": "opnsense/bedroom-lg-wake-relay"
+    },
+    "kodi-keymap:kodi/bedroom-physical-equipment-keymap": {
+      "layer": "kodi-keymap",
+      "owner": "bedroom-physical-equipment-keys",
+      "resource": "kodi/bedroom-physical-equipment-keymap"
     },
     "kodi-presentation:kodi/plugin.video.astersearch/tv-person-search": {
       "layer": "kodi-presentation",
@@ -89,6 +106,70 @@
     }
   },
   "payloads": {
+    "bedroom-equipment-bridge": [
+      {
+        "bytes": 4794,
+        "path": "services/kodi/astertv-fleet/materialize_bedroom_equipment_bridge.py",
+        "sha256": "e85a1386888fbd999ea477ab8d25e0e1a1b0ed1643bf66b2985c698b777b35fd"
+      },
+      {
+        "bytes": 11157,
+        "path": "services/kodi/astertv-fleet/materialized/bedroom-equipment-bridge/external/home-assistant/config/custom_components/aster_room_bridge/__init__.py",
+        "sha256": "66843f8b304f59cc298dfd722fdb947ab797a8c927cd8c1366d0d671462adba3"
+      },
+      {
+        "bytes": 9162,
+        "path": "services/kodi/astertv-fleet/materialized/bedroom-equipment-bridge/external/home-assistant/config/custom_components/aster_room_bridge/content_policy.py",
+        "sha256": "98453ad7ed0d54735e5b9ed5bf25eb4af9706e1aabe63ce330b1d916d06e8a9d"
+      },
+      {
+        "bytes": 2366,
+        "path": "services/kodi/astertv-fleet/materialized/bedroom-equipment-bridge/external/home-assistant/config/custom_components/aster_room_bridge/contract.py",
+        "sha256": "ea42ebedcb59703b93d592b40da90d7796b65ab213a10f7caf671b61f131434f"
+      },
+      {
+        "bytes": 207,
+        "path": "services/kodi/astertv-fleet/materialized/bedroom-equipment-bridge/external/home-assistant/config/custom_components/aster_room_bridge/manifest.json",
+        "sha256": "a0caa81000a091c6758de8e8135611970ecee3756d295c81aa3aaa40068c960a"
+      },
+      {
+        "bytes": 606,
+        "path": "services/kodi/astertv-fleet/materialized/bedroom-equipment-bridge/external/opnsense/usr/local/sbin/astertv-bedroom-lg-wake",
+        "sha256": "939fe37af159d5d703e822e48df82f5f097c27c3798888b89f30cce9d27c1973"
+      },
+      {
+        "bytes": 2649,
+        "path": "services/kodi/astertv-fleet/materialized/bedroom-equipment-bridge/materialization-manifest.json",
+        "sha256": "33f895148359544d3998ac05fb68adaa73a3b48e9987ce4057cbe8c3451c9991"
+      },
+      {
+        "bytes": 606,
+        "path": "services/kodi/astertv-fleet/recovery/bedroom/astertv-bedroom-lg-wake",
+        "sha256": "939fe37af159d5d703e822e48df82f5f097c27c3798888b89f30cce9d27c1973"
+      }
+    ],
+    "bedroom-physical-equipment-keys": [
+      {
+        "bytes": 4023,
+        "path": "services/kodi/astertv-fleet/materialize_bedroom_physical_equipment.py",
+        "sha256": "b1635c3c8c8d1501f6af20b072f5d6e35e3f7bb5372a2e4bdeb60114b94403ab"
+      },
+      {
+        "bytes": 539,
+        "path": "services/kodi/astertv-fleet/materialized/bedroom-physical-equipment-keys/keymaps/z-astertv-v3-m7-bedroom-equipment.xml",
+        "sha256": "c09bef238457986f677d360b1cfa1d436495f5b952543ad75601ab66fb64bcfb"
+      },
+      {
+        "bytes": 963,
+        "path": "services/kodi/astertv-fleet/materialized/bedroom-physical-equipment-keys/materialization-manifest.json",
+        "sha256": "ece91c55d340b01d72174817a8a0ae75c345bafd025139010dce66ef8cd94ca7"
+      },
+      {
+        "bytes": 1140,
+        "path": "services/kodi/astertv-fleet/peripherals/captures/astertv-bedroom-g20-20261107.json",
+        "sha256": "081133919f11a7963e966e7cd6ff015e827d0fd8cf491553c4eb4e21229cd823"
+      }
+    ],
     "bedroom-stereo": [
       {
         "bytes": 374,
@@ -308,7 +389,10 @@
   "schema_version": 1,
   "secret_refs": [
     "audiobookshelf-bedroom-client",
+    "bedroom-equipment-client",
     "beszel-agent-per-device",
+    "home-assistant-bedroom-wol",
+    "home-assistant-room-bridge-bedroom",
     "jellyfin-bedroom-client",
     "remote-bedroom-client",
     "remote-client-per-device",
@@ -316,15 +400,17 @@
     "youtube-bedroom-session"
   ],
   "source_hashes": {
-    "devices/astertv-bedroom.yaml": "16ac59e732fc27caff1922f10e3f828a1cc7c4c6d3f0fcfca3c62e2027fc7abf",
+    "devices/astertv-bedroom.yaml": "b0f4b0a8dbeea78e632336e5937f5a2158a5fb8206f47e9a753a3e2b12f31b03",
     "hardware/intel-i5-9500t-bedroom.yaml": "8130fbcc20787e40edabea3ccd36416e0a9829be188e95d9a2c1aad1d3f7e37b",
+    "overlays/bedroom-equipment-bridge.yaml": "7fcdf277d5ccc81f66a9df1251f20fbab4f54bf2327b5b72dc523227e157787d",
+    "overlays/bedroom-physical-equipment-keys.yaml": "1a1a7af63dc8c687fc358b98d1e6d2c97f4e865e12f5a23be2828b18386eed88",
     "overlays/bedroom-stereo.yaml": "63dbfd498b2469428d9429a5adab9a101cb3323f1fe72a9d9b1b67f52948e2a9",
     "overlays/bedroom-wifi-stability.yaml": "a3b0a07925e4f54cefc3bd7e09f4c0aec760fe38f26b2ef2ba99a43efbdbafd9",
     "overlays/beszel-client-v1.yaml": "24ca5d1ca9a592b5150ab7846e6ded8690f654d8405d4a01524fb8ffe0241a90",
     "overlays/release-guard-v1.yaml": "a3afc7db25e4c295b3f4bd944f32e4cf47fa0ccefae2cbf182edbed38214c038",
     "overlays/remote-client-v3.yaml": "40267e62ec475ce2318ea20bf5f8771943a46b30b60ace77ac91ea96a8cc948a",
     "overlays/tv-details-v3.yaml": "717c1f44e8ee12804cd58f2513e275292c28bbd3eb50dfb2d22cd9ec17a6b03e",
-    "peripherals/bedroom-lg-stereo.yaml": "8671fce7a3c4a587ae9247465289f408824c7ae1dc5e8a451ee53002438d78ab",
+    "peripherals/bedroom-lg-stereo.yaml": "f12e3f3f5621102a9a5fc70b5f4d9bb04f3ea3696a6c1ee6b886db1ae952f0ec",
     "releases/astertv-v2.0.7-2026-10-31.yaml": "204a004c9b099cedfbaa49ed5eed55185c0d33cd10d9d06942409fc7dd8add36"
   }
 }

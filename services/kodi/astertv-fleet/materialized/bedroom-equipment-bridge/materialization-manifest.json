@@ -1,0 +1,79 @@
+{
+  "files": [
+    {
+      "authority": "home-assistant",
+      "bytes": 11157,
+      "destination": "/config/custom_components/aster_room_bridge/__init__.py",
+      "mode": "0644",
+      "scope": "external",
+      "sha256": "66843f8b304f59cc298dfd722fdb947ab797a8c927cd8c1366d0d671462adba3"
+    },
+    {
+      "authority": "home-assistant",
+      "bytes": 9162,
+      "destination": "/config/custom_components/aster_room_bridge/content_policy.py",
+      "mode": "0644",
+      "scope": "external",
+      "sha256": "98453ad7ed0d54735e5b9ed5bf25eb4af9706e1aabe63ce330b1d916d06e8a9d"
+    },
+    {
+      "authority": "home-assistant",
+      "bytes": 2366,
+      "destination": "/config/custom_components/aster_room_bridge/contract.py",
+      "mode": "0644",
+      "scope": "external",
+      "sha256": "ea42ebedcb59703b93d592b40da90d7796b65ab213a10f7caf671b61f131434f"
+    },
+    {
+      "authority": "home-assistant",
+      "bytes": 207,
+      "destination": "/config/custom_components/aster_room_bridge/manifest.json",
+      "mode": "0644",
+      "scope": "external",
+      "sha256": "a0caa81000a091c6758de8e8135611970ecee3756d295c81aa3aaa40068c960a"
+    },
+    {
+      "authority": "opnsense",
+      "bytes": 606,
+      "destination": "/usr/local/sbin/astertv-bedroom-lg-wake",
+      "mode": "0755",
+      "scope": "external",
+      "sha256": "939fe37af159d5d703e822e48df82f5f097c27c3798888b89f30cce9d27c1973"
+    }
+  ],
+  "id": "bedroom-equipment-bridge",
+  "kind": "astertv-materialized-overlay",
+  "mutable_state": [
+    {
+      "authority": "home-assistant",
+      "bundled": false,
+      "path": "/config/.ssh/astertv_bedroom_wol",
+      "sensitive": true
+    },
+    {
+      "authority": "home-assistant",
+      "bundled": false,
+      "path": "/config/.aster-private/aster-room-bridge-bedroom.key",
+      "sensitive": true
+    },
+    {
+      "authority": "home-assistant",
+      "bundled": false,
+      "sensitive": false,
+      "state": "Bedroom room row plus fixed shell_command"
+    },
+    {
+      "authority": "opnsense",
+      "bundled": false,
+      "sensitive": false,
+      "state": "rule 2c486e0a-6db5-4a31-9bb0-bf512dd12a01 and forced-command public key"
+    }
+  ],
+  "recovery": {
+    "home_assistant_component": "/config/custom_components/aster_room_bridge/__init__.py.astertv-bedroom-wol-direct-20261107.bak",
+    "home_assistant_configuration": "/config/configuration.yaml.astertv-bedroom-wol-relay-20261107.bak",
+    "opnsense_authorized_keys": "/root/.ssh/authorized_keys.astertv-bedroom-lg-dualwake-20261107.bak",
+    "opnsense_config": "/conf/backup/config-astertv-bedroom-wol-before-20261107.xml"
+  },
+  "schema_version": 1
+}

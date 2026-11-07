@@ -1,6 +1,6 @@
 {
   "channel": "production",
-  "composition_sha256": "a09ef2b5974a464738069caeb9fccab44c1feefc9d20763b83eb84bd92a79411",
+  "composition_sha256": "8ba10827cec320a3357ea9ceb198fa377f5cee9e26640edbb6d85bcbfbfc51dc",
   "deployed": true,
   "device_id": "astertv-family",
   "external_integrations": [
@@ -156,12 +156,12 @@
       {
         "bytes": 6568,
         "path": "services/kodi/astertv-fleet/materialize_family_equipment_bridge.py",
-        "sha256": "5ed8bf7e070bf4f41856e7cf48fed30703cb44309067fc181fcc0f5b146b0655"
+        "sha256": "e8856b024f36d66d475d6e0ce47a235d7db49c7d9e65391a4b283006ec984773"
       },
       {
-        "bytes": 10668,
+        "bytes": 11157,
         "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/external/config/custom_components/aster_room_bridge/__init__.py",
-        "sha256": "0ab1cad5bda6754c50fae11c6752df04d2d26bcb137796bbfd34f94b1e43db77"
+        "sha256": "66843f8b304f59cc298dfd722fdb947ab797a8c927cd8c1366d0d671462adba3"
       },
       {
         "bytes": 9162,
@@ -226,7 +226,7 @@
       {
         "bytes": 4600,
         "path": "services/kodi/astertv-fleet/materialized/family-equipment-bridge/materialization-manifest.json",
-        "sha256": "0d1751806443964be6dc5dd83aead317ea26d84970ed9f37e47d1bb329371731"
+        "sha256": "93afabc906ea81e504a78f2bf761f5cd36d468d9f6e0c83ff4b2065788b95eed"
       }
     ],
     "family-kodi-restart": [
@@ -539,7 +539,7 @@
     "hardware/intel-n95-family.yaml": "53ae62f6c3363356c390454e07219f18b50f12e4c87946eeaa0db04864f9f0ec",
     "overlays/beszel-client-v1.yaml": "24ca5d1ca9a592b5150ab7846e6ded8690f654d8405d4a01524fb8ffe0241a90",
     "overlays/family-dolby-hdr.yaml": "9b57d3153ef87bc98449892035040fc50a34a607c80ca373cd8b716c61109b5b",
-    "overlays/family-equipment-bridge.yaml": "fe2e2276e88c0c79e597afd4bdf9eed2a99d067ad5f633c276b56578a3ab3b78",
+    "overlays/family-equipment-bridge.yaml": "dee8f1d4982326e84de005ac3d8689b74a7fe65e2508e1503c70ede23b6015dd",
     "overlays/family-kodi-restart.yaml": "9901c11256920a09b1cd351f1b71c1ce65cfd164b09fe18f004455c4b696b521",
     "overlays/family-media-lifecycle.yaml": "0e6a77c62363e32ceaa70c801d07a7a5b79d297929abe99344c631ab02503e61",
     "overlays/family-physical-equipment-keys.yaml": "0a366a487e3459403dddd6c07598c4c0b6a25f2fa3a600caf374f779df6dbed7",

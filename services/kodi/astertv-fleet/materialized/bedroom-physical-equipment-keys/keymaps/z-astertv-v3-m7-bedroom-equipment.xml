@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<keymap>
+  <global>
+    <keyboard>
+      <volume_up>RunScript(special://home/addons/service.asterremote/equipment.py,volume_up)</volume_up>
+      <volume_down>RunScript(special://home/addons/service.asterremote/equipment.py,volume_down)</volume_down>
+      <volume_mute>RunScript(special://home/addons/service.asterremote/equipment.py,mute_toggle)</volume_mute>
+      <power>RunScript(special://home/addons/service.asterremote/equipment.py,power_toggle)</power>
+    </keyboard>
+  </global>
+</keymap>

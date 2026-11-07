@@ -51,6 +51,9 @@ ROOM_SCHEMA = vol.Schema({
     vol.Required("power_entity"): cv.entity_id,
     vol.Required("volume_entity"): cv.entity_id,
     vol.Required("actions"): vol.All(cv.ensure_list, [vol.In(EQUIPMENT_ACTIONS)]),
+    vol.Optional("power_on_service"): vol.In({
+        "shell_command.astertv_bedroom_lg_wake",
+    }),
     vol.Optional("content_volume"): VOLUME_PROFILE_SCHEMA,
 })
 CONFIG_SCHEMA = vol.Schema({
@@ -83,6 +86,7 @@ class RoomBridge:
             config["power_entity"], config["volume_entity"],
             frozenset(config["actions"]),
         )
+        self.power_on_service = config.get("power_on_service")
         self.session = async_get_clientsession(hass)
         self.content_state = CurrentState()
         self.content_supported = True
@@ -209,9 +213,14 @@ class RoomBridge:
                 if not isinstance(request_id, str) or not isinstance(action, str):
                     raise ValueError("equipment-command-invalid")
                 try:
-                    call = self.contract.service_call(action)
-                    await self.hass.services.async_call(
-                        call.domain, call.service, call.data, blocking=True)
+                    if action == "equipment.power_on" and self.power_on_service:
+                        domain, service = self.power_on_service.split(".", 1)
+                        await self.hass.services.async_call(
+                            domain, service, {}, blocking=True)
+                    else:
+                        call = self.contract.service_call(action)
+                        await self.hass.services.async_call(
+                            call.domain, call.service, call.data, blocking=True)
                     outcome = "completed"
                 except ValueError:
                     outcome = "denied"

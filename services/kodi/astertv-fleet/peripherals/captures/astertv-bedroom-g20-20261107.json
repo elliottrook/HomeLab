@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "kind": "astertv-physical-equipment-keys",
+  "hostname": "AsterTV-Bedroom",
+  "device": {
+    "name": "HAOBO Technology USB Composite Device Keyboard",
+    "usb_vid_pid": "4842:0001",
+    "capture_event_path": "/dev/input/event4"
+  },
+  "observed": {
+    "volume_down": {"linux_name": "KEY_VOLUMEDOWN", "linux_code": 114},
+    "volume_up": {"linux_name": "KEY_VOLUMEUP", "linux_code": 115},
+    "mute_toggle": {"linux_name": "KEY_MUTE", "linux_code": 113},
+    "power_toggle": {"linux_name": "KEY_POWER", "linux_code": 116}
+  },
+  "bindings": {
+    "volume_up": {"kind": "named", "value": "volume_up"},
+    "volume_down": {"kind": "named", "value": "volume_down"},
+    "mute_toggle": {"kind": "named", "value": "volume_mute"},
+    "power_toggle": {"kind": "named", "value": "power"}
+  },
+  "acceptance": {
+    "date": "2026-11-07",
+    "owner_observed_capture": true,
+    "equipment_control": "Owner accepted 2026-11-07: one-step volume, mute/unmute, LG/Vizio power-off and restricted dual-format Wi-Fi wake",
+    "navigation_preserved_by": "existing Bedroom navigation keymap remains outside this overlay"
+  }
+}

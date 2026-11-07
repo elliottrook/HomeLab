@@ -14,6 +14,8 @@
     "release-guard-v1",
     "tv-details-v3",
     "remote-client-v3",
+    "bedroom-equipment-bridge",
+    "bedroom-physical-equipment-keys",
     "beszel-client-v1",
     "bedroom-wifi-stability",
     "bedroom-stereo"
@@ -26,5 +28,5 @@
     "remote-bedroom-client", "jellyfin-bedroom-client", "youtube-bedroom-session",
     "seerr-bedroom-client", "audiobookshelf-bedroom-client"
   ],
-  "local_deviation": "Bedroom stereo PCM with AC3/EAC3 passthrough and Wi-Fi stability only"
+  "local_deviation": "Bedroom stereo PCM with AC3/EAC3 passthrough, Wi-Fi stability, accepted G20 equipment keys and fixed-MAC LG wake relay"
 }

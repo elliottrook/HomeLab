@@ -5,11 +5,11 @@
   "label": "Bedroom LG stereo PCM and Dolby Digital chain",
   "facts": {
     "display": "LG TV SSCR2",
-    "soundbar": "model not yet recorded",
+    "soundbar": "Vizio Dolby Digital soundbar (exact model not yet recorded)",
     "port": "HDMI 0",
     "output_contract": "stereo PCM with AC3/EAC3 passthrough; DTS/TrueHD/DTS-HD disabled",
     "controls": ["LG webOS power", "LG webOS volume/mute via ARC/eARC SIMPLINK/CEC"],
-    "physical_remote_mapping": "pending exact key capture and owner CEC acceptance",
-    "control_authority": "Home Assistant capability bridge; state-aware explicit actions only"
+    "physical_remote_mapping": "Owner accepted 2026-11-07: G20 4842:0001 KEY_VOLUMEDOWN 114, KEY_VOLUMEUP 115, KEY_MUTE 113 and KEY_POWER 116; LG forwards volume/mute and power-off to the Vizio chain, while power-on uses the fixed-MAC restricted OPNsense dual-format Wi-Fi wake relay",
+    "control_authority": "Home Assistant capability bridge; state-aware explicit actions only; Bedroom power-on is pinned to shell_command.astertv_bedroom_lg_wake and forced SSH command /usr/local/sbin/astertv-bedroom-lg-wake"
   }
 }

@@ -1,0 +1,30 @@
+{
+  "capture": {
+    "path": "services/kodi/astertv-fleet/peripherals/captures/astertv-bedroom-g20-20261107.json",
+    "sha256": "081133919f11a7963e966e7cd6ff015e827d0fd8cf491553c4eb4e21229cd823"
+  },
+  "files": [
+    {
+      "bytes": 539,
+      "destination": "/storage/.kodi/userdata/keymaps/z-astertv-v3-m7-bedroom-equipment.xml",
+      "mode": "0644",
+      "scope": "astertv-bedroom",
+      "sha256": "c09bef238457986f677d360b1cfa1d436495f5b952543ad75601ab66fb64bcfb"
+    }
+  ],
+  "id": "bedroom-physical-equipment-keys",
+  "kind": "astertv-materialized-overlay",
+  "mutable_state": [
+    {
+      "bundled": false,
+      "path": "/storage/.aster-private/astertv-standby.json",
+      "sensitive": false
+    }
+  ],
+  "renderer": {
+    "path": "services/kodi/astertv-v3/remote_client/build_physical_equipment_keymap.py",
+    "sha256": "ab2d048ad9c1feac023ec262b4add565cd1e5f0751348cb57a6a835940927d5e"
+  },
+  "schema_version": 1,
+  "scope": "astertv-bedroom"
+}

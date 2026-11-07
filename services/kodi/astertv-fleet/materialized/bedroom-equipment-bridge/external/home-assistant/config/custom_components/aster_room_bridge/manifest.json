@@ -1,0 +1,8 @@
+{
+  "domain": "aster_room_bridge",
+  "name": "Aster Room Bridge",
+  "version": "0.1.0",
+  "documentation": "https://git.elliottrook.com/jason/homelab",
+  "iot_class": "local_polling",
+  "requirements": []
+}

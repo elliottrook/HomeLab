@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "kind": "overlay",
+  "id": "bedroom-equipment-bridge",
+  "owner": "fleet-engineering",
+  "layer": "external-integration",
+  "compatible_releases": ["astertv-v2.0.7-2026-10-31"],
+  "dependencies": ["remote-client-v3"],
+  "targets": ["astertv-bedroom"],
+  "owns": [
+    "home-assistant/aster-room-bridge-bedroom",
+    "opnsense/bedroom-lg-wake-relay"
+  ],
+  "payload_sources": [
+    "services/kodi/astertv-fleet/materialized/bedroom-equipment-bridge",
+    "services/kodi/astertv-fleet/materialize_bedroom_equipment_bridge.py",
+    "services/kodi/astertv-fleet/recovery/bedroom/astertv-bedroom-lg-wake"
+  ],
+  "payload_status": "complete",
+  "payload_blockers": [],
+  "apply_strategy": "preserve-and-verify",
+  "assertions": [
+    {"authority": "home-assistant", "key": "component.aster-room-bridge.init-sha256", "expected": "66843f8b304f59cc298dfd722fdb947ab797a8c927cd8c1366d0d671462adba3", "sensitive": false},
+    {"authority": "home-assistant", "key": "aster-room-bridge.bedroom-contract", "expected": "HA-Bedroom:bedroom:LG-power-volume-mute:six-actions:fixed-power-on-service", "sensitive": false},
+    {"authority": "home-assistant", "key": "shell-command.astertv-bedroom-lg-wake", "expected": "forced-ssh:192.168.20.1:fixed-key:strict-host-key", "sensitive": false},
+    {"authority": "opnsense", "key": "helper.astertv-bedroom-lg-wake.sha256", "expected": "939fe37af159d5d703e822e48df82f5f097c27c3798888b89f30cce9d27c1973", "sensitive": false},
+    {"authority": "opnsense", "key": "rule.2c486e0a-6db5-4a31-9bb0-bf512dd12a01", "expected": "192.168.20.11>opt3ip:22/tcp:sequence-1690:loaded", "sensitive": false},
+    {"authority": "opnsense", "key": "authorized-key.astertv-bedroom-wol", "expected": "from-192.168.20.11:forced-/usr/local/sbin/astertv-bedroom-lg-wake:no-forwarding-no-pty", "sensitive": false}
+  ],
+  "secret_refs": [
+    "bedroom-equipment-client",
+    "home-assistant-room-bridge-bedroom",
+    "home-assistant-bedroom-wol"
+  ],
+  "rollback_ref": "HA configuration/component checkpoints and OPNsense config/authorized_keys checkpoints from 2026-11-07",
+  "tests": [
+    "services/home-assistant/aster_room_bridge/tests",
+    "services/kodi/astertv-fleet/tests/test_materialization.py"
+  ]
+}

@@ -27,6 +27,12 @@ class ComponentSourceTests(unittest.TestCase):
         self.assertNotIn('command.get("entity', SOURCE)
         self.assertNotIn('command.get("service', SOURCE)
 
+    def test_bedroom_wake_service_is_fixed_and_power_on_only(self):
+        self.assertIn('"shell_command.astertv_bedroom_lg_wake"', SOURCE)
+        self.assertIn('action == "equipment.power_on" and self.power_on_service', SOURCE)
+        self.assertIn('self.power_on_service.split(".", 1)', SOURCE)
+        self.assertNotIn('command.get("power_on_service")', SOURCE)
+
     def test_content_state_is_outbound_polled_and_volatile_only(self):
         self.assertIn('self.url + "/content"', SOURCE)
         self.assertIn("PlaybackObservation.parse", SOURCE)
