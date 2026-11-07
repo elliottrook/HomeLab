@@ -2406,6 +2406,14 @@ covers development, sealed evaluation, no-effect shadow, release decision,
 reconciliation, session, bundle validation and inactive-install boundaries.
 This is integration evidence, not a runtime result or deployment.
 
+The conditional [M7/SA5 operational-graduation preregistration](evidence/M7-K2-operational-graduation-preregistration-2026-11-06.md)
+is now also frozen before any K2 result. After a passing M6 decision it still
+requires two independent normal-operator passes, one degraded/fallback recovery
+pass, healthy monitoring, documented limits and explicit owner acceptance.
+Restart, fixed-root installation and automatic-routing activation remain
+separate gates; tools and repair remain out of scope. Its focused suite passes
+4/4 and no runtime effect was attempted.
+
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from
