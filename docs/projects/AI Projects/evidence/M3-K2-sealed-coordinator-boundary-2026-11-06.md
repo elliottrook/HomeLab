@@ -42,6 +42,12 @@ Two independent, non-B60 probes used alternate ports and no private content:
 This proves the coordinator's two loopback tunnel directions. It does not
 prove or authorize the future private model listener on port 11436.
 
+A fresh read-only recheck before the booked K2 development transaction also
+confirmed that the Mac mini's existing `macbook` SSH alias authenticates in
+BatchMode to `Jasons-Mac.local` as the expected non-root user. No tunnel,
+listener or remote file was created by that recheck. The required control
+direction is therefore currently available without a new access grant.
+
 ## Verification
 
 - coordinator/wrapper/relay suite: 11/11 passed
