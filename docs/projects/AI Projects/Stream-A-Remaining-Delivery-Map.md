@@ -2390,8 +2390,12 @@ validates that exact archive without extraction, including its outer digest,
 canonical member set and metadata, non-authorizing manifest, preregistration
 digest and all thirteen source pins; its focused suite passes 4/4. This removes
 ad hoc cross-host source copying from the later platform review. A reversible
-inactive installer remains deliberately open until the booked development
-transaction is a restored pass.
+host-local inactive installer is now source-frozen at platform commit
+`020c3db3`: it validates before writing, installs only through a private staged
+atomic rename, retains an absent-state checkpoint and refuses rollback of any
+changed tree. Its focused suite and an exact disposable install/rollback pass.
+The two-host packet and fixed-root installation remain deliberately open until
+the booked development transaction is a restored pass.
 
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free

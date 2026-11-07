@@ -41,10 +41,18 @@ compilation passes and validation of the exact archive returns 13 sources,
 `private_inputs_included=false`, `effect_authorized=false` and
 `authority=not-granted`.
 
+Platform commit `020c3db3` adds the reversible host-local inactive installer.
+It is inert without an explicit operation, installs only into an absent target
+through a private staging directory and atomic rename, retains a private
+absent-state checkpoint, and rereads every installed byte. Rollback refuses a
+changed or uncertain tree and removes only the exact validated fourteen-file
+target. Its focused tests pass 4/4; an exact install-and-rollback proof passed
+inside a disposable directory without touching either fixed runtime root.
+
 ## Remaining gate
 
-The archive is only a review/staging candidate. Its identity and content are
-now independently bound, but a reversible inactive installer remains open.
-No host may unpack or activate it for an effect unless the K2 development gate
-is a restored pass and the later workload has its own admissible Lab Hours
-booking.
+The archive and reversible inactive-installer source are now independently
+bound. The two-host inactive-install packet and fixed-root execution remain
+open. No host may unpack or activate it in a fixed runtime root unless the K2
+development gate is a restored pass and the later workload has its own
+admissible Lab Hours booking.
