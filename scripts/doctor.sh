@@ -426,6 +426,30 @@ check_proxmox_guest_backup_age() {
     fi
 }
 
+check_aster_games() {
+    local state
+
+    if ! state="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+            printf "guest=%s\n" "$(pct status 129 2>/dev/null | sed -n "s/^status: //p")"
+            printf "beszel=%s\n" "$(pct exec 129 -- systemctl is-active beszel-agent.service 2>/dev/null || true)"
+            printf "doctor="
+            pct exec 129 -- python3 /opt/aster-games/ops/doctor.py 2>/dev/null || true
+        '
+    )"; then
+        warn "Unable to check Aster Games"
+        return
+    fi
+
+    if grep -qx 'guest=running' <<< "$state" &&
+       grep -qx 'beszel=active' <<< "$state" &&
+       grep -q 'doctor={"ok": true' <<< "$state"; then
+        pass "Aster Games services, safety gate, storage, and Beszel healthy"
+    else
+        fail "Aster Games infrastructure health check failed"
+    fi
+}
+
 check_truenas_guest_mirror_age() {
     local display="$1"
     local vmid="$2"
@@ -2217,6 +2241,7 @@ check_nut
 category "Applications & Services"
 
 check_aster
+check_aster_games
 check_aster_speech
 check_epub_narration
 check_aster_notifications
@@ -2266,6 +2291,7 @@ check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
 check_proxmox_guest_backup_age "Aster Wiki LXC 113" 113 30 lxc
 check_proxmox_guest_backup_age "Aster Speech LXC 116" 116 30 lxc
+check_proxmox_guest_backup_age "Aster Games LXC 129" 129 30 lxc
 check_truenas_guest_mirror_age "Aster Speech LXC 116" 116 30 lxc /mnt/Recovery/guests/homelab-proxmox-guests
 check_idrive_relay
 if config_backup_result="$(python3 "$REPO/scripts/check-configuration-backups.py")"; then

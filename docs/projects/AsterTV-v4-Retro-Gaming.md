@@ -1,7 +1,7 @@
 # AsterTV v4 retro gaming
 
-> Status: Active — Stream A; M2 deployment packet accepted, live infrastructure
-> and all AsterTV work gated
+> Status: Active — Stream A; M3 protected server infrastructure deployed,
+> synthetic integration/recovery next, and all AsterTV work gated
 >
 > Owner: Jason
 >
@@ -296,11 +296,11 @@ Stream A authorization covers its bounded changes.
 
 ### M3 — Deploy protected server infrastructure
 
-- [ ] Create the approved guest/container and datasets.
-- [ ] Deploy pinned services with secrets in the approved source-local custody.
-- [ ] Add private TLS/Authentik ingress; prove no public or broad LAN exposure.
-- [ ] Register NetBox, Doctor, Beszel, backups, and operational ownership.
-- [ ] Build and pin the local broker image by digest.
+- [x] Create the approved guest/container and datasets.
+- [x] Deploy pinned services with secrets in the approved source-local custody.
+- [x] Add private TLS/Authentik ingress; prove no public or broad LAN exposure.
+- [x] Register NetBox, Doctor, Beszel, backups, and operational ownership.
+- [x] Build and pin the local broker image by digest.
 
 Gate: all services are healthy and private; acquisition and device installation
 remain disabled.
@@ -431,14 +431,14 @@ No backup task may be declared complete until an isolated restore is proven.
 
 | Integration | Current decision / required evidence |
 |---|---|
-| Firewall/VLAN | No new route now; later allow only proxy/admin and explicit service dependencies |
-| DNS/TLS | Private names only; exact records/certificates after placement selection |
-| Authentik/proxy | Required for human admin UIs; broker uses separate device auth |
-| DHCP/IPAM/NetBox | No allocation yet; create/reconcile during approved deployment |
-| Storage/TrueNAS | Separate protected state, canonical library, staging, and DAT roots; exact datasets pending discovery |
-| ARR services | Prowlarr and SABnzbd only, scoped credentials/category; no existing behavior change |
-| Backups | Contract exists; job and isolated proof pending |
-| Doctor/Beszel | Probe exists; live registration pending |
+| Firewall/VLAN | NPM-only TCP 8080/6868 rules plus an LXC nftables pre-DNAT guard; broker remains internal-only |
+| DNS/TLS | Both Pi-holes resolve the two private names to NPM; public resolvers return no record; wildcard TLS verifies |
+| Authentik/proxy | Two owner-bound forward-auth applications and NPM hosts active; broker uses separate device auth later |
+| DHCP/IPAM/NetBox | Static LXC 129 identity reconciled in NetBox as `192.168.20.38/24`, VLAN 20 |
+| Storage/TrueNAS | `Media/Games` (2 TiB quota), dedicated staging, NFS squashing, and 30-day daily snapshots active |
+| ARR services | Scoped Prowlarr/SAB credentials are source-local; ROMarr acquisition and auto-import remain disabled |
+| Backups | All-guests job covers LXC 129; initial 2026-11-06 archive passed; isolated app restore remains M4 |
+| Doctor/Beszel | Content-silent semantic Doctor check passes and Beszel reports `Aster Games` up |
 | Homepage | Optional admin-only tile after private ingress acceptance |
 | Wiki/mirror | Required before handover; mirror receives sanitized operations only |
 | Aster/AI admin | No active capability; future read/propose only, source-local broker, execution disabled |
@@ -511,6 +511,36 @@ Infrastructure completion alone is a milestone, not AsterTV v4 completion.
   and directed milestone pushes followed by continued execution.
 - The AsterTV gate, public-ingress exclusion, credential controls, destructive
   stop conditions, and direct-GitHub-push prohibition remain unchanged.
+
+### 2026-11-06 — M3 protected server infrastructure deployed
+
+- Created TrueNAS dataset `Media/Games` with a 2 TiB quota, dedicated empty
+  staging, UID/GID 568 NFS squashing, host-restricted exports, and a 30-day
+  daily snapshot task. Proxmox NFSv4.2 mount units use hard mounts with
+  `nosuid,nodev,noexec` and passed synthetic write/remove validation.
+- Deployed unprivileged Debian 13 LXC 129 `aster-games` at
+  `192.168.20.38/24`, MAC `BC:24:11:54:B1:E5`, with 4 vCPU, 6144 MiB RAM,
+  96 GiB root, and the two exact bind mounts. NetBox's idempotent identity
+  check now passes for the VM, interface, VLAN, address, and two UI services.
+- Deployed digest-pinned RomM 5.4.0, ROMarr 1.8.0, MariaDB 11.8.5 and Valkey
+  8.1.4 plus local broker image digest
+  `sha256:011797a392d211d96626e54d67433d3fc41760e7047e53f9b0880afa99163929`.
+  All five health checks pass. Credentials remain root-readable and
+  source-local; the transfer of existing ARR keys used one-time RSA-OAEP
+  encryption and left no transfer artifacts.
+- Added owner-only Authentik forward auth and wildcard-TLS NPM hosts for
+  `games.elliottrook.com` and `romarr.elliottrook.com`. Both private DNS
+  servers resolve them to NPM, certificate verification succeeds, and
+  unauthenticated requests receive the expected Authentik 302. Public DNS has
+  no records. OPNsense and the LXC nftables guard allow only NPM to reach the
+  direct UI ports; a non-NPM LAN probe was blocked while NPM received HTTP 200.
+- Registered and verified the Beszel 0.18.7 agent, added the content-silent
+  semantic probe to central Doctor, and completed an initial 1.08 GiB Proxmox
+  snapshot archive. The enabled all-guests job provides ongoing coverage.
+- ROMarr indexer/download-client enable flags and auto-import remain false;
+  the broker has no host listener; device installation remains disabled; the
+  release gate still reports `v4_client_work_allowed=false`. No game content
+  was acquired, imported, enumerated, or exposed.
 
 ## Closeout summary
 

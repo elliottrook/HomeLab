@@ -1,0 +1,25 @@
+[Unit]
+Description=Beszel Agent Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+EnvironmentFile=/etc/beszel-agent/agent.env
+ExecStart=/opt/beszel-agent/beszel-agent
+User=beszel
+SupplementaryGroups=systemd-journal
+Restart=on-failure
+RestartSec=5
+StateDirectory=beszel-agent
+KeyringMode=private
+LockPersonality=yes
+ProtectClock=yes
+ProtectHome=read-only
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectSystem=strict
+RemoveIPC=yes
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

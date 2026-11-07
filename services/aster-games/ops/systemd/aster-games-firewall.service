@@ -1,0 +1,15 @@
+[Unit]
+Description=Aster Games private administration ingress policy
+Wants=network-online.target
+After=network-online.target
+Before=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=-/usr/sbin/nft delete table inet aster_games
+ExecStart=/usr/sbin/nft -f /etc/aster-games/nftables.conf
+ExecStop=-/usr/sbin/nft delete table inet aster_games
+
+[Install]
+WantedBy=multi-user.target

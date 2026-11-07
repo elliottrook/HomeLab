@@ -14,11 +14,12 @@ The stack separates four responsibilities:
 - **Aster Games Broker** exposes a small read/proposal API. It cannot approve
   or execute proposals in this release.
 
-All upstream images are version- and manifest-digest-pinned. The web UIs bind
-only to loopback in the candidate compose file. State and service networks are
-internal; only ROMarr and RomM join a separate outbound bridge for approved
-ARR/metadata dependencies. A private reverse proxy and Authentik may be added
-during the separately approved live-deployment milestone; no public ingress is
+All upstream images are version- and manifest-digest-pinned. The repository
+defaults bind web UIs to loopback. The accepted live deployment binds them to
+the server address behind an nftables pre-DNAT guard, NPM-only OPNsense rules,
+private split DNS, wildcard TLS, and owner-bound Authentik forward auth. State
+and service networks remain internal; only ROMarr and RomM join a separate
+outbound bridge for approved ARR/metadata dependencies. No public ingress is
 permitted.
 
 ## Safety gate
@@ -45,9 +46,10 @@ docker compose --env-file /secure/path/aster-games.env \
 ```
 
 Do not use the example environment as a deployment environment. The live
-milestone must first allocate storage, identity, DNS, firewall, monitoring,
-backup, and NetBox records and obtain the Stream M approval recorded in the
-project document.
+deployment must first allocate storage, identity, DNS, firewall, monitoring,
+backup, and NetBox records under the Stream A authorization recorded in the
+project document. Those M3 controls are active as of 2026-11-06; acquisition
+and device installation remain disabled while M4 synthetic recovery work runs.
 
 ## Storage contract
 
